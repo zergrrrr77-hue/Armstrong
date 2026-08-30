@@ -10,6 +10,9 @@ var amount: int = 1
 func _ready() -> void:
 	add_to_group("interactable")
 
+func get_prompt_text() -> String:
+	return "E 키를 눌러 %s 채집" % resource_type
+
 func interact() -> void:
 	Inventory.add_resource(resource_type, amount)
 	queue_free()

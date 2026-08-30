@@ -16,7 +16,7 @@ func _ready() -> void:
 func _on_body_entered(body: Node) -> void:
 	if body.is_in_group("player_ship"):
 		_ship_in_range = true
-		HUD.show_prompt("Press E to land on %s" % planet_display_name)
+		HUD.show_prompt("E 키를 눌러 %s에 착륙" % planet_display_name)
 
 func _on_body_exited(body: Node) -> void:
 	if body.is_in_group("player_ship"):

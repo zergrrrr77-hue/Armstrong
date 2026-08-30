@@ -15,7 +15,7 @@ func _ready() -> void:
 	_setup_launch_pad()
 	_setup_resources(planet_data)
 	_setup_player()
-	HUD.show_controls("WASD: Move   E: Collect resources / Launch")
+	HUD.show_controls("WASD: 이동   E: 자원 채집 / 이륙")
 	HUD.hide_prompt()
 	HUD.update_inventory()
 

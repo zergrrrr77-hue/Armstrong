@@ -16,6 +16,10 @@ GameState="*res://autoload/GameState.gd"
 Inventory="*res://autoload/Inventory.gd"
 HUD="*res://scenes/UI/HUD.tscn"
 
+[gui]
+
+theme/custom_font="res://assets/fonts/NanumGothic-Regular.ttf"
+
 [rendering]
 
 renderer/rendering_method="forward_plus"

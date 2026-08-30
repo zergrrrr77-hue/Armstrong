@@ -11,7 +11,7 @@ func _ready() -> void:
 	_setup_sun()
 	_setup_planets()
 	_setup_spaceship()
-	HUD.show_controls("W/S: Thrust   A/D: Turn   E: Land near a planet")
+	HUD.show_controls("W/S: 전진/후진   A/D: 방향 전환   E: 행성 근처에서 착륙")
 	HUD.hide_prompt()
 	HUD.update_inventory()
 

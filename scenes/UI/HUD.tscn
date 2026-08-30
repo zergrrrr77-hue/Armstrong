@@ -29,7 +29,7 @@ theme_override_font_sizes/font_size = 16
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 1
-text = "Inventory:"
+text = "인벤토리:"
 
 [node name="PromptLabel" type="Label" parent="."]
 anchor_left = 0.5

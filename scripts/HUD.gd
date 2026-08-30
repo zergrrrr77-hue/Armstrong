@@ -27,10 +27,10 @@ func update_inventory() -> void:
 	_on_inventory_changed()
 
 func _on_inventory_changed() -> void:
-	var lines: PackedStringArray = ["Inventory:"]
+	var lines: PackedStringArray = ["인벤토리:"]
 	var resources = Inventory.get_all()
 	if resources.is_empty():
-		lines.append("(empty)")
+		lines.append("(비어 있음)")
 	else:
 		for key in resources.keys():
 			lines.append("%s: %d" % [key, resources[key]])

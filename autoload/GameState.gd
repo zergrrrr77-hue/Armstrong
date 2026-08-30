@@ -13,7 +13,7 @@ var planets: Array = [
 		"color": Color(0.72, 0.32, 0.18),
 		"orbit_radius": 30.0,
 		"orbit_angle_deg": 0.0,
-		"resource_name": "Iron Ore",
+		"resource_name": "철광석",
 		"resource_color": Color(0.55, 0.4, 0.3),
 	},
 	{
@@ -22,7 +22,7 @@ var planets: Array = [
 		"color": Color(0.68, 0.85, 0.95),
 		"orbit_radius": 55.0,
 		"orbit_angle_deg": 130.0,
-		"resource_name": "Ice Crystal",
+		"resource_name": "얼음 결정",
 		"resource_color": Color(0.75, 0.95, 1.0),
 	},
 	{
@@ -31,7 +31,7 @@ var planets: Array = [
 		"color": Color(0.35, 0.12, 0.08),
 		"orbit_radius": 80.0,
 		"orbit_angle_deg": 250.0,
-		"resource_name": "Rare Mineral",
+		"resource_name": "희귀 광물",
 		"resource_color": Color(0.85, 0.65, 0.15),
 	},
 ]

@@ -41,7 +41,11 @@ scripts/
   LaunchPad.gd                  행성 표면에서 이륙 트리거
   ResourceNode.gd                채집 가능한 자원 오브젝트
   HUD.gd                          UI 갱신 로직
+assets/
+  fonts/NanumGothic-Regular.ttf   한글 UI 렌더링용 폰트 (SIL OFL 1.1, assets/fonts/OFL.txt 참고)
 ```
+
+UI 텍스트(조작 안내, 인벤토리, 상호작용 프롬프트)는 한글로 표시됩니다. Godot의 기본 내장 폰트는 한글 글리프를 포함하지 않으므로, `project.godot`의 `gui/theme/custom_font` 설정으로 `assets/fonts/NanumGothic-Regular.ttf`를 프로젝트 기본 폰트로 지정해 두었습니다.
 
 씬 파일(.tscn)은 스크립트만 붙은 최소 루트 노드로 두고, 실제 지오메트리(태양·행성·지형·자원·우주선·플레이어)는 각 스크립트의 `_ready()`에서 코드로 생성합니다. 행성이나 자원을 추가/수정하려면 `autoload/GameState.gd`의 `planets` 배열만 바꾸면 됩니다.
 

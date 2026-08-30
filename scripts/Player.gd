@@ -51,6 +51,6 @@ func _update_nearest_interactable() -> void:
 			nearest = node
 	_nearest_interactable = nearest
 	if nearest != null:
-		HUD.show_prompt("Press E to interact")
+		HUD.show_prompt(nearest.get_prompt_text())
 	else:
 		HUD.hide_prompt()
