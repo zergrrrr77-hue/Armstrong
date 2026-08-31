@@ -16,7 +16,7 @@
     canvas.width = Math.round(W * dpr);
     canvas.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    groundY = H * 0.72;
+    groundY = H * (W < H ? 0.55 : 0.72);
     excavator.x = clamp(excavator.x, MARGIN, W - MARGIN);
     for (const obj of objects) obj.x = clamp(obj.x, MARGIN, W - MARGIN);
   }
