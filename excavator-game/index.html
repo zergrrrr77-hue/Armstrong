@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>꼬마 굴착기 놀이터</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game-root">
+    <canvas id="game-canvas"></canvas>
+
+    <div id="star-counter" aria-hidden="true">
+      <span class="star-icon">⭐</span>
+      <span id="star-count">0</span>
+    </div>
+
+    <div id="controls">
+      <div id="move-buttons">
+        <button id="btn-left" class="round-btn move-btn" aria-label="왼쪽으로 이동">◀</button>
+        <button id="btn-right" class="round-btn move-btn" aria-label="오른쪽으로 이동">▶</button>
+      </div>
+      <button id="btn-action" class="round-btn action-btn" aria-label="부수기 밀기 파기">⚡</button>
+    </div>
+
+    <div id="clear-banner" class="hidden">참 잘했어요! 🎉</div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
