@@ -20,6 +20,18 @@
   </header>
 
   <main class="app-main">
+    <!-- 타이핑하는 즉시(엔터 없이) 제목/내용에서 찾아주는 검색창 -->
+    <input
+      type="search"
+      id="search-input"
+      class="search-input"
+      placeholder="🔍 제목이나 내용으로 검색"
+      aria-label="메모 검색"
+    />
+
+    <!-- 지금까지 쓴 태그들이 여기 버튼으로 나열돼요. 누르면 그 태그가 붙은 메모만 보여요. -->
+    <div class="tag-filter" id="tag-filter"></div>
+
     <div class="toolbar">
       <label class="sort-label">
         정렬
@@ -32,11 +44,8 @@
       <p class="memo-count" id="memo-count"></p>
     </div>
 
-    <!-- 메모가 하나도 없을 때만 이 문구가 보여요 (JS가 hidden 속성을 껐다 켰다 함) -->
-    <p class="empty-state" id="empty-state">
-      아직 메모가 없어요.<br />
-      오른쪽 아래 + 버튼을 눌러 첫 메모를 남겨보세요!
-    </p>
+    <!-- 메모가 없을 때(또는 검색/태그 조건에 맞는 게 없을 때) 이 문구가 보여요 -->
+    <p class="empty-state" id="empty-state"></p>
 
     <div class="memo-list" id="memo-list"></div>
   </main>
@@ -57,6 +66,15 @@
       <label class="field">
         내용
         <textarea id="memo-content-input" rows="6" placeholder="자유롭게 적어보세요"></textarea>
+      </label>
+
+      <label class="field">
+        태그
+        <input
+          type="text"
+          id="memo-tags-input"
+          placeholder="쉼표로 구분해서 입력 (예: 아이디어, 할일)"
+        />
       </label>
 
       <div class="dialog-actions">

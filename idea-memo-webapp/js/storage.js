@@ -6,10 +6,13 @@
 (() => {
   const STORAGE_KEY = "idea-memo-webapp:memos";
 
+  // 태그 기능을 추가하기 전(2단계)에 저장된 메모에는 tags가 없을 수 있어서,
+  // 불러올 때 tags가 없으면 빈 배열([])로 채워줍니다.
   const loadAll = () => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
+      const memos = raw ? JSON.parse(raw) : [];
+      return memos.map((memo) => ({ tags: [], ...memo }));
     } catch (error) {
       console.warn("메모를 불러오는 중 문제가 생겼어요:", error);
       return [];
@@ -29,13 +32,14 @@
   window.MemoStorage = {
     getAll: loadAll,
 
-    create(title, content) {
+    create(title, content, tags = []) {
       const memos = loadAll();
       const now = new Date().toISOString();
       const memo = {
         id: makeId(),
         title: title.trim(),
         content: content.trim(),
+        tags,
         createdAt: now,
         updatedAt: now,
       };
@@ -44,12 +48,13 @@
       return memo;
     },
 
-    update(id, title, content) {
+    update(id, title, content, tags = []) {
       const memos = loadAll();
       const target = memos.find((memo) => memo.id === id);
       if (!target) return null;
       target.title = title.trim();
       target.content = content.trim();
+      target.tags = tags;
       target.updatedAt = new Date().toISOString();
       saveAll(memos);
       return target;
@@ -57,6 +62,14 @@
 
     remove(id) {
       saveAll(loadAll().filter((memo) => memo.id !== id));
+    },
+
+    // 지금까지 쓰인 태그를 전부 모아 중복 없이, 가나다순으로 돌려줍니다.
+    // (화면 위쪽 태그 필터 목록을 그릴 때 씁니다.)
+    getAllTags() {
+      const tagSet = new Set();
+      loadAll().forEach((memo) => memo.tags.forEach((tag) => tagSet.add(tag)));
+      return [...tagSet].sort((a, b) => a.localeCompare(b, "ko"));
     },
   };
 })();

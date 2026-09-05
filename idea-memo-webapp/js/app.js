@@ -5,18 +5,34 @@ const memoListEl = document.getElementById("memo-list");
 const emptyStateEl = document.getElementById("empty-state");
 const memoCountEl = document.getElementById("memo-count");
 const sortSelectEl = document.getElementById("sort-select");
+const searchInputEl = document.getElementById("search-input");
+const tagFilterEl = document.getElementById("tag-filter");
 
 const dialogEl = document.getElementById("memo-dialog");
 const dialogHeadingEl = document.getElementById("dialog-heading");
 const memoFormEl = document.getElementById("memo-form");
 const titleInputEl = document.getElementById("memo-title-input");
 const contentInputEl = document.getElementById("memo-content-input");
+const tagsInputEl = document.getElementById("memo-tags-input");
 const cancelBtnEl = document.getElementById("dialog-cancel-btn");
 const fabBtnEl = document.getElementById("fab-btn");
 
 // 지금 다이얼로그가 "새로 쓰는 중"인지 "수정 중"인지 구분하기 위한 값.
 // null이면 새 메모, 문자열(id)이 들어있으면 그 메모를 수정 중이라는 뜻.
 let editingMemoId = null;
+
+// 지금 선택된 태그 필터. null이면 "전체"(필터 없음)라는 뜻.
+let activeTag = null;
+
+// "아이디어, 할일 " 같은 입력을 ["아이디어", "할일"]로 바꿔줍니다.
+// (빈 칸이나 중복은 제거)
+function parseTagsInput(rawValue) {
+  const tags = rawValue
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter((tag) => tag.length > 0);
+  return [...new Set(tags)];
+}
 
 function formatDate(isoString) {
   return new Date(isoString).toLocaleString("ko-KR", {
@@ -66,6 +82,25 @@ function createMemoCard(memo) {
 
   main.append(title, date);
 
+  if (memo.tags.length > 0) {
+    const tagsRow = document.createElement("div");
+    tagsRow.className = "memo-tags";
+    memo.tags.forEach((tag) => {
+      const tagEl = document.createElement("span");
+      tagEl.className = "memo-tag";
+      tagEl.textContent = tag;
+      // 카드 안의 태그를 눌러도 그 태그로 바로 필터링되도록.
+      tagEl.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        activeTag = tag;
+        render();
+      });
+      tagsRow.appendChild(tagEl);
+    });
+    main.appendChild(tagsRow);
+  }
+
   const actions = document.createElement("div");
   actions.className = "memo-actions";
 
@@ -106,14 +141,68 @@ function createMemoCard(memo) {
   return details;
 }
 
-function render() {
-  const memos = sortMemos(MemoStorage.getAll(), sortSelectEl.value);
+// 검색어/태그 필터를 함께 적용합니다. 검색은 제목과 내용 둘 다에서 찾아요.
+function filterMemos(memos) {
+  let result = memos;
 
-  memoCountEl.textContent = memos.length > 0 ? `총 ${memos.length}개` : "";
-  emptyStateEl.hidden = memos.length > 0;
+  if (activeTag) {
+    result = result.filter((memo) => memo.tags.includes(activeTag));
+  }
+
+  const query = searchInputEl.value.trim().toLowerCase();
+  if (query) {
+    result = result.filter(
+      (memo) =>
+        memo.title.toLowerCase().includes(query) ||
+        memo.content.toLowerCase().includes(query)
+    );
+  }
+
+  return result;
+}
+
+// 화면 위쪽의 태그 칩(전체 + 지금까지 쓰인 태그들)을 다시 그립니다.
+function renderTagFilter() {
+  const allTags = MemoStorage.getAllTags();
+  tagFilterEl.hidden = allTags.length === 0;
+  tagFilterEl.innerHTML = "";
+
+  const makeChip = (label, tagValue) => {
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "tag-chip" + (activeTag === tagValue ? " active" : "");
+    chip.textContent = label;
+    chip.addEventListener("click", () => {
+      activeTag = tagValue;
+      render();
+    });
+    return chip;
+  };
+
+  tagFilterEl.appendChild(makeChip("전체", null));
+  allTags.forEach((tag) => tagFilterEl.appendChild(makeChip(tag, tag)));
+}
+
+function render() {
+  renderTagFilter();
+
+  const allMemos = MemoStorage.getAll();
+  const visibleMemos = sortMemos(filterMemos(allMemos), sortSelectEl.value);
+
+  memoCountEl.textContent = visibleMemos.length > 0 ? `총 ${visibleMemos.length}개` : "";
+
+  if (allMemos.length === 0) {
+    emptyStateEl.hidden = false;
+    emptyStateEl.innerHTML = "아직 메모가 없어요.<br />오른쪽 아래 + 버튼을 눌러 첫 메모를 남겨보세요!";
+  } else if (visibleMemos.length === 0) {
+    emptyStateEl.hidden = false;
+    emptyStateEl.innerHTML = "검색어나 태그 조건에 맞는 메모가 없어요.";
+  } else {
+    emptyStateEl.hidden = true;
+  }
 
   memoListEl.innerHTML = "";
-  memos.forEach((memo) => memoListEl.appendChild(createMemoCard(memo)));
+  visibleMemos.forEach((memo) => memoListEl.appendChild(createMemoCard(memo)));
 }
 
 function openDialog(mode, memo) {
@@ -124,6 +213,7 @@ function openDialog(mode, memo) {
     dialogHeadingEl.textContent = "메모 수정";
     titleInputEl.value = memo.title;
     contentInputEl.value = memo.content;
+    tagsInputEl.value = memo.tags.join(", ");
   } else {
     editingMemoId = null;
     dialogHeadingEl.textContent = "새 메모";
@@ -142,6 +232,7 @@ memoFormEl.addEventListener("submit", (event) => {
 
   const title = titleInputEl.value.trim();
   const content = contentInputEl.value.trim();
+  const tags = parseTagsInput(tagsInputEl.value);
 
   if (!title) {
     titleInputEl.focus();
@@ -149,9 +240,9 @@ memoFormEl.addEventListener("submit", (event) => {
   }
 
   if (editingMemoId) {
-    MemoStorage.update(editingMemoId, title, content);
+    MemoStorage.update(editingMemoId, title, content, tags);
   } else {
-    MemoStorage.create(title, content);
+    MemoStorage.create(title, content, tags);
   }
 
   dialogEl.close();
@@ -159,6 +250,7 @@ memoFormEl.addEventListener("submit", (event) => {
 });
 
 sortSelectEl.addEventListener("change", render);
+searchInputEl.addEventListener("input", render);
 
 render();
 
@@ -172,4 +264,4 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-console.log("아이디어 메모장 - 2단계(작성/목록) 로드 완료");
+console.log("아이디어 메모장 - 3단계(검색/태그) 로드 완료");
