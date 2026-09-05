@@ -3,9 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>아이디어 메모장</title>
+  <title>IdeaMemo</title>
   <meta name="description" content="언제 어디서나 떠오른 아이디어를 빠르게 기록하는 메모장" />
-  <meta name="theme-color" content="#4f46e5" />
+  <meta name="theme-color" content="#4f46e5" id="theme-color-meta" />
+
+  <!-- 다크모드를 저장해둔 적이 있으면, CSS/화면이 그려지기 전에 미리 적용해서
+       "밝은 화면이 잠깐 번쩍였다가 어두워지는" 현상을 막습니다. -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem("idea-memo-webapp:theme");
+        if (saved === "dark" || saved === "light") {
+          document.documentElement.setAttribute("data-theme", saved);
+        }
+      } catch (error) {
+        // localStorage를 못 쓰는 환경이면 그냥 시스템 설정을 따릅니다.
+      }
+    })();
+  </script>
 
   <!-- 이 태그가 있어야 브라우저가 "홈 화면에 추가"를 할 수 있어요 (PWA의 핵심 파일) -->
   <link rel="manifest" href="manifest.json" />
@@ -16,7 +31,8 @@
 </head>
 <body>
   <header class="app-header">
-    <h1>💡 아이디어 메모장</h1>
+    <h1>💡 IdeaMemo</h1>
+    <button type="button" id="theme-toggle-btn" class="icon-btn theme-toggle" aria-label="다크 모드로 전환">🌙</button>
   </header>
 
   <main class="app-main">

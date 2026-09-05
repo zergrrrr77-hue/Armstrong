@@ -1,6 +1,6 @@
 {
-  "name": "아이디어 메모장",
-  "short_name": "메모장",
+  "name": "IdeaMemo",
+  "short_name": "IdeaMemo",
   "description": "언제 어디서나 떠오른 아이디어를 빠르게 기록하는 메모장",
   "start_url": "./index.html",
   "scope": "./",

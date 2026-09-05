@@ -1,4 +1,4 @@
-/* 색상을 변수로 모아두면, 나중에 다크모드를 만들 때 이 값들만 바꾸면 돼요 */
+/* 색상을 변수로 모아뒀어요 - 다크모드는 이 값들만 통째로 바꿔서 만듭니다. */
 :root {
   --color-bg: #f8fafc;
   --color-surface: #ffffff;
@@ -7,6 +7,35 @@
   --color-primary: #4f46e5;
   --color-primary-contrast: #ffffff;
   --color-border: #e2e8f0;
+  --shadow-hover: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+
+/* 1) 사용자가 직접 고른 적은 없지만, 기기/브라우저 설정이 "어둡게"인 경우.
+      (:root[data-theme="light"]가 붙어있으면, 즉 사용자가 명시적으로 "밝게"를 고르면 이 블록은 무시돼요) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #0f172a;
+    --color-surface: #1e293b;
+    --color-text: #e2e8f0;
+    --color-text-muted: #94a3b8;
+    --color-primary: #818cf8;
+    --color-primary-contrast: #0f172a;
+    --color-border: #334155;
+    --shadow-hover: 0 4px 14px rgba(0, 0, 0, 0.45);
+  }
+}
+
+/* 2) 사용자가 화면 위쪽 🌙/☀️ 버튼으로 직접 "다크 모드"를 골랐을 때.
+      기기 설정이 밝게든 어둡게든, 이 쪽이 항상 이깁니다. */
+:root[data-theme="dark"] {
+  --color-bg: #0f172a;
+  --color-surface: #1e293b;
+  --color-text: #e2e8f0;
+  --color-text-muted: #94a3b8;
+  --color-primary: #818cf8;
+  --color-primary-contrast: #0f172a;
+  --color-border: #334155;
+  --shadow-hover: 0 4px 14px rgba(0, 0, 0, 0.45);
 }
 
 * {
@@ -18,6 +47,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
   background: var(--color-bg);
   color: var(--color-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .app-header {
@@ -26,11 +56,20 @@ body {
   border-bottom: 1px solid var(--color-border);
   position: sticky;
   top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .app-header h1 {
   margin: 0;
   font-size: 1.25rem;
+}
+
+.theme-toggle {
+  font-size: 1.2rem;
 }
 
 .app-main {
@@ -59,6 +98,7 @@ body {
   background: var(--color-surface);
   color: var(--color-text);
   margin-bottom: 0.75rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 /* 태그 필터 버튼들을 가로로 늘어놓고, 화면이 좁으면 다음 줄로 넘어가게 */
@@ -116,6 +156,7 @@ body {
   border: 1px solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .memo-count {
@@ -146,11 +187,11 @@ body {
   border: 1px solid var(--color-border);
   border-radius: 10px;
   overflow: hidden;
-  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  transition: box-shadow 0.15s ease, border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .memo-card:hover {
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow-hover);
 }
 
 /* 고정(📌)해둔 메모는 왼쪽에 강조 색 띠를 붙여서 눈에 띄게 합니다 */
@@ -232,6 +273,7 @@ body {
   color: var(--color-text-muted);
   border: 1px solid var(--color-border);
   cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .memo-actions {
@@ -294,7 +336,8 @@ body {
 .memo-dialog {
   opacity: 0;
   transform: translateY(8px) scale(0.97);
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transition: opacity 0.18s ease, transform 0.18s ease, background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .memo-dialog.is-visible {
@@ -335,6 +378,7 @@ body {
   border: 1px solid var(--color-border);
   background: var(--color-bg);
   resize: vertical;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .dialog-actions {

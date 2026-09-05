@@ -19,6 +19,8 @@ const fabBtnEl = document.getElementById("fab-btn");
 const exportBtnEl = document.getElementById("export-btn");
 const importBtnEl = document.getElementById("import-btn");
 const importFileInputEl = document.getElementById("import-file-input");
+const themeToggleBtnEl = document.getElementById("theme-toggle-btn");
+const themeColorMetaEl = document.getElementById("theme-color-meta");
 
 // 지금 다이얼로그가 "새로 쓰는 중"인지 "수정 중"인지 구분하기 위한 값.
 // null이면 새 메모, 문자열(id)이 들어있으면 그 메모를 수정 중이라는 뜻.
@@ -360,6 +362,42 @@ importFileInputEl.addEventListener("change", () => {
   // 같은 파일을 다시 선택해도 change 이벤트가 또 일어나도록 값을 비워둡니다.
   importFileInputEl.value = "";
 });
+
+// ---------- 다크모드 ----------
+const THEME_STORAGE_KEY = "idea-memo-webapp:theme";
+const prefersDarkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+// 사용자가 🌙/☀️ 버튼으로 직접 고른 테마가 있으면 그걸, 없으면 기기 설정을 따릅니다.
+function getEffectiveTheme() {
+  const explicit = document.documentElement.getAttribute("data-theme");
+  return explicit || (prefersDarkQuery.matches ? "dark" : "light");
+}
+
+// 버튼 아이콘/설명과 브라우저 주소창 색(theme-color)을 지금 테마에 맞게 맞춥니다.
+function syncThemeUI() {
+  const isDark = getEffectiveTheme() === "dark";
+  themeToggleBtnEl.textContent = isDark ? "☀️" : "🌙";
+  themeToggleBtnEl.setAttribute("aria-label", isDark ? "라이트 모드로 전환" : "다크 모드로 전환");
+  themeColorMetaEl.setAttribute("content", isDark ? "#0f172a" : "#4f46e5");
+}
+
+themeToggleBtnEl.addEventListener("click", () => {
+  const next = getEffectiveTheme() === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, next);
+  } catch (error) {
+    // localStorage를 못 쓰는 환경이면 이번 방문 동안만 적용됩니다.
+  }
+  syncThemeUI();
+});
+
+// 사용자가 버튼으로 직접 고른 적이 없다면, 기기 설정(다크모드 on/off)이 바뀔 때도 따라갑니다.
+prefersDarkQuery.addEventListener("change", () => {
+  if (!document.documentElement.getAttribute("data-theme")) syncThemeUI();
+});
+
+syncThemeUI();
 
 render();
 
