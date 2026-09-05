@@ -1,0 +1,45 @@
+name: Deploy 아이디어 메모장 to GitHub Pages
+
+# idea-memo-webapp 폴더가 바뀔 때마다 자동으로 GitHub Pages에 다시 올려줍니다.
+# (수동으로 다시 배포하고 싶을 때는 GitHub 저장소의 Actions 탭에서
+#  이 워크플로우를 선택하고 "Run workflow" 버튼을 눌러도 됩니다.)
+on:
+  push:
+    branches: ["claude/idea-memo-webapp-mivnhu"]
+    paths:
+      - "idea-memo-webapp/**"
+      - ".github/workflows/deploy-idea-memo-pages.yml"
+  workflow_dispatch: {}
+
+# GitHub Pages에 파일을 올리려면 이 권한들이 필요해요.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 배포가 겹쳐서 실행되지 않도록 순서를 정리해줍니다.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 코드 내려받기
+        uses: actions/checkout@v4
+
+      - name: GitHub Pages 설정 준비
+        uses: actions/configure-pages@v5
+
+      - name: idea-memo-webapp 폴더를 배포 대상으로 압축
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: idea-memo-webapp
+
+      - name: GitHub Pages로 배포
+        id: deployment
+        uses: actions/deploy-pages@v4
