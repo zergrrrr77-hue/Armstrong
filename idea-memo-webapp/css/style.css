@@ -39,11 +39,202 @@ body {
   padding: 2rem 1rem 6rem;
 }
 
-.placeholder {
+.empty-state {
   text-align: center;
   color: var(--color-text-muted);
   line-height: 1.6;
   margin-top: 3rem;
+}
+
+.empty-state[hidden] {
+  display: none;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.sort-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.sort-label select {
+  font-size: 0.875rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.memo-count {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+/* 메모 카드 목록 */
+.memo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* <details>/<summary>는 브라우저가 기본 제공하는 "펼치기/접기" 기능이에요.
+   그래서 펼치고 접는 동작은 우리가 직접 JS로 만들 필요가 없어요. */
+.memo-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.memo-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.9rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* 브라우저가 기본으로 붙여주는 화살표 마커를 지우고, 우리가 직접 그립니다 */
+.memo-summary::-webkit-details-marker {
+  display: none;
+}
+
+.memo-summary-main {
+  min-width: 0;
+}
+
+.memo-summary-main::before {
+  content: "▸";
+  display: inline-block;
+  margin-right: 0.4rem;
+  color: var(--color-text-muted);
+  transition: transform 0.15s ease;
+}
+
+.memo-card[open] .memo-summary-main::before {
+  transform: rotate(90deg);
+}
+
+.memo-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.memo-date {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.memo-actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.icon-btn {
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  background: var(--color-bg);
+}
+
+.memo-content {
+  padding: 0 1rem 1rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+/* 메모 작성/수정 팝업 */
+.memo-dialog {
+  border: none;
+  border-radius: 12px;
+  padding: 1.25rem;
+  width: min(480px, 90vw);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.memo-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.memo-dialog h2 {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.9rem;
+}
+
+.field input,
+.field textarea {
+  font: inherit;
+  color: var(--color-text);
+  padding: 0.55rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  resize: vertical;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.btn {
+  font: inherit;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
 }
 
 /* 퀵캡처 버튼: 화면 오른쪽 아래에 항상 떠 있는(fixed) 동그란 버튼 */

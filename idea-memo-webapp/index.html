@@ -20,15 +20,53 @@
   </header>
 
   <main class="app-main">
-    <p class="placeholder">
-      지금은 기본 틀(뼈대)만 만들어진 상태예요.<br />
-      다음 단계에서 메모를 쓰고 저장하는 기능을 추가할 거예요.
+    <div class="toolbar">
+      <label class="sort-label">
+        정렬
+        <select id="sort-select">
+          <option value="newest">최신순</option>
+          <option value="oldest">오래된순</option>
+          <option value="title">제목순</option>
+        </select>
+      </label>
+      <p class="memo-count" id="memo-count"></p>
+    </div>
+
+    <!-- 메모가 하나도 없을 때만 이 문구가 보여요 (JS가 hidden 속성을 껐다 켰다 함) -->
+    <p class="empty-state" id="empty-state">
+      아직 메모가 없어요.<br />
+      오른쪽 아래 + 버튼을 눌러 첫 메모를 남겨보세요!
     </p>
+
+    <div class="memo-list" id="memo-list"></div>
   </main>
 
-  <!-- 퀵캡처용 플로팅 버튼. 지금은 기능이 없어서 눌러도 반응 없음(비활성화) -->
-  <button class="fab" type="button" aria-label="새 메모 작성" disabled>+</button>
+  <!-- 퀵캡처용 플로팅 버튼: 화면 어디서든 눌러서 바로 새 메모 작성 -->
+  <button class="fab" id="fab-btn" type="button" aria-label="새 메모 작성">+</button>
 
+  <!-- 메모 작성/수정 창. <dialog>는 브라우저가 기본으로 지원하는 "팝업 창" 태그예요. -->
+  <dialog class="memo-dialog" id="memo-dialog">
+    <form id="memo-form">
+      <h2 id="dialog-heading">새 메모</h2>
+
+      <label class="field">
+        제목
+        <input type="text" id="memo-title-input" maxlength="80" placeholder="제목을 입력하세요" required />
+      </label>
+
+      <label class="field">
+        내용
+        <textarea id="memo-content-input" rows="6" placeholder="자유롭게 적어보세요"></textarea>
+      </label>
+
+      <div class="dialog-actions">
+        <button type="button" id="dialog-cancel-btn" class="btn btn-ghost">취소</button>
+        <button type="submit" class="btn btn-primary">저장</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="js/storage.js" defer></script>
   <script src="js/app.js" defer></script>
 </body>
 </html>
