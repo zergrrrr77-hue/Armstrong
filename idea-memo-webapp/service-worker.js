@@ -3,7 +3,7 @@
 
 // 캐시 이름 뒤 숫자를 올리면(v1 -> v2), 브라우저가 예전 캐시를 지우고 새로 받아요.
 // 나중에 파일을 수정할 때마다 이 숫자를 올려주면 됩니다.
-const CACHE_NAME = "idea-memo-v3";
+const CACHE_NAME = "idea-memo-v4";
 
 // 앱이 오프라인에서도 뜨는 데 필요한 최소 파일 목록 ("앱 껍데기"라는 뜻으로 App Shell이라 불러요)
 const APP_SHELL = [

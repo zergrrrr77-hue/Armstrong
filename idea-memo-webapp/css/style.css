@@ -82,6 +82,8 @@ body {
   background: var(--color-surface);
   color: var(--color-text-muted);
   cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.15s ease, color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .tag-chip.active {
@@ -122,6 +124,16 @@ body {
   color: var(--color-text-muted);
 }
 
+.backup-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.btn-small {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+}
+
 /* 메모 카드 목록 */
 .memo-list {
   display: flex;
@@ -129,28 +141,31 @@ body {
   gap: 0.75rem;
 }
 
-/* <details>/<summary>는 브라우저가 기본 제공하는 "펼치기/접기" 기능이에요.
-   그래서 펼치고 접는 동작은 우리가 직접 JS로 만들 필요가 없어요. */
 .memo-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 10px;
   overflow: hidden;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
+.memo-card:hover {
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+
+/* 고정(📌)해둔 메모는 왼쪽에 강조 색 띠를 붙여서 눈에 띄게 합니다 */
+.memo-card.pinned {
+  border-left: 3px solid var(--color-primary);
+}
+
+/* 펼치기 버튼. <summary> 대신 role="button" div를 쓰는 이유는 app.js의 주석 참고 */
 .memo-summary {
-  list-style: none;
   cursor: pointer;
   padding: 0.9rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-}
-
-/* 브라우저가 기본으로 붙여주는 화살표 마커를 지우고, 우리가 직접 그립니다 */
-.memo-summary::-webkit-details-marker {
-  display: none;
 }
 
 .memo-summary-main {
@@ -165,8 +180,25 @@ body {
   transition: transform 0.15s ease;
 }
 
-.memo-card[open] .memo-summary-main::before {
+.memo-summary[aria-expanded="true"] .memo-summary-main::before {
   transform: rotate(90deg);
+}
+
+/* 펼침/접힘 애니메이션: grid-template-rows를 0fr <-> 1fr로 움직이면
+   내용의 실제 높이를 몰라도 부드럽게 늘었다 줄었다 해요. */
+.memo-content-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.22s ease;
+}
+
+.memo-content-wrapper.open {
+  grid-template-rows: 1fr;
+}
+
+.memo-content-wrapper > .memo-content {
+  overflow: hidden;
+  min-height: 0;
 }
 
 .memo-title {
@@ -215,10 +247,28 @@ body {
   padding: 0.3rem 0.4rem;
   border-radius: 6px;
   cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.1s ease, filter 0.1s ease;
 }
 
 .icon-btn:hover {
   background: var(--color-bg);
+}
+
+/* 고정(📌)하기 전에는 흑백으로 흐릿하게, 고정하면 원래 색으로 또렷하게 */
+.icon-btn.pin-btn {
+  filter: grayscale(1) opacity(0.45);
+}
+
+.icon-btn.pin-btn.active {
+  filter: none;
+}
+
+/* 버튼을 누르는 순간 살짝 작아지는 느낌 (마이크로 인터랙션) */
+.icon-btn:active,
+.btn:active,
+.tag-chip:active,
+.fab:active {
+  transform: scale(0.94);
 }
 
 .memo-content {
@@ -239,8 +289,27 @@ body {
   color: var(--color-text);
 }
 
+/* 열리고 닫힐 때 살짝 커지면서 나타나는 애니메이션.
+   app.js가 showModal() 직후에 is-visible 클래스를 붙였다 뗐다 해서 이 상태를 오갑니다. */
+.memo-dialog {
+  opacity: 0;
+  transform: translateY(8px) scale(0.97);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.memo-dialog.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
 .memo-dialog::backdrop {
   background: rgba(15, 23, 42, 0.45);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.memo-dialog.is-visible::backdrop {
+  opacity: 1;
 }
 
 .memo-dialog h2 {
@@ -281,6 +350,7 @@ body {
   border-radius: 8px;
   border: 1px solid transparent;
   cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.15s ease, opacity 0.15s ease;
 }
 
 .btn-ghost {
@@ -309,6 +379,11 @@ body {
   line-height: 1;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.fab:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
 
 .fab:disabled {

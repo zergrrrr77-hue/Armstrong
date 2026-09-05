@@ -6,13 +6,13 @@
 (() => {
   const STORAGE_KEY = "idea-memo-webapp:memos";
 
-  // 태그 기능을 추가하기 전(2단계)에 저장된 메모에는 tags가 없을 수 있어서,
-  // 불러올 때 tags가 없으면 빈 배열([])로 채워줍니다.
+  // 태그(3단계)나 고정(4단계) 같은 새 기능이 생기기 전에 저장된 메모에는
+  // 그 필드가 없을 수 있어서, 불러올 때 기본값을 채워줍니다.
   const loadAll = () => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       const memos = raw ? JSON.parse(raw) : [];
-      return memos.map((memo) => ({ tags: [], ...memo }));
+      return memos.map((memo) => ({ tags: [], pinned: false, ...memo }));
     } catch (error) {
       console.warn("메모를 불러오는 중 문제가 생겼어요:", error);
       return [];
@@ -40,6 +40,7 @@
         title: title.trim(),
         content: content.trim(),
         tags,
+        pinned: false,
         createdAt: now,
         updatedAt: now,
       };
@@ -64,12 +65,63 @@
       saveAll(loadAll().filter((memo) => memo.id !== id));
     },
 
+    togglePin(id) {
+      const memos = loadAll();
+      const target = memos.find((memo) => memo.id === id);
+      if (!target) return null;
+      target.pinned = !target.pinned;
+      saveAll(memos);
+      return target;
+    },
+
     // 지금까지 쓰인 태그를 전부 모아 중복 없이, 가나다순으로 돌려줍니다.
     // (화면 위쪽 태그 필터 목록을 그릴 때 씁니다.)
     getAllTags() {
       const tagSet = new Set();
       loadAll().forEach((memo) => memo.tags.forEach((tag) => tagSet.add(tag)));
       return [...tagSet].sort((a, b) => a.localeCompare(b, "ko"));
+    },
+
+    // 지금 저장된 모든 메모를 예쁘게 들여쓴 JSON 글자로 바꿔줍니다. (내보내기용)
+    exportAsJson() {
+      return JSON.stringify(loadAll(), null, 2);
+    },
+
+    // 내보내기로 받은 JSON 파일(또는 그 안의 배열)을 가져와서 기존 메모 뒤에 추가합니다.
+    // 잘못된 형식의 항목은 건너뛰고, 몇 개를 추가/건너뛰었는지 알려줍니다.
+    importFromJson(jsonText) {
+      let parsed;
+      try {
+        parsed = JSON.parse(jsonText);
+      } catch (error) {
+        throw new Error("올바른 JSON 파일이 아니에요.");
+      }
+
+      const incoming = Array.isArray(parsed) ? parsed : [];
+      const memos = loadAll();
+      let added = 0;
+      let skipped = 0;
+
+      incoming.forEach((item) => {
+        if (!item || typeof item.title !== "string" || !item.title.trim()) {
+          skipped += 1;
+          return;
+        }
+        const now = new Date().toISOString();
+        memos.push({
+          id: makeId(),
+          title: item.title.trim(),
+          content: typeof item.content === "string" ? item.content.trim() : "",
+          tags: Array.isArray(item.tags) ? item.tags.filter((t) => typeof t === "string") : [],
+          pinned: false,
+          createdAt: typeof item.createdAt === "string" ? item.createdAt : now,
+          updatedAt: typeof item.updatedAt === "string" ? item.updatedAt : now,
+        });
+        added += 1;
+      });
+
+      saveAll(memos);
+      return { added, skipped };
     },
   };
 })();

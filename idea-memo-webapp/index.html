@@ -41,6 +41,14 @@
           <option value="title">제목순</option>
         </select>
       </label>
+
+      <div class="backup-actions">
+        <button type="button" id="export-btn" class="btn btn-ghost btn-small">⬇️ 내보내기</button>
+        <button type="button" id="import-btn" class="btn btn-ghost btn-small">⬆️ 가져오기</button>
+        <!-- 화면엔 안 보이고, 위 "가져오기" 버튼을 누르면 이 파일 선택창이 대신 열려요 -->
+        <input type="file" id="import-file-input" accept="application/json" hidden />
+      </div>
+
       <p class="memo-count" id="memo-count"></p>
     </div>
 
