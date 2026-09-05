@@ -61,6 +61,29 @@ http://localhost:8080
 - ✅ 퀵캡처: 화면 오른쪽 아래 + 버튼이 어디서나 항상 떠 있어서 바로 새 메모 작성 가능
 - ⬜ 검색, 태그, 다크모드는 3~4단계에서 추가 예정
 
+## 배포 (GitHub Pages)
+
+이 폴더가 바뀌어서 `claude/idea-memo-webapp-mivnhu` 브랜치에 푸시될 때마다,
+`.github/workflows/deploy-idea-memo-pages.yml` 워크플로우가 자동으로 이 폴더를
+GitHub Pages(깃허브가 무료로 제공하는 정적 웹사이트 호스팅)에 올려줘요.
+
+**단, 이 저장소에서 GitHub Pages를 처음 쓰는 거라 사람이 딱 한 번 해줘야 하는 설정이 있어요**
+(보안을 위해 깃허브가 저장소 소유자의 직접 클릭을 요구하는 부분이라, 자동화로 우회할 수 없어요):
+
+1. https://github.com/zergrrrr77-hue/Armstrong 접속
+2. 상단 탭에서 **Settings** 클릭
+3. 왼쪽 메뉴에서 **Pages** 클릭
+4. **Build and deployment → Source** 드롭다운에서 **"GitHub Actions"** 선택
+
+이 설정을 한 번만 해두면, 그 다음부터는 이 브랜치에 뭔가 바뀌어서 푸시될 때마다
+자동으로 재배포됩니다. 배포되면 주소는 다음과 같아요.
+
+```
+https://zergrrrr77-hue.github.io/Armstrong/
+```
+
+배포 진행 상황은 저장소의 **Actions** 탭에서 확인할 수 있어요.
+
 ## 다음에 할 일 (3단계 예고)
 
 3단계에서는 제목/내용으로 실시간 검색하는 검색창과, 메모마다 태그를 붙이고
