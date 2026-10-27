@@ -25,14 +25,20 @@ MODEL = os.environ.get('SUPERTONIC_DIR', '')
 KO_SAY = [(r'071편', '공칠일 편'), (r'723편', '칠이삼 편'), (r'오후 6시 30분', '오후 여섯 시 삼십 분'), (r'eTA', '이티에이'),
           (r'27번', '이십칠 번'), (r'14번', '십사 번'), (r'1인당', '한 분당'), (r'가방 1개', '가방 한 개'),
           (r'소지품 1개', '소지품 한 개'), (r'1번', '일 번'), (r'2번', '이 번'), (r'3번', '삼 번'), (r'4번', '사 번'),
-          (r'32A', '삼십이 에이')]
+          (r'32A', '삼십이 에이'), (r'3만 5천 피트', '삼만 오천 피트'), (r'9시간 40분', '아홉 시간 사십 분'),
+          (r'오후 1시 10분', '오후 한 시 십 분'), (r'30분 후', '삼십 분 후'), (r'카페 27', '카페 이십칠')]
 EN_SAY = [(r'flight 071', 'flight zero seven one'), (r'flight 723', 'flight seven two three'), (r'gate 27', 'gate twenty-seven'),
           (r'gate 14', 'gate fourteen'), (r'eTA', 'E.T.A.'), (r'6:30 p\.m\.', 'six thirty p.m.'),
-          (r'groups 1 and 2', 'groups one and two'), (r'[Gg]roups 3 and 4', 'Groups three and four')]
+          (r'groups 1 and 2', 'groups one and two'), (r'[Gg]roups 3 and 4', 'Groups three and four'),
+          (r'35,000 feet', 'thirty-five thousand feet'), (r'9 hours and 40 minutes', 'nine hours and forty minutes'),
+          (r'1:10 p\.m\.', 'one ten p.m.'), (r'30 minutes', 'thirty minutes')]
 
 PA_FILTER = ('highpass=f=170,lowpass=f=6800,'
              'acompressor=threshold=-20dB:ratio=3:attack=5:release=150,'
              'aecho=0.85:0.55:38|83:0.22|0.12,loudnorm=I=-17:TP=-1.5:LRA=7')
+# 기내 방송: 천장 스피커처럼 더 좁은 대역, 짧은 울림
+CABIN_FILTER = ('highpass=f=240,lowpass=f=5200,acompressor=threshold=-20dB:ratio=3.5:attack=5:release=120,'
+                'aecho=0.8:0.4:18|31:0.18|0.1,loudnorm=I=-17:TP=-1.5:LRA=6')
 TALK_FILTER = 'highpass=f=90,loudnorm=I=-18:TP=-1.5:LRA=7'
 
 
@@ -76,7 +82,7 @@ def encode(x, sr, out, kind):
     with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
         sf.write(f.name, x, sr)
         wav = f.name
-    flt = PA_FILTER if kind == 'pa' else TALK_FILTER
+    flt = {'pa': PA_FILTER, 'cabin': CABIN_FILTER}.get(kind, TALK_FILTER)
     subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', wav, '-af', flt, '-ac', '1', '-ar', '32000',
                     '-c:a', 'libmp3lame', '-b:a', '56k', out], check=True)
     os.unlink(wav)
@@ -89,7 +95,7 @@ def main():
     for lid, ln in lines.items():
         if lid.startswith('_') or (only and lid not in only):
             continue
-        speed = 0.94 if ln['kind'] == 'pa' else 1.0
+        speed = 0.94 if ln['kind'] in ('pa', 'cabin') else 1.0
         for lang, rules in (('ko', KO_SAY), ('en', EN_SAY)):
             if lang not in ln:
                 continue

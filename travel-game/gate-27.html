@@ -180,16 +180,22 @@ select{font:inherit;color:var(--ink);background:#262e47;border:1px solid var(--l
 .bat i{display:block;height:100%;width:23%;background:var(--go);border-radius:5px;transition:width .12s}
 .chg b{font-family:var(--display);font-size:34px}
 .chg span{font-size:12px;color:#9aa3ba}
+.mealbar{position:absolute;left:50%;top:96px;transform:translateX(-50%);display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:min(560px,94%);z-index:4}
+.mealbar button{background:rgba(14,17,28,.9);border-color:var(--amber);font-weight:700;touch-action:none;user-select:none;-webkit-user-select:none}
+.hold{position:relative;overflow:hidden}
+.hold i{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(242,180,82,.35);pointer-events:none}
+.item .used{font-size:12px;color:var(--go)}
+.shop .opts button[disabled]{text-decoration:line-through}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation-duration:.01s!important}}
 </style>
 
 <div class="wrap">
   <header>
-    <h1>Gate 27, 밴쿠버행</h1>
-    <span class="chapter">Chapter 3 · 탑승 대기</span>
+    <h1 id="chTitle">Gate 27, 밴쿠버행</h1>
+    <span class="chapter" id="chLabel">Chapter 3 · 탑승 대기</span>
   </header>
-  <ol class="chapters" aria-label="챕터">
-    <li>1 캐리어 싸기 · 준비 중</li><li>2 공항 가는 길 · 준비 중</li><li class="now">3 탑승 대기</li><li>4 기내식 · 준비 중</li><li>5 밴쿠버 · 준비 중</li>
+  <ol class="chapters" id="chapters" aria-label="챕터">
+    <li>1 캐리어 싸기 · 준비 중</li><li>2 공항 가는 길 · 준비 중</li><li class="now" data-c="3">3 탑승 대기</li><li data-c="4">4 기내식</li><li>5 밴쿠버 · 준비 중</li>
   </ol>
 
   <div class="stage" id="stage">
@@ -217,13 +223,14 @@ select{font:inherit;color:var(--ink);background:#262e47;border:1px solid var(--l
         <div class="btns">
           <button class="primary" id="startSound" disabled>소리 켜고 시작</button>
           <button id="startMute" disabled>소리 없이 시작</button>
+          <button id="startCh4" hidden disabled>4장부터 이어하기</button>
         </div>
         <span class="loading" id="loading">공항을 짓는 중…</span>
       </div>
     </div>
   </div>
 
-  <div class="board" aria-label="출발 안내판">
+  <div class="board ch3only" aria-label="출발 안내판">
     <table>
       <thead><tr><th>TIME</th><th>DESTINATION</th><th>FLIGHT</th><th>GATE</th><th>REMARKS</th></tr></thead>
       <tbody id="flights"></tbody>
@@ -232,7 +239,7 @@ select{font:inherit;color:var(--ink);background:#262e47;border:1px solid var(--l
 
   <div class="row">
     <div class="card">
-      <h2>탑승 전, 설레는 것들</h2>
+      <h2 id="actsTitle">탑승 전, 설레는 것들</h2>
       <div class="acts" id="acts"></div>
       <div class="mood">
         <label><span>설렘</span><span id="moodTxt">0%</span></label>
@@ -255,7 +262,7 @@ select{font:inherit;color:var(--ink);background:#262e47;border:1px solid var(--l
     <div class="album" id="album"></div>
   </div>
 
-  <div class="card">
+  <div class="card ch3only">
     <h2>탑승 절차</h2>
     <ol class="steps" id="steps">
       <li data-s="0">탑승 준비 안내</li><li data-s="1">사전 탑승</li><li data-s="2">그룹 1·2</li><li data-s="3">그룹 3·4 (내 차례)</li><li data-s="4">최종 탑승 안내</li>
@@ -300,7 +307,8 @@ const $ = id => document.getElementById(id);
 // ================= 게임 시간 =================
 // 실제 1초 = 게임 10초. 18:10 시작 → 18:40 내 그룹 탑승 → 18:55 최종 안내
 const START = 18*60+10, DEPART = 19*60+10;
-const G = { gm:START, speed:1, started:false, boarded:false, busy:false, mood:0, step:-1, skip:false, inRestroom:false };
+const G = { gm:START, speed:1, started:false, boarded:false, busy:false, mood:0, step:-1, skip:false, inRestroom:false, chapter:3 };
+let camShake=0, makePerson=null, humLP=null, murmurGain=null, humBase=.32;
 const fmt = m => String(Math.floor(m/60)).padStart(2,'0')+':'+String(Math.floor(m%60)).padStart(2,'0');
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
 // 연출용 대기: '건너뛰기'를 누르면 바로 끝난다
@@ -375,12 +383,12 @@ function startAudio(){
     voiceGain = ac.createGain(); voiceGain.gain.value=1.6; voiceGain.connect(ac.destination);
     // 터미널의 낮은 웅성거림
     const src = ac.createBufferSource(); src.buffer = noiseBuffer(5,true); src.loop=true;
-    const lp = ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=480;
+    const lp = ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=480; humLP=lp;
     const g = ac.createGain(); g.gain.value=.32; humGain=g; src.connect(lp).connect(g).connect(master); src.start();
     // 먼 곳의 대화 소리 같은 중역 대역
     const src2 = ac.createBufferSource(); src2.buffer = noiseBuffer(5,false); src2.loop=true;
     const bp = ac.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=900; bp.Q.value=.7;
-    const g2 = ac.createGain(); g2.gain.value=.018; src2.connect(bp).connect(g2).connect(master); src2.start();
+    const g2 = ac.createGain(); g2.gain.value=.018; murmurGain=g2; src2.connect(bp).connect(g2).connect(master); src2.start();
   }catch(e){ ac=null; }
 }
 function tone(freq, t0, dur, vol, type){
@@ -410,6 +418,9 @@ const sfx = {
   ding:()=>{ tone(1568,0,.6,.1); tone(2093,.08,.7,.06); },
   roar:()=>noiseBurst(13,180,.5,'lowpass',900),
   bag:()=>noiseBurst(.35,3000,.06,'highpass'),
+  bong:()=>{ tone(784,0,1.8,.13); tone(1568,0,.7,.025); },
+  foil:()=>{ for(let i=0;i<5;i++) setTimeout(()=>noiseBurst(.12,3500,.07,'highpass'),i*90); },
+  rattle:()=>{ for(let i=0;i<6;i++) setTimeout(()=>noiseBurst(.08,1800,.05,'bandpass'),i*160); },
   water:()=>noiseBurst(2.8,1800,.09,'bandpass'),
   dryer:()=>{ noiseBurst(3,900,.24,'lowpass',1500); tone(118,0,3,.025,'sawtooth'); },
   spray:()=>noiseBurst(.5,5200,.13,'highpass'),
@@ -465,11 +476,11 @@ function speakLines(lines, lang, o={}){
   return speechQ;
 }
 // 방송 중에는 주변 소음을 살짝 낮춘다
-function duck(on){ if(humGain && ac) humGain.gain.setTargetAtTime(on?.13:.32, ac.currentTime, .4); }
+function duck(on){ if(humGain && ac) humGain.gain.setTargetAtTime(on?humBase*.42:humBase, ac.currentTime, .4); }
 // 공항 방송: 시작 차임 → 한국어 → 영어 → 끝 차임
 // ================= 녹음된 음성: Supertonic 3 신경망 음성으로 미리 만든 audio/*.mp3 =================
 // 파일을 불러오지 못하면(오프라인 등) 브라우저 음성으로 대신 읽는다
-const LINES={"a_osaka": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "한빛항공에서 오사카로 가는 723편의 마지막 탑승 안내 말씀 드립니다. 아직 탑승하지 않으신 손님께서는 지금 바로 14번 탑승구로 와 주시기 바랍니다.", "en": "This is the final boarding call for Hanbit Air flight 723 to Osaka. Any remaining passengers, please proceed to gate 14 immediately."}, "a_prep": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "손님 여러분께 안내 말씀 드리겠습니다. 밴쿠버로 가는 메이플 에어 071편은 오후 6시 30분부터 27번 탑승구에서 탑승을 시작할 예정입니다. 캐나다로 가시는 손님께서는 탑승 전에 여권과 탑승권, 그리고 캐나다 전자여행허가 eTA를 다시 한번 확인해 주시기 바랍니다. 감사합니다.", "en": "Ladies and gentlemen, may I have your attention please. Maple Air flight 071 to Vancouver will begin boarding at 6:30 p.m. from gate 27. Passengers travelling to Canada, please have your passport, boarding pass, and Canadian eTA ready. Thank you."}, "a_bag": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "기내 반입 수하물 안내 말씀 드리겠습니다. 오늘 메이플 에어 071편은 만석으로 운항할 예정입니다. 기내 반입 수하물은 1인당 가방 1개와 개인 소지품 1개로 제한되며, 규정을 넘는 수하물은 탑승구에서 위탁 처리될 수 있습니다.", "en": "Today's flight is completely full. Each passenger may bring one carry-on bag and one personal item on board. Larger items may need to be checked at the gate."}, "a_sec": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "공항 이용 손님께 안내 말씀 드립니다. 개인 소지품을 방치하지 마시고, 주인 없는 물건을 보시면 가까운 직원에게 알려 주시기 바랍니다.", "en": "Please keep your belongings with you at all times, and report any unattended items to airport staff."}, "a_pre": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "밴쿠버로 가는 메이플 에어 071편 탑승을 시작하겠습니다. 먼저 도움이 필요하신 손님과 어린이를 동반하신 손님, 그리고 비즈니스석 손님께서는 지금 탑승해 주시기 바랍니다.", "en": "Maple Air flight 071 to Vancouver is now boarding. We invite passengers needing assistance, families with small children, and business class passengers to board first."}, "a_g12": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "다음은 탑승권에 그룹 1번과 2번이 적혀 있는 손님 차례입니다. 그룹 1번, 2번 손님께서는 지금 탑승해 주시기 바랍니다.", "en": "We now invite passengers in groups 1 and 2 to board."}, "a_g34": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "이제 그룹 3번과 4번 손님께서 탑승하실 차례입니다. 여권의 사진이 있는 면을 펼쳐서 탑승권과 함께 준비해 주시면 빠른 탑승에 도움이 됩니다. 감사합니다.", "en": "Groups 3 and 4, you are now welcome to board. Please have your passport open to the photo page, together with your boarding pass. Thank you."}, "a_final": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "메이플 에어에서 밴쿠버로 가는 071편의 마지막 탑승 안내 말씀 드립니다. 아직 탑승하지 않으신 손님께서는 지금 바로 27번 탑승구로 와 주시기 바랍니다. 이 비행기는 곧 출입문을 닫을 예정입니다.", "en": "This is the final boarding call for Maple Air flight 071 to Vancouver. Any remaining passengers, please proceed to gate 27 immediately. The gate will be closing shortly."}, "a_preview": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "손님 여러분께 안내 말씀 드리겠습니다. 밴쿠버로 가는 메이플 에어 071편은 27번 탑승구에서 탑승을 시작하겠습니다. 감사합니다.", "en": "Ladies and gentlemen, Maple Air flight 071 to Vancouver is now boarding at gate 27. Thank you."}, "t_barista": {"kind": "talk", "voice": 8, "who": "BARISTA", "ko": "따뜻한 카페 라떼 나왔습니다. 좋은 여행 되세요!"}, "t_df_hello": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "어서 오세요. 천천히 둘러보세요."}, "t_df_pass": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "여권과 탑승권 보여주시겠어요?"}, "t_df_perfume": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "액체류라서 보안 봉투에 담아 드릴게요. 도착할 때까지 봉투는 뜯지 마세요."}, "t_df_gim": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "선물용이시면 쇼핑백 하나 더 넣어 드릴게요."}, "t_df_pay": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "결제 도와드리겠습니다."}, "t_df_thanks": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "감사합니다. 즐거운 여행 되세요."}, "t_gate_ask": {"kind": "talk", "voice": 3, "who": "GATE AGENT", "ko": "여권과 탑승권 보여주시겠어요?"}, "t_gate_thanks": {"kind": "talk", "voice": 3, "who": "GATE AGENT", "ko": "감사합니다. 즐거운 여행 되세요."}, "t_crew": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "어서 오십시오. 32A 좌석은 이쪽 통로로 쭉 들어가셔서 왼쪽 창가입니다.", "en": "Welcome aboard."}};
+const LINES={"a_osaka": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "한빛항공에서 오사카로 가는 723편의 마지막 탑승 안내 말씀 드립니다. 아직 탑승하지 않으신 손님께서는 지금 바로 14번 탑승구로 와 주시기 바랍니다.", "en": "This is the final boarding call for Hanbit Air flight 723 to Osaka. Any remaining passengers, please proceed to gate 14 immediately."}, "a_prep": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "손님 여러분께 안내 말씀 드리겠습니다. 밴쿠버로 가는 메이플 에어 071편은 오후 6시 30분부터 27번 탑승구에서 탑승을 시작할 예정입니다. 캐나다로 가시는 손님께서는 탑승 전에 여권과 탑승권, 그리고 캐나다 전자여행허가 eTA를 다시 한번 확인해 주시기 바랍니다. 감사합니다.", "en": "Ladies and gentlemen, may I have your attention please. Maple Air flight 071 to Vancouver will begin boarding at 6:30 p.m. from gate 27. Passengers travelling to Canada, please have your passport, boarding pass, and Canadian eTA ready. Thank you."}, "a_bag": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "기내 반입 수하물 안내 말씀 드리겠습니다. 오늘 메이플 에어 071편은 만석으로 운항할 예정입니다. 기내 반입 수하물은 1인당 가방 1개와 개인 소지품 1개로 제한되며, 규정을 넘는 수하물은 탑승구에서 위탁 처리될 수 있습니다.", "en": "Today's flight is completely full. Each passenger may bring one carry-on bag and one personal item on board. Larger items may need to be checked at the gate."}, "a_sec": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "공항 이용 손님께 안내 말씀 드립니다. 개인 소지품을 방치하지 마시고, 주인 없는 물건을 보시면 가까운 직원에게 알려 주시기 바랍니다.", "en": "Please keep your belongings with you at all times, and report any unattended items to airport staff."}, "a_pre": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "밴쿠버로 가는 메이플 에어 071편 탑승을 시작하겠습니다. 먼저 도움이 필요하신 손님과 어린이를 동반하신 손님, 그리고 비즈니스석 손님께서는 지금 탑승해 주시기 바랍니다.", "en": "Maple Air flight 071 to Vancouver is now boarding. We invite passengers needing assistance, families with small children, and business class passengers to board first."}, "a_g12": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "다음은 탑승권에 그룹 1번과 2번이 적혀 있는 손님 차례입니다. 그룹 1번, 2번 손님께서는 지금 탑승해 주시기 바랍니다.", "en": "We now invite passengers in groups 1 and 2 to board."}, "a_g34": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "이제 그룹 3번과 4번 손님께서 탑승하실 차례입니다. 여권의 사진이 있는 면을 펼쳐서 탑승권과 함께 준비해 주시면 빠른 탑승에 도움이 됩니다. 감사합니다.", "en": "Groups 3 and 4, you are now welcome to board. Please have your passport open to the photo page, together with your boarding pass. Thank you."}, "a_final": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "메이플 에어에서 밴쿠버로 가는 071편의 마지막 탑승 안내 말씀 드립니다. 아직 탑승하지 않으신 손님께서는 지금 바로 27번 탑승구로 와 주시기 바랍니다. 이 비행기는 곧 출입문을 닫을 예정입니다.", "en": "This is the final boarding call for Maple Air flight 071 to Vancouver. Any remaining passengers, please proceed to gate 27 immediately. The gate will be closing shortly."}, "a_preview": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "손님 여러분께 안내 말씀 드리겠습니다. 밴쿠버로 가는 메이플 에어 071편은 27번 탑승구에서 탑승을 시작하겠습니다. 감사합니다.", "en": "Ladies and gentlemen, Maple Air flight 071 to Vancouver is now boarding at gate 27. Thank you."}, "t_barista": {"kind": "talk", "voice": 8, "who": "BARISTA", "ko": "따뜻한 카페 라떼 나왔습니다. 좋은 여행 되세요!"}, "t_df_hello": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "어서 오세요. 천천히 둘러보세요."}, "t_df_pass": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "여권과 탑승권 보여주시겠어요?"}, "t_df_perfume": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "액체류라서 보안 봉투에 담아 드릴게요. 도착할 때까지 봉투는 뜯지 마세요."}, "t_df_gim": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "선물용이시면 쇼핑백 하나 더 넣어 드릴게요."}, "t_df_pay": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "결제 도와드리겠습니다."}, "t_df_thanks": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "감사합니다. 즐거운 여행 되세요."}, "t_gate_ask": {"kind": "talk", "voice": 3, "who": "GATE AGENT", "ko": "여권과 탑승권 보여주시겠어요?"}, "t_gate_thanks": {"kind": "talk", "voice": 3, "who": "GATE AGENT", "ko": "감사합니다. 즐거운 여행 되세요."}, "t_crew": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "어서 오십시오. 32A 좌석은 이쪽 통로로 쭉 들어가셔서 왼쪽 창가입니다.", "en": "Welcome aboard."}, "c_welcome": {"kind": "cabin", "voice": 1, "who": "CABIN CREW", "ko": "손님 여러분, 안녕하십니까. 밴쿠버까지 가는 메이플 에어 071편입니다. 좌석벨트는 버클을 끼운 뒤 끈을 당겨 단단히 조여 주시고, 휴대전화는 비행기 모드로 바꿔 주시기 바랍니다. 오늘도 메이플 에어를 이용해 주셔서 감사합니다.", "en": "Ladies and gentlemen, welcome aboard Maple Air flight 071 to Vancouver. Please fasten your seatbelt and switch your phone to flight mode. Thank you for flying with us."}, "c_takeoff": {"kind": "cabin", "voice": 7, "who": "CAPTAIN", "ko": "승무원은 이륙을 위해 착석해 주십시오.", "en": "Cabin crew, please be seated for take-off."}, "c_captain": {"kind": "cabin", "voice": 7, "who": "CAPTAIN", "ko": "손님 여러분, 안녕하십니까. 기장입니다. 우리 비행기는 지금 순항 고도 3만 5천 피트에 올라왔습니다. 밴쿠버까지 비행시간은 약 9시간 40분이며, 현지 시간 오후 1시 10분에 도착할 예정입니다. 밴쿠버는 지금 흐리고 비가 내리고 있습니다. 편안한 여행 되십시오.", "en": "Good evening, this is your captain speaking. We have reached our cruising altitude of 35,000 feet. Our flight time to Vancouver is about 9 hours and 40 minutes, and we expect to arrive at 1:10 p.m. local time. Enjoy the flight."}, "c_drink": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "음료 드릴까요? 커피, 오렌지 주스, 맥주가 있습니다."}, "c_latte": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "카페 27 스탬프가 있으시네요. 오늘만 준비한 메이플 라떼도 드릴 수 있어요."}, "c_meal": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "식사 준비해 드리겠습니다. 비빔밥, 소고기 찜, 흰살생선 중에 어떤 걸로 드릴까요?"}, "c_soldout": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "죄송합니다, 손님. 소고기 찜은 앞쪽에서 다 나갔습니다. 비빔밥이나 생선은 어떠세요?"}, "c_enjoy": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "맛있게 드세요. 필요하시면 언제든 불러 주세요."}, "c_night": {"kind": "cabin", "voice": 1, "who": "CABIN CREW", "ko": "손님 여러분, 편안한 휴식을 위해 지금부터 기내 조명을 어둡게 하겠습니다. 독서등은 좌석 위 버튼으로 켜실 수 있습니다.", "en": "Ladies and gentlemen, we will now dim the cabin lights so you can rest. Your reading light is above your seat."}, "c_aurora": {"kind": "cabin", "voice": 7, "who": "CAPTAIN", "ko": "기장입니다. 지금 비행기 왼쪽 창밖으로 오로라가 보이고 있습니다. 창가에 계신 손님께서는 창문 덮개를 올려 보시기 바랍니다.", "en": "This is your captain. The northern lights are now visible on the left side of the aircraft."}, "c_morning": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "좋은 아침입니다. 창밖으로 해가 뜨고 있어요."}, "c_descent": {"kind": "cabin", "voice": 1, "who": "CABIN CREW", "ko": "손님 여러분, 우리 비행기는 약 30분 후 밴쿠버 국제공항에 도착하겠습니다. 좌석 등받이와 테이블을 제자리로 해 주시고, 좌석벨트를 매 주시기 바랍니다.", "en": "Ladies and gentlemen, we will be landing at Vancouver International Airport in about 30 minutes. Please return your seat and tray table to the upright position and fasten your seatbelt."}};
 const voiceBufs={}; let voicesReady=false, voiceLoad=null, voiceQ=Promise.resolve(), voicePlaying=0;
 function loadVoiceFiles(){
   if(voiceLoad || !ac) return voiceLoad;
@@ -486,16 +497,17 @@ function queueVoice(fn){ voiceQ=voiceQ.then(async()=>{ voicePlaying++; duck(true
 function announce(id, log){
   const L=LINES[id]; if(log) note(log,'pa');
   const est=Math.max(9000, L.ko.length*165 + L.en.length*70);
-  if(!soundOn){ chime(true); showSub('ANNOUNCEMENT', L.ko, L.en, est); return; }
-  queueVoice(async()=>{
+  const cabinPA=L.kind==='cabin', ding=()=>cabinPA?sfx.bong():chime(true);
+  if(!soundOn){ ding(); showSub(L.who||'ANNOUNCEMENT', L.ko, L.en, est); return wait(est*.6); }
+  return queueVoice(async()=>{
     await (voiceLoad||Promise.resolve());
     const rec=voiceBufs[id+'_ko'];
-    chime(true);
-    showSub('ANNOUNCEMENT', L.ko, L.en, rec ? (2.1+durOf(id+'_ko')+.7+durOf(id+'_en')+.6)*1000 : est);
-    await sleep(2100);
+    ding();
+    showSub(L.who||'ANNOUNCEMENT', L.ko, L.en, rec ? (2.1+durOf(id+'_ko')+.7+durOf(id+'_en')+.6)*1000 : est);
+    await sleep(cabinPA?1300:2100);
     if(rec){ await playBuf(id+'_ko'); await sleep(700); await playBuf(id+'_en'); }
     else if(hasTTS){ speakLines(sentences(toSay(L.ko,KO_SAY)),'ko'); speechQ=speechQ.then(()=>sleep(650)); await speakLines(sentences(toSay(L.en,EN_SAY)),'en'); }
-    await sleep(250); chime(false); await sleep(1400);
+    await sleep(250); if(!cabinPA) chime(false); await sleep(cabinPA?600:1400);
   });
 }
 // 직원·승무원 대사: 방송과 상관없이 바로 말한다. 대사 길이만큼 기다리는 약속(건너뛰기 가능)을 돌려준다
@@ -537,6 +549,8 @@ const ITEMS={
   check:{name:'꼼꼼함', desc:'탑승권 세 번 확인', use:'4장 · 좌석을 헤매지 않고 바로 찾기'},
   cheer:{name:'엄마의 응원', desc:'"도착하면 꼭 연락하고"', use:'5장 · 도착 후 "잘 도착했어" 문자 보내기'},
   umbrella:{name:'접이식 우산', desc:'밴쿠버는 지금 비', use:'5장 · 비 오는 개스타운을 우산 쓰고 산책'},
+  menu:{name:'기내식 메뉴 카드', desc:'하늘 위에서 고른 메뉴', use:'여행 앨범 · 기내식 페이지'},
+  aurora:{name:'오로라 사진', desc:'알류샨 열도 위의 밤', use:'5장 · 밴쿠버 친구에게 보여주기'},
   battery:{name:'배터리 86%', desc:'좌석 옆 포트로 충전', use:'4장 · 기내 영화 보기 / 5장 · 지도 앱'},
 };
 const PERKS=[
@@ -549,9 +563,11 @@ function persist(){
   SAVE.mood=G.mood; SAVE.plan=plans.filter((p,i)=>saved[i]); SAVE.perks=PERKS.filter(p=>G.mood>=p.at).map(p=>p.name);
   try{ localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE)); }catch(e){}
 }
+function useItem(id){ if(!SAVE.items.includes(id)) return false; SAVE.used=SAVE.used||[]; if(!SAVE.used.includes(id)){ SAVE.used.push(id); renderBag(); persist(); toast(`가방에서 꺼냈어요 · ${ITEMS[id].name}`); } return true; }
+const hasItem=id=>SAVE.items.includes(id);
 function gain(id){ if(!ITEMS[id]||SAVE.items.includes(id)) return; SAVE.items.push(id); renderBag(); persist(); toast(`가방에 넣었어요 · ${ITEMS[id].name}`); }
 function renderBag(){
-  $('bag').innerHTML = SAVE.items.length ? SAVE.items.map(id=>{ const it=ITEMS[id]; return `<div class="item"><b>${it.name}</b><small>${it.desc}</small><span class="use">다음 장에서 · ${it.use}</span></div>`; }).join('')
+  $('bag').innerHTML = SAVE.items.length ? SAVE.items.map(id=>{ const it=ITEMS[id]; const used=(SAVE.used||[]).includes(id); return `<div class="item"><b>${it.name}</b><small>${it.desc}</small>${used?'<span class="used">✓ 기내에서 사용함</span>':`<span class="use">다음 장에서 · ${it.use}</span>`}</div>`; }).join('')
     : '<p class="empty">아직 비어 있어요. 설렘 포인트를 하나씩 해보면 여기에 쌓이고, 기내식 장과 밴쿠버 장에서 실제로 쓰여요.</p>';
 }
 function renderPerks(){ $('perks').innerHTML=PERKS.map(p=>`<li class="${G.mood>=p.at?'on':''}"><span class="at">${G.mood>=p.at?'열림':'설렘 '+p.at+'%'}</span><b>${p.name}</b><small>${p.use}</small></li>`).join(''); }
@@ -868,6 +884,7 @@ function buildScene(){
     limb:new THREE.CylinderGeometry(.052,.05,.22,10), shoe:new THREE.SphereGeometry(.07,10,8),
   };
   const rndOf=a=>a[Math.floor(Math.random()*a.length)];
+  makePerson=(...a)=>person(...a);
   function person(sit, x, z, rot, o={}){
     const g=new THREE.Group(), add=(geo,m,px,py,pz)=>{ const me=new THREE.Mesh(geo,m); me.position.set(px,py,pz); me.castShadow=true; g.add(me); return me; };
     const by = sit ? .49 : .24, hy = by+.68;
@@ -1319,8 +1336,10 @@ function frame(now){
     nextTakeoff-=dt; if(nextTakeoff<0 && !TAKEOFF.active && !G.busy){ startTakeoff(); nextTakeoff=70+Math.random()*40; }
   }
   if(built){
+    const s=now/1000;
+    if(G.chapter===4) ch4Frame(dt,s); else {
     updateSky(dt); updateTakeoff(dt);
-    const s=now/1000, blink=(s%1.2)<.12, strobe=(s%1.4)<.06;
+    const blink=(s%1.2)<.12, strobe=(s%1.4)<.06;
     [myPlane,otherPlane].forEach((p,i)=>{
       const u=p.userData, on = i===1 || G.step>=3;
       u.beacon.material.opacity=u.beacon2.material.opacity = on && blink ? 1 : 0;
@@ -1337,11 +1356,13 @@ function frame(now){
       p.life+=dt*.45; if(p.life>1) p.life=0;
       const b=cupGroup.position; p.s.position.set(b.x+Math.sin(p.life*9+p.life)*.03, b.y+.2+p.life*.45, b.z+Math.cos(p.life*7)*.03);
       p.s.scale.setScalar(.04+p.life*.14); p.s.material.opacity=(1-p.life)*.22; });
+    }
     if(tween){ tween.t+=dt; const k=G.skip?1:Math.min(1,tween.t/tween.dur), e=tween.lin?k:ease(k);
       cam.pos.lerpVectors(tween.fp,tween.tp,e); cam.look.lerpVectors(tween.fl,tween.tl,e);
       if(k>=1){ const r=tween.res; tween=null; r(); } }
     const sway=reduce?0:1;
-    camera.position.set(cam.pos.x+Math.sin(s*.31)*.03*sway, cam.pos.y+Math.sin(s*.53)*.015*sway, cam.pos.z);
+    const sh=camShake?(Math.random()-.5)*camShake:0, sw=G.chapter===4?.3:1;
+    camera.position.set(cam.pos.x+Math.sin(s*.31)*.03*sway*sw+sh, cam.pos.y+Math.sin(s*.53)*.015*sway*sw+sh*.7, cam.pos.z);
     camera.lookAt(cam.look);
     composer ? composer.render() : renderer.render(scene,camera);
   }
@@ -1510,10 +1531,12 @@ function passHTML(btn, highlight){
   </div>${btn}</div>`;
 }
 
-function renderActs(){
+let curActs=acts;
+function renderActs(list){
+  if(list) curActs=list; const acts=curActs;
   $('acts').innerHTML=acts.map(a=>`<button id="act-${a.id}" disabled><span class="tag">${a.tag==='3D'?'장면':'화면'}</span>${a.name}<span class="k">${a.k}</span></button>`).join('');
   acts.forEach(a=>$('act-'+a.id).addEventListener('click',async e=>{
-    const b=e.currentTarget; if(b.classList.contains('done')||G.busy||!G.started) return;
+    const b=e.currentTarget; if(b.classList.contains('done')||G.busy||!G.started||(a.locked&&a.locked())) return;
     setBusy(true); stage.scrollIntoView({behavior:'smooth',block:'nearest'});
     try{ await a.run(); }catch(err){ console.error(err); }
     G.inRestroom=false; waterStream.visible=false;
@@ -1524,8 +1547,9 @@ function renderActs(){
 }
 function setBusy(v){
   G.busy=v; G.skip=false; $('skip').hidden=!v;
-  acts.forEach(a=>{ const b=$('act-'+a.id); b.disabled = v || !G.started || b.classList.contains('done'); });
-  $('boardBtn').disabled = v || G.step<3 || G.boarded;
+  curActs.forEach(a=>{ const b=$('act-'+a.id), lk=a.locked&&a.locked(); b.disabled = v || !G.started || b.classList.contains('done') || !!lk;
+    if(!b.classList.contains('done')) b.querySelector('.k').textContent = lk || a.k; });
+  if(G.chapter===3) $('boardBtn').disabled = v || G.step<3 || G.boarded;
 }
 
 // =====================================================================
@@ -1566,10 +1590,9 @@ $('boardBtn').addEventListener('click', async ()=>{
     <p>짐을 올리고 창가에 앉았다. 밴쿠버까지 비행시간 약 10시간. 창밖으로 탑승교가 천천히 떨어져 나간다.</p>
     <p>가방에 챙긴 것 · ${SAVE.items.map(id=>ITEMS[id].name).join(', ')||'빈손으로 출발'}</p>
     <p>밴쿠버 도착 예정 · 현지 시간 같은 날 오후 1시 10분. 열 시간을 날아가는데 출발한 날 오후에 도착해요.</p>
-    <p style="color:var(--amber)">다음 장: 기내식 (준비 중) · 챙긴 것들은 이 브라우저에 저장돼 다음 장에서 이어져요</p>
-    <button id="again" style="justify-self:center">처음부터 다시</button></div>`;
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button id="go4" class="popbtn">4장 · 기내식으로 →</button><button id="again">처음부터 다시</button></div></div>`;
   SAVE.chapter=4; persist(); $('skip').hidden=true;
-  stage.appendChild(end); $('again').addEventListener('click',()=>location.reload());
+  stage.appendChild(end); $('again').addEventListener('click',()=>location.reload()); $('go4').addEventListener('click',()=>startChapter4());
 });
 
 // =====================================================================
@@ -1602,6 +1625,7 @@ function begin(withSound){
 }
 $('startSound').addEventListener('click',()=>begin(true));
 $('startMute').addEventListener('click',()=>begin(false));
+$('startCh4').addEventListener('click',()=>{ const sv=window.__saved; Object.assign(SAVE,sv); G.mood=0; addMood(sv.mood||0); renderBag(); renderAlbum(); G.boarded=true; begin(true); startChapter4(); });
 try{
   if(!window.THREE) throw new Error('three.js를 불러오지 못했어요');
   buildScene(); setupPost(0); resize(); addEventListener('resize',resize);
@@ -1610,9 +1634,439 @@ try{
   built=true;
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(refreshGateSign);
   $('loading').textContent='준비 완료'; $('startSound').disabled=false; $('startMute').disabled=false;
+  try{ const sv=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(sv && sv.chapter>=4){ $('startCh4').hidden=false; $('startCh4').disabled=false; window.__saved=sv; } }catch(e){}
 }catch(e){
   console.error(e);
   $('loading').textContent='3D 장면을 불러오지 못했어요. 새로고침하면 대부분 해결돼요. ('+e.message+')';
 }
 requestAnimationFrame(frame);
 </script>
+<script>
+"use strict";
+// =====================================================================
+// 4장 · 기내식: 32A 창가에서 이륙 → 음료 카트 → 기내식 → 오로라 → 해돋이
+// 객실 앞쪽이 -z, 32열이 z=0, 왼쪽 창가(A석)가 -x
+// =====================================================================
+let cabin=null;
+const c4={};
+const C4={ phase:'board', p:0, sunEl:-15, sunTarget:-15, aur:0, aurTarget:0, gv:0, gacc:0, climb:0, cloudV:0, mealDone:false, night:false, mood:'board' };
+const HOME4={pos:V(-2.28,1.17,.22), look:V(-2.12,.98,-3)};
+const WIN4={pos:V(-2.55,1.1,-.06), look:V(-6.5,.25,-4.0)};   // 창문 한가운데를 관통하는 시선
+const ROW_Z=r=>(r-32)*.8;
+const SEAT_X=[-2.35,-1.89,-1.43,-.46,0,.46,1.43,1.89,2.35];
+const L0=-9.6, L1=6.4;
+const MOODS={ board:['#f4f1ea',1.35,.55], cruise:['#ffcf9a',1.15,.42], night:['#4a44a8',.8,.1], dawn:['#ffb08a',1.0,.28], descent:['#f4f1ea',1.25,.5] };
+
+function roundRect(path,cx,cy,w,h,r){
+  path.moveTo(cx-w/2+r,cy-h/2); path.lineTo(cx+w/2-r,cy-h/2); path.absarc(cx+w/2-r,cy-h/2+r,r,-Math.PI/2,0,false);
+  path.lineTo(cx+w/2,cy+h/2-r); path.absarc(cx+w/2-r,cy+h/2-r,r,0,Math.PI/2,false);
+  path.lineTo(cx-w/2+r,cy+h/2); path.absarc(cx-w/2+r,cy+h/2-r,r,Math.PI/2,Math.PI,false);
+  path.lineTo(cx-w/2,cy-h/2+r); path.absarc(cx-w/2+r,cy-h/2+r,r,Math.PI,Math.PI*1.5,false);
+  return path;
+}
+
+function buildCabin(){
+  scene=cabin=new THREE.Scene();
+  scene.fog=new THREE.FogExp2(col('#0a0f1e'),.00016);
+  // ----- 바깥: 하늘, 별, 오로라, 구름, 이륙할 때의 지상 불빛, 날개 -----
+  c4.sky=new THREE.Sky(); c4.sky.scale.setScalar(15000); c4.sky.userData.dynamic=true; scene.add(c4.sky);
+  const su=c4.sky.material.uniforms; su.turbidity.value=4; su.rayleigh.value=1.5; su.mieCoefficient.value=.004; su.mieDirectionalG.value=.85;
+  const sp=[]; for(let i=0;i<1400;i++){ const th=Math.random()*Math.PI*2, ph=Math.random()*1.4+.05; sp.push(Math.cos(th)*Math.cos(ph)*9000, Math.sin(ph)*9000, Math.sin(th)*Math.cos(ph)*9000); }
+  const sg=new THREE.BufferGeometry(); sg.setAttribute('position',new THREE.Float32BufferAttribute(sp,3));
+  c4.stars=new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:1.7,sizeAttenuation:false,transparent:true,opacity:0,depthWrite:false,fog:false})); scene.add(c4.stars);
+  c4.auroraMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,fog:false,
+    uniforms:{t:{value:0},a:{value:0}},
+    vertexShader:'uniform float t; varying vec2 vUv; void main(){ vUv=uv; vec3 p=position; p.z+=sin(p.x*.0035+t*.3)*160.+sin(p.x*.011-t*.55)*50.; gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.); }',
+    fragmentShader:`uniform float t,a; varying vec2 vUv;
+      void main(){ float band=smoothstep(0.,.22,vUv.y)*(1.-smoothstep(.3,1.,vUv.y));
+        float rays=.5+.5*sin(vUv.x*95.+t*1.2)*sin(vUv.x*31.-t*.6); float edge=smoothstep(0.,.1,vUv.x)*(1.-smoothstep(.9,1.,vUv.x));
+        vec3 c=mix(vec3(.12,1.,.45),vec3(.7,.3,.95),smoothstep(.4,1.,vUv.y)); gl_FragColor=vec4(c*band*(.35+rays*.65)*edge*a*1.8,1.); }`});
+  [[-2600,620,-2600,4200],[-3300,950,-1100,3600]].forEach(([x,y,z,w])=>{ const m=new THREE.Mesh(new THREE.PlaneGeometry(w,1100,140,1),c4.auroraMat); m.rotation.y=Math.PI/2; m.position.set(x,y,z); m.userData.dynamic=true; scene.add(m); });
+  const cloudTex=canvasTex(256,256,(x,w,h)=>{ for(let i=0;i<14;i++){ const cx=w*(.25+Math.random()*.5), cy=h*(.35+Math.random()*.3), r=w*(.12+Math.random()*.18);
+    const g=x.createRadialGradient(cx,cy,0,cx,cy,r); g.addColorStop(0,'rgba(255,255,255,.55)'); g.addColorStop(1,'rgba(255,255,255,0)'); x.fillStyle=g; x.fillRect(0,0,w,h); } },false);
+  c4.cloudMat=new THREE.SpriteMaterial({map:cloudTex,color:col('#3a4560'),transparent:true,opacity:0,depthWrite:false,fog:false});
+  c4.clouds=[]; for(let i=0;i<70;i++){ const s=new THREE.Sprite(c4.cloudMat); const sz=300+Math.random()*700; s.scale.set(sz*1.6,sz,1);
+    s.position.set(-150-Math.random()*2600,-250-Math.random()*900,-4000+Math.random()*8000); scene.add(s); c4.clouds.push(s); }
+  // 이륙: 활주로 등화와 인천의 불빛, 바다
+  c4.ground=new THREE.Group(); c4.ground.position.y=-4.6; scene.add(c4.ground); c4.ground.userData.dynamic=true;
+  const sea=new THREE.Mesh(new THREE.PlaneGeometry(20000,20000),new THREE.MeshBasicMaterial({color:col('#05080f')})); sea.rotation.x=-Math.PI/2; sea.position.y=-.3; c4.ground.add(sea);
+  const rw=new THREE.Mesh(new THREE.PlaneGeometry(60,4000),new THREE.MeshBasicMaterial({color:col('#0d0f14')})); rw.rotation.x=-Math.PI/2; rw.position.set(0,-.2,-1500); c4.ground.add(rw);
+  const pts=(arr,color,size)=>{ const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(arr,3));
+    const m=new THREE.Points(g,new THREE.PointsMaterial({map:glowTex,color:col(color).multiplyScalar(3),size,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false})); c4.ground.add(m); return m; };
+  const edge=[], cen=[], city=[]; for(let z=-3800;z<400;z+=30){ edge.push(-23,0,z, 23,0,z); cen.push(0,0,z+15); }
+  for(let i=0;i<4500;i++){ const far=Math.random(); city.push(-200-Math.pow(far,1.6)*6000+(Math.random()<.25?6400:0), 0, -6000+Math.random()*9000); }
+  pts(edge,'#fff1d0',3.2); pts(cen,'#6dff8a',2.2); pts(city,'#ffc27a',9);
+  // 날개 (창밖 왼쪽 앞에서 뒤로 뻗는다)
+  const wingMat=std('#c3c7cd',{roughness:.45,metalness:.35});
+  const ws=new THREE.Shape(); [[-3,5.6],[-3,-.8],[-31,-5.2],[-31,-3.5]].forEach((q,i)=>i?ws.lineTo(q[0],q[1]):ws.moveTo(q[0],q[1]));
+  const wg=new THREE.ExtrudeGeometry(ws,{depth:.34,bevelEnabled:true,bevelThickness:.08,bevelSize:.08,bevelSegments:1}); wg.rotateX(-Math.PI/2);
+  const wing=new THREE.Mesh(wg,wingMat); wing.position.y=-1.15; scene.add(wing);
+  const wl=new THREE.Shape(); wl.moveTo(0,0); wl.lineTo(1.4,0); wl.lineTo(2.2,2.6); wl.lineTo(1.6,2.6); wl.lineTo(0,0);
+  const wlg=new THREE.ExtrudeGeometry(wl,{depth:.1,bevelEnabled:false}); wlg.rotateY(Math.PI/2);
+  const winglet=new THREE.Mesh(wlg,std('#c9302c',{roughness:.4})); winglet.position.set(-31.05,-.8,5.1); scene.add(winglet);
+  const nac=new THREE.Mesh(new THREE.CylinderGeometry(1.25,1.05,5.2,28),std('#d9dce0',{roughness:.3,metalness:.4})); nac.geometry.rotateX(Math.PI/2); nac.position.set(-11,-2.5,-4.6); scene.add(nac);
+  c4.navL=glowSprite('#ff3b30',2.2,V(-31.3,-.85,4.3)); c4.strobe=glowSprite('#ffffff',.01,V(-31.4,-.85,4.8));
+
+  // ----- 객실 -----
+  const carpetTex=canvasTex(256,256,(x,w,h)=>{ x.fillStyle='#2a2f45'; x.fillRect(0,0,w,h); for(let i=0;i<500;i++){ x.fillStyle=Math.random()<.5?'rgba(255,255,255,.05)':'rgba(120,140,200,.08)'; x.fillRect(Math.random()*w,Math.random()*h,3,3); } });
+  carpetTex.wrapS=carpetTex.wrapT=THREE.RepeatWrapping; carpetTex.repeat.set(6,16);
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(5.6,L1-L0),std('#ffffff',{map:carpetTex,roughness:.95})); floor.rotation.x=-Math.PI/2; floor.position.set(0,0,(L0+L1)/2); scene.add(floor);
+  const plastic=std('#e7e4dd',{roughness:.55}), dark=std('#3a3e47',{roughness:.6});
+  const winZ=[]; for(let r=21;r<=39;r++) winZ.push(ROW_Z(r)-.25);
+  c4.shades=[];
+  [-1,1].forEach(sd=>{
+    const U=z=>sd<0?-z:z, sh=new THREE.Shape();
+    sh.moveTo(U(L0),.2); sh.lineTo(U(L1),.2); sh.lineTo(U(L1),1.72); sh.lineTo(U(L0),1.72); sh.lineTo(U(L0),.2);
+    winZ.forEach(z=>sh.holes.push(roundRect(new THREE.Path(),U(z),1.05,.26,.38,.11)));
+    const wall=new THREE.Mesh(new THREE.ShapeGeometry(sh,6),plastic); wall.rotation.y=sd<0?Math.PI/2:-Math.PI/2; wall.position.x=sd*2.75; scene.add(wall);
+    const ring=new THREE.Shape(); roundRect(ring,0,0,.36,.5,.15); ring.holes.push(roundRect(new THREE.Path(),0,0,.26,.38,.11));
+    const rg=new THREE.ExtrudeGeometry(ring,{depth:.11,bevelEnabled:false});
+    winZ.forEach(z=>{ const m=new THREE.Mesh(rg,plastic); m.rotation.y=wall.rotation.y; m.position.set(sd*2.86,1.05,z); scene.add(m);
+      const shade=new THREE.Mesh(new THREE.PlaneGeometry(.28,.4),std('#d8d4cc',{roughness:.7,side:THREE.DoubleSide})); shade.rotation.y=wall.rotation.y; shade.position.set(sd*2.875,1.47,z);
+      shade.userData.dynamic=true; scene.add(shade); c4.shades.push(shade); if(sd<0 && Math.abs(z+.25)<.01) c4.myShade=shade; });
+    box(.06,.2,L1-L0,dark,sd*2.72,.1,(L0+L1)/2);
+    const bin=box(.75,.5,L1-L0,plastic,sd*2.36,1.98,(L0+L1)/2); bin.rotation.z=-sd*.18;
+    box(.55,.04,L1-L0,std('#cfccc5',{roughness:.5}),sd*1.92,1.72,(L0+L1)/2);
+  });
+  box(1.7,.44,L1-L0,plastic,0,2.02,(L0+L1)/2);
+  const ceil=new THREE.Mesh(new THREE.PlaneGeometry(5.6,L1-L0),std('#f0eee9',{roughness:.8})); ceil.rotation.x=Math.PI/2; ceil.position.set(0,2.36,(L0+L1)/2); scene.add(ceil);
+  c4.moodMat=new THREE.MeshStandardMaterial({color:0,emissive:col('#f4f1ea'),emissiveIntensity:1.35});
+  [-1.02,1.02].forEach(x=>box(.05,.03,L1-L0,c4.moodMat,x,2.3,(L0+L1)/2).castShadow=false);
+  [-1,1].forEach(sd=>box(.03,.03,L1-L0,c4.moodMat,sd*2.68,1.76,(L0+L1)/2).castShadow=false);
+  box(5.6,2.4,.1,std('#d9d5cd',{roughness:.6}),0,1.2,L0); box(5.6,2.4,.1,std('#d9d5cd',{roughness:.6}),0,1.2,L1);
+  const exitTex=canvasTex(256,96,(x,w,h)=>{ x.fillStyle='#0e3a1e'; x.fillRect(0,0,w,h); x.fillStyle='#6dff8a'; x.font='700 56px sans-serif'; x.textAlign='center'; x.fillText('EXIT 비상구',w/2,66); });
+  [-.95,.95].forEach(x=>{ const m=new THREE.Mesh(new THREE.PlaneGeometry(.42,.16),new THREE.MeshStandardMaterial({color:0,emissive:col('#ffffff'),emissiveMap:exitTex,emissiveIntensity:1.2})); m.position.set(x,2.12,L0+.06); scene.add(m); });
+  // 좌석벨트 표시등 (내 자리 위)
+  const beltTex=canvasTex(128,64,(x,w,h)=>{ x.fillStyle='#111'; x.fillRect(0,0,w,h); x.strokeStyle='#ffd27a'; x.lineWidth=5; x.beginPath(); x.arc(44,32,14,0,7); x.stroke(); x.fillStyle='#ffd27a'; x.fillRect(64,26,44,12); });
+  c4.beltMat=new THREE.MeshStandardMaterial({color:0,emissive:col('#ffffff'),emissiveMap:beltTex,emissiveIntensity:1.4});
+  const belt=new THREE.Mesh(new THREE.PlaneGeometry(.14,.07),c4.beltMat); belt.rotation.x=Math.PI/2; belt.position.set(-1.92,1.695,.15); scene.add(belt);
+  c4.hemi=new THREE.HemisphereLight(col('#fff4e6'),col('#30343c'),.55); scene.add(c4.hemi);
+  c4.pls=[V(-1.4,2.1,-2.5),V(1.4,2.1,1.5),V(-1.6,2.1,2.6)].map(p=>{ const l=new THREE.PointLight(col('#fff1dd'),.45,8,1.6); l.position.copy(p); scene.add(l); return l; });
+
+  // ----- 좌석 (3-3-3) -----
+  const lists={cush:[],back:[],head:[],frame:[],scr:[],tray:[],arm:[]};
+  const BLOCKS=[[0,1,2],[3,4,5],[6,7,8]];
+  for(let r=21;r<=39;r++){ const z=ROW_Z(r);
+    SEAT_X.forEach((x,i)=>{ lists.cush.push([x,.44,z-.02]); lists.back.push([x,.86,z+.26]); lists.head.push([x,1.16,z+.208]);
+      lists.frame.push([x,.98,z+.318]); if(!(r===31&&i===0)){ lists.scr.push([x,.98,z+.326]); lists.tray.push([x,.66,z+.318]); } });
+    BLOCKS.forEach(b=>{ const xs=b.map(i=>SEAT_X[i]); [xs[0]-.24,(xs[0]+xs[1])/2,(xs[1]+xs[2])/2,xs[2]+.24].forEach(ax=>lists.arm.push([ax,.66,z])); });
+  }
+  const instBox=(w,h,d,mat,list,rx)=>{ const m=new THREE.InstancedMesh(new THREE.BoxGeometry(w,h,d),mat,list.length), o=new THREE.Object3D();
+    list.forEach((q,i)=>{ o.position.set(q[0],q[1],q[2]); o.rotation.set(rx||0,0,0); o.updateMatrix(); m.setMatrixAt(i,o.matrix); }); m.castShadow=true; scene.add(m); return m; };
+  const fabric=std('#2d3a57',{roughness:.92});
+  instBox(.44,.1,.46,fabric,lists.cush); instBox(.44,.74,.09,fabric,lists.back,.1); instBox(.38,.2,.012,std('#ebe6dc',{roughness:.8}),lists.head,.1);
+  instBox(.27,.18,.012,std('#15171c',{roughness:.3}),lists.frame); instBox(.36,.24,.012,std('#c9ccd1',{roughness:.5}),lists.tray); instBox(.05,.07,.42,std('#7d828a',{roughness:.5}),lists.arm);
+  c4.scrTex=canvasTex(256,160,(x,w,h)=>{ x.fillStyle='#0b1a33'; x.fillRect(0,0,w,h); x.strokeStyle='#5aa0ff'; x.setLineDash([6,5]); x.lineWidth=3; x.beginPath(); x.moveTo(40,110); x.quadraticCurveTo(128,20,216,100); x.stroke(); x.fillStyle='#f2b452'; x.beginPath(); x.arc(110,58,6,0,7); x.fill(); });
+  c4.scrMat=new THREE.MeshStandardMaterial({color:0,emissive:col('#ffffff'),emissiveMap:c4.scrTex,emissiveIntensity:1.1});
+  { const m=new THREE.InstancedMesh(new THREE.PlaneGeometry(.24,.15),c4.scrMat,lists.scr.length), o=new THREE.Object3D(); lists.scr.forEach((q,i)=>{ o.position.set(q[0],q[1],q[2]); o.updateMatrix(); m.setMatrixAt(i,o.matrix); }); scene.add(m); }
+  // 내 앞자리 화면과 접이식 테이블
+  c4.myTex=canvasTex(512,320,()=>{}); c4.myTex.userData.mode='map';
+  const myScr=new THREE.Mesh(new THREE.PlaneGeometry(.24,.15),new THREE.MeshStandardMaterial({color:0,emissive:col('#ffffff'),emissiveMap:c4.myTex,emissiveIntensity:1.15}));
+  myScr.position.set(-2.35,.98,ROW_Z(31)+.326); scene.add(myScr); drawMyScreen();
+  c4.trayPivot=new THREE.Group(); c4.trayPivot.position.set(-2.35,.74,ROW_Z(31)+.33); c4.trayPivot.userData.dynamic=true; scene.add(c4.trayPivot);
+  const tr=new THREE.Mesh(new THREE.BoxGeometry(.36,.26,.016),std('#c9ccd1',{roughness:.5})); tr.position.y=-.13; c4.trayPivot.add(tr);
+  c4.meal=new THREE.Group(); c4.meal.userData.dynamic=true; scene.add(c4.meal);
+  c4.steam=[]; for(let i=0;i<12;i++){ const s=glowSprite('#ffffff',.05,V(0,-9,0)); s.material.blending=THREE.NormalBlending; s.material.color.setScalar(.9); s.visible=false; c4.steam.push({s,life:Math.random()}); }
+
+  // ----- 승객과 승무원 -----
+  for(let r=21;r<=39;r++) SEAT_X.forEach((x,i)=>{ if(r===32&&i===0) return; if(r===31&&i===0) return;
+    if(r===32&&i===1) return;   // 옆자리는 비워서 시야를 가리지 않게
+    if((r===32&&i===2) || Math.random()<.7) makePerson(true,x,ROW_Z(r)+.02,Math.PI); });
+  c4.crew=makePerson(false,-.95,-9.2,0,{outfit:'#2b3a5c',scarf:'#d9544a',hair:'#1b1b1f',scale:1.25}); c4.crew.userData.dynamic=true;
+  c4.cart=new THREE.Group(); c4.cart.userData.dynamic=true; scene.add(c4.cart);
+  box(.32,.92,.62,std('#b9bec6',{metalness:.7,roughness:.3}),0,.5,0,c4.cart); box(.34,.03,.64,std('#8d939b',{metalness:.7,roughness:.3}),0,.97,0,c4.cart);
+  for(let k=0;k<3;k++) box(.33,.01,.6,std('#5a5f68'),0,.3+k*.22,0,c4.cart);
+  box(.12,.18,.1,std('#e8e6e0'),0,1.06,-.15,c4.cart); box(.08,.22,.08,std('#c96a2a'),.05,1.08,.1,c4.cart);
+  c4.cart.position.set(-.95,0,-8.5);
+
+  scene.environment=null; refreshEnv();
+  mergeStatic(scene);
+  [c4.crew].forEach(mergeStatic);
+}
+
+// ---------- 앞자리 화면: 비행 지도 / 영화 ----------
+function drawMyScreen(movieT){
+  const c=c4.myTex.userData.canvas, x=c.getContext('2d'), w=c.width, h=c.height;
+  if(movieT!=null){ const g=x.createLinearGradient(0,0,w,h); const a=movieT;
+    g.addColorStop(0,`hsl(${(a*40)%360},55%,${30+Math.sin(a)*10}%)`); g.addColorStop(1,`hsl(${(a*40+120)%360},50%,${18+Math.cos(a*1.3)*8}%)`);
+    x.fillStyle=g; x.fillRect(0,0,w,h); x.fillStyle='rgba(255,255,255,.85)'; x.font='24px sans-serif'; x.textAlign='center'; x.fillText(c4.movieLine||'',w/2,h-26); x.textAlign='left';
+    c4.myTex.needsUpdate=true; return; }
+  x.fillStyle='#0b1a33'; x.fillRect(0,0,w,h);
+  x.fillStyle='#1d3a2c'; x.beginPath(); x.ellipse(70,200,48,70,.3,0,7); x.fill(); x.beginPath(); x.ellipse(118,170,16,46,.6,0,7); x.fill();
+  x.beginPath(); x.ellipse(420,120,120,70,-.2,0,7); x.fill(); x.beginPath(); x.ellipse(330,90,70,26,.1,0,7); x.fill();
+  const P0=[96,200], P1=[452,178], CP=[270,40], q=t=>[(1-t)*(1-t)*P0[0]+2*(1-t)*t*CP[0]+t*t*P1[0],(1-t)*(1-t)*P0[1]+2*(1-t)*t*CP[1]+t*t*P1[1]];
+  x.strokeStyle='#5aa0ff'; x.setLineDash([8,7]); x.lineWidth=3; x.beginPath(); x.moveTo(...P0); x.quadraticCurveTo(...CP,...P1); x.stroke(); x.setLineDash([]);
+  x.strokeStyle='#f2b452'; x.lineWidth=4; x.beginPath(); x.moveTo(...P0); for(let t=0;t<=C4.p;t+=.02) x.lineTo(...q(t)); x.stroke();
+  const [px,py]=q(C4.p); x.fillStyle='#ffffff'; x.beginPath(); x.arc(px,py,8,0,7); x.fill();
+  x.fillStyle='#cfe0ff'; x.font='600 20px sans-serif'; x.fillText('ICN 인천',60,236); x.fillText('YVR 밴쿠버',400,214);
+  x.fillStyle='rgba(0,0,0,.45)'; x.fillRect(0,h-56,w,56); x.fillStyle='#ffffff'; x.font='600 21px sans-serif';
+  const left=Math.round(580*(1-C4.p)); x.fillText(`남은 시간 ${Math.floor(left/60)}:${String(left%60).padStart(2,'0')}`,16,h-20);
+  x.fillText(C4.phase==='board'||C4.phase==='takeoff'?'고도 0 ft':'고도 35,000 ft',200,h-20); x.fillText(`현지 ${vancouverTime()}`,380,h-20);
+  c4.myTex.needsUpdate=true;
+}
+// 밴쿠버(서머타임) 시각: 출발 19:10 KST = 03:10 현지, 비행 580분
+function vancouverTime(){ const m=3*60+10+Math.round(580*C4.p); return `${String(Math.floor(m/60)%24).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`; }
+function setProgress(p){ C4.p=Math.min(1,p); drawMyScreen(); }
+
+// ---------- 매 프레임 ----------
+function ch4Frame(dt,s){
+  C4.sunEl+=(C4.sunTarget-C4.sunEl)*Math.min(1,dt*.35);
+  const el=THREE.MathUtils.degToRad(C4.sunEl), az=THREE.MathUtils.degToRad(-35);
+  const sv=V(Math.cos(el)*Math.sin(az),Math.sin(el),-Math.cos(el)*Math.cos(az));
+  c4.sky.material.uniforms.sunPosition.value.copy(sv);
+  const dark=THREE.MathUtils.clamp((-C4.sunEl-4)/10,0,1);
+  c4.stars.material.opacity=dark*.95;
+  C4.aur+=(C4.aurTarget-C4.aur)*Math.min(1,dt*.4); c4.auroraMat.uniforms.a.value=C4.aur; c4.auroraMat.uniforms.t.value=s;
+  // 객실 조명
+  const m=MOODS[C4.mood], tc=col(m[0]);
+  c4.moodMat.emissive.lerp(tc,Math.min(1,dt*1.2)); c4.moodMat.emissiveIntensity+=(m[1]-c4.moodMat.emissiveIntensity)*Math.min(1,dt*1.2);
+  c4.hemi.intensity+=(m[2]-c4.hemi.intensity)*Math.min(1,dt*1.2);
+  c4.pls.forEach(l=>l.intensity+=((C4.mood==='night'?.08:.45)-l.intensity)*Math.min(1,dt*1.2));
+  c4.scrMat.emissiveIntensity=C4.mood==='night'?.55:1.1;
+  // 구름: 아래로 흘러가는 구름 바다
+  const day=THREE.MathUtils.clamp((C4.sunEl+6)/12,0,1);
+  c4.cloudMat.color.copy(col('#28324a')).lerp(col(C4.sunEl>-2&&C4.sunEl<6?'#ffc2a0':'#e9edf2'),day);
+  c4.cloudMat.opacity+=((C4.phase==='board'||C4.phase==='takeoff'?0:.85)-c4.cloudMat.opacity)*Math.min(1,dt*.5);
+  c4.clouds.forEach(c=>{ c.position.z+=C4.cloudV*dt; if(c.position.z>4000) c.position.z-=8000; });
+  // 이륙: 지상이 뒤로 흐르고 아래로 멀어진다
+  if(c4.ground.visible){ C4.gv+=C4.gacc*dt; c4.ground.position.z=(c4.ground.position.z+C4.gv*dt)%3000;
+    if(C4.climb){ c4.ground.position.y-=C4.climb*dt; C4.climb+=dt*9; if(c4.ground.position.y<-4200) c4.ground.visible=false; } }
+  // 날개 끝 스트로브
+  c4.strobe.scale.setScalar((s%1.3)<.06?6:.01);
+  // 김
+  c4.steam.forEach(p=>{ if(!c4.steamOn){ p.s.visible=false; return; } p.s.visible=true; p.life+=dt*.5; if(p.life>1) p.life=0;
+    const b=c4.steamAt; p.s.position.set(b.x+Math.sin(p.life*8)*.02,b.y+p.life*.25,b.z+Math.cos(p.life*6)*.02); p.s.scale.setScalar(.03+p.life*.09); p.s.material.opacity=(1-p.life)*.25; });
+  if(c4.movieOn){ c4.movieT=(c4.movieT||0)+dt; if((c4.movieT*10|0)!==(c4.lastMovie|0)){ c4.lastMovie=c4.movieT*10; drawMyScreen(c4.movieT); } }
+  c4.beltMat.emissiveIntensity=C4.belt?1.5:.05;
+  $('time').textContent=vancouverTime(); const left=Math.round(580*(1-C4.p));
+  $('left').textContent=`밴쿠버 현지 시각 · 도착까지 ${Math.floor(left/60)}:${String(left%60).padStart(2,'0')}`;
+}
+
+// ---------- 공용 연출 도우미 ----------
+const untilSkip=()=>new Promise(r=>{ const id=setInterval(()=>{ if(G.skip){ clearInterval(id); r(); } },80); });
+const orSkip=p=>Promise.race([p||Promise.resolve(),untilSkip()]);
+function choose(title, sub, opts){
+  return new Promise(r=>{
+    $('pop').innerHTML=`<div class="shop"><h3>${title}</h3><p>${sub}</p><div class="opts">${opts.map(o=>`<button data-id="${o.id}"${o.off?' disabled':''}>${o.label}${o.price?`<b>${o.price}</b>`:''}<small>${o.note||''}</small></button>`).join('')}</div></div>`;
+    const done=id=>{ clearInterval(iv); $('pop').innerHTML=''; r(id); };
+    $('pop').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>done(b.dataset.id),{once:true}));
+    const iv=setInterval(()=>{ if(G.skip){ const ok=opts.filter(o=>!o.off); done(ok[Math.floor(Math.random()*ok.length)].id); } },100);
+  });
+}
+// 버튼 하나를 눌러야 다음으로 (hold=true 면 꾹 누르고 있어야 한다)
+function mealStep(label, hold, onProgress){
+  return new Promise(r=>{
+    const bar=document.createElement('div'); bar.className='mealbar';
+    bar.innerHTML=`<button class="${hold?'hold':''}">${label}${hold?'<i></i>':''}</button>`; stage.appendChild(bar);
+    const b=bar.querySelector('button'), fill=bar.querySelector('i'); b.focus();
+    let p=0, down=false, raf=0, last=0;
+    const finish=()=>{ cancelAnimationFrame(raf); clearInterval(iv); bar.remove(); if(onProgress) onProgress(1); r(); };
+    const iv=setInterval(()=>{ if(G.skip) finish(); },100);
+    if(!hold){ b.addEventListener('click',finish,{once:true}); return; }
+    const tick=n=>{ const d=last?(n-last)/1000:0; last=n; if(down){ p=Math.min(1,p+d/2.4); fill.style.width=p*100+'%'; if(onProgress) onProgress(p); if(p>=1) return finish(); } raf=requestAnimationFrame(tick); };
+    raf=requestAnimationFrame(tick);
+    const on=e=>{ e.preventDefault(); down=true; }, off=()=>{ down=false; };
+    b.addEventListener('pointerdown',on); b.addEventListener('pointerup',off); b.addEventListener('pointerleave',off);
+    b.addEventListener('keydown',e=>{ if(e.key===' '||e.key==='Enter') down=true; }); b.addEventListener('keyup',off);
+  });
+}
+async function openTray(){ if(c4.trayOpen) return; c4.trayOpen=true; sfx.bag(); await animate(700,k=>c4.trayPivot.rotation.x=-Math.PI/2*ease(k)); }
+async function closeTray(){ if(!c4.trayOpen) return; c4.trayOpen=false; c4.meal.visible=false; await animate(600,k=>c4.trayPivot.rotation.x=-Math.PI/2*(1-ease(k))); }
+const TRAY=V(-2.35,.749,ROW_Z(31)+.46);
+function clearMeal(){ while(c4.meal.children.length) c4.meal.remove(c4.meal.children[0]); c4.meal.visible=true; }
+function mk(geo,mat,x,y,z,parent){ const m=new THREE.Mesh(geo,mat); m.position.set(x,y,z); m.castShadow=true; (parent||c4.meal).add(m); return m; }
+async function crewTo(z){ const c=c4.crew, ct=c4.cart, z0=c.position.z; c.rotation.y=z>z0?0:Math.PI; sfx.rattle();
+  const dur=Math.min(4500,Math.abs(z-z0)*420); await animate(dur,k=>{ const zz=z0+(z-z0)*ease(k); c.position.z=zz; ct.position.z=zz+(z>z0?.75:-.75); c.position.y=Math.abs(Math.sin(k*30))*.02; }); c.position.y=0; }
+
+// ---------- 할 일 ----------
+const ch4Acts=[
+  {id:'drink', name:'음료 카트', k:'메이플 라떼가 있을까', tag:'3D', mood:10, async run(){
+    await moveCam(HOME4.pos,V(-.9,1.0,-1.2),1.6);
+    await crewTo(-.15); c4.crew.rotation.y=-Math.PI/2;
+    await talk('c_drink');
+    const stamp=hasItem('stamp'); if(stamp) await talk('c_latte');
+    const pick=await choose('음료는 뭘로 할까?','승무원이 카트 옆에서 기다리고 있어요.',[
+      ...(stamp?[{id:'latte',label:'메이플 라떼',note:'카페 27 스탬프 혜택'}]:[]),
+      {id:'coffee',label:'커피',note:'따뜻하게'},{id:'oj',label:'오렌지 주스',note:'시원하게'},{id:'beer',label:'맥주',note:'이륙 기념 한 캔'}]);
+    if(pick==='latte') useItem('stamp');
+    await moveCam(V(-2.3,1.2,.1),V(-2.33,.75,-.38),1.4);
+    await openTray(); clearMeal();
+    const hot=pick==='latte'||pick==='coffee';
+    const cupMat=std(hot?'#f4f1ea':'#e8f2f6',{roughness:hot?.5:.05,transparent:!hot,opacity:hot?1:.55});
+    const cup=mk(new THREE.CylinderGeometry(.035,.028,.09,20),cupMat,TRAY.x+.1,TRAY.y+.045,TRAY.z+.05);
+    if(!hot) mk(new THREE.CylinderGeometry(.031,.026,.06,20),std(pick==='oj'?'#f2a03a':'#e8b84a',{roughness:.2}),TRAY.x+.1,TRAY.y+.032,TRAY.z+.05);
+    else { mk(new THREE.CylinderGeometry(.037,.037,.01,20),std('#ffffff'),TRAY.x+.1,TRAY.y+.093,TRAY.z+.05); c4.steamAt=V(TRAY.x+.1,TRAY.y+.11,TRAY.z+.05); c4.steamOn=true; }
+    if(pick==='beer') mk(new THREE.CylinderGeometry(.028,.028,.12,20),std('#c9302c',{metalness:.8,roughness:.3}),TRAY.x+.17,TRAY.y+.06,TRAY.z-.02);
+    mk(new THREE.BoxGeometry(.06,.004,.06),std('#ffffff',{roughness:.9}),TRAY.x+.1,TRAY.y+.002,TRAY.z+.05).position.y=TRAY.y+.001;
+    const names={latte:'메이플 라떼',coffee:'커피',oj:'오렌지 주스',beer:'맥주'};
+    note(`${names[pick]}를 받았다. ${pick==='latte'?'메이플 시럽 향이 은은하다. 카페 27 스탬프가 여기서 쓰일 줄이야.':'구름 위에서 마시니 맛이 다르다.'}`);
+    crewTo(-9.2).then(()=>{}); await wait(1600); c4.steamOn=false;
+    await moveCam(HOME4.pos,HOME4.look,1.6); setProgress(C4.p+.04);
+  }},
+  {id:'meal', name:'기내식', k:'고르고, 열고, 비벼 먹기', tag:'3D', mood:20, item:'menu', async run(){
+    await moveCam(HOME4.pos,V(-.9,1.0,-1.2),1.6);
+    await crewTo(-.15); c4.crew.rotation.y=-Math.PI/2;
+    await talk('c_meal');
+    const perk=G.mood>=60; let soldOut=false, pick;
+    for(;;){ pick=await choose('어떤 기내식으로 할까?', perk?'설렘 보상 덕분에 아직 세 가지 모두 남아 있어요.':'앞쪽부터 배식 중이라 하나는 없을 수도 있어요.',[
+      {id:'bibim',label:'비빔밥',note:'고추장을 넣어 직접 비벼요'},{id:'beef',label:'소고기 찜',note:'간장 양념 갈비찜과 밥',off:soldOut},{id:'fish',label:'흰살생선',note:'버터 레몬 소스와 감자'}]);
+      if(pick==='beef' && !perk){ soldOut=true; await talk('c_soldout'); continue; } break; }
+    const NAME={bibim:'비빔밥',beef:'소고기 찜',fish:'흰살생선'}[pick];
+    await moveCam(V(-2.3,1.24,.04),V(-2.33,.74,-.4),1.5);
+    await openTray(); clearMeal();
+    // 쟁반과 곁들이 (샐러드, 빵, 디저트, 물, 수저)
+    mk(new THREE.BoxGeometry(.4,.012,.24),std('#d9d4ca',{roughness:.6}),TRAY.x,TRAY.y+.006,TRAY.z);
+    const W=std('#ffffff',{roughness:.35});
+    mk(new THREE.CylinderGeometry(.045,.035,.035,20),W,TRAY.x+.13,TRAY.y+.03,TRAY.z-.06);
+    for(let i=0;i<5;i++) mk(new THREE.SphereGeometry(.014,8,6),std(['#5f9a45','#8cc461','#e0533a'][i%3]),TRAY.x+.12+Math.random()*.03-.015,TRAY.y+.05,TRAY.z-.06+Math.random()*.03-.015);
+    mk(new THREE.SphereGeometry(.03,12,10),std('#c98a4a',{roughness:.8}),TRAY.x+.14,TRAY.y+.035,TRAY.z+.05).scale.set(1.3,.8,1);
+    mk(new THREE.CylinderGeometry(.028,.024,.04,16),std('#f3e2c0'),TRAY.x-.15,TRAY.y+.03,TRAY.z+.07);
+    mk(new THREE.CylinderGeometry(.022,.018,.07,16),std('#dfeef5',{roughness:.1,transparent:true,opacity:.7}),TRAY.x-.16,TRAY.y+.045,TRAY.z-.07);
+    mk(new THREE.BoxGeometry(.16,.008,.03),std('#f6f4ef'),TRAY.x+.02,TRAY.y+.016,TRAY.z+.095);
+    // 주요리
+    const MX=TRAY.x-.03, MZ=TRAY.z-.01, MY=TRAY.y+.012;
+    let lid, food=[], mixTarget=null, base=null;
+    if(pick==='bibim'){
+      mk(new THREE.LatheGeometry([[0,0],[.05,0],[.072,.02],[.078,.06],[.074,.062]].map(q=>new THREE.Vector2(q[0],q[1])),28),std('#3a3533',{roughness:.6,side:THREE.DoubleSide}),MX,MY,MZ);
+      base=mk(new THREE.CylinderGeometry(.068,.068,.012,28),std('#f4f1ea',{roughness:.7}),MX,MY+.045,MZ); mixTarget=col('#d9663a');
+      const tops=['#e8892a','#3f7a3a','#efe3a0','#6b4a34','#5a2f22','#b8c86a'];
+      tops.forEach((c,i)=>{ const a=i/6*Math.PI*2; const t=mk(new THREE.BoxGeometry(.03,.012,.022),std(c,{roughness:.6}),MX+Math.cos(a)*.04,MY+.056,MZ+Math.sin(a)*.04); t.rotation.y=-a; food.push(t); });
+      food.push(mk(new THREE.SphereGeometry(.014,12,8),std('#f2a21a',{roughness:.3}),MX,MY+.058,MZ));
+      lid=mk(new THREE.CylinderGeometry(.08,.08,.018,28),std('#d8dbe0',{metalness:.6,roughness:.35}),MX,MY+.072,MZ);
+    } else {
+      mk(new THREE.BoxGeometry(.17,.05,.12),std('#f2f2f0',{roughness:.4}),MX,MY+.025,MZ);
+      base=mk(new THREE.BoxGeometry(.07,.02,.1),std('#f4f1ea',{roughness:.7}),MX-.04,MY+.055,MZ);
+      const main=mk(new THREE.BoxGeometry(.075,.025,.09),std(pick==='beef'?'#5a2f1f':'#f0e6d2',{roughness:.5}),MX+.04,MY+.058,MZ); food.push(main);
+      if(pick==='beef'){ food.push(mk(new THREE.SphereGeometry(.012,8,6),std('#e8892a'),MX+.03,MY+.075,MZ+.02)); food.push(mk(new THREE.SphereGeometry(.012,8,6),std('#b08a4a'),MX+.055,MY+.075,MZ-.02)); }
+      else { food.push(mk(new THREE.SphereGeometry(.016,10,8),std('#e8d48a'),MX+.03,MY+.075,MZ+.025)); food.push(mk(new THREE.SphereGeometry(.016,10,8),std('#e8d48a'),MX+.05,MY+.075,MZ-.02)); }
+      lid=mk(new THREE.BoxGeometry(.175,.006,.125),std('#e3e6ea',{metalness:.9,roughness:.25}),MX,MY+.052,MZ); lid.position.y=MY+.053;
+    }
+    talk('c_enjoy'); crewTo(-9.2);
+    // 1) 뚜껑 열기
+    await mealStep(pick==='bibim'?'뚜껑 열기':'포일 벗기기');
+    sfx.foil(); c4.steamAt=V(MX,MY+.08,MZ); c4.steamOn=true;
+    const l0=lid.position.clone(); await animate(900,k=>{ lid.position.set(l0.x+.2*ease(k),l0.y+.06*Math.sin(k*Math.PI),l0.z+.08*ease(k)); lid.rotation.z=-.5*ease(k); });
+    note(pick==='bibim'?'뚜껑을 여니 고소한 나물 향과 따뜻한 김이 올라온다.':'포일을 벗기니 김이 확 올라온다. 기내식 특유의 그 냄새.');
+    // 2) 고추장 / 소스
+    await mealStep(pick==='bibim'?'고추장 짜기':'소스 뿌리기');
+    const tube=mk(new THREE.CylinderGeometry(.012,.016,.07,12),std(pick==='bibim'?'#c9302c':'#e8e6e0',{roughness:.4}),MX+.02,MY+.13,MZ); tube.rotation.z=.9;
+    const blob=mk(new THREE.SphereGeometry(.022,14,10),std(pick==='bibim'?'#b8231a':pick==='beef'?'#3a1a10':'#f2d06a',{roughness:.3}),MX,MY+.06,MZ); blob.scale.setScalar(.01);
+    await animate(1100,k=>{ blob.scale.set(k,k*.45,k); tube.scale.y=1-.3*k; }); tube.visible=false;
+    // 3) 비비기 / 자르기 (꾹 누르기)
+    const spoon=mk(new THREE.BoxGeometry(.012,.006,.11),std('#dfe3e8',{metalness:1,roughness:.2}),MX,MY+.09,MZ+.03);
+    const baseCol=base.material.color.clone();
+    await mealStep(pick==='bibim'?'비비기 · 꾹 누르고 있기':'한 입 크기로 자르기 · 꾹 누르고 있기', true, p=>{
+      const a=p*Math.PI*8; spoon.position.set(MX+Math.cos(a)*.03,MY+.075,MZ+Math.sin(a)*.03); spoon.rotation.y=-a;
+      if(pick==='bibim'){ food.forEach(f=>f.scale.setScalar(Math.max(.05,1-p))); blob.scale.set(1-p*.9,(1-p)*.45+.01,1-p*.9); base.material.color.copy(baseCol).lerp(mixTarget,p); }
+      else food.forEach((f,i)=>f.position.x+=(i%2?.0004:-.0004)); });
+    sfx.foil();
+    await moveCam(V(-2.3,1.32,.0),V(-2.33,.74,-.42),1.0);
+    if(!G.skip) takePhoto('하늘 위 기내식 · '+NAME);
+    // 4) 먹기
+    await mealStep('맛있게 먹기');
+    await animate(2600,k=>{ base.scale.set(1-k*.8,1,1-k*.8); food.forEach(f=>f.scale.multiplyScalar(.985)); blob.scale.multiplyScalar(.985); spoon.position.y=MY+.075+Math.abs(Math.sin(k*18))*.04; });
+    c4.steamOn=false;
+    note(`${NAME}을(를) 싹싹 비웠다. 구름 위 3만 5천 피트에서 먹는 밥은 왜 이렇게 맛있을까.`);
+    ITEMS.menu.desc=`오늘의 메뉴: ${NAME}`;
+    await moveCam(HOME4.pos,HOME4.look,1.6);
+    setProgress(C4.p+.12); C4.mealDone=true;
+    setTimeout(startNight,2500);
+  }},
+  {id:'movie', name:'영화 보기', k:'앞자리 화면, 또는 내 휴대폰', tag:'3D', mood:10, async run(){
+    const bat=hasItem('battery');
+    const pick=await choose('뭘 볼까?','이어폰을 꽂고 담요를 덮었다.',[
+      {id:'whale',label:'북쪽 바다의 고래',note:'다큐멘터리 · 1시간 40분'},{id:'bus',label:'서울 야간 버스',note:'로맨스 · 1시간 55분'},
+      {id:'maple',label:'메이플 로드',note:'캐나다 로드무비 · 2시간'}, ...(bat?[{id:'phone',label:'내 휴대폰 속 예능',note:'배터리 86% 덕분에'}]:[])]);
+    if(pick==='phone') useItem('battery');
+    const LINE={whale:'"고래는 노래로 길을 찾는대요."',bus:'"막차 끊기기 전에 말하고 싶었어."',maple:'"다음 주유소까지 300킬로미터래."',phone:'(혼자 소리 죽여 웃는 중)'};
+    c4.movieLine=LINE[pick]; c4.movieOn=true;
+    await moveCam(V(-2.3,1.12,.06),V(-2.35,.98,-.48),1.6);
+    await wait(5200); c4.movieOn=false; drawMyScreen();
+    note(pick==='phone'?'휴대폰으로 받아둔 예능을 봤다. 배터리 충전해 두길 잘했다.':`영화 ${{whale:'「북쪽 바다의 고래」',bus:'「서울 야간 버스」',maple:'「메이플 로드」'}[pick]}를 봤다. 화면 아래 비행 지도가 조금씩 움직였다.`);
+    await moveCam(HOME4.pos,HOME4.look,1.4); setProgress(C4.p+.16);
+  }},
+  {id:'aurora', name:'창밖 밤하늘', k:'알류샨 열도 위의 오로라', tag:'3D', mood:15, item:'aurora', locked:()=>C4.night?'':'기내식 후 소등되면 열려요', async run(){
+    const pa=announce('c_aurora'); await orSkip(pa);
+    await moveCam(WIN4.pos,WIN4.look,2);
+    const sh=c4.myShade, y0=sh.position.y; await animate(900,k=>sh.position.y=y0+(1.47-y0)*ease(k));
+    C4.aurTarget=1; note('창문 덮개를 올리니 초록빛 커튼이 하늘에서 천천히 출렁인다. 오로라다.');
+    await wait(4200); if(!G.skip) takePhoto('창밖의 오로라');
+    await wait(2200); await moveCam(HOME4.pos,HOME4.look,2); setProgress(Math.max(C4.p,.55)+.06);
+  }},
+  {id:'sleep', name:'잠들기', k:'눈을 뜨면 해돋이', tag:'3D', mood:10, locked:()=>C4.night?'':'기내식 후 소등되면 열려요', async run(){
+    const pick=await choose('어떻게 잘까?','기내가 어둡고 조용해졌어요.',[
+      ...(hasItem('pillow')?[{id:'pillow',label:'목베개 하고 자기',note:'면세점에서 산 그 목베개'}]:[]),
+      ...(hasItem('mask')?[{id:'mask',label:'마스크팩 하고 자기',note:'건조한 기내 대비 완료'}]:[]),
+      {id:'blanket',label:'담요 덮고 자기',note:'승무원이 준 담요'}]);
+    if(pick!=='blanket') useItem(pick);
+    note({pillow:'목베개를 하니 고개가 편하다. 눈을 감는다.',mask:'마스크팩을 붙이고 눈을 감는다. 아침엔 촉촉하겠지.',blanket:'담요를 끌어올리고 눈을 감는다.'}[pick]);
+    $('fade').style.transition='opacity 1.6s'; $('fade').style.opacity=1; await wait(1800);
+    setProgress(.9); C4.phase='dawn'; C4.mood='dawn'; C4.aurTarget=0; C4.aur=0; C4.sunEl=-8; C4.sunTarget=6;
+    c4.shades.forEach(s=>s.position.y=1.47);
+    cam.pos.copy(WIN4.pos); cam.look.set(-6.5,.75,-4.2);
+    await wait(600); $('fade').style.opacity=0; await wait(1700); $('fade').style.transition='';
+    talk('c_morning'); note('눈을 뜨니 창밖 구름 바다 끝이 분홍빛으로 물들고 있다.');
+    await wait(5500); if(!G.skip) takePhoto('하늘 위의 해돋이');
+    await moveCam(HOME4.pos,HOME4.look,2);
+    C4.phase='descent'; C4.mood='descent'; C4.belt=true; sfx.bong(); setProgress(.97);
+    await closeTray(); await orSkip(announce('c_descent'));
+    endChapter4();
+  }},
+];
+
+// ---------- 흐름 ----------
+async function startNight(){
+  if(C4.night) return; C4.night=true; C4.phase='night'; C4.mood='night'; C4.sunTarget=-18; setProgress(Math.max(C4.p,.45));
+  await closeTray(); c4.shades.forEach((s,i)=>{ if(s!==c4.myShade && Math.random()<.6) s.position.y=1.05; }); c4.myShade.position.y=1.05;
+  announce('c_night','기내 조명이 어두워졌다. 창밖 어딘가에서 초록빛이 어른거린다.'); setBusy(G.busy);
+}
+async function startChapter4(){
+  $('fade').style.transition='opacity 1s'; $('fade').style.opacity=1; await sleep(1000);
+  document.querySelectorAll('.endcard').forEach(e=>e.remove());
+  G.chapter=4; G.boarded=true; SAVE.chapter=4; persist();
+  if(!cabin){ const keep=scene; buildCabin(); c4.terminal=keep; }
+  scene=cabin; applyQuality(quality);
+  document.querySelectorAll('.ch3only').forEach(e=>e.hidden=true);
+  $('chTitle').textContent='32A, 밴쿠버행'; $('chLabel').textContent='Chapter 4 · 기내식'; $('actsTitle').textContent='기내에서, 설레는 것들';
+  document.querySelectorAll('#chapters li').forEach(li=>li.classList.toggle('now',li.dataset.c==='4'));
+  $('speed').hidden=true; $('gl').setAttribute('aria-label','밴쿠버행 비행기 32A 창가 좌석. 앞자리 화면과 창밖이 보인다');
+  if(ac && humLP){ humLP.frequency.setTargetAtTime(240,ac.currentTime,1); humBase=.55; humGain.gain.setTargetAtTime(humBase,ac.currentTime,1); murmurGain.gain.setTargetAtTime(.006,ac.currentTime,1); }
+  renderActs(ch4Acts); setBusy(true);
+  cam.pos.copy(HOME4.pos); cam.look.copy(HOME4.look);
+  $('fade').style.opacity=0; await sleep(1000); $('fade').style.transition='';
+  caption('4장 · 32A, 밴쿠버행',3500);
+  if(useItem('check')) note('꼼꼼함 덕분에 32A를 한 번에 찾았다. 가방은 위 선반에 올렸다.'); else note('좌석 번호를 두 번 확인하고 32A 창가에 앉았다.');
+  if(hasItem('fresh')) note('미리 화장실에 다녀온 덕분에 마음 편히 벨트를 맸다.');
+  await orSkip(announce('c_welcome'));
+  // 이륙
+  C4.phase='takeoff'; talk('c_takeoff'); await wait(2500);
+  const perk30=G.mood>=30;
+  if(perk30) await moveCam(WIN4.pos,WIN4.look,2); else await moveCam(HOME4.pos,V(-4.5,1.0,-2.6),2);
+  caption(perk30?'창가에서 보는 이륙':'이륙',3000);
+  sfx.roar(); C4.gacc=7; camShake=.006;
+  await wait(9000);
+  C4.climb=8; camShake=.004; C4.mood='cruise'; cam.look.y+=.25;
+  note(perk30?'바퀴가 땅에서 떨어지는 순간, 창밖 인천의 불빛이 기울며 멀어진다.':'바퀴가 땅에서 떨어졌다. 창밖으로 불빛이 스쳐 지나간다.');
+  await wait(4000); if(perk30 && !G.skip) takePhoto('인천의 밤, 이륙');
+  await wait(4000);
+  C4.gacc=0; camShake=0; C4.cloudV=95; c4.ground.visible=false; C4.phase='cruise'; C4.belt=false; sfx.bong(); setProgress(.04);
+  await moveCam(HOME4.pos,HOME4.look,2);
+  announce('c_captain','기장 방송. 순항 고도 3만 5천 피트, 밴쿠버까지 9시간 40분.');
+  setBusy(false);
+}
+function endChapter4(){
+  $('fade').style.opacity=1; setProgress(1);
+  setTimeout(()=>{
+    const end=document.createElement('div'); end.className='endcard';
+    end.innerHTML=`<div class="in"><span class="chapter">Chapter 4 완료 · 설렘 ${G.mood}%</span>
+      <h2>곧, 밴쿠버</h2>
+      <p>창밖으로 비에 젖은 산과 바다가 보이기 시작했다. 현지 시간 오후 1시 10분, 밴쿠버 국제공항.</p>
+      <p>기내에서 쓴 것 · ${(SAVE.used||[]).map(id=>ITEMS[id].name).join(', ')||'없음'}</p>
+      <p style="color:var(--amber)">다음 장: 밴쿠버 (준비 중) · 남은 짐은 5장에서 쓰여요</p>
+      <button id="again4" style="justify-self:center">처음부터 다시</button></div>`;
+    SAVE.chapter=5; persist(); $('skip').hidden=true; G.busy=true;
+    stage.appendChild(end); $('again4').addEventListener('click',()=>location.reload());
+  },1300);
+}
+</script>
+

@@ -1,40 +1,205 @@
 {
-  "_note": "Gate 27 voice lines. ko/en = subtitle text, voice = Supertonic 3 speaker id, kind = pa (airport PA effect) or talk (dry). Regenerate with scripts in tools/.",
-  "a_osaka": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT",
-    "ko": "한빛항공에서 오사카로 가는 723편의 마지막 탑승 안내 말씀 드립니다. 아직 탑승하지 않으신 손님께서는 지금 바로 14번 탑승구로 와 주시기 바랍니다.",
-    "en": "This is the final boarding call for Hanbit Air flight 723 to Osaka. Any remaining passengers, please proceed to gate 14 immediately."},
-  "a_prep": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT",
-    "ko": "손님 여러분께 안내 말씀 드리겠습니다. 밴쿠버로 가는 메이플 에어 071편은 오후 6시 30분부터 27번 탑승구에서 탑승을 시작할 예정입니다. 캐나다로 가시는 손님께서는 탑승 전에 여권과 탑승권, 그리고 캐나다 전자여행허가 eTA를 다시 한번 확인해 주시기 바랍니다. 감사합니다.",
-    "en": "Ladies and gentlemen, may I have your attention please. Maple Air flight 071 to Vancouver will begin boarding at 6:30 p.m. from gate 27. Passengers travelling to Canada, please have your passport, boarding pass, and Canadian eTA ready. Thank you."},
-  "a_bag": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT",
-    "ko": "기내 반입 수하물 안내 말씀 드리겠습니다. 오늘 메이플 에어 071편은 만석으로 운항할 예정입니다. 기내 반입 수하물은 1인당 가방 1개와 개인 소지품 1개로 제한되며, 규정을 넘는 수하물은 탑승구에서 위탁 처리될 수 있습니다.",
-    "en": "Today's flight is completely full. Each passenger may bring one carry-on bag and one personal item on board. Larger items may need to be checked at the gate."},
-  "a_sec": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT",
-    "ko": "공항 이용 손님께 안내 말씀 드립니다. 개인 소지품을 방치하지 마시고, 주인 없는 물건을 보시면 가까운 직원에게 알려 주시기 바랍니다.",
-    "en": "Please keep your belongings with you at all times, and report any unattended items to airport staff."},
-  "a_pre": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT",
-    "ko": "밴쿠버로 가는 메이플 에어 071편 탑승을 시작하겠습니다. 먼저 도움이 필요하신 손님과 어린이를 동반하신 손님, 그리고 비즈니스석 손님께서는 지금 탑승해 주시기 바랍니다.",
-    "en": "Maple Air flight 071 to Vancouver is now boarding. We invite passengers needing assistance, families with small children, and business class passengers to board first."},
-  "a_g12": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT",
-    "ko": "다음은 탑승권에 그룹 1번과 2번이 적혀 있는 손님 차례입니다. 그룹 1번, 2번 손님께서는 지금 탑승해 주시기 바랍니다.",
-    "en": "We now invite passengers in groups 1 and 2 to board."},
-  "a_g34": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT",
-    "ko": "이제 그룹 3번과 4번 손님께서 탑승하실 차례입니다. 여권의 사진이 있는 면을 펼쳐서 탑승권과 함께 준비해 주시면 빠른 탑승에 도움이 됩니다. 감사합니다.",
-    "en": "Groups 3 and 4, you are now welcome to board. Please have your passport open to the photo page, together with your boarding pass. Thank you."},
-  "a_final": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT",
-    "ko": "메이플 에어에서 밴쿠버로 가는 071편의 마지막 탑승 안내 말씀 드립니다. 아직 탑승하지 않으신 손님께서는 지금 바로 27번 탑승구로 와 주시기 바랍니다. 이 비행기는 곧 출입문을 닫을 예정입니다.",
-    "en": "This is the final boarding call for Maple Air flight 071 to Vancouver. Any remaining passengers, please proceed to gate 27 immediately. The gate will be closing shortly."},
-  "a_preview": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT",
-    "ko": "손님 여러분께 안내 말씀 드리겠습니다. 밴쿠버로 가는 메이플 에어 071편은 27번 탑승구에서 탑승을 시작하겠습니다. 감사합니다.",
-    "en": "Ladies and gentlemen, Maple Air flight 071 to Vancouver is now boarding at gate 27. Thank you."},
-  "t_barista": {"kind": "talk", "voice": 8, "who": "BARISTA", "ko": "따뜻한 카페 라떼 나왔습니다. 좋은 여행 되세요!"},
-  "t_df_hello": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "어서 오세요. 천천히 둘러보세요."},
-  "t_df_pass": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "여권과 탑승권 보여주시겠어요?"},
-  "t_df_perfume": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "액체류라서 보안 봉투에 담아 드릴게요. 도착할 때까지 봉투는 뜯지 마세요."},
-  "t_df_gim": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "선물용이시면 쇼핑백 하나 더 넣어 드릴게요."},
-  "t_df_pay": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "결제 도와드리겠습니다."},
-  "t_df_thanks": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "감사합니다. 즐거운 여행 되세요."},
-  "t_gate_ask": {"kind": "talk", "voice": 3, "who": "GATE AGENT", "ko": "여권과 탑승권 보여주시겠어요?"},
-  "t_gate_thanks": {"kind": "talk", "voice": 3, "who": "GATE AGENT", "ko": "감사합니다. 즐거운 여행 되세요."},
-  "t_crew": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "어서 오십시오. 32A 좌석은 이쪽 통로로 쭉 들어가셔서 왼쪽 창가입니다.", "en": "Welcome aboard."}
+ "_note": "Gate 27 voice lines. ko/en = subtitle text, voice = Supertonic 3 speaker id, kind = pa (airport PA effect) or talk (dry). Regenerate with scripts in tools/.",
+ "a_osaka": {
+  "kind": "pa",
+  "voice": 0,
+  "who": "ANNOUNCEMENT",
+  "ko": "한빛항공에서 오사카로 가는 723편의 마지막 탑승 안내 말씀 드립니다. 아직 탑승하지 않으신 손님께서는 지금 바로 14번 탑승구로 와 주시기 바랍니다.",
+  "en": "This is the final boarding call for Hanbit Air flight 723 to Osaka. Any remaining passengers, please proceed to gate 14 immediately."
+ },
+ "a_prep": {
+  "kind": "pa",
+  "voice": 0,
+  "who": "ANNOUNCEMENT",
+  "ko": "손님 여러분께 안내 말씀 드리겠습니다. 밴쿠버로 가는 메이플 에어 071편은 오후 6시 30분부터 27번 탑승구에서 탑승을 시작할 예정입니다. 캐나다로 가시는 손님께서는 탑승 전에 여권과 탑승권, 그리고 캐나다 전자여행허가 eTA를 다시 한번 확인해 주시기 바랍니다. 감사합니다.",
+  "en": "Ladies and gentlemen, may I have your attention please. Maple Air flight 071 to Vancouver will begin boarding at 6:30 p.m. from gate 27. Passengers travelling to Canada, please have your passport, boarding pass, and Canadian eTA ready. Thank you."
+ },
+ "a_bag": {
+  "kind": "pa",
+  "voice": 0,
+  "who": "ANNOUNCEMENT",
+  "ko": "기내 반입 수하물 안내 말씀 드리겠습니다. 오늘 메이플 에어 071편은 만석으로 운항할 예정입니다. 기내 반입 수하물은 1인당 가방 1개와 개인 소지품 1개로 제한되며, 규정을 넘는 수하물은 탑승구에서 위탁 처리될 수 있습니다.",
+  "en": "Today's flight is completely full. Each passenger may bring one carry-on bag and one personal item on board. Larger items may need to be checked at the gate."
+ },
+ "a_sec": {
+  "kind": "pa",
+  "voice": 0,
+  "who": "ANNOUNCEMENT",
+  "ko": "공항 이용 손님께 안내 말씀 드립니다. 개인 소지품을 방치하지 마시고, 주인 없는 물건을 보시면 가까운 직원에게 알려 주시기 바랍니다.",
+  "en": "Please keep your belongings with you at all times, and report any unattended items to airport staff."
+ },
+ "a_pre": {
+  "kind": "pa",
+  "voice": 0,
+  "who": "ANNOUNCEMENT",
+  "ko": "밴쿠버로 가는 메이플 에어 071편 탑승을 시작하겠습니다. 먼저 도움이 필요하신 손님과 어린이를 동반하신 손님, 그리고 비즈니스석 손님께서는 지금 탑승해 주시기 바랍니다.",
+  "en": "Maple Air flight 071 to Vancouver is now boarding. We invite passengers needing assistance, families with small children, and business class passengers to board first."
+ },
+ "a_g12": {
+  "kind": "pa",
+  "voice": 0,
+  "who": "ANNOUNCEMENT",
+  "ko": "다음은 탑승권에 그룹 1번과 2번이 적혀 있는 손님 차례입니다. 그룹 1번, 2번 손님께서는 지금 탑승해 주시기 바랍니다.",
+  "en": "We now invite passengers in groups 1 and 2 to board."
+ },
+ "a_g34": {
+  "kind": "pa",
+  "voice": 0,
+  "who": "ANNOUNCEMENT",
+  "ko": "이제 그룹 3번과 4번 손님께서 탑승하실 차례입니다. 여권의 사진이 있는 면을 펼쳐서 탑승권과 함께 준비해 주시면 빠른 탑승에 도움이 됩니다. 감사합니다.",
+  "en": "Groups 3 and 4, you are now welcome to board. Please have your passport open to the photo page, together with your boarding pass. Thank you."
+ },
+ "a_final": {
+  "kind": "pa",
+  "voice": 0,
+  "who": "ANNOUNCEMENT",
+  "ko": "메이플 에어에서 밴쿠버로 가는 071편의 마지막 탑승 안내 말씀 드립니다. 아직 탑승하지 않으신 손님께서는 지금 바로 27번 탑승구로 와 주시기 바랍니다. 이 비행기는 곧 출입문을 닫을 예정입니다.",
+  "en": "This is the final boarding call for Maple Air flight 071 to Vancouver. Any remaining passengers, please proceed to gate 27 immediately. The gate will be closing shortly."
+ },
+ "a_preview": {
+  "kind": "pa",
+  "voice": 0,
+  "who": "ANNOUNCEMENT",
+  "ko": "손님 여러분께 안내 말씀 드리겠습니다. 밴쿠버로 가는 메이플 에어 071편은 27번 탑승구에서 탑승을 시작하겠습니다. 감사합니다.",
+  "en": "Ladies and gentlemen, Maple Air flight 071 to Vancouver is now boarding at gate 27. Thank you."
+ },
+ "t_barista": {
+  "kind": "talk",
+  "voice": 8,
+  "who": "BARISTA",
+  "ko": "따뜻한 카페 라떼 나왔습니다. 좋은 여행 되세요!"
+ },
+ "t_df_hello": {
+  "kind": "talk",
+  "voice": 2,
+  "who": "면세점 직원",
+  "ko": "어서 오세요. 천천히 둘러보세요."
+ },
+ "t_df_pass": {
+  "kind": "talk",
+  "voice": 2,
+  "who": "면세점 직원",
+  "ko": "여권과 탑승권 보여주시겠어요?"
+ },
+ "t_df_perfume": {
+  "kind": "talk",
+  "voice": 2,
+  "who": "면세점 직원",
+  "ko": "액체류라서 보안 봉투에 담아 드릴게요. 도착할 때까지 봉투는 뜯지 마세요."
+ },
+ "t_df_gim": {
+  "kind": "talk",
+  "voice": 2,
+  "who": "면세점 직원",
+  "ko": "선물용이시면 쇼핑백 하나 더 넣어 드릴게요."
+ },
+ "t_df_pay": {
+  "kind": "talk",
+  "voice": 2,
+  "who": "면세점 직원",
+  "ko": "결제 도와드리겠습니다."
+ },
+ "t_df_thanks": {
+  "kind": "talk",
+  "voice": 2,
+  "who": "면세점 직원",
+  "ko": "감사합니다. 즐거운 여행 되세요."
+ },
+ "t_gate_ask": {
+  "kind": "talk",
+  "voice": 3,
+  "who": "GATE AGENT",
+  "ko": "여권과 탑승권 보여주시겠어요?"
+ },
+ "t_gate_thanks": {
+  "kind": "talk",
+  "voice": 3,
+  "who": "GATE AGENT",
+  "ko": "감사합니다. 즐거운 여행 되세요."
+ },
+ "t_crew": {
+  "kind": "talk",
+  "voice": 1,
+  "who": "CABIN CREW",
+  "ko": "어서 오십시오. 32A 좌석은 이쪽 통로로 쭉 들어가셔서 왼쪽 창가입니다.",
+  "en": "Welcome aboard."
+ },
+ "c_welcome": {
+  "kind": "cabin",
+  "voice": 1,
+  "who": "CABIN CREW",
+  "ko": "손님 여러분, 안녕하십니까. 밴쿠버까지 가는 메이플 에어 071편입니다. 좌석벨트는 버클을 끼운 뒤 끈을 당겨 단단히 조여 주시고, 휴대전화는 비행기 모드로 바꿔 주시기 바랍니다. 오늘도 메이플 에어를 이용해 주셔서 감사합니다.",
+  "en": "Ladies and gentlemen, welcome aboard Maple Air flight 071 to Vancouver. Please fasten your seatbelt and switch your phone to flight mode. Thank you for flying with us."
+ },
+ "c_takeoff": {
+  "kind": "cabin",
+  "voice": 7,
+  "who": "CAPTAIN",
+  "ko": "승무원은 이륙을 위해 착석해 주십시오.",
+  "en": "Cabin crew, please be seated for take-off."
+ },
+ "c_captain": {
+  "kind": "cabin",
+  "voice": 7,
+  "who": "CAPTAIN",
+  "ko": "손님 여러분, 안녕하십니까. 기장입니다. 우리 비행기는 지금 순항 고도 3만 5천 피트에 올라왔습니다. 밴쿠버까지 비행시간은 약 9시간 40분이며, 현지 시간 오후 1시 10분에 도착할 예정입니다. 밴쿠버는 지금 흐리고 비가 내리고 있습니다. 편안한 여행 되십시오.",
+  "en": "Good evening, this is your captain speaking. We have reached our cruising altitude of 35,000 feet. Our flight time to Vancouver is about 9 hours and 40 minutes, and we expect to arrive at 1:10 p.m. local time. Enjoy the flight."
+ },
+ "c_drink": {
+  "kind": "talk",
+  "voice": 1,
+  "who": "CABIN CREW",
+  "ko": "음료 드릴까요? 커피, 오렌지 주스, 맥주가 있습니다."
+ },
+ "c_latte": {
+  "kind": "talk",
+  "voice": 1,
+  "who": "CABIN CREW",
+  "ko": "카페 27 스탬프가 있으시네요. 오늘만 준비한 메이플 라떼도 드릴 수 있어요."
+ },
+ "c_meal": {
+  "kind": "talk",
+  "voice": 1,
+  "who": "CABIN CREW",
+  "ko": "식사 준비해 드리겠습니다. 비빔밥, 소고기 찜, 흰살생선 중에 어떤 걸로 드릴까요?"
+ },
+ "c_soldout": {
+  "kind": "talk",
+  "voice": 1,
+  "who": "CABIN CREW",
+  "ko": "죄송합니다, 손님. 소고기 찜은 앞쪽에서 다 나갔습니다. 비빔밥이나 생선은 어떠세요?"
+ },
+ "c_enjoy": {
+  "kind": "talk",
+  "voice": 1,
+  "who": "CABIN CREW",
+  "ko": "맛있게 드세요. 필요하시면 언제든 불러 주세요."
+ },
+ "c_night": {
+  "kind": "cabin",
+  "voice": 1,
+  "who": "CABIN CREW",
+  "ko": "손님 여러분, 편안한 휴식을 위해 지금부터 기내 조명을 어둡게 하겠습니다. 독서등은 좌석 위 버튼으로 켜실 수 있습니다.",
+  "en": "Ladies and gentlemen, we will now dim the cabin lights so you can rest. Your reading light is above your seat."
+ },
+ "c_aurora": {
+  "kind": "cabin",
+  "voice": 7,
+  "who": "CAPTAIN",
+  "ko": "기장입니다. 지금 비행기 왼쪽 창밖으로 오로라가 보이고 있습니다. 창가에 계신 손님께서는 창문 덮개를 올려 보시기 바랍니다.",
+  "en": "This is your captain. The northern lights are now visible on the left side of the aircraft."
+ },
+ "c_morning": {
+  "kind": "talk",
+  "voice": 1,
+  "who": "CABIN CREW",
+  "ko": "좋은 아침입니다. 창밖으로 해가 뜨고 있어요."
+ },
+ "c_descent": {
+  "kind": "cabin",
+  "voice": 1,
+  "who": "CABIN CREW",
+  "ko": "손님 여러분, 우리 비행기는 약 30분 후 밴쿠버 국제공항에 도착하겠습니다. 좌석 등받이와 테이블을 제자리로 해 주시고, 좌석벨트를 매 주시기 바랍니다.",
+  "en": "Ladies and gentlemen, we will be landing at Vancouver International Airport in about 30 minutes. Please return your seat and tray table to the upright position and fasten your seatbelt."
+ }
 }
