@@ -275,12 +275,12 @@ select{font:inherit;color:var(--ink);background:#262e47;border:1px solid var(--l
   <div class="card">
     <h2>설정</h2>
     <div class="settings">
-      <label for="koVoice">안내 방송 목소리 (한국어)<select id="koVoice"></select></label>
-      <label for="enVoice">안내 방송 목소리 (영어)<select id="enVoice"></select></label>
+      <label for="koVoice">예비 목소리 (한국어)<select id="koVoice"></select></label>
+      <label for="enVoice">예비 목소리 (영어)<select id="enVoice"></select></label>
       <label for="quality">화질<select id="quality"><option value="ultra">최고 (고사양 PC)</option><option value="high">높음</option><option value="low">보통 (휴대폰 권장)</option></select></label>
       <button id="preview">방송 미리 듣기</button>
     </div>
-    <p class="hint">방송 목소리는 기기에 들어 있는 음성을 써요. 가장 자연스러운 건 윈도우 Edge의 'SunHi (Natural)', 맥·아이폰의 'Yuna', 크롬의 'Google 한국의'예요. 목록 맨 위에 가장 자연스러운 목소리를 자동으로 골라 두었어요.</p>
+    <p class="hint">방송과 직원 대사는 신경망 음성(Supertonic 3)으로 미리 녹음해 공항 스피커처럼 다듬은 파일이에요. 위의 목소리 선택은 파일을 불러오지 못할 때 대신 읽는 브라우저 음성이에요.</p>
   </div>
 </div>
 
@@ -333,7 +333,7 @@ function setRemark(i, text, cls){
 setRemark(0,'FINAL CALL','status-final');
 
 // ================= 사운드 =================
-let ac=null, master=null, humGain=null, soundOn=false, koVoice=null, enVoice=null;
+let ac=null, master=null, humGain=null, voiceGain=null, soundOn=false, koVoice=null, enVoice=null;
 const hasTTS = 'speechSynthesis' in window;
 // 기기에 있는 목소리 중 자연스러운 것(Natural·Neural·Google 계열)을 우선 고른다
 function voiceScore(v, lang){
@@ -372,6 +372,7 @@ function startAudio(){
   try{
     ac = new (window.AudioContext||window.webkitAudioContext)();
     master = ac.createGain(); master.gain.value=.55; master.connect(ac.destination);
+    voiceGain = ac.createGain(); voiceGain.gain.value=1.6; voiceGain.connect(ac.destination);
     // 터미널의 낮은 웅성거림
     const src = ac.createBufferSource(); src.buffer = noiseBuffer(5,true); src.loop=true;
     const lp = ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=480;
@@ -418,6 +419,7 @@ const sfx = {
 $('sound').addEventListener('click', ()=>setSound(!soundOn));
 function setSound(on){
   if (on && !ac) startAudio();
+  if (on) loadVoiceFiles();
   soundOn = on;
   if (ac) on ? ac.resume() : ac.suspend();
   if (!on && hasTTS) speechSynthesis.cancel();
@@ -465,28 +467,47 @@ function speakLines(lines, lang, o={}){
 // 방송 중에는 주변 소음을 살짝 낮춘다
 function duck(on){ if(humGain && ac) humGain.gain.setTargetAtTime(on?.13:.32, ac.currentTime, .4); }
 // 공항 방송: 시작 차임 → 한국어 → 영어 → 끝 차임
-function announce(a){
-  chime(true);
-  showSub('ANNOUNCEMENT', a.ko, a.en, Math.max(9000, a.ko.length*165 + a.en.length*70));
-  if(a.log) note(a.log,'pa');
-  if(!soundOn || !hasTTS) return;
-  setTimeout(()=>{
-    speakLines(sentences(toSay(a.ko,KO_SAY)),'ko');
-    speechQ = speechQ.then(()=>sleep(650));
-    speakLines(sentences(toSay(a.en,EN_SAY)),'en');
-    speechQ = speechQ.then(()=>chime(false));
-  }, 2100);
+// ================= 녹음된 음성: Supertonic 3 신경망 음성으로 미리 만든 audio/*.mp3 =================
+// 파일을 불러오지 못하면(오프라인 등) 브라우저 음성으로 대신 읽는다
+const LINES={"a_osaka": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "한빛항공에서 오사카로 가는 723편의 마지막 탑승 안내 말씀 드립니다. 아직 탑승하지 않으신 손님께서는 지금 바로 14번 탑승구로 와 주시기 바랍니다.", "en": "This is the final boarding call for Hanbit Air flight 723 to Osaka. Any remaining passengers, please proceed to gate 14 immediately."}, "a_prep": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "손님 여러분께 안내 말씀 드리겠습니다. 밴쿠버로 가는 메이플 에어 071편은 오후 6시 30분부터 27번 탑승구에서 탑승을 시작할 예정입니다. 캐나다로 가시는 손님께서는 탑승 전에 여권과 탑승권, 그리고 캐나다 전자여행허가 eTA를 다시 한번 확인해 주시기 바랍니다. 감사합니다.", "en": "Ladies and gentlemen, may I have your attention please. Maple Air flight 071 to Vancouver will begin boarding at 6:30 p.m. from gate 27. Passengers travelling to Canada, please have your passport, boarding pass, and Canadian eTA ready. Thank you."}, "a_bag": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "기내 반입 수하물 안내 말씀 드리겠습니다. 오늘 메이플 에어 071편은 만석으로 운항할 예정입니다. 기내 반입 수하물은 1인당 가방 1개와 개인 소지품 1개로 제한되며, 규정을 넘는 수하물은 탑승구에서 위탁 처리될 수 있습니다.", "en": "Today's flight is completely full. Each passenger may bring one carry-on bag and one personal item on board. Larger items may need to be checked at the gate."}, "a_sec": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "공항 이용 손님께 안내 말씀 드립니다. 개인 소지품을 방치하지 마시고, 주인 없는 물건을 보시면 가까운 직원에게 알려 주시기 바랍니다.", "en": "Please keep your belongings with you at all times, and report any unattended items to airport staff."}, "a_pre": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "밴쿠버로 가는 메이플 에어 071편 탑승을 시작하겠습니다. 먼저 도움이 필요하신 손님과 어린이를 동반하신 손님, 그리고 비즈니스석 손님께서는 지금 탑승해 주시기 바랍니다.", "en": "Maple Air flight 071 to Vancouver is now boarding. We invite passengers needing assistance, families with small children, and business class passengers to board first."}, "a_g12": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "다음은 탑승권에 그룹 1번과 2번이 적혀 있는 손님 차례입니다. 그룹 1번, 2번 손님께서는 지금 탑승해 주시기 바랍니다.", "en": "We now invite passengers in groups 1 and 2 to board."}, "a_g34": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "이제 그룹 3번과 4번 손님께서 탑승하실 차례입니다. 여권의 사진이 있는 면을 펼쳐서 탑승권과 함께 준비해 주시면 빠른 탑승에 도움이 됩니다. 감사합니다.", "en": "Groups 3 and 4, you are now welcome to board. Please have your passport open to the photo page, together with your boarding pass. Thank you."}, "a_final": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "메이플 에어에서 밴쿠버로 가는 071편의 마지막 탑승 안내 말씀 드립니다. 아직 탑승하지 않으신 손님께서는 지금 바로 27번 탑승구로 와 주시기 바랍니다. 이 비행기는 곧 출입문을 닫을 예정입니다.", "en": "This is the final boarding call for Maple Air flight 071 to Vancouver. Any remaining passengers, please proceed to gate 27 immediately. The gate will be closing shortly."}, "a_preview": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "손님 여러분께 안내 말씀 드리겠습니다. 밴쿠버로 가는 메이플 에어 071편은 27번 탑승구에서 탑승을 시작하겠습니다. 감사합니다.", "en": "Ladies and gentlemen, Maple Air flight 071 to Vancouver is now boarding at gate 27. Thank you."}, "t_barista": {"kind": "talk", "voice": 8, "who": "BARISTA", "ko": "따뜻한 카페 라떼 나왔습니다. 좋은 여행 되세요!"}, "t_df_hello": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "어서 오세요. 천천히 둘러보세요."}, "t_df_pass": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "여권과 탑승권 보여주시겠어요?"}, "t_df_perfume": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "액체류라서 보안 봉투에 담아 드릴게요. 도착할 때까지 봉투는 뜯지 마세요."}, "t_df_gim": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "선물용이시면 쇼핑백 하나 더 넣어 드릴게요."}, "t_df_pay": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "결제 도와드리겠습니다."}, "t_df_thanks": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "감사합니다. 즐거운 여행 되세요."}, "t_gate_ask": {"kind": "talk", "voice": 3, "who": "GATE AGENT", "ko": "여권과 탑승권 보여주시겠어요?"}, "t_gate_thanks": {"kind": "talk", "voice": 3, "who": "GATE AGENT", "ko": "감사합니다. 즐거운 여행 되세요."}, "t_crew": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "어서 오십시오. 32A 좌석은 이쪽 통로로 쭉 들어가셔서 왼쪽 창가입니다.", "en": "Welcome aboard."}};
+const voiceBufs={}; let voicesReady=false, voiceLoad=null, voiceQ=Promise.resolve(), voicePlaying=0;
+function loadVoiceFiles(){
+  if(voiceLoad || !ac) return voiceLoad;
+  const names=[]; Object.entries(LINES).forEach(([id,l])=>['ko','en'].forEach(lg=>{ if(l[lg]) names.push(id+'_'+lg); }));
+  voiceLoad=Promise.all(names.map(async n=>{ try{ const r=await fetch('audio/'+n+'.mp3'); if(!r.ok) return;
+    const buf=await r.arrayBuffer(); voiceBufs[n]=await new Promise((ok,no)=>ac.decodeAudioData(buf,ok,no)); voicesReady=true; }catch(e){} }));
+  return voiceLoad;
 }
-function talk(who, ko, en){
-  showSub(who, ko, en||'', 4200);
-  speakLines([toSay(ko,KO_SAY)],'ko',{rate:1.0,pitch:1.08,gap:150});
-  if(en) speakLines([en],'en',{rate:.95,gap:100});
+const durOf=n=>voiceBufs[n]?voiceBufs[n].duration:0;
+function playBuf(n){ return new Promise(res=>{ const b=voiceBufs[n]; if(!b||!soundOn||!ac){ res(); return; }
+  const src=ac.createBufferSource(); src.buffer=b; src.connect(voiceGain); src.onended=()=>res(); src.start(); }); }
+function queueVoice(fn){ voiceQ=voiceQ.then(async()=>{ voicePlaying++; duck(true); try{ await fn(); }catch(e){} voicePlaying--; if(!voicePlaying) duck(false); }); return voiceQ; }
+// 공항 방송: 시작 차임 → 한국어 → 영어 → 끝 차임. 방송끼리는 겹치지 않게 차례로 내보낸다
+function announce(id, log){
+  const L=LINES[id]; if(log) note(log,'pa');
+  const est=Math.max(9000, L.ko.length*165 + L.en.length*70);
+  if(!soundOn){ chime(true); showSub('ANNOUNCEMENT', L.ko, L.en, est); return; }
+  queueVoice(async()=>{
+    await (voiceLoad||Promise.resolve());
+    const rec=voiceBufs[id+'_ko'];
+    chime(true);
+    showSub('ANNOUNCEMENT', L.ko, L.en, rec ? (2.1+durOf(id+'_ko')+.7+durOf(id+'_en')+.6)*1000 : est);
+    await sleep(2100);
+    if(rec){ await playBuf(id+'_ko'); await sleep(700); await playBuf(id+'_en'); }
+    else if(hasTTS){ speakLines(sentences(toSay(L.ko,KO_SAY)),'ko'); speechQ=speechQ.then(()=>sleep(650)); await speakLines(sentences(toSay(L.en,EN_SAY)),'en'); }
+    await sleep(250); chime(false); await sleep(1400);
+  });
 }
-$('preview').addEventListener('click',()=>{
-  if(!soundOn) setSound(true);
-  announce({ko:'손님 여러분께 안내 말씀 드리겠습니다. 밴쿠버로 가는 메이플 에어 071편은 27번 탑승구에서 탑승을 시작하겠습니다. 감사합니다.',
-    en:'Ladies and gentlemen, Maple Air flight 071 to Vancouver is now boarding at gate 27. Thank you.'});
-});
+// 직원·승무원 대사: 방송과 상관없이 바로 말한다. 대사 길이만큼 기다리는 약속(건너뛰기 가능)을 돌려준다
+function talk(id){
+  const L=LINES[id], rec=soundOn && voiceBufs[id+'_ko'];
+  const ms = rec ? (durOf(id+'_ko') + (L.en ? durOf(id+'_en')+.15 : 0))*1000 + 250 : 1200 + L.ko.length*95;
+  showSub(L.who, L.ko, L.en||'', ms+700);
+  if(rec){ duck(true); playBuf(id+'_ko').then(()=>L.en?playBuf(id+'_en'):0).then(()=>{ if(!voicePlaying) duck(false); }); }
+  else if(soundOn && hasTTS){ speakLines([toSay(L.ko,KO_SAY)],'ko',{rate:1.0,pitch:1.08,gap:150}); if(L.en) speakLines([L.en],'en',{rate:.95,gap:100}); }
+  return wait(ms);
+}
+$('preview').addEventListener('click',()=>{ if(!soundOn) setSound(true); announce('a_preview'); });
 
 // ================= 노트, 설렘 =================
 function note(text, cls){
@@ -835,16 +856,35 @@ function buildScene(){
   cushion.castShadow=back.castShadow=true; cushion.receiveShadow=back.receiveShadow=true; scene.add(cushion,back);
 
   // 주변 사람들 (단순한 실루엣)
-  const tones=['#3b4252','#5b4a42','#2f3a46','#6b6259','#4a4f5c','#7a5c54','#38404d','#56606e','#8a7f72'];
-  const PM={legs:std('#23262d',{roughness:.9}), skin:std('#c9a58a',{roughness:.7}), hair:std('#1c1a19',{roughness:.9})};
-  function person(sit, x, z, rot){
-    const g=new THREE.Group(), c=tones[Math.floor(Math.random()*tones.length)], m=PM[c]||(PM[c]=std(c,{roughness:.85}));
-    const h = sit ? .62 : 1.0 + Math.random()*.15, base = sit ? .5 : 0;
-    const torso=new THREE.Mesh(new THREE.CylinderGeometry(.19,.16,h,12),m); torso.position.y=sit ? base+h/2 : .82+h/2; g.add(torso);
-    if(!sit){ const legs=new THREE.Mesh(new THREE.CylinderGeometry(.14,.11,.82,10),PM.legs); legs.position.y=.41; g.add(legs); torso.position.y=.82+h/2; }
-    const head=new THREE.Mesh(new THREE.SphereGeometry(.12,14,10),PM.skin); head.position.y=torso.position.y+h/2+.14; g.add(head);
-    const hair=new THREE.Mesh(new THREE.SphereGeometry(.125,14,10,0,Math.PI*2,0,Math.PI/2),PM.hair); hair.position.copy(head.position); hair.position.y+=.015; g.add(hair);
-    g.traverse(o=>{ if(o.isMesh){ o.castShadow=true; } });
+  // 사람: 큰 머리, 동글한 몸, 짧은 팔다리의 귀여운 2등신 캐릭터 (재질·형태를 공유해서 합치기 쉽게)
+  const OUTFITS=['#f2b5a0','#a8c8e8','#f5d58a','#b8d8b0','#d8b8e8','#f0a8b8','#9fc4c8','#e8c8a0','#c0c8e0'];
+  const HAIRS=['#2a211c','#4a3426','#1b1b1f','#6b4a2e','#a8794a'];
+  const PM={skin:std('#f6d7bf',{roughness:.6}), eye:std('#1d1a1a',{roughness:.25}), blush:std('#f4a3a3',{roughness:.8}), shoe:std('#2c2c33',{roughness:.7}), shine:std('#ffffff',{roughness:.2})};
+  const cmat=c=>PM[c]||(PM[c]=std(c,{roughness:.75}));
+  const PG={
+    body:new THREE.LatheGeometry([[0,0],[.15,.01],[.19,.1],[.2,.24],[.17,.38],[.1,.46],[0,.48]].map(q=>new THREE.Vector2(q[0],q[1])),18),
+    head:new THREE.SphereGeometry(.24,22,16), hair:new THREE.SphereGeometry(.255,22,12,0,Math.PI*2,0,Math.PI*.55),
+    eye:new THREE.SphereGeometry(.032,10,8), shine:new THREE.SphereGeometry(.011,6,6), blush:new THREE.SphereGeometry(.045,10,8),
+    limb:new THREE.CylinderGeometry(.052,.05,.22,10), shoe:new THREE.SphereGeometry(.07,10,8),
+  };
+  const rndOf=a=>a[Math.floor(Math.random()*a.length)];
+  function person(sit, x, z, rot, o={}){
+    const g=new THREE.Group(), add=(geo,m,px,py,pz)=>{ const me=new THREE.Mesh(geo,m); me.position.set(px,py,pz); me.castShadow=true; g.add(me); return me; };
+    const by = sit ? .49 : .24, hy = by+.68;
+    add(PG.body, cmat(o.outfit||rndOf(OUTFITS)), 0,by,0);
+    add(PG.head, PM.skin, 0,hy,0);
+    const hair=add(PG.hair, cmat(o.hair||rndOf(HAIRS)), 0,hy+.01,-.012); hair.rotation.x=-.38;
+    [-1,1].forEach(sd=>{
+      add(PG.eye, PM.eye, sd*.085,hy-.01,.21);
+      add(PG.shine, PM.shine, sd*.085+.01,hy+.005,.238);
+      add(PG.blush, PM.blush, sd*.145,hy-.075,.185).scale.set(1,.55,.35);
+      const arm=add(PG.limb, cmat(o.outfit2||o.outfit||'#e8e2d8'), sd*.205,by+.27,0); arm.rotation.z=sd*.38;
+      if(sit){ const leg=add(PG.limb, cmat(o.pants||'#4a5068'), sd*.075,by+.04,.13); leg.rotation.x=Math.PI/2; add(PG.shoe, PM.shoe, sd*.075,by+.02,.27).scale.set(1,.7,1.2); }
+      else { add(PG.limb, cmat(o.pants||'#4a5068'), sd*.075,.12,0); add(PG.shoe, PM.shoe, sd*.075,.035,.035).scale.set(1,.6,1.3); }
+    });
+    if(o.scarf) add(new THREE.TorusGeometry(.1,.03,8,16), cmat(o.scarf), 0,by+.47,0).rotation.x=Math.PI/2;
+    if(o.apron) add(new THREE.BoxGeometry(.26,.3,.02), cmat(o.apron), 0,by+.2,.19);
+    g.scale.setScalar(o.scale || (.94+Math.random()*.12));
     g.position.set(x,0,z); g.rotation.y=rot||0; scene.add(g); return g;
   }
   const picked=new Set();
@@ -852,13 +892,13 @@ function buildScene(){
     const [x,z]=seatPos[k]; if(Math.abs(x+.86)<1.0 && z<6) continue; seatedPeople.push(person(true,x,z+.05,Math.PI)); }
   [[-8,1.2],[-7.4,1.3],[6,1.4],[24,2],[-26,3]].forEach(([x,z])=>person(false,x,z,Math.PI+(Math.random()-.5)));
   for(let i=0;i<7;i++){ const dir=Math.random()<.5?1:-1, p=person(false,-28+Math.random()*56,16.5+Math.random()*4,dir>0?Math.PI/2:-Math.PI/2);
-    const suit=box(.38,.6,.24,std(['#8c2f2f','#2f4f8c','#3a3a3a','#c9a33a'][i%4],{roughness:.4}),-.45*dir,.35,0,p); suit.position.x=0; suit.position.z=-.5;
+    box(.3,.42,.18,std(['#c96a5a','#5a7ac9','#6a6a72','#e0b850'][i%4],{roughness:.4}),.28,.25,-.32,p);
     walkers.push({g:p,dir,v:.9+Math.random()*.5,ph:Math.random()*6}); }
 
   // 탑승구 카운터와 직원, 안내판
   box(1.8,1.05,.7,std('#3a4152',{roughness:.5}),11.5,.52,4);
   const scr=box(.5,.32,.04,new THREE.MeshStandardMaterial({color:0,emissive:col('#9fd2ff'),emissiveIntensity:1.4}),11.2,1.25,3.85); scr.rotation.x=-.3;
-  person(false,11.6,4.7,Math.PI); person(false,12.6,4.6,Math.PI);
+  person(false,11.1,3.15,0,{outfit:'#2b3a5c',scarf:'#d9544a',hair:'#1b1b1f',scale:1.22}); person(false,12.1,3.2,0,{outfit:'#2b3a5c',scarf:'#d9544a',hair:'#2a211c',scale:1.22});
   gateSignTex=canvasTex(1024,320,drawGateSign);
   const sign=new THREE.Mesh(new THREE.PlaneGeometry(3.6,1.12),new THREE.MeshStandardMaterial({color:0x000000,emissive:col('#ffffff'),emissiveMap:gateSignTex,emissiveIntensity:1.15}));
   sign.position.set(11.5,3.6,3.2); scene.add(sign);
@@ -881,7 +921,7 @@ function buildScene(){
   [8,9.5,11].forEach(z=>{ box(.02,1.3,.02,frame,-21,3.3,z).castShadow=false; glowSprite('#ffcf8a',1.2,V(-21,2.6,z));
     const sh=new THREE.Mesh(new THREE.ConeGeometry(.22,.25,20,1,true),std('#20242b',{side:THREE.DoubleSide})); sh.position.set(-21,2.68,z); scene.add(sh); });
   const pl=new THREE.PointLight(col('#ffcf8a'),.9,8,2); pl.position.set(-20.6,2.4,9.5); scene.add(pl);
-  person(false,-22.1,10.4,Math.PI/2); person(false,-19.6,11.6,-Math.PI/2);  // 바리스타와 줄 선 손님
+  person(false,-22.1,10.4,Math.PI/2,{outfit:'#f4efe6',apron:'#6b4a34',scale:1.25}); person(false,-19.6,11.6,-Math.PI/2);  // 바리스타와 줄 선 손님
   // 라떼 컵 (애니메이션용, 처음엔 숨김)
   cupGroup=new THREE.Group();
   const cupG=new THREE.LatheGeometry([[0,0],[.038,0],[.046,.11],[.048,.115],[0,.115]].map(p=>new THREE.Vector2(p[0],p[1])),28);
@@ -1007,7 +1047,7 @@ function buildScene(){
   const taxTex=canvasTex(256,128,(x,w,h)=>{ x.fillStyle='#15171c'; x.fillRect(0,0,w,h); x.fillStyle='#e8d3a6'; x.textAlign='center'; x.font='600 30px Georgia, serif'; x.fillText('TAX FREE',w/2,46); x.font='20px "Gowun Dodum", sans-serif'; x.fillStyle='#cfc8bb'; x.fillText('여권·탑승권을 보여주세요',w/2,84); x.fillText('Passport & boarding pass',w/2,112); });
   const tax=new THREE.Mesh(new THREE.PlaneGeometry(.36,.18),new THREE.MeshStandardMaterial({color:0,emissive:col('#ffffff'),emissiveMap:taxTex,emissiveIntensity:.9}));
   tax.position.set(24.5,1.12,6.27); tax.rotation.x=-.3; scene.add(tax);
-  person(false,23.6,5.25,0);
+  person(false,23.6,5.25,0,{outfit:'#1f2228',scarf:'#b8955a',scale:1.22});
   // 손님 몇 명 (단순 실루엣)
   person(false,27.2,5.9,Math.PI/2); person(false,26.4,11.4,Math.PI); person(false,24.2,13.9,Math.PI*.8);
 
@@ -1078,8 +1118,8 @@ function buildScene(){
   waterStream=new THREE.Mesh(new THREE.CylinderGeometry(.009,.013,.2,10),new THREE.MeshStandardMaterial({color:col('#d8ecff'),transparent:true,opacity:.55,roughness:.05,emissive:col('#9fc8ff'),emissiveIntensity:.25}));
   waterStream.position.set(RCX,1.04,RZ1-.28); waterStream.visible=false; scene.add(waterStream);
   // 나 (거울에만 비친다)
-  player=person(false,0,0,0); player.scale.setScalar(.88);
-  box(.34,.42,.18,std('#c47a3a',{roughness:.6}),0,1.3,-.24,player);
+  player=person(false,0,0,0,{outfit:'#f2b452',hair:'#2a211c',scale:1.6});   // 거울 높이에 맞춰 크게
+  box(.3,.34,.14,std('#c47a3a',{roughness:.6}),0,.55,-.24,player);
   player.visible=false;
   // 거울: 실제로 장면을 비추는 반사면
   const mirGeo=new THREE.PlaneGeometry(6.2,1.2);
@@ -1313,41 +1353,17 @@ function frame(now){
 // =====================================================================
 const events=[
   {at:START+.3, fn:()=>{ note('보안검색을 마치고 27번 탑승구 앞에 도착했다. 통유리 너머로 내가 탈 비행기가 보인다.'); }},
-  {at:START+3, fn:()=>announce({
-    ko:'한빛항공에서 오사카로 가는 723편의 마지막 탑승 안내 말씀 드립니다. 아직 탑승하지 않으신 손님께서는 지금 바로 14번 탑승구로 와 주시기 바랍니다.',
-    en:'This is the final boarding call for Hanbit Air flight 723 to Osaka. Any remaining passengers, please proceed to gate 14 immediately.',
-    log:'다른 게이트의 오사카행 마지막 탑승 안내가 들린다.'})},
+  {at:START+3, fn:()=>announce('a_osaka','다른 게이트의 오사카행 마지막 탑승 안내가 들린다.')},
   {at:START+7, fn:()=>setRemark(1,'BOARDING','status-board')},
-  {at:START+9, fn:()=>{ setStep(0); setRemark(2,'GATE OPEN','status-board'); announce({
-    ko:'손님 여러분께 안내 말씀 드리겠습니다. 밴쿠버로 가는 메이플 에어 071편은 오후 6시 30분부터 27번 탑승구에서 탑승을 시작할 예정입니다. 캐나다로 가시는 손님께서는 탑승 전에 여권과 탑승권, 그리고 캐나다 전자여행허가 eTA를 다시 한번 확인해 주시기 바랍니다. 감사합니다.',
-    en:'Ladies and gentlemen, may I have your attention please. Maple Air flight 071 to Vancouver will begin boarding at 6:30 p.m. from gate 27. Passengers travelling to Canada, please have your passport, boarding pass, and Canadian eTA ready. Thank you.',
-    log:'탑승 준비 안내. 여권, 탑승권, eTA를 다시 확인하라는 방송.'}); }},
-  {at:START+14, fn:()=>announce({
-    ko:'기내 반입 수하물 안내 말씀 드리겠습니다. 오늘 메이플 에어 071편은 만석으로 운항할 예정입니다. 기내 반입 수하물은 1인당 가방 1개와 개인 소지품 1개로 제한되며, 규정을 넘는 수하물은 탑승구에서 위탁 처리될 수 있습니다.',
-    en:'Today\'s flight is completely full. Each passenger may bring one carry-on bag and one personal item on board. Larger items may need to be checked at the gate.',
-    log:'오늘 비행기는 만석이라는 기내 수하물 안내.'})},
-  {at:START+17, fn:()=>announce({
-    ko:'공항 이용 손님께 안내 말씀 드립니다. 개인 소지품을 방치하지 마시고, 주인 없는 물건을 보시면 가까운 직원에게 알려 주시기 바랍니다.',
-    en:'Please keep your belongings with you at all times, and report any unattended items to airport staff.',
-    log:'보안 안내 방송. 가방을 다시 한번 끌어당겼다.'})},
+  {at:START+9, fn:()=>{ setStep(0); setRemark(2,'GATE OPEN','status-board'); announce('a_prep','탑승 준비 안내. 여권, 탑승권, eTA를 다시 확인하라는 방송.'); }},
+  {at:START+14, fn:()=>announce('a_bag','오늘 비행기는 만석이라는 기내 수하물 안내.')},
+  {at:START+17, fn:()=>announce('a_sec','보안 안내 방송. 가방을 다시 한번 끌어당겼다.')},
+  {at:START+20, fn:()=>{ setStep(1); refreshGateSign(); setRemark(2,'BOARDING','status-board'); announce('a_pre','사전 탑승 시작. 안내판이 BOARDING으로 바뀌었다.'); }},
   {at:START+20.5, fn:()=>setRemark(0,'DEPARTED','')},
-  {at:START+20, fn:()=>{ setStep(1); refreshGateSign(); setRemark(2,'BOARDING','status-board'); announce({
-    ko:'밴쿠버로 가는 메이플 에어 071편 탑승을 시작하겠습니다. 먼저 도움이 필요하신 손님과 어린이를 동반하신 손님, 그리고 비즈니스석 손님께서는 지금 탑승해 주시기 바랍니다.',
-    en:'Maple Air flight 071 to Vancouver is now boarding. We invite passengers needing assistance, families with small children, and business class passengers to board first.',
-    log:'사전 탑승 시작. 안내판이 BOARDING으로 바뀌었다.'}); }},
-  {at:START+25, fn:()=>{ setStep(2); announce({
-    ko:'다음은 탑승권에 그룹 1번과 2번이 적혀 있는 손님 차례입니다. 그룹 1번, 2번 손님께서는 지금 탑승해 주시기 바랍니다.',
-    en:'We now invite passengers in groups 1 and 2 to board.',
-    log:'그룹 1, 2 탑승. 다음이 내 차례다.'}); }},
-  {at:START+30, fn:()=>{ setStep(3); announce({
-    ko:'이제 그룹 3번과 4번 손님께서 탑승하실 차례입니다. 여권의 사진이 있는 면을 펼쳐서 탑승권과 함께 준비해 주시면 빠른 탑승에 도움이 됩니다. 감사합니다.',
-    en:'Groups 3 and 4, you are now welcome to board. Please have your passport open to the photo page, together with your boarding pass. Thank you.',
-    log:'<b>그룹 3 탑승 안내. 내 차례다!</b>'});
+  {at:START+25, fn:()=>{ setStep(2); announce('a_g12','그룹 1, 2 탑승. 다음이 내 차례다.'); }},
+  {at:START+30, fn:()=>{ setStep(3); announce('a_g34','<b>그룹 3 탑승 안내. 내 차례다!</b>');
     $('boardBtn').disabled=G.busy; $('boardHint').textContent='내 차례예요. 줄이 짧아지면 천천히 가도 괜찮아요.'; addMood(10); }},
-  {at:START+45, fn:()=>{ setStep(4); setRemark(2,'FINAL CALL','status-final'); announce({
-    ko:'메이플 에어에서 밴쿠버로 가는 071편의 마지막 탑승 안내 말씀 드립니다. 아직 탑승하지 않으신 손님께서는 지금 바로 27번 탑승구로 와 주시기 바랍니다. 이 비행기는 곧 출입문을 닫을 예정입니다.',
-    en:'This is the final boarding call for Maple Air flight 071 to Vancouver. Any remaining passengers, please proceed to gate 27 immediately. The gate will be closing shortly.',
-    log:'마지막 탑승 안내. 이제 정말 가야 한다.'}); }},
+  {at:START+45, fn:()=>{ setStep(4); setRemark(2,'FINAL CALL','status-final'); announce('a_final','마지막 탑승 안내. 이제 정말 가야 한다.'); }},
 ];
 events.sort((a,b)=>a.at-b.at);
 
@@ -1360,7 +1376,7 @@ const acts=[
   {id:'coffee', name:'라떼 한 잔 사기', k:'게이트 앞 카페 27', tag:'3D', mood:15, item:'stamp', async run(){
     caption('카페 27');
     await moveCam(V(-18.3,1.55,10.9),V(-21,1.15,9.1),2.6);
-    talk('BARISTA','따뜻한 카페 라떼 나왔습니다. 좋은 여행 되세요!');
+    talk('t_barista');
     cupGroup.position.set(-21.15,1.11,8.6); cupGroup.visible=true; sfx.steam();
     await wait(400);
     const from=cupGroup.position.clone(), to=V(-20.62,1.11,9.3);
@@ -1374,7 +1390,7 @@ const acts=[
   }},
   {id:'duty', name:'면세점 한 바퀴', k:'둘러보고, 시향하고, 하나 고르기', tag:'3D', mood:15, async run(){
     await moveCam(V(16.2,1.62,10),V(31,1.7,10),3);
-    caption('DUTY FREE · 면세점'); talk('면세점 직원','어서 오세요. 천천히 둘러보세요.');
+    caption('DUTY FREE · 면세점'); talk('t_df_hello');
     await moveCam(V(22.6,1.62,9.4),V(31.8,1.35,6.3),3.6,true);
     await moveCam(V(28.4,1.6,7.4),V(31.8,1.3,6.3),2.4);
     note('주류 코너. 위스키 병들이 백라이트를 받아 호박색으로 빛난다.');
@@ -1403,16 +1419,14 @@ const acts=[
     await moveCam(V(23.7,1.62,7.6),V(23.5,1.05,5.9),2.6);
     const onCounter=V(23.7,1.06,6.0), p0=pickGroup.position.clone();
     await animate(700,k=>pickGroup.position.lerpVectors(p0,onCounter,ease(k)));
-    talk('면세점 직원','여권과 탑승권 보여주시겠어요?');
-    await wait(1900); sfx.scan(); await wait(500);
-    const line = chosen==='perfume' ? '액체류라서 보안 봉투에 담아 드릴게요. 도착할 때까지 봉투는 뜯지 마세요.'
-      : chosen==='gim' ? '선물용이시면 쇼핑백 하나 더 넣어 드릴게요.' : '결제 도와드리겠습니다.';
-    talk('면세점 직원', line);
-    await wait(1400); sfx.receipt(); await wait(1400);
+    await talk('t_df_pass');
+    await wait(700); sfx.scan(); await wait(500);
+    await talk(chosen==='perfume' ? 't_df_perfume' : chosen==='gim' ? 't_df_gim' : 't_df_pay');
+    sfx.receipt(); await wait(1400);
     pickGroup.visible=false;
     bagGroup.position.set(23.7,1.5,6.0); bagGroup.rotation.set(.3,.4,0); bagGroup.visible=true;
     await animate(600,k=>{ bagGroup.position.y=1.5-(1.5-1.01)*ease(k); bagGroup.rotation.x=.3*(1-k); });
-    sfx.bag(); talk('면세점 직원','감사합니다. 즐거운 여행 되세요.');
+    sfx.bag(); talk('t_df_thanks');
     await wait(1400);
     note(`면세점에서 <b>${opt[1]}</b>(${opt[2]})을(를) 샀다. 쇼핑백이 바스락거린다.`);
     await moveCam(V(16,1.62,9.5),V(0,1.2,6),2.6);
@@ -1522,7 +1536,7 @@ $('boardBtn').addEventListener('click', async ()=>{
   setBusy(true); G.boarded=true; $('boardBtn').disabled=true;
   stage.scrollIntoView({behavior:'smooth',block:'center'});
   await moveCam(V(11.5,1.6,7.2),V(11.5,1.2,3.6),2.6);
-  talk('GATE AGENT','여권과 탑승권 보여주시겠어요?');
+  talk('t_gate_ask');
   const p=$('pop');
   p.innerHTML=passHTML('<div class="scanline"><i id="scanbar"></i></div><button class="popbtn" id="scan">여권과 탑승권 내밀기</button>',false);
   $('scan').focus();
@@ -1530,7 +1544,7 @@ $('boardBtn').addEventListener('click', async ()=>{
   $('scan').disabled=true; $('scanbar').style.width='100%';
   await wait(550); sfx.scan(); $('bp').classList.add('torn');
   await wait(600);
-  talk('GATE AGENT','감사합니다. 즐거운 여행 되세요.');
+  talk('t_gate_thanks');
   await wait(1400); p.innerHTML='';
   note('탑승권이 "삑" 소리와 함께 초록불로 통과했다. 탑승교로 들어선다.');
   const {A,C,R,B}=window.__bridge;
@@ -1543,7 +1557,7 @@ $('boardBtn').addEventListener('click', async ()=>{
   cam.pos.copy(R).add(V(-1.8,1.62,0)); cam.look.copy(B).add(V(-6,1.5,0));
   $('fade').style.opacity=0; await wait(500); $('fade').style.transition='';
   await moveCam(B.clone().add(V(1.6,1.6,0)),B.clone().add(V(-6,1.45,0)),3.6,true);
-  talk('CABIN CREW','어서 오십시오. 32A 좌석은 이쪽 통로로 쭉 들어가셔서 왼쪽 창가입니다.','Welcome aboard.');
+  talk('t_crew');
   await moveCam(B.clone().add(V(-.4,1.6,0)),B.clone().add(V(-8,1.45,0)),2.4,true);
   $('fade').style.opacity=1; await wait(1500);
   const end=document.createElement('div'); end.className='endcard';
