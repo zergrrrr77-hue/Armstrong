@@ -195,7 +195,7 @@ select{font:inherit;color:var(--ink);background:#262e47;border:1px solid var(--l
     <span class="chapter" id="chLabel">Chapter 3 · 탑승 대기</span>
   </header>
   <ol class="chapters" id="chapters" aria-label="챕터">
-    <li>1 캐리어 싸기 · 준비 중</li><li>2 공항 가는 길 · 준비 중</li><li class="now" data-c="3">3 탑승 대기</li><li data-c="4">4 기내식</li><li>5 밴쿠버 · 준비 중</li>
+    <li>1 캐리어 싸기 · 준비 중</li><li>2 공항 가는 길 · 준비 중</li><li class="now" data-c="3">3 탑승 대기</li><li data-c="4">4 기내식</li><li data-c="5">5 밴쿠버</li>
   </ol>
 
   <div class="stage" id="stage">
@@ -224,6 +224,7 @@ select{font:inherit;color:var(--ink);background:#262e47;border:1px solid var(--l
           <button class="primary" id="startSound" disabled>소리 켜고 시작</button>
           <button id="startMute" disabled>소리 없이 시작</button>
           <button id="startCh4" hidden disabled>4장부터 이어하기</button>
+          <button id="startCh5" hidden disabled>5장부터 이어하기</button>
         </div>
         <span class="loading" id="loading">공항을 짓는 중…</span>
       </div>
@@ -480,11 +481,11 @@ function duck(on){ if(humGain && ac) humGain.gain.setTargetAtTime(on?humBase*.42
 // 공항 방송: 시작 차임 → 한국어 → 영어 → 끝 차임
 // ================= 녹음된 음성: Supertonic 3 신경망 음성으로 미리 만든 audio/*.mp3 =================
 // 파일을 불러오지 못하면(오프라인 등) 브라우저 음성으로 대신 읽는다
-const LINES={"a_osaka": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "한빛항공에서 오사카로 가는 723편의 마지막 탑승 안내 말씀 드립니다. 아직 탑승하지 않으신 손님께서는 지금 바로 14번 탑승구로 와 주시기 바랍니다.", "en": "This is the final boarding call for Hanbit Air flight 723 to Osaka. Any remaining passengers, please proceed to gate 14 immediately."}, "a_prep": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "손님 여러분께 안내 말씀 드리겠습니다. 밴쿠버로 가는 메이플 에어 071편은 오후 6시 30분부터 27번 탑승구에서 탑승을 시작할 예정입니다. 캐나다로 가시는 손님께서는 탑승 전에 여권과 탑승권, 그리고 캐나다 전자여행허가 eTA를 다시 한번 확인해 주시기 바랍니다. 감사합니다.", "en": "Ladies and gentlemen, may I have your attention please. Maple Air flight 071 to Vancouver will begin boarding at 6:30 p.m. from gate 27. Passengers travelling to Canada, please have your passport, boarding pass, and Canadian eTA ready. Thank you."}, "a_bag": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "기내 반입 수하물 안내 말씀 드리겠습니다. 오늘 메이플 에어 071편은 만석으로 운항할 예정입니다. 기내 반입 수하물은 1인당 가방 1개와 개인 소지품 1개로 제한되며, 규정을 넘는 수하물은 탑승구에서 위탁 처리될 수 있습니다.", "en": "Today's flight is completely full. Each passenger may bring one carry-on bag and one personal item on board. Larger items may need to be checked at the gate."}, "a_sec": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "공항 이용 손님께 안내 말씀 드립니다. 개인 소지품을 방치하지 마시고, 주인 없는 물건을 보시면 가까운 직원에게 알려 주시기 바랍니다.", "en": "Please keep your belongings with you at all times, and report any unattended items to airport staff."}, "a_pre": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "밴쿠버로 가는 메이플 에어 071편 탑승을 시작하겠습니다. 먼저 도움이 필요하신 손님과 어린이를 동반하신 손님, 그리고 비즈니스석 손님께서는 지금 탑승해 주시기 바랍니다.", "en": "Maple Air flight 071 to Vancouver is now boarding. We invite passengers needing assistance, families with small children, and business class passengers to board first."}, "a_g12": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "다음은 탑승권에 그룹 1번과 2번이 적혀 있는 손님 차례입니다. 그룹 1번, 2번 손님께서는 지금 탑승해 주시기 바랍니다.", "en": "We now invite passengers in groups 1 and 2 to board."}, "a_g34": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "이제 그룹 3번과 4번 손님께서 탑승하실 차례입니다. 여권의 사진이 있는 면을 펼쳐서 탑승권과 함께 준비해 주시면 빠른 탑승에 도움이 됩니다. 감사합니다.", "en": "Groups 3 and 4, you are now welcome to board. Please have your passport open to the photo page, together with your boarding pass. Thank you."}, "a_final": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "메이플 에어에서 밴쿠버로 가는 071편의 마지막 탑승 안내 말씀 드립니다. 아직 탑승하지 않으신 손님께서는 지금 바로 27번 탑승구로 와 주시기 바랍니다. 이 비행기는 곧 출입문을 닫을 예정입니다.", "en": "This is the final boarding call for Maple Air flight 071 to Vancouver. Any remaining passengers, please proceed to gate 27 immediately. The gate will be closing shortly."}, "a_preview": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "손님 여러분께 안내 말씀 드리겠습니다. 밴쿠버로 가는 메이플 에어 071편은 27번 탑승구에서 탑승을 시작하겠습니다. 감사합니다.", "en": "Ladies and gentlemen, Maple Air flight 071 to Vancouver is now boarding at gate 27. Thank you."}, "t_barista": {"kind": "talk", "voice": 8, "who": "BARISTA", "ko": "따뜻한 카페 라떼 나왔습니다. 좋은 여행 되세요!"}, "t_df_hello": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "어서 오세요. 천천히 둘러보세요."}, "t_df_pass": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "여권과 탑승권 보여주시겠어요?"}, "t_df_perfume": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "액체류라서 보안 봉투에 담아 드릴게요. 도착할 때까지 봉투는 뜯지 마세요."}, "t_df_gim": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "선물용이시면 쇼핑백 하나 더 넣어 드릴게요."}, "t_df_pay": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "결제 도와드리겠습니다."}, "t_df_thanks": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "감사합니다. 즐거운 여행 되세요."}, "t_gate_ask": {"kind": "talk", "voice": 3, "who": "GATE AGENT", "ko": "여권과 탑승권 보여주시겠어요?"}, "t_gate_thanks": {"kind": "talk", "voice": 3, "who": "GATE AGENT", "ko": "감사합니다. 즐거운 여행 되세요."}, "t_crew": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "어서 오십시오. 32A 좌석은 이쪽 통로로 쭉 들어가셔서 왼쪽 창가입니다.", "en": "Welcome aboard."}, "c_welcome": {"kind": "cabin", "voice": 1, "who": "CABIN CREW", "ko": "손님 여러분, 안녕하십니까. 밴쿠버까지 가는 메이플 에어 071편입니다. 좌석벨트는 버클을 끼운 뒤 끈을 당겨 단단히 조여 주시고, 휴대전화는 비행기 모드로 바꿔 주시기 바랍니다. 오늘도 메이플 에어를 이용해 주셔서 감사합니다.", "en": "Ladies and gentlemen, welcome aboard Maple Air flight 071 to Vancouver. Please fasten your seatbelt and switch your phone to flight mode. Thank you for flying with us."}, "c_takeoff": {"kind": "cabin", "voice": 7, "who": "CAPTAIN", "ko": "승무원은 이륙을 위해 착석해 주십시오.", "en": "Cabin crew, please be seated for take-off."}, "c_captain": {"kind": "cabin", "voice": 7, "who": "CAPTAIN", "ko": "손님 여러분, 안녕하십니까. 기장입니다. 우리 비행기는 지금 순항 고도 3만 5천 피트에 올라왔습니다. 밴쿠버까지 비행시간은 약 9시간 40분이며, 현지 시간 오후 1시 10분에 도착할 예정입니다. 밴쿠버는 지금 흐리고 비가 내리고 있습니다. 편안한 여행 되십시오.", "en": "Good evening, this is your captain speaking. We have reached our cruising altitude of 35,000 feet. Our flight time to Vancouver is about 9 hours and 40 minutes, and we expect to arrive at 1:10 p.m. local time. Enjoy the flight."}, "c_drink": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "음료 드릴까요? 커피, 오렌지 주스, 맥주가 있습니다."}, "c_latte": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "카페 27 스탬프가 있으시네요. 오늘만 준비한 메이플 라떼도 드릴 수 있어요."}, "c_meal": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "식사 준비해 드리겠습니다. 비빔밥, 소고기 찜, 흰살생선 중에 어떤 걸로 드릴까요?"}, "c_soldout": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "죄송합니다, 손님. 소고기 찜은 앞쪽에서 다 나갔습니다. 비빔밥이나 생선은 어떠세요?"}, "c_enjoy": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "맛있게 드세요. 필요하시면 언제든 불러 주세요."}, "c_night": {"kind": "cabin", "voice": 1, "who": "CABIN CREW", "ko": "손님 여러분, 편안한 휴식을 위해 지금부터 기내 조명을 어둡게 하겠습니다. 독서등은 좌석 위 버튼으로 켜실 수 있습니다.", "en": "Ladies and gentlemen, we will now dim the cabin lights so you can rest. Your reading light is above your seat."}, "c_aurora": {"kind": "cabin", "voice": 7, "who": "CAPTAIN", "ko": "기장입니다. 지금 비행기 왼쪽 창밖으로 오로라가 보이고 있습니다. 창가에 계신 손님께서는 창문 덮개를 올려 보시기 바랍니다.", "en": "This is your captain. The northern lights are now visible on the left side of the aircraft."}, "c_morning": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "좋은 아침입니다. 창밖으로 해가 뜨고 있어요."}, "c_descent": {"kind": "cabin", "voice": 1, "who": "CABIN CREW", "ko": "손님 여러분, 우리 비행기는 약 30분 후 밴쿠버 국제공항에 도착하겠습니다. 좌석 등받이와 테이블을 제자리로 해 주시고, 좌석벨트를 매 주시기 바랍니다.", "en": "Ladies and gentlemen, we will be landing at Vancouver International Airport in about 30 minutes. Please return your seat and tray table to the upright position and fasten your seatbelt."}};
+const LINES={"a_osaka": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "한빛항공에서 오사카로 가는 723편의 마지막 탑승 안내 말씀 드립니다. 아직 탑승하지 않으신 손님께서는 지금 바로 14번 탑승구로 와 주시기 바랍니다.", "en": "This is the final boarding call for Hanbit Air flight 723 to Osaka. Any remaining passengers, please proceed to gate 14 immediately."}, "a_prep": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "손님 여러분께 안내 말씀 드리겠습니다. 밴쿠버로 가는 메이플 에어 071편은 오후 6시 30분부터 27번 탑승구에서 탑승을 시작할 예정입니다. 캐나다로 가시는 손님께서는 탑승 전에 여권과 탑승권, 그리고 캐나다 전자여행허가 eTA를 다시 한번 확인해 주시기 바랍니다. 감사합니다.", "en": "Ladies and gentlemen, may I have your attention please. Maple Air flight 071 to Vancouver will begin boarding at 6:30 p.m. from gate 27. Passengers travelling to Canada, please have your passport, boarding pass, and Canadian eTA ready. Thank you."}, "a_bag": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "기내 반입 수하물 안내 말씀 드리겠습니다. 오늘 메이플 에어 071편은 만석으로 운항할 예정입니다. 기내 반입 수하물은 1인당 가방 1개와 개인 소지품 1개로 제한되며, 규정을 넘는 수하물은 탑승구에서 위탁 처리될 수 있습니다.", "en": "Today's flight is completely full. Each passenger may bring one carry-on bag and one personal item on board. Larger items may need to be checked at the gate."}, "a_sec": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "공항 이용 손님께 안내 말씀 드립니다. 개인 소지품을 방치하지 마시고, 주인 없는 물건을 보시면 가까운 직원에게 알려 주시기 바랍니다.", "en": "Please keep your belongings with you at all times, and report any unattended items to airport staff."}, "a_pre": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "밴쿠버로 가는 메이플 에어 071편 탑승을 시작하겠습니다. 먼저 도움이 필요하신 손님과 어린이를 동반하신 손님, 그리고 비즈니스석 손님께서는 지금 탑승해 주시기 바랍니다.", "en": "Maple Air flight 071 to Vancouver is now boarding. We invite passengers needing assistance, families with small children, and business class passengers to board first."}, "a_g12": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "다음은 탑승권에 그룹 1번과 2번이 적혀 있는 손님 차례입니다. 그룹 1번, 2번 손님께서는 지금 탑승해 주시기 바랍니다.", "en": "We now invite passengers in groups 1 and 2 to board."}, "a_g34": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "이제 그룹 3번과 4번 손님께서 탑승하실 차례입니다. 여권의 사진이 있는 면을 펼쳐서 탑승권과 함께 준비해 주시면 빠른 탑승에 도움이 됩니다. 감사합니다.", "en": "Groups 3 and 4, you are now welcome to board. Please have your passport open to the photo page, together with your boarding pass. Thank you."}, "a_final": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "메이플 에어에서 밴쿠버로 가는 071편의 마지막 탑승 안내 말씀 드립니다. 아직 탑승하지 않으신 손님께서는 지금 바로 27번 탑승구로 와 주시기 바랍니다. 이 비행기는 곧 출입문을 닫을 예정입니다.", "en": "This is the final boarding call for Maple Air flight 071 to Vancouver. Any remaining passengers, please proceed to gate 27 immediately. The gate will be closing shortly."}, "a_preview": {"kind": "pa", "voice": 0, "who": "ANNOUNCEMENT", "ko": "손님 여러분께 안내 말씀 드리겠습니다. 밴쿠버로 가는 메이플 에어 071편은 27번 탑승구에서 탑승을 시작하겠습니다. 감사합니다.", "en": "Ladies and gentlemen, Maple Air flight 071 to Vancouver is now boarding at gate 27. Thank you."}, "t_barista": {"kind": "talk", "voice": 8, "who": "BARISTA", "ko": "따뜻한 카페 라떼 나왔습니다. 좋은 여행 되세요!"}, "t_df_hello": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "어서 오세요. 천천히 둘러보세요."}, "t_df_pass": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "여권과 탑승권 보여주시겠어요?"}, "t_df_perfume": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "액체류라서 보안 봉투에 담아 드릴게요. 도착할 때까지 봉투는 뜯지 마세요."}, "t_df_gim": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "선물용이시면 쇼핑백 하나 더 넣어 드릴게요."}, "t_df_pay": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "결제 도와드리겠습니다."}, "t_df_thanks": {"kind": "talk", "voice": 2, "who": "면세점 직원", "ko": "감사합니다. 즐거운 여행 되세요."}, "t_gate_ask": {"kind": "talk", "voice": 3, "who": "GATE AGENT", "ko": "여권과 탑승권 보여주시겠어요?"}, "t_gate_thanks": {"kind": "talk", "voice": 3, "who": "GATE AGENT", "ko": "감사합니다. 즐거운 여행 되세요."}, "t_crew": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "어서 오십시오. 32A 좌석은 이쪽 통로로 쭉 들어가셔서 왼쪽 창가입니다.", "en": "Welcome aboard."}, "c_welcome": {"kind": "cabin", "voice": 1, "who": "CABIN CREW", "ko": "손님 여러분, 안녕하십니까. 밴쿠버까지 가는 메이플 에어 071편입니다. 좌석벨트는 버클을 끼운 뒤 끈을 당겨 단단히 조여 주시고, 휴대전화는 비행기 모드로 바꿔 주시기 바랍니다. 오늘도 메이플 에어를 이용해 주셔서 감사합니다.", "en": "Ladies and gentlemen, welcome aboard Maple Air flight 071 to Vancouver. Please fasten your seatbelt and switch your phone to flight mode. Thank you for flying with us."}, "c_takeoff": {"kind": "cabin", "voice": 7, "who": "CAPTAIN", "ko": "승무원은 이륙을 위해 착석해 주십시오.", "en": "Cabin crew, please be seated for take-off."}, "c_captain": {"kind": "cabin", "voice": 7, "who": "CAPTAIN", "ko": "손님 여러분, 안녕하십니까. 기장입니다. 우리 비행기는 지금 순항 고도 3만 5천 피트에 올라왔습니다. 밴쿠버까지 비행시간은 약 9시간 40분이며, 현지 시간 오후 1시 10분에 도착할 예정입니다. 밴쿠버는 지금 흐리고 비가 내리고 있습니다. 편안한 여행 되십시오.", "en": "Good evening, this is your captain speaking. We have reached our cruising altitude of 35,000 feet. Our flight time to Vancouver is about 9 hours and 40 minutes, and we expect to arrive at 1:10 p.m. local time. Enjoy the flight."}, "c_drink": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "음료 드릴까요? 커피, 오렌지 주스, 맥주가 있습니다."}, "c_latte": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "카페 27 스탬프가 있으시네요. 오늘만 준비한 메이플 라떼도 드릴 수 있어요."}, "c_meal": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "식사 준비해 드리겠습니다. 비빔밥, 소고기 찜, 흰살생선 중에 어떤 걸로 드릴까요?"}, "c_soldout": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "죄송합니다, 손님. 소고기 찜은 앞쪽에서 다 나갔습니다. 비빔밥이나 생선은 어떠세요?"}, "c_enjoy": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "맛있게 드세요. 필요하시면 언제든 불러 주세요."}, "c_night": {"kind": "cabin", "voice": 1, "who": "CABIN CREW", "ko": "손님 여러분, 편안한 휴식을 위해 지금부터 기내 조명을 어둡게 하겠습니다. 독서등은 좌석 위 버튼으로 켜실 수 있습니다.", "en": "Ladies and gentlemen, we will now dim the cabin lights so you can rest. Your reading light is above your seat."}, "c_aurora": {"kind": "cabin", "voice": 7, "who": "CAPTAIN", "ko": "기장입니다. 지금 비행기 왼쪽 창밖으로 오로라가 보이고 있습니다. 창가에 계신 손님께서는 창문 덮개를 올려 보시기 바랍니다.", "en": "This is your captain. The northern lights are now visible on the left side of the aircraft."}, "c_morning": {"kind": "talk", "voice": 1, "who": "CABIN CREW", "ko": "좋은 아침입니다. 창밖으로 해가 뜨고 있어요."}, "c_descent": {"kind": "cabin", "voice": 1, "who": "CABIN CREW", "ko": "손님 여러분, 우리 비행기는 약 30분 후 밴쿠버 국제공항에 도착하겠습니다. 좌석 등받이와 테이블을 제자리로 해 주시고, 좌석벨트를 매 주시기 바랍니다.", "en": "Ladies and gentlemen, we will be landing at Vancouver International Airport in about 30 minutes. Please return your seat and tray table to the upright position and fasten your seatbelt."}, "c_arrive": {"kind": "cabin", "voice": 1, "who": "CABIN CREW", "ko": "손님 여러분, 밴쿠버 국제공항에 도착했습니다. 현지 시각은 오후 1시 10분, 기온은 섭씨 11도입니다. 좌석벨트 표시등이 꺼질 때까지 자리에 앉아 계시기 바랍니다.", "en": "Ladies and gentlemen, welcome to Vancouver. The local time is 1:10 p.m. and the temperature is 11 degrees Celsius.", "fr": "Mesdames et messieurs, bienvenue à Vancouver."}, "o_q1": {"kind": "talk", "voice": 9, "who": "BORDER OFFICER", "say": "en", "en": "Hello. Passport, please. What's the purpose of your visit?", "ko": "안녕하세요. 여권 주세요. 방문 목적이 뭔가요?"}, "o_q2": {"kind": "talk", "voice": 9, "who": "BORDER OFFICER", "say": "en", "en": "How long will you be staying in Canada?", "ko": "캐나다에 얼마나 머무르시나요?"}, "o_q3": {"kind": "talk", "voice": 9, "who": "BORDER OFFICER", "say": "en", "en": "And where will you be staying?", "ko": "어디에서 지내시나요?"}, "o_q4": {"kind": "talk", "voice": 9, "who": "BORDER OFFICER", "say": "en", "en": "Are you bringing any food, plants, or animals into Canada?", "ko": "캐나다로 음식, 식물, 동물을 가지고 오셨나요?"}, "o_food": {"kind": "talk", "voice": 9, "who": "BORDER OFFICER", "say": "en", "en": "Dried seaweed is fine. Thanks for declaring it.", "ko": "말린 김은 괜찮아요. 신고해 주셔서 고마워요."}, "o_declare": {"kind": "talk", "voice": 9, "who": "BORDER OFFICER", "say": "en", "en": "Is that seaweed in your bag? That's okay, but please always declare food.", "ko": "가방에 있는 거 김인가요? 괜찮지만, 음식은 꼭 신고해 주세요."}, "o_joke": {"kind": "talk", "voice": 9, "who": "BORDER OFFICER", "say": "en", "en": "Ha. I'll write down vacation.", "ko": "하하. 관광이라고 적을게요."}, "o_ok": {"kind": "talk", "voice": 9, "who": "BORDER OFFICER", "say": "en", "en": "Okay.", "ko": "알겠습니다."}, "o_welcome": {"kind": "talk", "voice": 9, "who": "BORDER OFFICER", "say": "en", "en": "All set. Welcome to Canada, and enjoy your stay!", "ko": "다 됐어요. 캐나다에 오신 걸 환영해요. 즐거운 시간 보내세요!"}, "f_hi": {"kind": "talk", "voice": 4, "who": "하나", "ko": "왔다! 여기야, 여기! 비행 길었지? 얼굴은 좋아 보인다."}, "f_gift": {"kind": "talk", "voice": 4, "who": "하나", "ko": "어머, 김이잖아! 여기서 한국 김 진짜 비싼데. 고마워, 잘 먹을게!"}, "f_aurora": {"kind": "talk", "voice": 4, "who": "하나", "ko": "잠깐, 이거 오로라야? 비행기 창문으로 찍은 거라고? 대박이다."}, "f_umb": {"kind": "talk", "voice": 4, "who": "하나", "ko": "밴쿠버 가을은 원래 이렇게 비가 와. 우산 챙겨 왔구나, 잘했다."}, "f_noumb": {"kind": "talk", "voice": 4, "who": "하나", "ko": "우산 안 가져왔어? 괜찮아, 내 거 같이 쓰자."}, "f_bike": {"kind": "talk", "voice": 4, "who": "하나", "ko": "짐 맡기고 자전거 빌리자. 방파제 따라 한 바퀴 돌아서 노을 시간에 잉글리시 베이까지 가면 딱이야."}, "f_totem": {"kind": "talk", "voice": 4, "who": "하나", "ko": "여기가 브록턴 포인트의 토템 기둥들이야. 이 땅의 원주민 예술가들이 깎은 거래."}, "f_heron": {"kind": "talk", "voice": 4, "who": "하나", "ko": "저기 봐, 왜가리! 스탠리 파크에는 왜가리가 엄청 많이 살아."}, "f_bridge": {"kind": "talk", "voice": 4, "who": "하나", "ko": "저 다리가 라이온스 게이트 브리지야. 저 너머가 노스 밴쿠버고, 겨울엔 저 산에서 스키 타."}, "f_rainbow": {"kind": "talk", "voice": 4, "who": "하나", "ko": "어, 무지개다! 비 그치자마자 떴네. 너 운 진짜 좋다."}, "f_sunset": {"kind": "talk", "voice": 4, "who": "하나", "ko": "여기 통나무에 앉아서 노을 보는 게 밴쿠버 사람들 국룰이야."}, "f_inuk": {"kind": "talk", "voice": 4, "who": "하나", "ko": "저 돌탑은 이누크슈크야. 북쪽 이누이트 사람들이 길을 알려 주려고 쌓던 표식이래."}, "f_end": {"kind": "talk", "voice": 4, "who": "하나", "ko": "와 줘서 진짜 고마워. 다음엔 겨울에 와. 같이 스키 타러 가자."}};
 const voiceBufs={}; let voicesReady=false, voiceLoad=null, voiceQ=Promise.resolve(), voicePlaying=0;
 function loadVoiceFiles(){
   if(voiceLoad || !ac) return voiceLoad;
-  const names=[]; Object.entries(LINES).forEach(([id,l])=>['ko','en'].forEach(lg=>{ if(l[lg]) names.push(id+'_'+lg); }));
+  const names=[]; Object.entries(LINES).forEach(([id,l])=>['ko','en','fr'].forEach(lg=>{ if(l[lg] && !(lg==='ko'&&l.say==='en')) names.push(id+'_'+lg); }));
   voiceLoad=Promise.all(names.map(async n=>{ try{ const r=await fetch('audio/'+n+'.mp3'); if(!r.ok) return;
     const buf=await r.arrayBuffer(); voiceBufs[n]=await new Promise((ok,no)=>ac.decodeAudioData(buf,ok,no)); voicesReady=true; }catch(e){} }));
   return voiceLoad;
@@ -503,20 +504,20 @@ function announce(id, log){
     await (voiceLoad||Promise.resolve());
     const rec=voiceBufs[id+'_ko'];
     ding();
-    showSub(L.who||'ANNOUNCEMENT', L.ko, L.en, rec ? (2.1+durOf(id+'_ko')+.7+durOf(id+'_en')+.6)*1000 : est);
+    showSub(L.who||'ANNOUNCEMENT', L.ko, L.en+(L.fr?' '+L.fr:''), rec ? (2.1+durOf(id+'_ko')+.7+durOf(id+'_en')+(L.fr?durOf(id+'_fr')+.5:0)+.6)*1000 : est);
     await sleep(cabinPA?1300:2100);
-    if(rec){ await playBuf(id+'_ko'); await sleep(700); await playBuf(id+'_en'); }
+    if(rec){ await playBuf(id+'_ko'); await sleep(700); await playBuf(id+'_en'); if(voiceBufs[id+'_fr']){ await sleep(500); await playBuf(id+'_fr'); } }
     else if(hasTTS){ speakLines(sentences(toSay(L.ko,KO_SAY)),'ko'); speechQ=speechQ.then(()=>sleep(650)); await speakLines(sentences(toSay(L.en,EN_SAY)),'en'); }
     await sleep(250); if(!cabinPA) chime(false); await sleep(cabinPA?600:1400);
   });
 }
 // 직원·승무원 대사: 방송과 상관없이 바로 말한다. 대사 길이만큼 기다리는 약속(건너뛰기 가능)을 돌려준다
 function talk(id){
-  const L=LINES[id], rec=soundOn && voiceBufs[id+'_ko'];
-  const ms = rec ? (durOf(id+'_ko') + (L.en ? durOf(id+'_en')+.15 : 0))*1000 + 250 : 1200 + L.ko.length*95;
-  showSub(L.who, L.ko, L.en||'', ms+700);
-  if(rec){ duck(true); playBuf(id+'_ko').then(()=>L.en?playBuf(id+'_en'):0).then(()=>{ if(!voicePlaying) duck(false); }); }
-  else if(soundOn && hasTTS){ speakLines([toSay(L.ko,KO_SAY)],'ko',{rate:1.0,pitch:1.08,gap:150}); if(L.en) speakLines([L.en],'en',{rate:.95,gap:100}); }
+  const L=LINES[id], en1=L.say==='en', main=en1?'_en':'_ko', rec=soundOn && voiceBufs[id+main];
+  const ms = rec ? (durOf(id+main) + (!en1&&L.en ? durOf(id+'_en')+.15 : 0))*1000 + 250 : 1200 + (en1?L.en.length*60:L.ko.length*95);
+  showSub(L.who, en1?L.en:L.ko, en1?L.ko:(L.en||''), ms+700);
+  if(rec){ duck(true); playBuf(id+main).then(()=>!en1&&L.en?playBuf(id+'_en'):0).then(()=>{ if(!voicePlaying) duck(false); }); }
+  else if(soundOn && hasTTS){ if(en1) speakLines([L.en],'en',{rate:.95,gap:100}); else { speakLines([toSay(L.ko,KO_SAY)],'ko',{rate:1.0,pitch:1.08,gap:150}); if(L.en) speakLines([L.en],'en',{rate:.95,gap:100}); } }
   return wait(ms);
 }
 $('preview').addEventListener('click',()=>{ if(!soundOn) setSound(true); announce('a_preview'); });
@@ -550,6 +551,7 @@ const ITEMS={
   cheer:{name:'엄마의 응원', desc:'"도착하면 꼭 연락하고"', use:'5장 · 도착 후 "잘 도착했어" 문자 보내기'},
   umbrella:{name:'접이식 우산', desc:'밴쿠버는 지금 비', use:'5장 · 비 오는 개스타운을 우산 쓰고 산책'},
   menu:{name:'기내식 메뉴 카드', desc:'하늘 위에서 고른 메뉴', use:'여행 앨범 · 기내식 페이지'},
+  sunset:{name:'잉글리시 베이의 노을', desc:'하나와 통나무에 앉아서', use:'여행의 마지막 페이지'},
   aurora:{name:'오로라 사진', desc:'알류샨 열도 위의 밤', use:'5장 · 밴쿠버 친구에게 보여주기'},
   battery:{name:'배터리 86%', desc:'좌석 옆 포트로 충전', use:'4장 · 기내 영화 보기 / 5장 · 지도 앱'},
 };
@@ -581,7 +583,7 @@ function takePhoto(cap){
     composer ? composer.render() : renderer.render(scene,camera);
     const c=document.createElement('canvas'), w=320, h=Math.round(320*canvas.height/canvas.width);
     c.width=w; c.height=h; c.getContext('2d').drawImage(canvas,0,0,w,h);
-    SAVE.photos.push({url:c.toDataURL('image/jpeg',.72),cap,at:fmt(G.gm)}); if(SAVE.photos.length>8) SAVE.photos.shift();
+    SAVE.photos.push({url:c.toDataURL('image/jpeg',.72),cap,at:fmt(G.gm)}); if(SAVE.photos.length>14) SAVE.photos.shift();
     renderAlbum(); persist(); sfx.shutter();
     const f=$('flash'); f.style.transition='none'; f.style.opacity=.85;
     requestAnimationFrame(()=>requestAnimationFrame(()=>{ f.style.transition='opacity .7s'; f.style.opacity=0; }));
@@ -1337,7 +1339,7 @@ function frame(now){
   }
   if(built){
     const s=now/1000;
-    if(G.chapter===4) ch4Frame(dt,s); else {
+    if(G.chapter===4) ch4Frame(dt,s); else if(G.chapter===5) ch5Frame(dt,s); else {
     updateSky(dt); updateTakeoff(dt);
     const blink=(s%1.2)<.12, strobe=(s%1.4)<.06;
     [myPlane,otherPlane].forEach((p,i)=>{
@@ -1625,6 +1627,7 @@ function begin(withSound){
 }
 $('startSound').addEventListener('click',()=>begin(true));
 $('startMute').addEventListener('click',()=>begin(false));
+$('startCh5').addEventListener('click',()=>{ const sv=window.__saved; Object.assign(SAVE,sv); G.mood=0; addMood(sv.mood||0); renderBag(); renderAlbum(); G.boarded=true; begin(true); startChapter5(); });
 $('startCh4').addEventListener('click',()=>{ const sv=window.__saved; Object.assign(SAVE,sv); G.mood=0; addMood(sv.mood||0); renderBag(); renderAlbum(); G.boarded=true; begin(true); startChapter4(); });
 try{
   if(!window.THREE) throw new Error('three.js를 불러오지 못했어요');
@@ -1634,7 +1637,7 @@ try{
   built=true;
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(refreshGateSign);
   $('loading').textContent='준비 완료'; $('startSound').disabled=false; $('startMute').disabled=false;
-  try{ const sv=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(sv && sv.chapter>=4){ $('startCh4').hidden=false; $('startCh4').disabled=false; window.__saved=sv; } }catch(e){}
+  try{ const sv=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(sv && sv.chapter>=4){ $('startCh4').hidden=false; $('startCh4').disabled=false; window.__saved=sv; } if(sv && sv.chapter>=5){ $('startCh5').hidden=false; $('startCh5').disabled=false; } }catch(e){}
 }catch(e){
   console.error(e);
   $('loading').textContent='3D 장면을 불러오지 못했어요. 새로고침하면 대부분 해결돼요. ('+e.message+')';
@@ -1854,7 +1857,7 @@ function choose(title, sub, opts){
   });
 }
 // 버튼 하나를 눌러야 다음으로 (hold=true 면 꾹 누르고 있어야 한다)
-function mealStep(label, hold, onProgress){
+function mealStep(label, hold, onProgress, dur){
   return new Promise(r=>{
     const bar=document.createElement('div'); bar.className='mealbar';
     bar.innerHTML=`<button class="${hold?'hold':''}">${label}${hold?'<i></i>':''}</button>`; stage.appendChild(bar);
@@ -1863,7 +1866,7 @@ function mealStep(label, hold, onProgress){
     const finish=()=>{ cancelAnimationFrame(raf); clearInterval(iv); bar.remove(); if(onProgress) onProgress(1); r(); };
     const iv=setInterval(()=>{ if(G.skip) finish(); },100);
     if(!hold){ b.addEventListener('click',finish,{once:true}); return; }
-    const tick=n=>{ const d=last?(n-last)/1000:0; last=n; if(down){ p=Math.min(1,p+d/2.4); fill.style.width=p*100+'%'; if(onProgress) onProgress(p); if(p>=1) return finish(); } raf=requestAnimationFrame(tick); };
+    const tick=n=>{ const d=last?(n-last)/1000:0; last=n; if(down){ p=Math.min(1,p+d/(dur||2.4)); fill.style.width=p*100+'%'; if(onProgress) onProgress(p); if(p>=1) return finish(); } raf=requestAnimationFrame(tick); };
     raf=requestAnimationFrame(tick);
     const on=e=>{ e.preventDefault(); down=true; }, off=()=>{ down=false; };
     b.addEventListener('pointerdown',on); b.addEventListener('pointerup',off); b.addEventListener('pointerleave',off);
@@ -2062,11 +2065,398 @@ function endChapter4(){
       <h2>곧, 밴쿠버</h2>
       <p>창밖으로 비에 젖은 산과 바다가 보이기 시작했다. 현지 시간 오후 1시 10분, 밴쿠버 국제공항.</p>
       <p>기내에서 쓴 것 · ${(SAVE.used||[]).map(id=>ITEMS[id].name).join(', ')||'없음'}</p>
-      <p style="color:var(--amber)">다음 장: 밴쿠버 (준비 중) · 남은 짐은 5장에서 쓰여요</p>
-      <button id="again4" style="justify-self:center">처음부터 다시</button></div>`;
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button id="go5" class="popbtn">5장 · 밴쿠버로 →</button><button id="again4">처음부터 다시</button></div></div>`;
     SAVE.chapter=5; persist(); $('skip').hidden=true; G.busy=true;
-    stage.appendChild(end); $('again4').addEventListener('click',()=>location.reload());
+    stage.appendChild(end); $('again4').addEventListener('click',()=>location.reload()); $('go5').addEventListener('click',()=>startChapter5());
   },1300);
 }
 </script>
+<script>
+"use strict";
+// =====================================================================
+// 5장 · 밴쿠버: 입국심사 → 하나 만나기 → 스탠리 파크 방파제 자전거 → 잉글리시 베이 노을
+// 북쪽이 -z, 동쪽이 +x. 방파제 길은 오른쪽에 바다, 왼쪽에 숲을 두고 반시계 방향으로 돈다
+// =====================================================================
+let arrivals=null, seawall=null;
+const c5={};
+const C5={ min:13*60+25, sunEl:16, sunTarget:16, rain:1, rainTarget:1, bow:0, bowTarget:0, ride:0, immig:false, met:false, mom:false, rideDone:false, onBike:false, glow:0 };
+const hm=m=>`${String(Math.floor(m/60)%24).padStart(2,'0')}:${String(Math.floor(m%60)).padStart(2,'0')}`;
+// 10월 말 밴쿠버의 해 높이 (일몰 17:52 무렵에 0도가 되도록 단순화한 근사)
+const sunElAt=m=>(17.87-m/60)*9.2;
 
+function makeRain(sceneRef, n, box){
+  const pos=new Float32Array(n*6);
+  for(let i=0;i<n;i++){ const x=box.x0+Math.random()*(box.x1-box.x0), y=box.y0+Math.random()*(box.y1-box.y0), z=box.z0+Math.random()*(box.z1-box.z0);
+    pos.set([x,y,z,x+.04,y+.55,z],i*6); }
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const m=new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:col('#d6dee6'),transparent:true,opacity:.35,depthWrite:false}));
+  m.userData={box,n}; m.frustumCulled=false; sceneRef.add(m); return m;
+}
+function stepRain(r,dt,amount){
+  r.visible=amount>.02; if(!r.visible) return; r.material.opacity=.38*amount;
+  const a=r.geometry.attributes.position.array, b=r.userData.box;
+  for(let i=0;i<r.userData.n;i++){ const k=i*6; a[k+1]-=dt*14; a[k+4]-=dt*14; if(a[k+1]<b.y0){ const y=b.y1-Math.random()*2; a[k+1]=y; a[k+4]=y+.55; } }
+  r.geometry.attributes.position.needsUpdate=true;
+}
+function makeSky(sc,o){ const sk=new THREE.Sky(); sk.scale.setScalar(15000); sk.userData.dynamic=true; sc.add(sk);
+  const u=sk.material.uniforms; u.turbidity.value=o.turb; u.rayleigh.value=o.ray; u.mieCoefficient.value=o.mie; u.mieDirectionalG.value=.84; return sk; }
+function sunVec(el,azDeg){ const e=THREE.MathUtils.degToRad(el), a=THREE.MathUtils.degToRad(azDeg); return V(Math.cos(e)*Math.sin(a),Math.sin(e),-Math.cos(e)*Math.cos(a)); }
+function signTex(w,h,draw){ return canvasTex(w,h,draw); }
+function emissivePlane(tex,w,h,x,y,z,ry,int){ const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({color:0,emissive:col('#ffffff'),emissiveMap:tex,emissiveIntensity:int||1})); m.position.set(x,y,z); m.rotation.y=ry||0; scene.add(m); return m; }
+
+// ---------------- 밴쿠버 국제공항 도착장 ----------------
+function buildArrivals(){
+  scene=arrivals=new THREE.Scene(); scene.fog=new THREE.FogExp2(col('#aab4be'),.0035);
+  c5.skyA=makeSky(scene,{turb:10,ray:.6,mie:.012}); c5.skyA.material.uniforms.sunPosition.value.copy(sunVec(22,-150));
+  scene.add(new THREE.HemisphereLight(col('#e4ecf4'),col('#5a5f66'),.75));
+  const d=new THREE.DirectionalLight(col('#f2f4f8'),.6); d.position.set(-20,30,10); scene.add(d);
+  const tile=canvasTex(256,256,(x,w,h)=>{ x.fillStyle='#9aa4ad'; x.fillRect(0,0,w,h); for(let i=0;i<2500;i++){ x.fillStyle=`rgba(${Math.random()<.5?40:240},${Math.random()<.5?40:240},${Math.random()<.5?40:240},.06)`; x.fillRect(Math.random()*w,Math.random()*h,2,2); }
+    x.strokeStyle='rgba(60,66,72,.35)'; x.lineWidth=2; x.strokeRect(0,0,w,h); });
+  tile.wrapS=tile.wrapT=THREE.RepeatWrapping; tile.repeat.set(12,20);
+  const fl=new THREE.Mesh(new THREE.PlaneGeometry(24,40),std('#ffffff',{map:tile,roughness:.2,metalness:.05})); fl.rotation.x=-Math.PI/2; fl.position.set(0,0,-15); scene.add(fl);
+  // 나무 루버 천장 (밴쿠버 공항 특유의 따뜻한 목재)
+  { const xs=[]; for(let x=-11;x<=11;x+=.42) xs.push(x); const m=new THREE.InstancedMesh(new THREE.BoxGeometry(.12,.28,40),std('#b98a5a',{roughness:.6}),xs.length), o=new THREE.Object3D();
+    xs.forEach((x,i)=>{ o.position.set(x,7.2,-15); o.updateMatrix(); m.setMatrixAt(i,o.matrix); }); scene.add(m); }
+  box(24,.1,40,std('#3a3530'),0,7.5,-15);
+  box(.3,7.5,40,std('#d6d1c8',{roughness:.8}),11,3.75,-15); box(24,7.5,.3,std('#d6d1c8',{roughness:.8}),0,3.75,4.8); box(24,7.5,.3,std('#d6d1c8',{roughness:.8}),0,3.75,-34.9);
+  // 왼쪽 통유리: 비 내리는 산과 바다
+  const fr=std('#2c3038',{metalness:.7,roughness:.35});
+  for(let z=4;z>=-34;z-=3) box(.15,7.5,.15,fr,-11,3.75,z);
+  [.05,3.6,7.4].forEach(y=>box(.15,.12,40,fr,-11,y,-15));
+  for(let i=0;i<9;i++){ const h=180+Math.random()*260, m=new THREE.Mesh(new THREE.ConeGeometry(260+Math.random()*200,h,7),std('#41505e',{roughness:1})); m.position.set(-500-Math.random()*500,h/2-5,-300+i*90); scene.add(m); }
+  const sea=new THREE.Mesh(new THREE.PlaneGeometry(4000,4000),std('#4a5f70',{roughness:.2})); sea.rotation.x=-Math.PI/2; sea.position.set(-2000,-4,0); scene.add(sea);
+  c5.rainA=makeRain(scene,1400,{x0:-70,x1:-12,y0:-4,y1:26,z0:-40,z1:6});
+  // 캐나다 국경관리청 부스
+  const ban=signTex(2048,200,(x,w,h)=>{ x.fillStyle='#1f2a44'; x.fillRect(0,0,w,h); x.fillStyle='#d9302c'; x.fillRect(40,40,120,120);
+    x.fillStyle='#ffffff'; x.font='600 58px sans-serif'; x.fillText('Canada Border Services Agency',200,92); x.font='44px sans-serif'; x.fillStyle='#c8d2e0'; x.fillText('Agence des services frontaliers du Canada',200,158);
+    x.textAlign='right'; x.font='600 64px Georgia, serif'; x.fillStyle='#f2e3c9'; x.fillText('Welcome to Canada · Bienvenue au Canada',w-40,120); });
+  emissivePlane(ban,18,1.76,0,4.6,-5.2,0,.95);
+  [-6,-2,2,6].forEach((xb,i)=>{
+    box(2.2,1.1,.8,std('#e8e4dc',{roughness:.4}),xb,.55,-7); box(2.4,2.6,.1,std('#2b3a5c',{roughness:.5}),xb,1.3,-8.1);
+    const g=box(2.2,1.0,.04,new THREE.MeshStandardMaterial({color:col('#cfe4ee'),transparent:true,opacity:.25,roughness:.05}),xb,1.6,-6.62); g.castShadow=false;
+    const n=signTex(128,128,(x,w,h)=>{ x.fillStyle='#1f2a44'; x.fillRect(0,0,w,h); x.fillStyle='#ffffff'; x.font='700 90px sans-serif'; x.textAlign='center'; x.fillText(String(i+1),w/2,98); });
+    emissivePlane(n,.5,.5,xb,2.95,-7.9,0,1);
+    makePerson(false,xb,-7.55,0,{outfit:'#1f2a44',hair:['#1b1b1f','#6b4a2e','#2a211c','#a8794a'][i],scale:1.25});
+  });
+  // 줄 세우는 기둥과 띠
+  for(let x=-7.5;x<=7.5;x+=1.5) for(let z=-1;z>=-5;z-=2){ box(.06,1,.06,fr,x,.5,z); }
+  for(let x=-7.5;x<7.5;x+=1.5) [-1,-3,-5].forEach(z=>box(1.5,.06,.02,std('#2b4a8a'),x+.75,.92,z).castShadow=false);
+  [[-6,-5.2],[-2,-5.4],[6,-5.1],[-6,-3.8],[-2.2,-3.6],[5.8,-3.9],[-5.8,-2.1]].forEach(([x,z])=>makePerson(false,x,z,Math.PI));
+  // 도착장: 물길, 조각 기둥, 환영 문구, 마중 나온 사람들
+  box(4,.4,16,std('#6e6a64',{roughness:.8}),-7.5,.2,-23);
+  const wm=std('#3f7f96',{roughness:.05,metalness:.2}); const w=new THREE.Mesh(new THREE.PlaneGeometry(3.6,15.6),wm); w.rotation.x=-Math.PI/2; w.position.set(-7.5,.41,-23); scene.add(w);
+  for(let i=0;i<14;i++){ const r=new THREE.Mesh(new THREE.DodecahedronGeometry(.2+Math.random()*.25),std('#8a8580',{roughness:.9})); r.position.set(-7.5+(Math.random()-.5)*3,.45,-16-Math.random()*14); r.scale.y=.5; scene.add(r); }
+  [[-4.2,-19],[-4.2,-26]].forEach(([x,z])=>{ const cedar=std('#8a5a3a',{roughness:.8});
+    box(.9,.5,.9,std('#5a4a3e'),x,.25,z); const b=new THREE.Mesh(new THREE.CylinderGeometry(.42,.5,3.4,10),cedar); b.position.set(x,2.2,z); scene.add(b);
+    [[1.4,'#b8231a'],[2.4,'#1b1b1f'],[3.2,'#2f8a8a']].forEach(([y,c])=>{ const r=new THREE.Mesh(new THREE.CylinderGeometry(.47,.47,.18,10),std(c,{roughness:.7})); r.position.set(x,y,z); scene.add(r); });
+    const h=new THREE.Mesh(new THREE.SphereGeometry(.55,12,10),cedar); h.position.set(x,4.25,z); h.scale.set(1,1.1,.9); scene.add(h);
+    [-1,1].forEach(sd=>{ const a=box(.2,1.4,.25,cedar,x+sd*.6,3.3,z); a.rotation.z=sd*-.6; }); });
+  const wel=signTex(2048,256,(x,w,h)=>{ x.fillStyle='#14202e'; x.fillRect(0,0,w,h); x.fillStyle='#f2e3c9'; x.textAlign='center'; x.font='600 120px Georgia, serif'; x.fillText('Welcome to Vancouver',w/2,140); x.font='60px Georgia, serif'; x.fillStyle='#c8d2e0'; x.fillText('Bienvenue à Vancouver',w/2,220); });
+  emissivePlane(wel,14,1.75,0,5.2,-34.7,0,1);
+  box(10,1,.08,std('#c9ccd1',{metalness:.6,roughness:.3}),4,.5,-20.8);
+  [[-.6,-21.6],[4.4,-21.9],[5.4,-21.6],[6.6,-21.8],[7.6,-21.6]].forEach(([x,z])=>makePerson(false,x,z,0));
+  for(let i=0;i<5;i++){ const l=new THREE.PointLight(col('#ffe9cc'),.35,14,1.6); l.position.set(-6+i*3,6.4,-4-i*6); scene.add(l); }
+  // 하나: 노란 우비, 손에 든 환영 팻말
+  c5.friend=makePerson(false,2.2,-21.7,0,{outfit:'#f5d58a',outfit2:'#f5d58a',hair:'#4a3426',pants:'#3a4a68',scale:1.08});
+  const board=signTex(256,170,(x,w,h)=>{ x.fillStyle='#ffffff'; x.fillRect(0,0,w,h); x.fillStyle='#d9544a'; x.font='700 44px sans-serif'; x.textAlign='center'; x.fillText('WELCOME!',w/2,70); x.fillStyle='#2b3a5c'; x.font='700 50px "Gowun Dodum", sans-serif'; x.fillText('환영해 ♥',w/2,138); });
+  const bd=new THREE.Mesh(new THREE.BoxGeometry(.6,.4,.02),[std('#eee'),std('#eee'),std('#eee'),std('#eee'),std('#ffffff',{map:board}),std('#eee')]); bd.position.set(0,.95,.26); c5.friend.add(bd);
+  c5.friend.userData.dynamic=true;
+  scene.environment=null; nightK=.2; refreshEnv();
+  mergeStatic(scene);
+}
+
+// ---------------- 스탠리 파크 방파제 ~ 잉글리시 베이 ----------------
+function buildSeawall(){
+  scene=seawall=new THREE.Scene(); scene.fog=new THREE.FogExp2(col('#a3b2c0'),.0011);
+  c5.skyB=makeSky(scene,{turb:9,ray:.9,mie:.008});
+  c5.hemi=new THREE.HemisphereLight(col('#dbe6f0'),col('#3e4a3a'),.7); scene.add(c5.hemi);
+  c5.sun=new THREE.DirectionalLight(col('#ffe2c0'),.8); scene.add(c5.sun, c5.sun.target);
+  c5.water=std('#2c4a5c',{roughness:.14,metalness:.1}); c5.water.envMapIntensity=.35;
+  const sea=new THREE.Mesh(new THREE.PlaneGeometry(9000,9000),c5.water); sea.rotation.x=-Math.PI/2; sea.position.y=0; scene.add(sea);
+  // 방파제 길
+  const P=[[0,0],[2,-120],[-60,-240],[-180,-300],[-320,-250],[-405,-110],[-425,60],[-385,220],[-300,330]].map(q=>V(q[0],1.22,q[1]));
+  c5.curve=new THREE.CatmullRomCurve3(P,false,'catmullrom',.5);
+  const N=420, pts=c5.curve.getSpacedPoints(N), L=[];
+  for(let i=0;i<=N;i++){ const t=c5.curve.getTangentAt(i/N); L.push(V(t.z,0,-t.x).normalize()); }
+  const C=V(-215,1,-20);
+  // 땅: 공원 반도와 웨스트엔드
+  const sh=new THREE.Shape(); pts.forEach((p,i)=>{ const q=p.clone().addScaledVector(L[i],1.6); i?sh.lineTo(q.x,-q.z):sh.moveTo(q.x,-q.z); }); sh.lineTo(C.x,-C.z);
+  const land=new THREE.Mesh(new THREE.ShapeGeometry(sh,1),std('#4f6b3a',{roughness:.95})); land.rotation.x=-Math.PI/2; land.position.y=1.0; scene.add(land);
+  const we=new THREE.Shape(); [[-300,330],[-240,470],[260,560],[300,60],[40,-20],[C.x,C.z]].forEach((q,i)=>i?we.lineTo(q[0],-q[1]):we.moveTo(q[0],-q[1]));
+  const wem=new THREE.Mesh(new THREE.ShapeGeometry(we),std('#6a7262',{roughness:.95})); wem.rotation.x=-Math.PI/2; wem.position.y=.98; scene.add(wem);
+  // 길 표면과 돌 방파제 벽 (띠 모양 메시)
+  const roadTex=canvasTex(64,256,(x,w,h)=>{ x.fillStyle='#55585c'; x.fillRect(0,0,w,h); for(let i=0;i<300;i++){ x.fillStyle=`rgba(255,255,255,${Math.random()*.06})`; x.fillRect(Math.random()*w,Math.random()*h,2,2); }
+    x.fillStyle='#e8e2c8'; x.fillRect(w/2-2,0,4,h*.55); });
+  roadTex.wrapS=roadTex.wrapT=THREE.RepeatWrapping;
+  const stoneTex=canvasTex(256,64,(x,w,h)=>{ x.fillStyle='#8c8a84'; x.fillRect(0,0,w,h); x.strokeStyle='rgba(50,50,48,.5)'; x.lineWidth=2;
+    for(let r=0;r<4;r++) for(let c=0;c<6;c++){ const o=r%2?21:0; x.strokeRect(c*43+o,r*16,43,16); } });
+  stoneTex.wrapS=stoneTex.wrapT=THREE.RepeatWrapping;
+  function ribbon(fa,fb,ya,yb,tex,vScale){ const pos=[],uv=[],idx=[]; let dist=0;
+    pts.forEach((p,i)=>{ if(i) dist+=p.distanceTo(pts[i-1]); const a=p.clone().addScaledVector(L[i],fa), b=p.clone().addScaledVector(L[i],fb);
+      pos.push(a.x,ya,a.z,b.x,yb,b.z); uv.push(0,dist/vScale,1,dist/vScale); if(i){ const k=i*2; idx.push(k-2,k-1,k, k-1,k+1,k); } });
+    const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2)); g.setIndex(idx); g.computeVertexNormals();
+    const m=new THREE.Mesh(g,std('#ffffff',{map:tex,roughness:.85,side:THREE.DoubleSide})); scene.add(m); return m; }
+  ribbon(1.7,-1.7,1.22,1.22,roadTex,6); ribbon(-1.7,-2.0,1.22,-.6,stoneTex,3);
+  // 숲: 키 큰 침엽수와 단풍 든 활엽수
+  const con=[], mp=[];
+  for(let i=0;i<=N;i+=2){ if(i>N*.9) break; for(let k=0;k<3;k++){ const off=7+Math.random()*70, q=pts[i].clone().addScaledVector(L[i],off); q.y=1;
+    if(q.distanceTo(C)<20) continue; (Math.random()<.22?mp:con).push(q); } }
+  for(let i=0;i<500;i++){ const a=Math.random()*Math.PI*2, r=Math.random()*150; const q=V(C.x+Math.cos(a)*r,1,C.z+Math.sin(a)*r); con.push(q); }
+  const o=new THREE.Object3D();
+  const coneM=new THREE.InstancedMesh(new THREE.ConeGeometry(2.4,10,7),std('#ffffff',{roughness:.9}),con.length), trunkM=new THREE.InstancedMesh(new THREE.CylinderGeometry(.35,.45,4,6),std('#4a3626',{roughness:.9}),con.length+mp.length);
+  con.forEach((q,i)=>{ const s=1.2+Math.random()*2; o.position.set(q.x,q.y+2+5*s,q.z); o.scale.set(s,s,s); o.rotation.set(0,Math.random()*6,0); o.updateMatrix(); coneM.setMatrixAt(i,o.matrix);
+    coneM.setColorAt(i,col(['#1f3a2a','#2a4a32','#1a3326','#30523a'][i%4])); o.position.set(q.x,q.y+2*s,q.z); o.scale.set(s,s,s); o.updateMatrix(); trunkM.setMatrixAt(i,o.matrix); });
+  const crownM=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(3.2,1),std('#ffffff',{roughness:.9}),mp.length);
+  mp.forEach((q,i)=>{ const s=.9+Math.random()*.8; o.position.set(q.x,q.y+5.5*s,q.z); o.scale.set(s*1.1,s,s*1.1); o.updateMatrix(); crownM.setMatrixAt(i,o.matrix);
+    crownM.setColorAt(i,col(['#d9542a','#e8a33a','#c9302c','#f0c040','#b8462a'][i%5])); o.position.set(q.x,q.y+2*s,q.z); o.scale.set(s,s,s); o.updateMatrix(); trunkM.setMatrixAt(con.length+i,o.matrix); });
+  scene.add(coneM,trunkM,crownM);
+  // 북쪽 해안 산맥 (눈 덮인 봉우리)
+  for(let i=0;i<16;i++){ const h=260+Math.random()*420, r=320+Math.random()*260, x=-1900+i*210+Math.random()*80, z=-1150-Math.random()*350;
+    const m=new THREE.Mesh(new THREE.ConeGeometry(r,h,8),std('#3c4c58',{roughness:1})); m.position.set(x,h/2,z); scene.add(m);
+    if(h>420){ const c=new THREE.Mesh(new THREE.ConeGeometry(r*.28,h*.28,8),std('#eef2f5',{roughness:.9})); c.position.set(x,h*.86,z); scene.add(c); } }
+  // 라이온스 게이트 브리지 (녹색 현수교)
+  const E1=V(-215,62,-430), E2=V(-560,62,-780), green=std('#3f7a5a',{roughness:.5,metalness:.4});
+  const deck=new THREE.Mesh(new THREE.BoxGeometry(14,3,E1.distanceTo(E2)),green); deck.position.copy(E1).lerp(E2,.5); deck.lookAt(E2); scene.add(deck);
+  const side=V(0,0,0).subVectors(E2,E1).normalize(), perp=V(side.z,0,-side.x);
+  const T1=E1.clone().lerp(E2,.28), T2=E1.clone().lerp(E2,.72);
+  [T1,T2].forEach(T=>[-1,1].forEach(sd=>{ const leg=new THREE.Mesh(new THREE.BoxGeometry(3,111,3),green); leg.position.copy(T).addScaledVector(perp,sd*7); leg.position.y=55; scene.add(leg); }));
+  [-1,1].forEach(sd=>{ const cp=[]; const seg=(A,B,sag)=>{ for(let k=0;k<=20;k++){ const t=k/20, q=A.clone().lerp(B,t); q.y=A.y+(B.y-A.y)*t-sag*4*t*(1-t); cp.push(q.addScaledVector(perp,sd*7)); } };
+    const top1=T1.clone().setY(110), top2=T2.clone().setY(110);
+    seg(E1.clone().setY(64),top1,6); seg(top1,top2,42); seg(top2,E2.clone().setY(64),6);
+    scene.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(cp),120,.8,6),green)); });
+  // 다운타운 웨스트엔드 빌딩 (노을에 창문이 켜진다)
+  const winTex=canvasTex(64,128,(x,w,h)=>{ x.fillStyle='#000'; x.fillRect(0,0,w,h); for(let r=0;r<16;r++) for(let c=0;c<4;c++){ if(Math.random()<.45){ x.fillStyle=`rgba(255,${200+Math.random()*40|0},140,1)`; x.fillRect(4+c*15,4+r*8,9,4); } } });
+  winTex.wrapS=winTex.wrapT=THREE.RepeatWrapping; winTex.repeat.set(2,3);
+  const facade=canvasTex(64,128,(x,w,h)=>{ x.fillStyle='#8aa0b4'; x.fillRect(0,0,w,h); for(let r=0;r<16;r++) for(let c=0;c<4;c++){ x.fillStyle=`rgba(40,60,80,${.35+Math.random()*.3})`; x.fillRect(3+c*15,3+r*8,11,6); } });
+  facade.wrapS=facade.wrapT=THREE.RepeatWrapping; facade.repeat.set(2,3);
+  c5.cityMats=['#9fb3c4','#c9c2b4','#7d93a8','#b8a898'].map(c=>new THREE.MeshStandardMaterial({color:col(c),map:facade,roughness:.35,metalness:.4,emissive:col('#ffd9a0'),emissiveMap:winTex,emissiveIntensity:0}));
+  c5.cityMat=c5.cityMats[0];
+  for(let i=0;i<46;i++){ const hgt=30+Math.random()*120, w=14+Math.random()*16; const b=new THREE.Mesh(new THREE.BoxGeometry(w,hgt,w),c5.cityMats[i%4]); b.position.set(-200+Math.random()*420,1+hgt/2,400+Math.random()*240); scene.add(b); }
+  // 잉글리시 베이 해변: 모래, 떠밀려 온 통나무, 이누크슈크
+  const sand=new THREE.Shape(); [[-372,300],[-250,290],[-150,430],[-250,470],[-390,410]].forEach((q,i)=>i?sand.lineTo(q[0],-q[1]):sand.moveTo(q[0],-q[1]));
+  const sm=new THREE.Mesh(new THREE.ShapeGeometry(sand),std('#d9c8a0',{roughness:.95})); sm.rotation.x=-Math.PI/2; sm.position.y=.12; scene.add(sm);   // 물가 높이
+  const logM=std('#9a8a76',{roughness:.95}); c5.logs=[];
+  for(let i=0;i<34;i++){ const len=3+Math.random()*5, r=.25+Math.random()*.2, m=new THREE.Mesh(new THREE.CylinderGeometry(r,r*1.1,len,10),logM);
+    m.rotation.set(0,Math.random()*Math.PI,Math.PI/2); m.position.set(-345+Math.random()*120,.12+r,330+Math.random()*90); m.rotateY(0); scene.add(m); c5.logs.push(m); }
+  c5.myLog=new THREE.Mesh(new THREE.CylinderGeometry(.4,.45,7,12),logM); c5.myLog.rotation.set(0,.35,Math.PI/2); c5.myLog.position.set(-360,.55,374);   // 물가에서 열 걸음쯤 scene.add(c5.myLog);
+  const gran=std('#8d8c88',{roughness:.85}), IX=-366, IZ=404;
+  [[-1.3,1,1,2,1],[1.3,1,1,2,1]].forEach(([x,y,w,h,d])=>box(w,h,d,gran,IX+x,.12+y,IZ));
+  box(4.2,1,1.3,gran,IX,2.62,IZ); box(1.4,1.6,1,gran,IX,3.92,IZ); box(6.4,.8,1,gran,IX,5.12,IZ); box(1.4,1.2,1,gran,IX,6.12,IZ);
+  // 바다 위: 정박한 화물선과 요트
+  for(let i=0;i<6;i++){ const g=new THREE.Group(); g.position.set(-1100+Math.random()*500,0,200+i*140); g.rotation.y=Math.random()*.6;
+    box(130,12,22,std(['#5a1f24','#1f2a3a','#2a3a2a'][i%3],{roughness:.6}),0,4,0,g); box(18,16,20,std('#e8e6e0'),-50,18,0,g);
+    for(let k=0;k<8;k++) box(10,6,18,std(['#c96a2a','#2f5aa8','#3f7a4a','#c9302c'][k%4]),-25+k*10,13,0,g); scene.add(g); }
+  for(let i=0;i<5;i++){ const g=new THREE.Group(); g.position.set(-520+Math.random()*120,0,120+Math.random()*260);
+    box(6,1,2,std('#f4f2ec'),0,.5,0,g); const s=new THREE.Shape(); s.moveTo(0,0); s.lineTo(0,8); s.lineTo(4,0); s.lineTo(0,0);
+    const sail=new THREE.Mesh(new THREE.ShapeGeometry(s),std('#ffffff',{side:THREE.DoubleSide})); sail.position.set(-1,1,0); g.add(sail); scene.add(g); }
+  // 브록턴 포인트 토템 기둥 (특정 작품을 본뜨지 않은 일반적인 형태)
+  const tp=pts[6].clone(), tl=L[6];
+  for(let k=0;k<5;k++){ const base=tp.clone().addScaledVector(tl,10+(k%2)*2.5).addScaledVector(V(-tl.z,0,tl.x),-6+k*3); const H=7+Math.random()*3;
+    for(let j=0;j<6;j++){ const seg=new THREE.Mesh(new THREE.CylinderGeometry(.42,.48,H/6,10),std(['#8a5a3a','#b8231a','#1b1b1f','#2f8a8a','#8a5a3a','#d9b25a'][(j+k)%6],{roughness:.75})); seg.position.set(base.x,1+H/12+j*H/6,base.z); scene.add(seg);
+      const eye=box(.5,.12,.1,std('#f2ede4'),base.x,1+H/12+j*H/6+.15,base.z); eye.lookAt(pts[6].x,eye.position.y,pts[6].z); }
+    if(k%2===0){ const wgs=box(3,.35,.5,std('#1b1b1f'),base.x,1+H-.2,base.z); wgs.lookAt(pts[6].x,wgs.position.y,pts[6].z); } }
+  c5.totemAt=tp.clone().addScaledVector(tl,11).setY(5);
+  // 왜가리: 물가 바위 위
+  const hp=pts[Math.round(N*.2)].clone(), hl=L[Math.round(N*.2)];
+  const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(1.6),std('#5a5a56',{roughness:.95})); rock.position.copy(hp).addScaledVector(hl,-4.5).setY(.4); rock.scale.y=.5; scene.add(rock);
+  const H=new THREE.Group(); H.position.copy(rock.position).setY(1.05); const hb=std('#7d8c9c',{roughness:.8});
+  const body=new THREE.Mesh(new THREE.SphereGeometry(.28,12,10),hb); body.scale.set(.8,.9,1.5); body.position.y=.75; H.add(body);
+  const neck=new THREE.Mesh(new THREE.CylinderGeometry(.05,.07,.6,8),std('#c9d0d6')); neck.position.set(0,1.15,.25); neck.rotation.x=.4; H.add(neck);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.09,10,8),std('#e9edf0')); head.position.set(0,1.45,.37); H.add(head);
+  const beak=new THREE.Mesh(new THREE.ConeGeometry(.03,.3,8),std('#e8b84a')); beak.rotation.x=Math.PI/2; beak.position.set(0,1.45,.58); H.add(beak);
+  [-1,1].forEach(sd=>{ const lg=new THREE.Mesh(new THREE.CylinderGeometry(.015,.015,.6,6),std('#3a3a36')); lg.position.set(sd*.07,.3,0); H.add(lg); });
+  H.lookAt(hp.x,H.position.y,hp.z); H.rotateY(Math.PI/2); scene.add(H); c5.heronAt=H.position.clone().setY(2);
+  // 사람들: 산책, 조깅, 해변에 앉은 사람
+  for(let i=0;i<22;i++){ const t=Math.random()*.95, q=c5.curve.getPointAt(t), l=L[Math.round(t*N)]; const p=makePerson(false,q.x+l.x*(Math.random()*2.4-1.2),q.z+l.z*(Math.random()*2.4-1.2),Math.random()*6); p.position.y=1.22; }
+  [[-330,380],[-312,392],[-298,370],[-340,350]].forEach(([x,z])=>{ const p=makePerson(true,x,z,Math.PI*.7); p.position.y=-.2; });
+  // 무지개: 해 반대편(동북쪽) 하늘
+  c5.bowMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false,uniforms:{a:{value:0}},
+    vertexShader:'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }',
+    fragmentShader:`uniform float a; varying vec2 vUv;
+      vec3 hue(float h){ return clamp(abs(mod(h*6.+vec3(0.,4.,2.),6.)-3.)-1.,0.,1.); }
+      void main(){ vec2 p=vec2((vUv.x-.5)*2.,vUv.y*1.08); float r=length(p); float t=(r-.78)/.14;
+        float band=smoothstep(0.,.12,t)*(1.-smoothstep(.88,1.,t)); vec3 c=hue(.83*t); gl_FragColor=vec4(c*band*a*.8,1.); }`});
+  const bow=new THREE.Mesh(new THREE.PlaneGeometry(2600,1400),c5.bowMat); bow.position.set(900,-40,-1500); bow.lookAt(-180,0,-300); bow.userData.dynamic=true; scene.add(bow);
+  // 하나의 자전거, 내 자전거 핸들
+  const bike=(frameCol)=>{ const g=new THREE.Group(), tire=std('#16171a',{roughness:.8}), fm=std(frameCol,{metalness:.5,roughness:.35});
+    [-.52,.52].forEach(z=>{ const w=new THREE.Mesh(new THREE.TorusGeometry(.34,.035,8,24),tire); w.rotation.y=Math.PI/2; w.position.set(0,.36,z); g.add(w); });
+    box(.04,.04,1.0,fm,0,.62,0,g).rotation.x=.15; box(.04,.5,.04,fm,0,.6,-.15,g); box(.04,.5,.04,fm,0,.62,.42,g);
+    box(.18,.04,.24,std('#222'),0,.88,-.18,g); box(.56,.03,.03,std('#222'),0,1.0,.45,g); return g; };
+  c5.fBike=bike('#d9544a'); scene.add(c5.fBike); c5.fBike.userData.dynamic=true;
+  c5.fRider=makePerson(true,0,0,0,{outfit:'#f5d58a',outfit2:'#f5d58a',hair:'#4a3426',pants:'#3a4a68',scale:1.0}); scene.remove(c5.fRider); c5.fBike.add(c5.fRider); c5.fRider.position.set(0,.4,-.25);
+  c5.hb=new THREE.Group(); const dk=std('#1f2228',{metalness:.5,roughness:.4});
+  const bar=new THREE.Mesh(new THREE.CylinderGeometry(.014,.014,.62,10),dk); bar.rotation.z=Math.PI/2; c5.hb.add(bar);
+  [-1,1].forEach(sd=>{ const g=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,.12,10),std('#3a2a20',{roughness:.9})); g.rotation.z=Math.PI/2; g.position.x=sd*.27; c5.hb.add(g); });
+  const bell=new THREE.Mesh(new THREE.SphereGeometry(.025,10,8),std('#c9ccd1',{metalness:.9,roughness:.2})); bell.position.set(-.12,.02,0); c5.hb.add(bell);
+  const basket=box(.3,.18,.22,std('#b98a5a',{roughness:.9}),0,-.12,-.16,c5.hb); basket.castShadow=false;
+  c5.hb.position.set(0,-.42,-.55); c5.hb.visible=false;
+  c5.rainB=makeRain(scene,1600,{x0:-30,x1:30,y0:-6,y1:18,z0:-30,z1:30});
+  scene.environment=null; nightK=.25; refreshEnv();
+  mergeStatic(scene);
+}
+
+function useScene(sc){ if(camera.parent) camera.parent.remove(camera); scene=sc; if(sc===seawall) sc.add(camera); applyQuality(quality); }
+
+// ---------------- 매 프레임 ----------------
+function ch5Frame(dt,s){
+  if(scene===arrivals){ stepRain(c5.rainA,dt,1); }
+  if(scene===seawall){
+    C5.sunEl+=(C5.sunTarget-C5.sunEl)*Math.min(1,dt*.5);
+    const sv=sunVec(C5.sunEl,-104); c5.skyB.material.uniforms.sunPosition.value.copy(sv);
+    const k=THREE.MathUtils.clamp((C5.sunEl+2)/14,0,1);            // 1 오후 → 0 해 질 녘
+    const ov=C5.rain;                                                  // 흐림 정도
+    c5.skyB.material.uniforms.turbidity.value=4+ov*7; c5.skyB.material.uniforms.rayleigh.value=.9+ (1-k)*1.6;
+    c5.sun.position.copy(sv).multiplyScalar(500); c5.sun.intensity=(.2+.9*k)*(1-ov*.6); c5.sun.color.copy(col('#ff9a5a')).lerp(col('#fff0d8'),k);
+    c5.hemi.intensity=.25+.5*k; scene.fog.color.copy(col('#d98a8a')).lerp(col('#a3b2c0'),Math.max(k,ov)); scene.fog.density=.00022+.0009*ov+.0002*k;
+    c5.skyB.material.uniforms.mieCoefficient.value=.005+(1-k)*.004;
+    if(finalPass) finalPass.uniforms.exposure.value=.72+.2*k;
+    c5.water.color.copy(col('#3a3048')).lerp(col('#2c4a5c'),k);
+    c5.cityMats.forEach(m=>m.emissiveIntensity=THREE.MathUtils.clamp(1-k*1.6,0,1)*1.4);
+    C5.rain+=(C5.rainTarget-C5.rain)*Math.min(1,dt*.35); c5.rainB.position.copy(camera.position); stepRain(c5.rainB,dt,C5.rain);
+    C5.bow+=(C5.bowTarget-C5.bow)*Math.min(1,dt*.5); c5.bowMat.uniforms.a.value=C5.bow;
+    if(C5.onBike){ const t=Math.min(1,C5.ride+.004), q=c5.curve.getPointAt(t), tg=c5.curve.getTangentAt(t), l=V(tg.z,0,-tg.x);
+      c5.fBike.position.copy(q).addScaledVector(l,.9); c5.fBike.position.y=1.22; c5.fBike.lookAt(c5.fBike.position.clone().add(tg));
+      c5.fRider.position.y=.4+Math.abs(Math.sin(s*6))*.015; }
+  }
+  $('time').textContent=hm(C5.min); $('left').textContent='밴쿠버 · 일몰 약 17:50';
+}
+function rideCam(t){ const q=c5.curve.getPointAt(t), tg=c5.curve.getTangentAt(Math.min(.999,t)); cam.pos.copy(q).add(V(0,1.42,0)).addScaledVector(V(tg.z,0,-tg.x),-.5); cam.look.copy(cam.pos).addScaledVector(tg,20).add(V(0,-1.2,0)); }
+async function ride(t0,t1,secs){
+  await mealStep('페달 밟기 · 꾹 누르고 있기', true, p=>{ C5.ride=t0+(t1-t0)*p; rideCam(C5.ride); C5.min=15*60+40+C5.ride*95; C5.sunTarget=sunElAt(C5.min); }, secs);
+}
+
+// ---------------- 할 일 ----------------
+const me=(en,ko,ms)=>{ showSub('나',en,ko,ms||2600); return wait(1200); };
+const ch5Acts=[
+  {id:'immig', name:'입국심사', k:'짧은 영어 문답', tag:'3D', mood:15, async run(){
+    await moveCam(V(2,1.62,-4.7),V(2,1.45,-7.5),2.2);
+    await talk('o_q1');
+    const a1=await choose('What\'s the purpose of your visit?','방문 목적이 뭔가요?',[{id:'v',label:'I\'m here on vacation.',note:'여행하러 왔어요'},{id:'f',label:'To visit a friend.',note:'친구 만나러 왔어요'},{id:'j',label:'For the ice cream!',note:'아이스크림 먹으러요!'}]);
+    await me({v:'I\'m here on vacation.',f:'To visit a friend.',j:'For the ice cream!'}[a1],{v:'여행하러 왔어요.',f:'친구 만나러 왔어요.',j:'아이스크림 먹으러요!'}[a1]);
+    await talk(a1==='j'?'o_joke':'o_ok');
+    await talk('o_q2');
+    const a2=await choose('How long will you be staying?','얼마나 머무르나요?',[{id:'1',label:'One week.',note:'일주일이요'},{id:'10',label:'Ten days.',note:'열흘이요'}]);
+    await me(a2==='1'?'One week.':'Ten days.',a2==='1'?'일주일이요.':'열흘이요.'); await talk('o_ok');
+    await talk('o_q3');
+    const a3=await choose('Where will you be staying?','어디에서 지내나요?',[{id:'h',label:'At a hotel downtown.',note:'다운타운 호텔이요'},{id:'f',label:'At my friend\'s place.',note:'친구 집이요'}]);
+    await me(a3==='h'?'At a hotel downtown.':'At my friend\'s place.',a3==='h'?'다운타운 호텔이요.':'친구 집이요.'); await talk('o_ok');
+    await talk('o_q4');
+    const gim=hasItem('gim');
+    const a4=await choose('Any food, plants, or animals?','음식, 식물, 동물을 가져왔나요?',gim?[{id:'y',label:'Yes, dried seaweed. It\'s a gift.',note:'네, 선물용 김이요'},{id:'n',label:'No, nothing.',note:'아니요, 없어요'}]:[{id:'n',label:'No, nothing.',note:'아니요, 없어요'}]);
+    await me(a4==='y'?'Yes, dried seaweed. It\'s a gift.':'No, nothing.',a4==='y'?'네, 선물용 김이요.':'아니요, 없어요.');
+    if(gim) await talk(a4==='y'?'o_food':'o_declare'); else await talk('o_ok');
+    sfx.bag(); await talk('o_welcome');
+    note(gim&&a4==='y'?'김을 미리 신고했더니 심사관이 웃으며 고맙다고 했다. Welcome to Canada!':'여권을 돌려받았다. Welcome to Canada!');
+    if(gim&&a4!=='y') note('캐나다는 음식을 꼭 신고해야 한다. 다음엔 "Yes"라고 말하기.');
+    C5.immig=true; C5.min=13*60+50;
+    await moveCam(V(2,1.62,-12.5),V(2,1.4,-22),3,true);
+  }},
+  {id:'mom', name:'엄마에게 도착 문자', k:'"잘 도착했어"', tag:'2D', mood:5, locked:()=>C5.immig?'':'입국심사 후에 열려요', async run(){
+    useItem('cheer'); setTimeout(sfx.swoosh,900); setTimeout(sfx.ding,3900);
+    await popup(`<div class="phone"><div class="screen"><div class="top"><b>엄마</b>휴대전화</div><div class="msgs">
+      <div class="b me" style="animation-delay:.8s">엄마! 밴쿠버 잘 도착했어 ✈️</div>
+      <div class="b me" style="animation-delay:1.4s">여긴 비 와. 하나 만나러 가는 중</div>
+      <div class="typing" style="animation-delay:2.2s,3.7s"><i></i><i></i><i></i></div>
+      <div class="b you" style="animation-delay:3.9s">다행이다~ 거긴 지금 몇 시야?</div>
+      <div class="b you" style="animation-delay:4.6s">하나한테 안부 전하고 재밌게 놀아 ❤️</div></div></div></div>`,6800);
+    note('엄마에게 "잘 도착했어" 문자를 보냈다. 한국은 지금 새벽 다섯 시일 텐데, 바로 답장이 왔다.'); C5.mom=true;
+  }},
+  {id:'friend', name:'하나 만나기', k:'도착장에서 기다리는 친구', tag:'3D', mood:15, locked:()=>C5.immig?'':'입국심사 후에 열려요', async run(){
+    await moveCam(V(2.0,1.75,-18.4),V(2.2,1.2,-21.7),3);
+    const f=c5.friend, y0=f.position.y; animate(900,k=>f.position.y=y0+Math.abs(Math.sin(k*Math.PI*3))*.12);
+    await talk('f_hi');
+    let gave=false, showed=false;
+    for(;;){ const opts=[];
+      if(hasItem('gim')&&!gave) opts.push({id:'gim',label:'김 선물 건네기',note:'면세점에서 산 선물'});
+      if(hasItem('aurora')&&!showed) opts.push({id:'aurora',label:'오로라 사진 보여주기',note:'비행기 창문으로 찍은 것'});
+      if(!opts.length) break; opts.push({id:'go',label:'이제 나가자',note:'짐 들고 출발'});
+      const c=await choose('하나에게 뭐부터 할까?','',opts); if(c==='go') break;
+      if(c==='gim'){ useItem('gim'); gave=true; await talk('f_gift'); note('김 선물세트를 건넸다. 하나가 팻말을 내려놓고 상자를 꼭 안았다.'); }
+      if(c==='aurora'){ useItem('aurora'); showed=true; await talk('f_aurora'); note('휴대폰 속 오로라 사진을 보여줬다.'); } }
+    if(hasItem('umbrella')){ useItem('umbrella'); await talk('f_umb'); } else await talk('f_noumb');
+    await talk('f_bike'); C5.met=true; C5.min=14*60+20;
+    note('공항철도 캐나다 라인을 타고 시내로. 짐은 호텔에 맡기고 자전거를 빌렸다.');
+  }},
+  {id:'seawall', name:'스탠리 파크 방파제', k:'자전거로 바다 옆 숲길 한 바퀴', tag:'3D', mood:20, locked:()=>C5.met?'':'하나를 만난 뒤 열려요', async run(){
+    $('fade').style.transition='opacity .8s'; $('fade').style.opacity=1; await sleep(900);
+    if(!seawall){ buildSeawall(); } useScene(seawall);
+    C5.min=15*60+40; C5.sunEl=C5.sunTarget=sunElAt(C5.min); C5.rain=C5.rainTarget=.8; C5.onBike=true; C5.ride=0; rideCam(0);
+    camera.add(c5.hb); c5.hb.visible=true;
+    $('fade').style.opacity=0; await sleep(900); $('fade').style.transition='';
+    caption('스탠리 파크 · 방파제',3200);
+    // 1) 토템 기둥
+    await moveCam(cam.pos.clone(),c5.totemAt,1.6); await talk('f_totem'); if(!G.skip) takePhoto('브록턴 포인트의 토템 기둥');
+    note('브록턴 포인트의 토템 기둥들. 빗방울이 나무에 맺혀 반짝인다.');
+    rideCam(0); await ride(0,.2,3.4);
+    // 2) 왜가리
+    await moveCam(cam.pos.clone(),c5.heronAt,1.4); await talk('f_heron'); note('물가 바위 위에 왜가리 한 마리가 꼼짝 않고 서 있다.');
+    C5.rainTarget=0; rideCam(.2); await ride(.2,.42,3.6);
+    // 3) 라이온스 게이트 브리지
+    await moveCam(cam.pos.clone(),V(-390,70,-610),1.8); await talk('f_bridge'); if(!G.skip) takePhoto('라이온스 게이트 브리지');
+    note('비가 그쳤다. 구름 사이로 녹색 현수교와 눈 덮인 산이 드러났다.');
+    // 4) 무지개 (설렘 90% 보상)
+    if(G.mood>=90){ C5.bowTarget=1; await moveCam(cam.pos.clone(),V(900,260,-1500),2); await wait(1800); await talk('f_rainbow'); if(!G.skip) takePhoto('밴쿠버의 무지개'); note('설렘 보상 · 비 갠 하늘에 무지개가 떴다.'); await wait(1200); C5.bowTarget=0; }
+    rideCam(.42); await ride(.42,.72,3.6); rideCam(.72); await ride(.72,1,3.6);
+    await moveCam(cam.pos.clone(),cam.pos.clone().add(V(-60,-4,22)),1.8);
+    C5.onBike=false; C5.rideDone=true; C5.min=17*60+22; C5.sunTarget=sunElAt(C5.min);
+    note('숲길이 끝나고 시야가 확 트였다. 잉글리시 베이다. 바다 위로 해가 내려앉고 있다.');
+  }},
+  {id:'sunset', name:'잉글리시 베이 노을', k:'통나무에 앉아 해 지는 바다', tag:'3D', mood:15, item:'sunset', locked:()=>C5.rideDone?'':'방파제를 다 달린 뒤 열려요', async run(){
+    c5.hb.visible=false; camera.remove(c5.hb);
+    const L=c5.myLog.position, seat=V(L.x+.6,1.78,L.z+.35), sea=V(-1,-.015,.25).normalize();
+    await moveCam(V(L.x+4,2.2,L.z-6),V(L.x,.8,L.z),2.4,true);
+    c5.fBike.visible=false; const f=makePerson(true,L.x-.4,L.z+.15,-Math.PI*.38,{outfit:'#f5d58a',outfit2:'#f5d58a',hair:'#4a3426',pants:'#3a4a68'}); f.position.y=.55+.42-.49;
+    await moveCam(seat,seat.clone().addScaledVector(sea,60),2.2);
+    C5.min=17*60+40; C5.sunTarget=sunElAt(C5.min);
+    await talk('f_sunset'); note('통나무에 나란히 앉았다. 화물선 사이로 해가 천천히 바다에 닿는다.');
+    await wait(3500);
+    await moveCam(seat,V(-366,4,404),1.8); await talk('f_inuk'); await moveCam(seat,seat.clone().addScaledVector(sea,60),1.8);
+    C5.min=17*60+55; C5.sunTarget=-1.5; await wait(4500);
+    if(!G.skip) takePhoto('잉글리시 베이의 노을');
+    await talk('f_end');
+    note('인천 27번 게이트에서 라떼를 들고 설레던 게 오늘 아침 같다. 여행은, 이 노을 하나로 충분했다.');
+    setTimeout(endTrip,600);
+  }},
+];
+
+// ---------------- 흐름 ----------------
+async function startChapter5(){
+  document.querySelectorAll('.endcard').forEach(e=>e.remove());
+  G.boarded=true; setBusy(true);
+  // 기내: 착륙 후 도착 방송 (4장을 거쳐 왔을 때만)
+  if(cabin && G.chapter===4){
+    $('fade').style.opacity=0; C4.sunEl=C4.sunTarget=12; C4.mood='descent'; C4.cloudV=0; c4.cloudMat.opacity=0;
+    cam.pos.copy(WIN4.pos); cam.look.copy(WIN4.look); await sleep(800);
+    await orSkip(announce('c_arrive'));
+  } else { $('fade').style.opacity=1; await sleep(400); await orSkip(announce('c_arrive')); }
+  $('fade').style.transition='opacity 1s'; $('fade').style.opacity=1; await sleep(1000);
+  G.chapter=5; SAVE.chapter=5; persist();
+  if(!arrivals) buildArrivals(); useScene(arrivals);
+  document.querySelectorAll('.ch3only').forEach(e=>e.hidden=true);
+  $('chTitle').textContent='밴쿠버, 비 갠 오후'; $('chLabel').textContent='Chapter 5 · 밴쿠버'; $('actsTitle').textContent='밴쿠버에서, 설레는 것들';
+  document.querySelectorAll('#chapters li').forEach(li=>li.classList.toggle('now',li.dataset.c==='5'));
+  $('speed').hidden=true; $('gl').setAttribute('aria-label','밴쿠버 국제공항 입국심사장과 도착장');
+  if(ac && humLP){ humLP.frequency.setTargetAtTime(480,ac.currentTime,1); humBase=.3; humGain.gain.setTargetAtTime(humBase,ac.currentTime,1); murmurGain.gain.setTargetAtTime(.02,ac.currentTime,1); }
+  renderActs(ch5Acts);
+  cam.pos.set(2,1.62,-1.2); cam.look.set(2,1.45,-7.5);
+  $('fade').style.opacity=0; await sleep(1000); $('fade').style.transition='';
+  caption('5장 · 밴쿠버 국제공항',3500);
+  note('밴쿠버 국제공항. 통유리 너머로 비에 젖은 산이 보인다. 입국심사 줄에 섰다.');
+  if(hasItem('fresh')) note('비행 중에 푹 잔 덕분에 몸이 가볍다.');
+  setBusy(false);
+}
+function endTrip(){
+  $('fade').style.transition='opacity 1.6s'; $('fade').style.opacity=.85;
+  setTimeout(()=>{
+    const end=document.createElement('div'); end.className='endcard'; end.style.overflowY='auto';
+    end.innerHTML=`<div class="in"><span class="chapter">여행 완료 · 설렘 ${G.mood}%</span>
+      <h2>인천에서 밴쿠버까지</h2>
+      <p>27번 게이트의 라떼, 하늘 위 기내식, 창밖의 오로라, 그리고 잉글리시 베이의 노을.</p>
+      <div class="album" style="justify-content:center">${SAVE.photos.slice(-6).map(p=>`<figure><img src="${p.url}" alt="${p.cap}"><figcaption>${p.cap}</figcaption></figure>`).join('')}</div>
+      <p>여행 앨범 전체는 아래 '내 여행 가방'에 있어요.</p>
+      <button id="againAll" style="justify-self:center">처음부터 다시 여행하기</button></div>`;
+    SAVE.chapter=6; persist(); $('skip').hidden=true; G.busy=true;
+    stage.appendChild(end); $('againAll').addEventListener('click',()=>location.reload());
+  },1700);
+}
+</script>

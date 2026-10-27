@@ -96,8 +96,9 @@ def main():
         if lid.startswith('_') or (only and lid not in only):
             continue
         speed = 0.94 if ln['kind'] in ('pa', 'cabin') else 1.0
-        for lang, rules in (('ko', KO_SAY), ('en', EN_SAY)):
-            if lang not in ln:
+        for lang, rules in (('ko', KO_SAY), ('en', EN_SAY), ('fr', [])):
+            # say='en' 인 대사의 ko 는 자막 번역일 뿐이라 읽지 않는다
+            if lang not in ln or (lang == 'ko' and ln.get('say') == 'en'):
                 continue
             x, sr = speak(tts, to_say(ln[lang], rules), lang, ln['voice'], speed)
             out = os.path.join(AUDIO, f'{lid}_{lang}.mp3')

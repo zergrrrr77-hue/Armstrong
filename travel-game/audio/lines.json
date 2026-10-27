@@ -201,5 +201,163 @@
   "who": "CABIN CREW",
   "ko": "손님 여러분, 우리 비행기는 약 30분 후 밴쿠버 국제공항에 도착하겠습니다. 좌석 등받이와 테이블을 제자리로 해 주시고, 좌석벨트를 매 주시기 바랍니다.",
   "en": "Ladies and gentlemen, we will be landing at Vancouver International Airport in about 30 minutes. Please return your seat and tray table to the upright position and fasten your seatbelt."
+ },
+ "c_arrive": {
+  "kind": "cabin",
+  "voice": 1,
+  "who": "CABIN CREW",
+  "ko": "손님 여러분, 밴쿠버 국제공항에 도착했습니다. 현지 시각은 오후 1시 10분, 기온은 섭씨 11도입니다. 좌석벨트 표시등이 꺼질 때까지 자리에 앉아 계시기 바랍니다.",
+  "en": "Ladies and gentlemen, welcome to Vancouver. The local time is 1:10 p.m. and the temperature is 11 degrees Celsius.",
+  "fr": "Mesdames et messieurs, bienvenue à Vancouver."
+ },
+ "o_q1": {
+  "kind": "talk",
+  "voice": 9,
+  "who": "BORDER OFFICER",
+  "say": "en",
+  "en": "Hello. Passport, please. What's the purpose of your visit?",
+  "ko": "안녕하세요. 여권 주세요. 방문 목적이 뭔가요?"
+ },
+ "o_q2": {
+  "kind": "talk",
+  "voice": 9,
+  "who": "BORDER OFFICER",
+  "say": "en",
+  "en": "How long will you be staying in Canada?",
+  "ko": "캐나다에 얼마나 머무르시나요?"
+ },
+ "o_q3": {
+  "kind": "talk",
+  "voice": 9,
+  "who": "BORDER OFFICER",
+  "say": "en",
+  "en": "And where will you be staying?",
+  "ko": "어디에서 지내시나요?"
+ },
+ "o_q4": {
+  "kind": "talk",
+  "voice": 9,
+  "who": "BORDER OFFICER",
+  "say": "en",
+  "en": "Are you bringing any food, plants, or animals into Canada?",
+  "ko": "캐나다로 음식, 식물, 동물을 가지고 오셨나요?"
+ },
+ "o_food": {
+  "kind": "talk",
+  "voice": 9,
+  "who": "BORDER OFFICER",
+  "say": "en",
+  "en": "Dried seaweed is fine. Thanks for declaring it.",
+  "ko": "말린 김은 괜찮아요. 신고해 주셔서 고마워요."
+ },
+ "o_declare": {
+  "kind": "talk",
+  "voice": 9,
+  "who": "BORDER OFFICER",
+  "say": "en",
+  "en": "Is that seaweed in your bag? That's okay, but please always declare food.",
+  "ko": "가방에 있는 거 김인가요? 괜찮지만, 음식은 꼭 신고해 주세요."
+ },
+ "o_joke": {
+  "kind": "talk",
+  "voice": 9,
+  "who": "BORDER OFFICER",
+  "say": "en",
+  "en": "Ha. I'll write down vacation.",
+  "ko": "하하. 관광이라고 적을게요."
+ },
+ "o_ok": {
+  "kind": "talk",
+  "voice": 9,
+  "who": "BORDER OFFICER",
+  "say": "en",
+  "en": "Okay.",
+  "ko": "알겠습니다."
+ },
+ "o_welcome": {
+  "kind": "talk",
+  "voice": 9,
+  "who": "BORDER OFFICER",
+  "say": "en",
+  "en": "All set. Welcome to Canada, and enjoy your stay!",
+  "ko": "다 됐어요. 캐나다에 오신 걸 환영해요. 즐거운 시간 보내세요!"
+ },
+ "f_hi": {
+  "kind": "talk",
+  "voice": 4,
+  "who": "하나",
+  "ko": "왔다! 여기야, 여기! 비행 길었지? 얼굴은 좋아 보인다."
+ },
+ "f_gift": {
+  "kind": "talk",
+  "voice": 4,
+  "who": "하나",
+  "ko": "어머, 김이잖아! 여기서 한국 김 진짜 비싼데. 고마워, 잘 먹을게!"
+ },
+ "f_aurora": {
+  "kind": "talk",
+  "voice": 4,
+  "who": "하나",
+  "ko": "잠깐, 이거 오로라야? 비행기 창문으로 찍은 거라고? 대박이다."
+ },
+ "f_umb": {
+  "kind": "talk",
+  "voice": 4,
+  "who": "하나",
+  "ko": "밴쿠버 가을은 원래 이렇게 비가 와. 우산 챙겨 왔구나, 잘했다."
+ },
+ "f_noumb": {
+  "kind": "talk",
+  "voice": 4,
+  "who": "하나",
+  "ko": "우산 안 가져왔어? 괜찮아, 내 거 같이 쓰자."
+ },
+ "f_bike": {
+  "kind": "talk",
+  "voice": 4,
+  "who": "하나",
+  "ko": "짐 맡기고 자전거 빌리자. 방파제 따라 한 바퀴 돌아서 노을 시간에 잉글리시 베이까지 가면 딱이야."
+ },
+ "f_totem": {
+  "kind": "talk",
+  "voice": 4,
+  "who": "하나",
+  "ko": "여기가 브록턴 포인트의 토템 기둥들이야. 이 땅의 원주민 예술가들이 깎은 거래."
+ },
+ "f_heron": {
+  "kind": "talk",
+  "voice": 4,
+  "who": "하나",
+  "ko": "저기 봐, 왜가리! 스탠리 파크에는 왜가리가 엄청 많이 살아."
+ },
+ "f_bridge": {
+  "kind": "talk",
+  "voice": 4,
+  "who": "하나",
+  "ko": "저 다리가 라이온스 게이트 브리지야. 저 너머가 노스 밴쿠버고, 겨울엔 저 산에서 스키 타."
+ },
+ "f_rainbow": {
+  "kind": "talk",
+  "voice": 4,
+  "who": "하나",
+  "ko": "어, 무지개다! 비 그치자마자 떴네. 너 운 진짜 좋다."
+ },
+ "f_sunset": {
+  "kind": "talk",
+  "voice": 4,
+  "who": "하나",
+  "ko": "여기 통나무에 앉아서 노을 보는 게 밴쿠버 사람들 국룰이야."
+ },
+ "f_inuk": {
+  "kind": "talk",
+  "voice": 4,
+  "who": "하나",
+  "ko": "저 돌탑은 이누크슈크야. 북쪽 이누이트 사람들이 길을 알려 주려고 쌓던 표식이래."
+ },
+ "f_end": {
+  "kind": "talk",
+  "voice": 4,
+  "who": "하나",
+  "ko": "와 줘서 진짜 고마워. 다음엔 겨울에 와. 같이 스키 타러 가자."
  }
 }
