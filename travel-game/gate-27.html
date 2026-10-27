@@ -142,7 +142,14 @@ button .tag{float:right;font-family:var(--mono);font-size:10px;color:var(--mute)
 .chapters{display:flex;gap:6px;flex-wrap:wrap;list-style:none;margin:0;padding:0;font-size:12.5px}
 .chapters li{padding:4px 10px;border-radius:14px;border:1px solid var(--line);color:var(--mute)}
 .chapters li.now{border-color:var(--amber);color:var(--amber)}
-.skip{position:absolute;right:12px;bottom:16px;z-index:5;background:rgba(8,11,20,.7)}
+.skip{position:absolute;right:10px;top:54px;z-index:5;background:rgba(8,11,20,.7);padding:6px 12px;font-size:13px}
+.shop{background:rgba(14,17,28,.94);border:1px solid var(--line);border-radius:10px;padding:16px;width:min(420px,92%);display:grid;gap:10px;animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+.shop h3{font-family:var(--display);font-size:20px;margin:0}
+.shop p{margin:0;color:var(--mute);font-size:13px}
+.shop .opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.shop .opts button{display:grid;gap:2px}
+.shop .opts b{font-family:var(--mono);color:var(--amber);font-size:15px}
+.shop .opts small{color:var(--mute);font-size:12px}
 .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
 .toast{position:absolute;left:50%;top:60px;transform:translateX(-50%);background:rgba(8,11,20,.85);border:1px solid rgba(242,180,82,.5);padding:7px 14px;border-radius:18px;font-size:13.5px;opacity:0;transition:opacity .4s,transform .4s;pointer-events:none;white-space:nowrap;max-width:90%;overflow:hidden;text-overflow:ellipsis}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(4px)}
@@ -270,7 +277,7 @@ select{font:inherit;color:var(--ink);background:#262e47;border:1px solid var(--l
     <div class="settings">
       <label for="koVoice">안내 방송 목소리 (한국어)<select id="koVoice"></select></label>
       <label for="enVoice">안내 방송 목소리 (영어)<select id="enVoice"></select></label>
-      <label for="quality">화질<select id="quality"><option value="high">높음</option><option value="low">보통 (휴대폰 권장)</option></select></label>
+      <label for="quality">화질<select id="quality"><option value="ultra">최고 (고사양 PC)</option><option value="high">높음</option><option value="low">보통 (휴대폰 권장)</option></select></label>
       <button id="preview">방송 미리 듣기</button>
     </div>
     <p class="hint">방송 목소리는 기기에 들어 있는 음성을 써요. 가장 자연스러운 건 윈도우 Edge의 'SunHi (Natural)', 맥·아이폰의 'Yuna', 크롬의 'Google 한국의'예요. 목록 맨 위에 가장 자연스러운 목소리를 자동으로 골라 두었어요.</p>
@@ -301,8 +308,8 @@ const wait = ms => new Promise(r=>{ const t0=performance.now(); const id=setInte
 
 // ================= 출발 안내판 =================
 const flights = [
-  {t:"18:45", d:"OSAKA/KANSAI", f:"HB 723", g:"14", r:"FINAL CALL"},
-  {t:"19:05", d:"SINGAPORE",    f:"SL 607", g:"31", r:"BOARDING"},
+  {t:"18:30", d:"OSAKA/KANSAI", f:"HB 723", g:"14", r:"FINAL CALL"},
+  {t:"19:05", d:"SINGAPORE",    f:"SL 607", g:"31", r:"GATE OPEN"},
   {t:"19:10", d:"VANCOUVER",    f:"MP 071", g:"27", r:"ON TIME", mine:true},
   {t:"19:25", d:"PARIS/CDG",    f:"LR 267", g:"42", r:"DELAYED"},
   {t:"19:40", d:"HONOLULU",     f:"PA 460", g:"22", r:"ON TIME"},
@@ -323,7 +330,7 @@ function setRemark(i, text, cls){
   const el = document.querySelector(`[data-k="r${i}"]`);
   flapText(el, text); el.className = cls || '';
 }
-setRemark(0,'FINAL CALL','status-final'); setRemark(1,'BOARDING','status-board');
+setRemark(0,'FINAL CALL','status-final');
 
 // ================= 사운드 =================
 let ac=null, master=null, humGain=null, soundOn=false, koVoice=null, enVoice=null;
@@ -404,6 +411,8 @@ const sfx = {
   bag:()=>noiseBurst(.35,3000,.06,'highpass'),
   water:()=>noiseBurst(2.8,1800,.09,'bandpass'),
   dryer:()=>{ noiseBurst(3,900,.24,'lowpass',1500); tone(118,0,3,.025,'sawtooth'); },
+  spray:()=>noiseBurst(.5,5200,.13,'highpass'),
+  receipt:()=>{ noiseBurst(1.1,2600,.05,'bandpass'); tone(1046,1.15,.12,.05); },
   shutter:()=>{ noiseBurst(.07,4000,.25,'highpass'); setTimeout(()=>noiseBurst(.06,3000,.2,'highpass'),110); },
 };
 $('sound').addEventListener('click', ()=>setSound(!soundOn));
@@ -674,7 +683,7 @@ function makeAirliner(o){
 }
 
 // ---------- 터미널 내부, 계류장 ----------
-let mirror, player, waterStream, bloomPass=null;
+let mirror, player, waterStream, bloomPass=null, pickGroup, pickMakers, mist=[];
 let myPlane, otherPlane, gateSignTex, skyUniforms, stars, waterMat, rwLights=[], apronLamps=[], seatedPeople=[], walkers=[], steam=[], vehicles=[], cupGroup, bagGroup, glassMat, interiorLights=[], hemi, sunLight, cabinWin;
 const TAKEOFF={active:false,x:0,v:0,y:0,pitch:0};
 
@@ -827,13 +836,14 @@ function buildScene(){
 
   // 주변 사람들 (단순한 실루엣)
   const tones=['#3b4252','#5b4a42','#2f3a46','#6b6259','#4a4f5c','#7a5c54','#38404d','#56606e','#8a7f72'];
+  const PM={legs:std('#23262d',{roughness:.9}), skin:std('#c9a58a',{roughness:.7}), hair:std('#1c1a19',{roughness:.9})};
   function person(sit, x, z, rot){
-    const g=new THREE.Group(), c=tones[Math.floor(Math.random()*tones.length)], m=std(c,{roughness:.85});
+    const g=new THREE.Group(), c=tones[Math.floor(Math.random()*tones.length)], m=PM[c]||(PM[c]=std(c,{roughness:.85}));
     const h = sit ? .62 : 1.0 + Math.random()*.15, base = sit ? .5 : 0;
     const torso=new THREE.Mesh(new THREE.CylinderGeometry(.19,.16,h,12),m); torso.position.y=sit ? base+h/2 : .82+h/2; g.add(torso);
-    if(!sit){ const legs=new THREE.Mesh(new THREE.CylinderGeometry(.14,.11,.82,10),std('#23262d',{roughness:.9})); legs.position.y=.41; g.add(legs); torso.position.y=.82+h/2; }
-    const head=new THREE.Mesh(new THREE.SphereGeometry(.12,14,10),std('#c9a58a',{roughness:.7})); head.position.y=torso.position.y+h/2+.14; g.add(head);
-    const hair=new THREE.Mesh(new THREE.SphereGeometry(.125,14,10,0,Math.PI*2,0,Math.PI/2),std('#1c1a19',{roughness:.9})); hair.position.copy(head.position); hair.position.y+=.015; g.add(hair);
+    if(!sit){ const legs=new THREE.Mesh(new THREE.CylinderGeometry(.14,.11,.82,10),PM.legs); legs.position.y=.41; g.add(legs); torso.position.y=.82+h/2; }
+    const head=new THREE.Mesh(new THREE.SphereGeometry(.12,14,10),PM.skin); head.position.y=torso.position.y+h/2+.14; g.add(head);
+    const hair=new THREE.Mesh(new THREE.SphereGeometry(.125,14,10,0,Math.PI*2,0,Math.PI/2),PM.hair); hair.position.copy(head.position); hair.position.y+=.015; g.add(hair);
     g.traverse(o=>{ if(o.isMesh){ o.castShadow=true; } });
     g.position.set(x,0,z); g.rotation.y=rot||0; scene.add(g); return g;
   }
@@ -871,6 +881,7 @@ function buildScene(){
   [8,9.5,11].forEach(z=>{ box(.02,1.3,.02,frame,-21,3.3,z).castShadow=false; glowSprite('#ffcf8a',1.2,V(-21,2.6,z));
     const sh=new THREE.Mesh(new THREE.ConeGeometry(.22,.25,20,1,true),std('#20242b',{side:THREE.DoubleSide})); sh.position.set(-21,2.68,z); scene.add(sh); });
   const pl=new THREE.PointLight(col('#ffcf8a'),.9,8,2); pl.position.set(-20.6,2.4,9.5); scene.add(pl);
+  person(false,-22.1,10.4,Math.PI/2); person(false,-19.6,11.6,-Math.PI/2);  // 바리스타와 줄 선 손님
   // 라떼 컵 (애니메이션용, 처음엔 숨김)
   cupGroup=new THREE.Group();
   const cupG=new THREE.LatheGeometry([[0,0],[.038,0],[.046,.11],[.048,.115],[0,.115]].map(p=>new THREE.Vector2(p[0],p[1])),28);
@@ -880,19 +891,136 @@ function buildScene(){
   cupGroup.scale.setScalar(1.6); cupGroup.visible=false; scene.add(cupGroup);
   for(let i=0;i<14;i++){ const s=glowSprite('#ffffff',.06,V(0,0,0)); s.material.blending=THREE.NormalBlending; s.material.color.setScalar(.9); s.material.opacity=0; steam.push({s,life:Math.random()}); }
 
-  // ----- 면세점 (오른쪽) -----
-  const panel=new THREE.Mesh(new THREE.PlaneGeometry(6,3),new THREE.MeshStandardMaterial({color:0,emissive:col('#f6efe2'),emissiveIntensity:1.1}));
-  panel.position.set(25.7,1.9,10); panel.rotation.y=-Math.PI/2; scene.add(panel);
-  for(let y=.7;y<3;y+=.62) box(.5,.04,5.8,std('#2a2a2e',{metalness:.5,roughness:.3}),25.4,y,10);
-  const bottleCols=['#c98a2e','#3f7a4a','#2f5aa8','#a8323a','#e8d7a0','#6b3fa0'];
-  const bG=new THREE.CylinderGeometry(.06,.07,.28,14), bCount=110;
-  const bm=new THREE.InstancedMesh(bG,new THREE.MeshStandardMaterial({roughness:.08,metalness:.1,transparent:true,opacity:.92}),bCount);
-  for(let i=0;i<bCount;i++){ const yy=.7+Math.floor(i/28)*.62+.16, zz=7.4+(i%28)*.19; d.position.set(25.35,yy,zz); d.rotation.set(0,0,0); d.updateMatrix(); bm.setMatrixAt(i,d.matrix); bm.setColorAt(i,col(bottleCols[(i*7)%bottleCols.length])); }
-  scene.add(bm);
-  const dfTex=canvasTex(1024,256,(x,w,h)=>{ x.fillStyle='#101318'; x.fillRect(0,0,w,h); x.fillStyle='#f6efe2'; x.font='600 110px Georgia, serif'; x.textAlign='center'; x.fillText('DUTY FREE',w/2,160); x.font='40px sans-serif'; x.fillText('면세점',w/2,225); });
-  const df=new THREE.Mesh(new THREE.PlaneGeometry(4,1),new THREE.MeshStandardMaterial({color:0,emissive:col('#ffffff'),emissiveMap:dfTex,emissiveIntensity:1.0}));
-  df.position.set(25.6,4,10); df.rotation.y=-Math.PI/2; scene.add(df);
-  box(1.4,.95,.8,std('#e9e5dd',{roughness:.3}),22.2,.48,10.6);
+  // ----- 면세점 (오른쪽): 벽면 진열장 4구역 + 향수 아일랜드 + K-푸드 아일랜드 + 여행용품 랙 + 계산대 -----
+  const DFX0=19, DFX1=31.8, DFZ0=5, DFZ1=15, DFCZ=(DFZ0+DFZ1)/2;
+  const dfFloor=new THREE.Mesh(new THREE.PlaneGeometry(DFX1-DFX0,DFZ1-DFZ0),std('#ebe8e2',{roughness:.1,metalness:.05}));
+  dfFloor.rotation.x=-Math.PI/2; dfFloor.position.set((DFX0+DFX1)/2,.012,DFCZ); dfFloor.receiveShadow=true; scene.add(dfFloor);
+  const blackGloss=std('#15171c',{roughness:.22,metalness:.4}), gold=std('#b8955a',{metalness:.9,roughness:.25});
+  const led=c=>new THREE.MeshStandardMaterial({color:0,emissive:col(c||'#fff1d8'),emissiveIntensity:2.2});
+  // 입구 문틀과 간판, 낮은 천장과 다운라이트
+  box(.3,3.6,.3,blackGloss,DFX0,1.8,DFZ0+.15); box(.3,3.6,.3,blackGloss,DFX0,1.8,DFZ1-.15);
+  box(.34,.75,DFZ1-DFZ0,blackGloss,DFX0,3.95,DFCZ);
+  const dfTex=canvasTex(2048,256,(x,w,h)=>{ x.fillStyle='#15171c'; x.fillRect(0,0,w,h); x.textAlign='center';
+    const gg=x.createLinearGradient(0,40,0,200); gg.addColorStop(0,'#f1dcae'); gg.addColorStop(1,'#b8955a'); x.fillStyle=gg;
+    x.font='600 120px Georgia, serif'; x.fillText('DUTY FREE',w*.36,165); x.font='600 92px "Gowun Batang", serif'; x.fillText('면세점',w*.74,160); });
+  const dfSign=new THREE.Mesh(new THREE.PlaneGeometry(6.4,.8),new THREE.MeshStandardMaterial({color:0,emissive:col('#ffffff'),emissiveMap:dfTex,emissiveIntensity:1.1}));
+  dfSign.position.set(DFX0-.18,3.95,DFCZ); dfSign.rotation.y=-Math.PI/2; scene.add(dfSign);
+  box(.03,.03,DFZ1-DFZ0-.6,led('#ffd9a0'),DFX0-.19,3.55,DFCZ).castShadow=false;
+  const dfCeil=new THREE.Mesh(new THREE.PlaneGeometry(DFX1-DFX0,DFZ1-DFZ0),std('#2a2c31',{roughness:.8})); dfCeil.rotation.x=Math.PI/2; dfCeil.position.set((DFX0+DFX1)/2,3.6,DFCZ); scene.add(dfCeil);
+  { const dl=[]; for(let x=20.5;x<31.5;x+=2.2) for(let z=6;z<15;z+=2.2) dl.push(x,3.58,z);
+    const dg=new THREE.BufferGeometry(); dg.setAttribute('position',new THREE.Float32BufferAttribute(dl,3));
+    scene.add(new THREE.Points(dg,new THREE.PointsMaterial({map:glowTex,color:col('#fff0d8').multiplyScalar(3),size:.4,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}))); }
+  [[23,10],[28.5,10]].forEach(([x,z])=>{ const l=new THREE.PointLight(col('#fff1dd'),.5,11,1.6); l.position.set(x,3.2,z); scene.add(l); });
+
+  // 상품 모양들 (위로 갈수록 좁아지는 실제 병 모양)
+  const bottleGeo=new THREE.LatheGeometry([[0,0],[.04,0],[.043,.012],[.043,.17],[.036,.2],[.017,.232],[.014,.245],[.014,.29],[0,.29]].map(q=>new THREE.Vector2(q[0],q[1])),20);
+  const bottleGlass=new THREE.MeshStandardMaterial({roughness:.05,metalness:.1,transparent:true,opacity:.86});
+  const capGeo=new THREE.CylinderGeometry(.016,.016,.032,14), labelGeo=new THREE.CylinderGeometry(.0438,.0438,.07,20,1,true);
+  const perfGeo=new THREE.BoxGeometry(.035,.095,.072), perfCapGeo=new THREE.CylinderGeometry(.017,.017,.034,16);
+  const jarGeo=new THREE.CylinderGeometry(.036,.036,.05,20), tubeGeo=new THREE.CylinderGeometry(.016,.018,.15,14);
+  const plain=new THREE.MeshStandardMaterial({roughness:.4,metalness:.1});
+  function inst(geo,mat,list){ // list: [x,y,z,color,ry]
+    const m=new THREE.InstancedMesh(geo,mat,list.length), o=new THREE.Object3D();
+    list.forEach((q,i)=>{ o.position.set(q[0],q[1],q[2]); o.rotation.set(0,q[4]||0,0); o.scale.set(1,1,1); o.updateMatrix(); m.setMatrixAt(i,o.matrix); m.setColorAt(i,col(q[3])); });
+    m.castShadow=true; scene.add(m); return m;
+  }
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  // 벽면 진열장: 구역마다 백라이트, 유리 선반, 선반 LED, 가격표, 머리 간판
+  const SECT=[{z:6.3,name:'LIQUOR',ko:'주류',tint:'#fff0d8'},{z:8.7,name:'FRAGRANCE',ko:'향수',tint:'#fde9f0'},{z:11.1,name:'BEAUTY',ko:'화장품',tint:'#f0f6ff'},{z:13.5,name:'K-FOOD',ko:'한국 식품',tint:'#fff6e4'}];
+  const SHELF_Y=[.5,.95,1.4,1.85], SX=31.56;
+  const shelfGlass=new THREE.MeshStandardMaterial({color:col('#dfeef2'),transparent:true,opacity:.35,roughness:.05,metalness:.2});
+  const tags=[];
+  SECT.forEach(sc=>{
+    const bl=new THREE.Mesh(new THREE.PlaneGeometry(2.2,2.2),new THREE.MeshStandardMaterial({color:0,emissive:col(sc.tint),emissiveIntensity:.75}));
+    bl.position.set(DFX1-.02,1.35,sc.z); bl.rotation.y=-Math.PI/2; scene.add(bl);
+    [-1.15,1.15].forEach(dz=>box(.5,2.7,.05,blackGloss,SX,1.35,sc.z+dz));
+    box(.5,.38,2.3,blackGloss,SX,.19,sc.z);
+    SHELF_Y.forEach(y=>{ const g=box(.44,.018,2.2,shelfGlass,SX,y,sc.z); g.castShadow=false; box(.012,.012,2.2,led(),SX-.21,y-.016,sc.z).castShadow=false;
+      for(let k=0;k<5;k++) tags.push([SX-.225,y-.02,sc.z-.88+k*.44,'#ffffff']); });
+    const ht=canvasTex(512,80,(x,w,h)=>{ x.fillStyle='#15171c'; x.fillRect(0,0,w,h); x.fillStyle='#e8d3a6'; x.font='600 40px Georgia, serif'; x.fillText(sc.name,18,54); x.textAlign='right'; x.font='30px "Gowun Dodum", sans-serif'; x.fillStyle='#cfc8bb'; x.fillText(sc.ko,w-18,52); });
+    const hs=new THREE.Mesh(new THREE.PlaneGeometry(2.2,.34),new THREE.MeshStandardMaterial({color:0,emissive:col('#ffffff'),emissiveMap:ht,emissiveIntensity:1}));
+    hs.position.set(SX-.26,2.82,sc.z); hs.rotation.y=-Math.PI/2; scene.add(hs);
+  });
+  inst(new THREE.BoxGeometry(.004,.03,.07),plain,tags.map(t=>[t[0],t[1],t[2],t[3]])).castShadow=false;
+  // 주류: 선반마다 10병 (위스키, 진, 와인, 보드카, 소주)
+  const liq=[], caps=[], labels=[];
+  const LIQ=[['#b3661c','#1b1b1b','#efe3c6'],['#2f6b45','#c9a24a','#f2f0ea'],['#4a0f1a','#7a1f2b','#e9dcc0'],['#dfe8ea','#2b4a8a','#1a1f2e'],['#3a8a5a','#2d6a46','#f6f6f2']];
+  SHELF_Y.slice(1).forEach(y=>{ for(let k=0;k<10;k++){ const t=pick(LIQ), z=6.3-.99+k*.22; liq.push([SX+.02,y+.01,z,t[0]]); caps.push([SX+.02,y+.31,z,t[1]]); labels.push([SX+.02,y+.1,z,t[2]]); } });
+  // 맨 아래 칸: 위스키 선물 상자
+  const gift=[]; for(let k=0;k<6;k++) gift.push([SX+.02,.5+.15,6.3-.9+k*.36,pick(['#1d2a3a','#5a1f24','#0f3a2c','#2a2018'])]);
+  inst(bottleGeo,bottleGlass,liq); inst(capGeo,plain,caps); inst(labelGeo,plain,labels);
+  inst(new THREE.BoxGeometry(.12,.28,.24),std('#ffffff',{roughness:.35,metalness:.2}),gift);
+  // 향수: 각진 유리병 + 금색·검은 뚜껑, 옆에 포장 상자
+  const pf=[], pfc=[], pfb=[];
+  SHELF_Y.forEach(y=>{ for(let k=0;k<8;k++){ const z=8.7-.95+k*.27, c=pick(['#f3c6d3','#f0d9a8','#e8eef2','#b9d3f0','#d9c2f0','#f7e1b5']);
+    pf.push([SX,y+.06,z-.05,c]); pfc.push([SX,y+.125,z-.05,pick(['#c9a24a','#1b1b1b','#e8e8e8'])]); pfb.push([SX+.08,y+.065,z+.06,pick(['#ffffff','#1b1b1b','#f2d4dc','#e9dfcf'])]); } });
+  inst(perfGeo,bottleGlass,pf); inst(perfCapGeo,plain,pfc); inst(new THREE.BoxGeometry(.05,.12,.08),plain,pfb);
+  // 화장품: 크림 병, 튜브, 마스크팩 상자
+  const jar=[], tube=[], mbox=[];
+  SHELF_Y.forEach((y,yi)=>{ for(let k=0;k<9;k++){ const z=11.1-.96+k*.24;
+    if(yi%2===0){ jar.push([SX,y+.035,z,pick(['#ffffff','#f6d6dc','#e6eef8','#1f2a44'])]); tube.push([SX+.1,y+.085,z+.06,pick(['#f4f4f0','#cfe6dc','#f3d1c4'])]); }
+    else mbox.push([SX+.04,y+.09,z,pick(['#9fd0e8','#f2b5c4','#bfe3c4','#f5e2a8','#d8c8f0'])]); } });
+  inst(jarGeo,plain,jar); inst(tubeGeo,plain,tube); inst(new THREE.BoxGeometry(.03,.17,.13),plain,mbox);
+  // 한국 식품: 앞면이 인쇄된 선물 상자
+  function foodTex(bg,fg,ko,en){ return canvasTex(256,256,(x,w,h)=>{ x.fillStyle=bg; x.fillRect(0,0,w,h); x.fillStyle=fg; x.fillRect(0,h*.72,w,6);
+    x.textAlign='center'; x.font='700 76px "Gowun Batang", serif'; x.fillText(ko,w/2,130); x.font='600 26px sans-serif'; x.fillText(en,w/2,200); }); }
+  const FOODS=[foodTex('#1f5a3a','#f2e6c2','김','SEAWEED'),foodTex('#7a1f1f','#e8c77a','홍삼','RED GINSENG'),foodTex('#c98a3a','#3a2210','약과','YAKGWA'),foodTex('#f2ead8','#7a3a2a','한과','HANGWA')];
+  const foodMats=FOODS.map(t=>[std('#d8d0c0',{roughness:.6}),std('#ffffff',{map:t,roughness:.5}),std('#d8d0c0',{roughness:.6}),std('#d8d0c0'),std('#d8d0c0'),std('#d8d0c0')]);
+  const foodGeo=new THREE.BoxGeometry(.1,.2,.26);
+  function foodBox(fi,x,y,z,ry,parent){ const m=new THREE.Mesh(foodGeo,foodMats[fi]); m.position.set(x,y,z); m.rotation.y=ry||0; m.castShadow=true; (parent||scene).add(m); return m; }
+  const foodPos=[[],[],[],[]];
+  SHELF_Y.forEach((y,yi)=>{ for(let k=0;k<7;k++) foodPos[(k+yi)%4].push([SX+.02,y+.11,13.5-.93+k*.31,0]); });
+
+  // 향수 아일랜드: 2단 진열대, 테스터, BEST 표시
+  const stoneW=std('#f3f0ea',{roughness:.2});
+  box(2.4,.82,1.2,std('#e3ddd2',{roughness:.3}),25.5,.41,10); box(1.5,.26,.7,stoneW,25.5,.95,10); box(2.42,.02,1.22,gold,25.5,.83,10).castShadow=false;
+  const ip=[], ipc=[];
+  for(let k=0;k<7;k++){ ip.push([24.45+k*.35,.88,9.55,pick(['#f3c6d3','#f0d9a8','#e8eef2','#b9d3f0'])]); ipc.push([24.45+k*.35,.945,9.55,'#c9a24a']); }
+  for(let k=0;k<5;k++){ ip.push([24.85+k*.32,1.13,10,pick(['#f3c6d3','#f7e1b5','#d9c2f0','#e8eef2'])]); ipc.push([24.85+k*.32,1.195,10,'#1b1b1b']); }
+  for(let k=0;k<7;k++){ ip.push([24.45+k*.35,.88,10.45,pick(['#f0d9a8','#b9d3f0','#f3c6d3'])]); ipc.push([24.45+k*.35,.945,10.45,'#e8e8e8']); }
+  inst(perfGeo,bottleGlass,ip.map(q=>[q[0],q[1],q[2],q[3],Math.PI/2])); inst(perfCapGeo,plain,ipc);
+  const bestTex=canvasTex(256,96,(x,w,h)=>{ x.fillStyle='#15171c'; x.fillRect(0,0,w,h); x.fillStyle='#e8d3a6'; x.textAlign='center'; x.font='600 44px Georgia, serif'; x.fillText('BEST 10',w/2,46); x.font='22px "Gowun Dodum", sans-serif'; x.fillStyle='#cfc8bb'; x.fillText('시향해 보세요 · Tester',w/2,80); });
+  const best=new THREE.Mesh(new THREE.PlaneGeometry(.5,.19),new THREE.MeshStandardMaterial({color:0,emissive:col('#ffffff'),emissiveMap:bestTex,emissiveIntensity:1}));
+  best.position.set(25.5,1.2,9.64); best.rotation.y=Math.PI; scene.add(best);
+  for(let i=0;i<16;i++){ const sp=glowSprite('#ffffff',.05,V(0,-10,0)); sp.material.blending=THREE.NormalBlending; sp.material.color.setScalar(.95); sp.material.opacity=0; mist.push({s:sp,v:V(0,0,0),life:1}); }
+
+  // K-푸드 아일랜드: 선물 상자 피라미드
+  box(2.2,.7,1.1,std('#6b4a34',{roughness:.55}),25.5,.35,13.4);
+  for(let row=0;row<3;row++) for(let k=0;k<6-row*2;k++){ const n=6-row*2; foodPos[(k+row)%4].push([25.5-(n-1)*.17+k*.34,.8+row*.2,13.4,Math.PI/2]); }
+  foodPos.forEach((list,fi)=>{ const m=new THREE.InstancedMesh(foodGeo,foodMats[fi],list.length), o=new THREE.Object3D();
+    list.forEach((q,i)=>{ o.position.set(q[0],q[1],q[2]); o.rotation.set(0,q[3],0); o.updateMatrix(); m.setMatrixAt(i,o.matrix); }); m.castShadow=true; scene.add(m); });
+  const kTex=canvasTex(512,128,(x,w,h)=>{ x.fillStyle='#f6efe2'; x.fillRect(0,0,w,h); x.fillStyle='#7a3a2a'; x.textAlign='center'; x.font='600 44px "Gowun Batang", serif'; x.fillText('선물하기 좋은 한국의 맛',w/2,62); x.font='26px sans-serif'; x.fillText('Taste of Korea · Gift Sets',w/2,104); });
+  const kSign=new THREE.Mesh(new THREE.PlaneGeometry(1.4,.35),new THREE.MeshStandardMaterial({color:0,emissive:col('#ffffff'),emissiveMap:kTex,emissiveIntensity:.9}));
+  kSign.position.set(25.5,1.65,12.82); kSign.rotation.y=Math.PI; scene.add(kSign); box(.03,.6,.03,gold,25.5,1.25,12.85);
+
+  // 여행용품 랙: 걸려 있는 목베개
+  box(.06,1.9,.06,std('#9aa0a8',{metalness:.8,roughness:.3}),21.2,.95,13.8); box(.9,.05,.9,blackGloss,21.2,.03,13.8);
+  const pillowGeo=new THREE.TorusGeometry(.1,.045,10,24,Math.PI*1.6);
+  [[1.65,0],[1.65,Math.PI/2],[1.65,Math.PI],[1.65,-Math.PI/2],[1.25,Math.PI/4],[1.25,-Math.PI*3/4],[1.25,Math.PI*3/4]].forEach(([y,a],i)=>{
+    const m=new THREE.Mesh(pillowGeo,std(['#8a9bb5','#c9a07a','#6b7f6a','#b56b6b','#4a5a7a','#d6c7a8','#7a6b8a'][i],{roughness:.9}));
+    m.position.set(21.2+Math.cos(a)*.16,y,13.8+Math.sin(a)*.16); m.rotation.set(0,-a+Math.PI/2,Math.PI*.7); m.castShadow=true; scene.add(m); });
+
+  // 계산대: POS 화면, 카드 단말기, 영수증 프린터, 직원
+  box(2.2,1.0,.7,std('#ebe6dc',{roughness:.25}),23.6,.5,5.9); box(2.22,.02,.72,gold,23.6,1.0,5.9).castShadow=false;
+  const pos=box(.36,.26,.03,new THREE.MeshStandardMaterial({color:0,emissive:col('#bfe3ff'),emissiveIntensity:1.2}),22.9,1.22,5.75); pos.rotation.x=-.25;
+  box(.08,.14,.06,blackGloss,23.3,1.08,5.85); box(.14,.1,.16,std('#e8e8e8',{roughness:.4}),24.2,1.05,5.8);
+  const taxTex=canvasTex(256,128,(x,w,h)=>{ x.fillStyle='#15171c'; x.fillRect(0,0,w,h); x.fillStyle='#e8d3a6'; x.textAlign='center'; x.font='600 30px Georgia, serif'; x.fillText('TAX FREE',w/2,46); x.font='20px "Gowun Dodum", sans-serif'; x.fillStyle='#cfc8bb'; x.fillText('여권·탑승권을 보여주세요',w/2,84); x.fillText('Passport & boarding pass',w/2,112); });
+  const tax=new THREE.Mesh(new THREE.PlaneGeometry(.36,.18),new THREE.MeshStandardMaterial({color:0,emissive:col('#ffffff'),emissiveMap:taxTex,emissiveIntensity:.9}));
+  tax.position.set(24.5,1.12,6.27); tax.rotation.x=-.3; scene.add(tax);
+  person(false,23.6,5.25,0);
+  // 손님 몇 명 (단순 실루엣)
+  person(false,27.2,5.9,Math.PI/2); person(false,26.4,11.4,Math.PI); person(false,24.2,13.9,Math.PI*.8);
+
+  // 고른 상품 (연출용)
+  pickGroup=new THREE.Group(); pickGroup.visible=false; scene.add(pickGroup);
+  pickMakers={
+    gim:()=>foodBox(0,0,0,0,Math.PI/2,pickGroup),
+    mask:()=>{ const m=box(.13,.17,.03,std('#9fd0e8',{roughness:.5}),0,0,0,pickGroup); return m; },
+    perfume:()=>{ const b=new THREE.Mesh(perfGeo,new THREE.MeshStandardMaterial({color:col('#f3c6d3'),roughness:.05,transparent:true,opacity:.9})); b.rotation.y=Math.PI/2; pickGroup.add(b);
+      const c=new THREE.Mesh(perfCapGeo,gold); c.position.y=.065; pickGroup.add(c); return b; },
+    pillow:()=>{ const m=new THREE.Mesh(pillowGeo,std('#8a9bb5',{roughness:.9})); m.rotation.x=-Math.PI/2; pickGroup.add(m); return m; },
+  };
+
   bagGroup=new THREE.Group();
   box(.34,.4,.12,std('#efe6d6',{roughness:.8}),0,.2,0,bagGroup);
   const handle=new THREE.Mesh(new THREE.TorusGeometry(.08,.008,6,20,Math.PI),std('#3a2a20')); handle.position.y=.4; bagGroup.add(handle);
@@ -915,11 +1043,10 @@ function buildScene(){
     const outer=new THREE.Mesh(new THREE.BoxGeometry(w+.2,h+.2,L),[om,om,om,om,hide,hide]); outer.position.y=h/2; outer.castShadow=true; g.add(outer);
     const bandMat=new THREE.MeshStandardMaterial({color:col('#1a2230'),roughness:.1,metalness:.5,emissive:col('#ffe2b0'),emissiveIntensity:.35});
     [-1,1].forEach(sd=>{ const band=new THREE.Mesh(new THREE.BoxGeometry(.04,.5,L*.96),bandMat); band.position.set(sd*(w/2+.12),h*.62,0); g.add(band); });
-    const im=std('#8f8b86',{side:THREE.BackSide,roughness:.75});
+    const im=std('#8f8b86',{side:THREE.BackSide,roughness:.75,emissive:col('#4a4640'),emissiveIntensity:.6});
     const inner=new THREE.Mesh(new THREE.BoxGeometry(w,h,L+.3),[im,im,im,im,hide,hide]); inner.position.y=h/2; g.add(inner);
     const carpet=new THREE.Mesh(new THREE.PlaneGeometry(w-.05,L),std('#3e4658',{roughness:.95})); carpet.rotation.x=-Math.PI/2; carpet.position.y=.02; g.add(carpet);
     for(let s=-L/2+1;s<L/2;s+=2.2){ const lt=new THREE.Mesh(new THREE.BoxGeometry(.8,.03,.3),stripMat); lt.position.set(0,h-.03,s); g.add(lt); }
-    const il=new THREE.PointLight(col('#fff0d8'),.32,L+2,1.6); il.position.y=h-.4; g.add(il);
     scene.add(g); return g;
   }
   tunnel(A,C,2.4,2.6); tunnel(C,V(12.2,R.y+.1,R.z+1.4),2.4,2.6); tunnel(R.clone().setX(13),B,2.4,2.6);
@@ -990,6 +1117,40 @@ function buildScene(){
 
   // 반사용 환경맵
   refreshEnv();
+  [myPlane,otherPlane,cupGroup,bagGroup,pickGroup,player,waterStream,mirror].forEach(o=>o.userData.dynamic=true);
+  walkers.forEach(w=>w.g.userData.dynamic=true); vehicles.forEach(v=>{ if(v.g.userData.loop) v.g.userData.dynamic=true; });
+  mergeStatic(scene);
+  [myPlane,otherPlane,player,cupGroup,bagGroup,...walkers.map(w=>w.g),...vehicles.map(v=>v.g)].forEach(mergeStatic);
+}
+
+// 움직이지 않는 메시를 재질별로 하나로 합쳐 드로우콜을 줄인다
+function mergeStatic(root){
+  scene.updateMatrixWorld(true);
+  const buckets=new Map(), inv=new THREE.Matrix4().copy(root.matrixWorld).invert(), rel=new THREE.Matrix4();
+  (function walk(o){
+    if(o!==root && o.userData.dynamic) return;
+    o.children.slice().forEach(walk);
+    if(!o.isMesh || o.isInstancedMesh || Array.isArray(o.material) || o.material.isShaderMaterial || o.material.transparent || o===sky) return;
+    const g=o.geometry; if(Object.keys(g.attributes).sort().join(',')!=='normal,position,uv') return;
+    rel.multiplyMatrices(inv,o.matrixWorld); if(rel.determinant()<0) return; o.userData.rel=rel.clone();
+    const M=o.material, mk=[M.type,M.color&&M.color.getHexString(),M.roughness,M.metalness,M.map&&M.map.uuid,M.emissive&&M.emissive.getHexString(),M.emissiveIntensity,M.emissiveMap&&M.emissiveMap.uuid,M.side,M.vertexColors].join('/');
+    const k=mk+'|'+o.castShadow+'|'+o.receiveShadow;   // 겉보기가 같은 재질끼리 묶는다
+    if(!buckets.has(k)) buckets.set(k,{mat:o.material,cast:o.castShadow,recv:o.receiveShadow,list:[]});
+    buckets.get(k).list.push(o);
+  })(scene);
+  let removed=0;
+  buckets.forEach(bk=>{
+    if(bk.list.length<2) return;
+    let total=0;
+    const parts=bk.list.map(o=>{ const g=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone(); g.applyMatrix4(o.userData.rel); total+=g.attributes.position.count; return g; });
+    const pos=new Float32Array(total*3), nor=new Float32Array(total*3), uv=new Float32Array(total*2); let off=0;
+    parts.forEach(g=>{ pos.set(g.attributes.position.array,off*3); nor.set(g.attributes.normal.array,off*3); uv.set(g.attributes.uv.array,off*2); off+=g.attributes.position.count; g.dispose(); });
+    const mg=new THREE.BufferGeometry();
+    mg.setAttribute('position',new THREE.BufferAttribute(pos,3)); mg.setAttribute('normal',new THREE.BufferAttribute(nor,3)); mg.setAttribute('uv',new THREE.BufferAttribute(uv,2));
+    const m=new THREE.Mesh(mg,bk.mat); m.castShadow=bk.cast; m.receiveShadow=bk.recv; root.add(m);
+    bk.list.forEach(o=>{ o.parent.remove(o); removed++; });
+  });
+  return removed;
 }
 
 function drawGateSign(x,w,h){
@@ -1033,10 +1194,15 @@ const FinalShader={
     void main(){ vec3 c=texture2D(tDiffuse,vUv).rgb*exposure; c=aces(c); c=pow(c,vec3(1.0/2.2));
       float v=smoothstep(1.15,.35,length(vUv-.5)*1.25); c*=mix(.72,1.0,v); gl_FragColor=vec4(c,1.0); }`
 };
-function setupPost(){
+// 후처리: HDR 렌더 타깃(+ 지원하면 MSAA) → 블룸 → 톤매핑. 화질에 따라 다시 만든다
+function setupPost(samples){
   try{
     if(!THREE.EffectComposer || !THREE.UnrealBloomPass) throw 0;
-    const rt=new THREE.WebGLRenderTarget(2,2,{type:THREE.HalfFloatType,format:THREE.RGBAFormat,minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter});
+    const opt={type:THREE.HalfFloatType,format:THREE.RGBAFormat,minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter};
+    let rt;
+    if(samples && renderer.capabilities.isWebGL2 && THREE.WebGLMultisampleRenderTarget){ rt=new THREE.WebGLMultisampleRenderTarget(2,2,opt); rt.samples=Math.min(samples,renderer.capabilities.maxSamples||4); }
+    else rt=new THREE.WebGLRenderTarget(2,2,opt);
+    if(composer){ composer.renderTarget1.dispose(); composer.renderTarget2.dispose(); }
     composer=new THREE.EffectComposer(renderer,rt);
     composer.addPass(new THREE.RenderPass(scene,camera));
     bloomPass=new THREE.UnrealBloomPass(new THREE.Vector2(256,256),.5,.55,1.4); composer.addPass(bloomPass);
@@ -1075,7 +1241,7 @@ function updateSky(dt){
   waterMat.color.copy(col('#0d1626')).lerp(col('#3a4d66'),day);
   if(finalPass) finalPass.uniforms.exposure.value=.88+.5*t;
   else renderer.toneMappingExposure=.88+.5*t;
-  envTimer+=dt; if(envTimer>6){ envTimer=0; refreshEnv(); }
+  envTimer+=dt; if(envTimer>(quality==='ultra'?3:6)){ envTimer=0; refreshEnv(); }
 }
 
 // ---------- 카메라 ----------
@@ -1125,8 +1291,9 @@ function frame(now){
     walkers.forEach(w=>{ w.g.position.x+=w.dir*w.v*dt; if(w.g.position.x>31) w.g.position.x=-31; if(w.g.position.x<-31) w.g.position.x=31;
       w.g.position.y=Math.abs(Math.sin(s*5*w.v+w.ph))*.03; });
     if(G.inRestroom){ player.position.set(cam.pos.x,0,cam.pos.z); player.rotation.y=Math.atan2(cam.look.x-cam.pos.x, cam.look.z-cam.pos.z); }
+    mist.forEach(m=>{ m.s.visible=m.life<1; if(m.life>=1) return; m.life+=dt*.9; m.s.position.addScaledVector(m.v,dt); m.v.multiplyScalar(.96); m.s.scale.setScalar(.05+m.life*.35); m.s.material.opacity=(1-m.life)*.28; });
     if(waterStream.visible){ const q=1+Math.sin(s*40)*.15; waterStream.scale.set(q,1,q); }
-    steam.forEach(p=>{ if(!cupGroup.visible){ p.s.material.opacity=0; return; }
+    steam.forEach(p=>{ p.s.visible=cupGroup.visible; if(!cupGroup.visible) return;
       p.life+=dt*.45; if(p.life>1) p.life=0;
       const b=cupGroup.position; p.s.position.set(b.x+Math.sin(p.life*9+p.life)*.03, b.y+.2+p.life*.45, b.z+Math.cos(p.life*7)*.03);
       p.s.scale.setScalar(.04+p.life*.14); p.s.material.opacity=(1-p.life)*.22; });
@@ -1150,7 +1317,8 @@ const events=[
     ko:'한빛항공에서 오사카로 가는 723편의 마지막 탑승 안내 말씀 드립니다. 아직 탑승하지 않으신 손님께서는 지금 바로 14번 탑승구로 와 주시기 바랍니다.',
     en:'This is the final boarding call for Hanbit Air flight 723 to Osaka. Any remaining passengers, please proceed to gate 14 immediately.',
     log:'다른 게이트의 오사카행 마지막 탑승 안내가 들린다.'})},
-  {at:START+9, fn:()=>{ setStep(0); announce({
+  {at:START+7, fn:()=>setRemark(1,'BOARDING','status-board')},
+  {at:START+9, fn:()=>{ setStep(0); setRemark(2,'GATE OPEN','status-board'); announce({
     ko:'손님 여러분께 안내 말씀 드리겠습니다. 밴쿠버로 가는 메이플 에어 071편은 오후 6시 30분부터 27번 탑승구에서 탑승을 시작할 예정입니다. 캐나다로 가시는 손님께서는 탑승 전에 여권과 탑승권, 그리고 캐나다 전자여행허가 eTA를 다시 한번 확인해 주시기 바랍니다. 감사합니다.',
     en:'Ladies and gentlemen, may I have your attention please. Maple Air flight 071 to Vancouver will begin boarding at 6:30 p.m. from gate 27. Passengers travelling to Canada, please have your passport, boarding pass, and Canadian eTA ready. Thank you.',
     log:'탑승 준비 안내. 여권, 탑승권, eTA를 다시 확인하라는 방송.'}); }},
@@ -1158,6 +1326,11 @@ const events=[
     ko:'기내 반입 수하물 안내 말씀 드리겠습니다. 오늘 메이플 에어 071편은 만석으로 운항할 예정입니다. 기내 반입 수하물은 1인당 가방 1개와 개인 소지품 1개로 제한되며, 규정을 넘는 수하물은 탑승구에서 위탁 처리될 수 있습니다.',
     en:'Today\'s flight is completely full. Each passenger may bring one carry-on bag and one personal item on board. Larger items may need to be checked at the gate.',
     log:'오늘 비행기는 만석이라는 기내 수하물 안내.'})},
+  {at:START+17, fn:()=>announce({
+    ko:'공항 이용 손님께 안내 말씀 드립니다. 개인 소지품을 방치하지 마시고, 주인 없는 물건을 보시면 가까운 직원에게 알려 주시기 바랍니다.',
+    en:'Please keep your belongings with you at all times, and report any unattended items to airport staff.',
+    log:'보안 안내 방송. 가방을 다시 한번 끌어당겼다.'})},
+  {at:START+20.5, fn:()=>setRemark(0,'DEPARTED','')},
   {at:START+20, fn:()=>{ setStep(1); refreshGateSign(); setRemark(2,'BOARDING','status-board'); announce({
     ko:'밴쿠버로 가는 메이플 에어 071편 탑승을 시작하겠습니다. 먼저 도움이 필요하신 손님과 어린이를 동반하신 손님, 그리고 비즈니스석 손님께서는 지금 탑승해 주시기 바랍니다.',
     en:'Maple Air flight 071 to Vancouver is now boarding. We invite passengers needing assistance, families with small children, and business class passengers to board first.',
@@ -1176,6 +1349,7 @@ const events=[
     en:'This is the final boarding call for Maple Air flight 071 to Vancouver. Any remaining passengers, please proceed to gate 27 immediately. The gate will be closing shortly.',
     log:'마지막 탑승 안내. 이제 정말 가야 한다.'}); }},
 ];
+events.sort((a,b)=>a.at-b.at);
 
 // =====================================================================
 // 설렘 포인트 연출
@@ -1198,17 +1372,50 @@ const acts=[
     await wait(1200);
     await moveCam(HOME.pos,HOME.look,2.2);
   }},
-  {id:'duty', name:'면세점 한 바퀴', k:'구경만 해도 즐거운 곳', tag:'3D', mood:15, async run(){
-    caption('DUTY FREE');
-    await moveCam(V(18.8,1.6,12.4),V(25.4,1.5,9.6),2.8);
-    await moveCam(V(19.6,1.55,11.4),V(25.4,1.3,11.2),2.4);
-    const picks=[['gim','캐나다 친구에게 줄 김 선물세트'],['mask','기내에서 쓸 수분 마스크팩'],['perfume','여행용 미니 향수'],['pillow','새 여행용 목베개']];
-    const [pid,pick]=picks[Math.floor(Math.random()*picks.length)]; this.item=pid;
-    talk('면세점 직원', '여권과 탑승권 확인 도와드리겠습니다. 감사합니다, 즐거운 여행 되세요.');
-    bagGroup.position.set(22.2,1.6,10.6); bagGroup.rotation.set(.3,.4,0); bagGroup.visible=true; sfx.scan();
-    await animate(700,k=>{ bagGroup.position.y=1.6-(1.6-.96)*ease(k); bagGroup.rotation.x=.3*(1-k); });
-    sfx.bag(); await wait(1600);
-    note(`면세점을 한 바퀴 돌다가 <b>${pick}</b>을(를) 샀다. 쇼핑백이 바스락거린다.`);
+  {id:'duty', name:'면세점 한 바퀴', k:'둘러보고, 시향하고, 하나 고르기', tag:'3D', mood:15, async run(){
+    await moveCam(V(16.2,1.62,10),V(31,1.7,10),3);
+    caption('DUTY FREE · 면세점'); talk('면세점 직원','어서 오세요. 천천히 둘러보세요.');
+    await moveCam(V(22.6,1.62,9.4),V(31.8,1.35,6.3),3.6,true);
+    await moveCam(V(28.4,1.6,7.4),V(31.8,1.3,6.3),2.4);
+    note('주류 코너. 위스키 병들이 백라이트를 받아 호박색으로 빛난다.');
+    await moveCam(V(28.6,1.6,9.9),V(31.8,1.3,10.3),3.2,true);
+    await moveCam(V(23.7,1.5,9.1),V(25.4,1.0,9.8),2.4);
+    // 테스터 시향: 분사 안개
+    sfx.spray(); mist.forEach(m=>{ m.s.position.set(24.8,1.02,9.55); m.v.set((Math.random()-.5)*.25,.15+Math.random()*.2,-.3-Math.random()*.4); m.life=Math.random()*.2; });
+    note('향수 아일랜드에서 테스터를 한 번 뿌려봤다. 상큼한 시트러스 향.');
+    await wait(1600);
+    // 무엇을 살지 고르기 (건너뛰면 무작위)
+    const OPTS=[['gim','김 선물세트','$18','캐나다 친구에게 줄 선물',V(25.5,1.02,13.4)],['mask','수분 마스크팩 10매','$25','건조한 기내 대비',V(31.5,1.5,11.1)],
+      ['perfume','여행용 미니 향수','$48','여행지에서 쓸 새 향',V(25.5,1.15,10)],['pillow','메모리폼 목베개','$22','10시간 비행의 동반자',V(21.2,1.65,13.8)]];
+    $('pop').innerHTML=`<div class="shop"><h3>무엇을 살까?</h3><p>면세점 가격은 달러로 표시돼요.</p><div class="opts">${OPTS.map(o=>`<button data-id="${o[0]}">${o[1]}<b>${o[2]}</b><small>${o[3]}</small></button>`).join('')}</div></div>`;
+    const chosen=await new Promise(r=>{ $('pop').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>r(b.dataset.id),{once:true}));
+      const id=setInterval(()=>{ if(G.skip){ clearInterval(id); r(OPTS[Math.floor(Math.random()*OPTS.length)][0]); } },100); });
+    $('pop').innerHTML='';
+    const opt=OPTS.find(o=>o[0]===chosen); this.item=chosen;
+    // 고른 상품에 다가가서 집어 들기
+    const at=opt[4], from=V(at.x-1.7,1.55,at.z+.6);
+    if(chosen==='mask') from.set(29.9,1.55,11.4);
+    await moveCam(from,at,2.4);
+    while(pickGroup.children.length) pickGroup.remove(pickGroup.children[0]); pickMakers[chosen](); pickGroup.position.copy(at); pickGroup.visible=true;
+    const up=at.clone().add(V(-.5,.2,.2));
+    await animate(900,k=>pickGroup.position.lerpVectors(at,up,ease(k)));
+    // 계산대
+    await moveCam(V(23.7,1.62,7.6),V(23.5,1.05,5.9),2.6);
+    const onCounter=V(23.7,1.06,6.0), p0=pickGroup.position.clone();
+    await animate(700,k=>pickGroup.position.lerpVectors(p0,onCounter,ease(k)));
+    talk('면세점 직원','여권과 탑승권 보여주시겠어요?');
+    await wait(1900); sfx.scan(); await wait(500);
+    const line = chosen==='perfume' ? '액체류라서 보안 봉투에 담아 드릴게요. 도착할 때까지 봉투는 뜯지 마세요.'
+      : chosen==='gim' ? '선물용이시면 쇼핑백 하나 더 넣어 드릴게요.' : '결제 도와드리겠습니다.';
+    talk('면세점 직원', line);
+    await wait(1400); sfx.receipt(); await wait(1400);
+    pickGroup.visible=false;
+    bagGroup.position.set(23.7,1.5,6.0); bagGroup.rotation.set(.3,.4,0); bagGroup.visible=true;
+    await animate(600,k=>{ bagGroup.position.y=1.5-(1.5-1.01)*ease(k); bagGroup.rotation.x=.3*(1-k); });
+    sfx.bag(); talk('면세점 직원','감사합니다. 즐거운 여행 되세요.');
+    await wait(1400);
+    note(`면세점에서 <b>${opt[1]}</b>(${opt[2]})을(를) 샀다. 쇼핑백이 바스락거린다.`);
+    await moveCam(V(16,1.62,9.5),V(0,1.2,6),2.6);
     await moveCam(HOME.pos,HOME.look,3);
     bagGroup.position.set(-1.5,.5,5.2); bagGroup.rotation.set(0,.6,0);
   }},
@@ -1262,7 +1469,7 @@ const acts=[
   {id:'weather', name:'밴쿠버 날씨 보기', k:'지금 거기는 몇 시일까', tag:'2D', mood:10, item:'umbrella', async run(){
     const drops=Array.from({length:40},()=>`<i style="left:${Math.random()*100}%;animation-duration:${.5+Math.random()*.5}s;animation-delay:-${Math.random()}s"></i>`).join('');
     await popup(`<div class="phone"><div class="screen"><div class="wx"><div class="rain">${drops}</div>
-      <div class="city">밴쿠버 · 새벽 2:10</div><div class="temp">7°</div><div class="cond">비 · 최고 11° 최저 6°</div>
+      <div class="city">밴쿠버 · 새벽 ${fmt(G.gm-16*60).replace(/^0/,'')}</div><div class="temp">7°</div><div class="cond">비 · 최고 11° 최저 6°</div>
       <div class="cond">도착하는 날(현지 시간 오후)도 흐리고 가끔 비</div>
       <div class="hours"><div>3시<span>7°</span></div><div>6시<span>6°</span></div><div>9시<span>8°</span></div><div>12시<span>10°</span></div></div>
     </div></div></div>`,5600);
@@ -1336,7 +1543,7 @@ $('boardBtn').addEventListener('click', async ()=>{
   cam.pos.copy(R).add(V(-1.8,1.62,0)); cam.look.copy(B).add(V(-6,1.5,0));
   $('fade').style.opacity=0; await wait(500); $('fade').style.transition='';
   await moveCam(B.clone().add(V(1.6,1.6,0)),B.clone().add(V(-6,1.45,0)),3.6,true);
-  talk('CABIN CREW','어서 오십시오. 32A 좌석은 오른쪽 통로로 들어가셔서 뒤쪽 창가입니다.','Welcome aboard.');
+  talk('CABIN CREW','어서 오십시오. 32A 좌석은 이쪽 통로로 쭉 들어가셔서 왼쪽 창가입니다.','Welcome aboard.');
   await moveCam(B.clone().add(V(-.4,1.6,0)),B.clone().add(V(-8,1.45,0)),2.4,true);
   $('fade').style.opacity=1; await wait(1500);
   const end=document.createElement('div'); end.className='endcard';
@@ -1344,6 +1551,7 @@ $('boardBtn').addEventListener('click', async ()=>{
     <h2>32A, 창가 자리</h2>
     <p>짐을 올리고 창가에 앉았다. 밴쿠버까지 비행시간 약 10시간. 창밖으로 탑승교가 천천히 떨어져 나간다.</p>
     <p>가방에 챙긴 것 · ${SAVE.items.map(id=>ITEMS[id].name).join(', ')||'빈손으로 출발'}</p>
+    <p>밴쿠버 도착 예정 · 현지 시간 같은 날 오후 1시 10분. 열 시간을 날아가는데 출발한 날 오후에 도착해요.</p>
     <p style="color:var(--amber)">다음 장: 기내식 (준비 중) · 챙긴 것들은 이 브라우저에 저장돼 다음 장에서 이어져요</p>
     <button id="again" style="justify-self:center">처음부터 다시</button></div>`;
   SAVE.chapter=4; persist(); $('skip').hidden=true;
@@ -1355,13 +1563,21 @@ $('boardBtn').addEventListener('click', async ()=>{
 // =====================================================================
 renderActs(); renderBag(); renderPerks(); renderAlbum();
 $('skip').addEventListener('click',()=>{ G.skip=true; });
+// 보통: 그림자·블룸 끔 / 높음: 그림자 2048, 블룸, MSAA 4x / 최고: 초고해상도 렌더(최대 2배), 그림자 4096, MSAA 8x, 더 부드러운 블룸
+let quality='high';
 function applyQuality(q){
-  const hi=q==='high'; $('quality').value=q;
+  if(!['low','high','ultra'].includes(q)) q='high';
+  quality=q; $('quality').value=q;
   if(!renderer) return;
-  renderer.setPixelRatio(hi?Math.min(devicePixelRatio||1,1.5):1);
-  renderer.shadowMap.enabled=hi; sunLight.castShadow=hi;
+  const dpr=devicePixelRatio||1, lv={low:0,high:1,ultra:2}[q];
+  renderer.setPixelRatio(lv===2 ? Math.min(2,Math.max(1.5,dpr)) : lv===1 ? Math.min(dpr,1.5) : 1);
+  renderer.shadowMap.enabled=lv>0; sunLight.castShadow=lv>0;
+  const ms=lv===2?4096:2048;
+  if(sunLight.shadow.mapSize.x!==ms){ sunLight.shadow.mapSize.set(ms,ms); if(sunLight.shadow.map){ sunLight.shadow.map.dispose(); sunLight.shadow.map=null; } }
+  sunLight.shadow.radius = lv===2 ? 3 : 1;
+  setupPost(lv===2?8:lv===1?4:0);
+  if(bloomPass){ bloomPass.enabled=lv>0; bloomPass.strength=lv===2?.6:.5; bloomPass.radius=lv===2?.7:.55; }
   scene.traverse(o=>{ if(o.material) [].concat(o.material).forEach(m=>m.needsUpdate=true); });
-  if(bloomPass) bloomPass.enabled=hi;
   resize(); try{ localStorage.setItem('trip-quality',q); }catch(e){}
 }
 $('quality').addEventListener('change',e=>applyQuality(e.target.value));
@@ -1374,7 +1590,7 @@ $('startSound').addEventListener('click',()=>begin(true));
 $('startMute').addEventListener('click',()=>begin(false));
 try{
   if(!window.THREE) throw new Error('three.js를 불러오지 못했어요');
-  buildScene(); setupPost(); resize(); addEventListener('resize',resize);
+  buildScene(); setupPost(0); resize(); addEventListener('resize',resize);
   let q=null; try{ q=localStorage.getItem('trip-quality'); }catch(e){}
   applyQuality(q || (matchMedia('(pointer: coarse)').matches ? 'low' : 'high'));
   built=true;
