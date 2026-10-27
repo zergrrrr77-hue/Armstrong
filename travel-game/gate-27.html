@@ -1,0 +1,404 @@
+<title>Gate 27, 밴쿠버행</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* 레이아웃: 위에는 게이트 통유리창(캔버스), 아래에는 출발 안내판과 대기 중 할 일. 해 질 녘 공항이라는 한 가지 분위기로 고정한 디자인 */
+:root{
+  --night:#141a2b;      /* 바탕 */
+  --panel:#1d2438;      /* 패널 */
+  --line:#2f3852;       /* 테두리 */
+  --ink:#ece6da;        /* 본문 글자 */
+  --mute:#9aa3ba;       /* 보조 글자 */
+  --amber:#f2b452;      /* 안내판 앰버, 강조색 */
+  --maple:#d9544a;      /* 탑승 신호 */
+  --display:"Gowun Batang", "Nanum Myeongjo", serif;
+  --body:"Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--night);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6}
+.wrap{max-width:980px;margin:0 auto;padding-block:16px 40px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));display:grid;gap:16px}
+header{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+h1{font-family:var(--display);font-size:clamp(22px,4vw,30px);margin:0;text-wrap:balance;letter-spacing:-.01em}
+.chapter{font-family:var(--mono);font-size:12px;color:var(--mute);letter-spacing:.12em;text-transform:uppercase}
+.stage{position:relative;border-radius:6px;overflow:hidden;border:1px solid var(--line);aspect-ratio:16/8;max-width:100%;background:#0d1220}
+canvas{display:block;width:100%;height:100%}
+.subtitle{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);max-width:88%;background:rgba(10,13,24,.78);padding:8px 14px;border-radius:4px;font-size:14px;text-align:center;transition:opacity .5s;pointer-events:none}
+.subtitle small{display:block;color:var(--mute);font-size:12px}
+.soundbtn{position:absolute;top:10px;right:10px}
+.board{background:#0b0e17;border:1px solid var(--line);border-radius:6px;padding:12px 14px;font-family:var(--mono);overflow-x:auto}
+.board table{width:100%;border-collapse:collapse;min-width:520px;font-variant-numeric:tabular-nums}
+.board th{font-size:11px;color:var(--mute);text-align:left;font-weight:500;letter-spacing:.12em;padding:0 8px 6px}
+.board td{padding:6px 8px;color:var(--amber);font-weight:600;font-size:15px;border-top:1px solid #1a2032;white-space:nowrap}
+.board tr.mine td{background:rgba(242,180,82,.07)}
+.flap{display:inline-block;min-width:.62em;text-align:center}
+.status-board{color:var(--maple)!important}
+.row{display:grid;grid-template-columns:1.35fr 1fr;gap:16px}
+@media (max-width:720px){.row{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px;min-width:0}
+.card h2{font-family:var(--display);font-size:18px;margin:0 0 10px}
+.clock{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.clock b{font-family:var(--mono);font-size:30px;color:var(--amber);font-variant-numeric:tabular-nums}
+.clock span{color:var(--mute);font-size:13px}
+.acts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+button{font:inherit;color:var(--ink);background:#262e47;border:1px solid var(--line);border-radius:5px;padding:10px 12px;cursor:pointer;text-align:left;transition:background .2s,border-color .2s}
+button:hover{background:#2d3654;border-color:#46517a}
+button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+button[disabled]{opacity:.45;cursor:default}
+button .k{display:block;font-size:12px;color:var(--mute)}
+.done{border-color:rgba(242,180,82,.5)}
+.done .k{color:var(--amber)}
+.mood{margin-top:14px}
+.mood label{font-size:13px;color:var(--mute);display:flex;justify-content:space-between}
+.bar{height:6px;background:#11162a;border-radius:3px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--amber),var(--maple));transition:width .8s}
+.log{max-height:260px;overflow-y:auto;display:grid;gap:10px;font-size:14px}
+.log p{margin:0;padding-left:10px;border-left:2px solid var(--line)}
+.log p.new{border-left-color:var(--amber)}
+.log time{font-family:var(--mono);font-size:12px;color:var(--mute);margin-right:6px}
+.plan{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+.plan li label{display:flex;gap:8px;align-items:flex-start;cursor:pointer}
+.plan input{accent-color:var(--amber);margin-top:5px}
+.board-cta{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.board-cta button{background:var(--maple);border-color:var(--maple);font-weight:700;padding:12px 20px}
+.board-cta button[disabled]{background:#262e47;border-color:var(--line)}
+.overlay{position:fixed;inset:0;background:rgba(8,10,18,.86);display:grid;place-items:center;padding:20px;z-index:20}
+.pass{background:#f4efe4;color:#1c2234;border-radius:10px;max-width:440px;width:100%;display:grid;grid-template-columns:1fr auto;overflow:hidden;font-family:var(--mono);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.pass .main{padding:18px;display:grid;gap:10px}
+.pass .stub{padding:18px 16px;border-left:2px dashed #b9b2a3;display:grid;gap:8px;align-content:start;transition:transform 1s ease,opacity 1s}
+.pass.torn .stub{transform:translateX(60px) rotate(8deg);opacity:0}
+.pass .air{font-family:var(--display);font-size:15px;color:var(--maple);font-weight:700}
+.pass .route{display:flex;align-items:center;gap:10px;font-size:28px;font-weight:600}
+.pass .route span{font-size:12px;color:#6b7186;display:block;font-weight:500}
+.pass dl{display:grid;grid-template-columns:repeat(3,auto);gap:4px 14px;margin:0;font-size:13px}
+.pass dt{font-size:10px;color:#6b7186;letter-spacing:.1em}
+.pass dd{margin:0;font-weight:600}
+.endcard{text-align:center;max-width:420px;display:grid;gap:12px}
+.endcard h2{font-family:var(--display);font-size:24px;margin:0}
+.endcard p{margin:0;color:var(--mute)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Gate 27, 밴쿠버행</h1>
+    <span class="chapter">Chapter 3 · 탑승 대기</span>
+  </header>
+
+  <div class="stage">
+    <canvas id="sky" aria-label="게이트 통유리창 밖 풍경. 해가 지는 활주로와 출발을 기다리는 비행기"></canvas>
+    <button class="soundbtn" id="sound" aria-pressed="false">소리 켜기</button>
+    <div class="subtitle" id="sub" style="opacity:0"></div>
+  </div>
+
+  <div class="board" aria-label="출발 안내판">
+    <table>
+      <thead><tr><th>TIME</th><th>DESTINATION</th><th>FLIGHT</th><th>GATE</th><th>REMARKS</th></tr></thead>
+      <tbody id="flights"></tbody>
+    </table>
+  </div>
+
+  <div class="row">
+    <div class="card">
+      <div class="clock"><b id="time">18:10</b><span id="left">탑승 시작까지 30분</span></div>
+      <div class="acts" id="acts"></div>
+      <div class="mood">
+        <label><span>설렘</span><span id="moodTxt">0%</span></label>
+        <div class="bar"><i id="mood"></i></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>여행 노트</h2>
+      <div class="log" id="log" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>밴쿠버에서 하고 싶은 것</h2>
+    <ul class="plan" id="plan"></ul>
+  </div>
+
+  <div class="board-cta">
+    <button id="boardBtn" disabled>탑승하기</button>
+    <span id="boardHint" style="color:var(--mute);font-size:14px">18:40 탑승 안내 방송이 나오면 탑승할 수 있어요.</span>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" hidden></div>
+
+<script>
+// ---------- 게임 시간: 실제 1초 = 게임 10초 (탑승까지 약 3분) ----------
+const START = 18*60+10, BOARD = 18*60+40, DEPART = 19*60+10;
+const SPEED = 1/6;           // 실제 1초당 흐르는 게임 분
+let gm = START, boarded = false, mood = 0;
+
+const fmt = m => String(Math.floor(m/60)).padStart(2,'0')+':'+String(Math.floor(m%60)).padStart(2,'0');
+const $ = id => document.getElementById(id);
+
+// ---------- 출발 안내판 (스플릿 플랩) ----------
+const flights = [
+  {t:"18:55", d:"OSAKA/KANSAI", f:"KE 723", g:"14", r:"ON TIME"},
+  {t:"19:05", d:"SINGAPORE",    f:"SQ 607", g:"31", r:"ON TIME"},
+  {t:"19:10", d:"VANCOUVER",    f:"MP 071", g:"27", r:"ON TIME", mine:true},
+  {t:"19:25", d:"PARIS/CDG",    f:"AF 267", g:"42", r:"DELAYED"},
+  {t:"19:40", d:"HONOLULU",     f:"HA 460", g:"22", r:"ON TIME"},
+];
+const CH = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/";
+function flapText(el, target){
+  const len = Math.max(el.dataset.v ? el.dataset.v.length : 0, target.length);
+  el.innerHTML = Array.from({length:len},()=>'<span class="flap"> </span>').join('');
+  const spans = el.querySelectorAll('.flap');
+  spans.forEach((s,i)=>{
+    const goal = target[i] || ' ';
+    let n = 4 + Math.floor(Math.random()*8);
+    const tick = () => {
+      if (n-- <= 0) { s.textContent = goal; return; }
+      s.textContent = CH[Math.floor(Math.random()*CH.length)];
+      setTimeout(tick, 45);
+    };
+    setTimeout(tick, i*20);
+  });
+  el.dataset.v = target;
+}
+function renderBoard(){
+  $('flights').innerHTML = flights.map((x,i)=>`<tr class="${x.mine?'mine':''}">
+    <td data-k="t${i}"></td><td data-k="d${i}"></td><td data-k="f${i}"></td><td data-k="g${i}"></td><td data-k="r${i}"></td></tr>`).join('');
+  flights.forEach((x,i)=>['t','d','f','g','r'].forEach(k=>{
+    const el = document.querySelector(`[data-k="${k}${i}"]`);
+    flapText(el, x[k]);
+  }));
+}
+function setRemark(i, text){
+  flights[i].r = text;
+  const el = document.querySelector(`[data-k="r${i}"]`);
+  flapText(el, text);
+  el.classList.toggle('status-board', text==="BOARDING");
+}
+
+// ---------- 소리 (Web Audio, 버튼을 눌러야 시작) ----------
+let ac = null, master = null, soundOn = false;
+function startAudio(){
+  try{
+    ac = new (window.AudioContext||window.webkitAudioContext)();
+    master = ac.createGain(); master.gain.value = .5; master.connect(ac.destination);
+    // 공항 웅성거림: 브라운 노이즈 + 저역 필터
+    const buf = ac.createBuffer(1, ac.sampleRate*4, ac.sampleRate), d = buf.getChannelData(0);
+    let last = 0;
+    for (let i=0;i<d.length;i++){ const w = Math.random()*2-1; last = (last + .02*w)/1.02; d[i] = last*3.2; }
+    const src = ac.createBufferSource(); src.buffer = buf; src.loop = true;
+    const lp = ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value = 520;
+    const g = ac.createGain(); g.gain.value = .35;
+    src.connect(lp).connect(g).connect(master); src.start();
+  }catch(e){ ac = null; }
+}
+function chime(){
+  if (!ac || !soundOn) return;
+  [659.25, 523.25].forEach((f,i)=>{
+    const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + i*.55;
+    o.type='sine'; o.frequency.value = f;
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.25,t+.03); g.gain.exponentialRampToValueAtTime(.001,t+1.6);
+    o.connect(g).connect(master); o.start(t); o.stop(t+1.7);
+  });
+}
+$('sound').addEventListener('click', ()=>{
+  if (!ac) startAudio();
+  soundOn = !soundOn;
+  if (ac) soundOn ? ac.resume() : ac.suspend();
+  $('sound').textContent = soundOn ? '소리 끄기' : '소리 켜기';
+  $('sound').setAttribute('aria-pressed', soundOn);
+});
+
+// ---------- 자막 + 노트 ----------
+let subTimer;
+function say(ko, en){
+  chime();
+  const s = $('sub');
+  s.innerHTML = ko + (en ? `<small>${en}</small>` : '');
+  s.style.opacity = 1;
+  clearTimeout(subTimer); subTimer = setTimeout(()=> s.style.opacity = 0, 6500);
+}
+function note(text){
+  document.querySelectorAll('.log p.new').forEach(p=>p.classList.remove('new'));
+  const p = document.createElement('p'); p.className = 'new';
+  p.innerHTML = `<time>${fmt(gm)}</time>${text}`;
+  $('log').prepend(p);
+}
+function addMood(n){
+  mood = Math.min(100, mood+n);
+  $('mood').style.width = mood+'%'; $('moodTxt').textContent = mood+'%';
+}
+
+// ---------- 대기 중 할 일 ----------
+const acts = [
+  {id:'coffee', name:'라떼 한 잔 사기', k:'게이트 앞 카페', mood:15, run(){ cupSteam = true;
+    note('따뜻한 라떼를 샀다. 창가 자리에 앉아 컵을 감싸 쥐니 손이 따뜻하다.'); }},
+  {id:'duty', name:'면세점 한 바퀴', k:'구경만 해도 즐거운 곳', mood:15, run(){
+    const picks = ['여행용 미니 향수','캐나다 친구에게 줄 김 선물세트','기내에서 쓸 수분 마스크팩','새 여행용 목베개'];
+    note(`면세점을 돌다가 <b>${picks[Math.floor(Math.random()*picks.length)]}</b>을(를) 샀다.`); }},
+  {id:'window', name:'창밖 비행기 보기', k:'이륙하는 비행기 세기', mood:20, run(){ takeoff();
+    note('창에 이마를 대고 활주로를 본다. 한 대가 굉음을 내며 떠오른다. 곧 나도 저렇게 떠오른다.'); }},
+  {id:'pass', name:'탑승권 다시 확인', k:'괜히 세 번째 확인', mood:10, run(){
+    note('MP 071, 27번 게이트, 좌석 32A 창가. 괜히 한 번 더 확인했다. 잘 있다.'); }},
+  {id:'call', name:'가족에게 문자', k:'"잘 다녀올게"', mood:15, run(){
+    note('"공항 도착! 잘 다녀올게." 답장이 금방 온다. "사진 많이 보내~"'); }},
+  {id:'weather', name:'밴쿠버 날씨 보기', k:'지금 몇 도일까', mood:10, run(){
+    note('밴쿠버는 지금 새벽 2시, 기온 7°C에 비. 가을의 밴쿠버는 비가 잦다더니, 우산을 챙기길 잘했다.'); }},
+];
+function renderActs(){
+  $('acts').innerHTML = acts.map(a=>`<button id="act-${a.id}">${a.name}<span class="k">${a.k}</span></button>`).join('');
+  acts.forEach(a=>{
+    $('act-'+a.id).addEventListener('click', e=>{
+      const b = e.currentTarget;
+      if (b.classList.contains('done')) return;
+      a.run(); addMood(a.mood);
+      b.classList.add('done'); b.querySelector('.k').textContent = '완료';
+    });
+  });
+}
+
+// ---------- 밴쿠버 버킷리스트 (내 브라우저에만 저장) ----------
+const plans = ['스탠리 파크 방파제 길 따라 자전거 타기','그랜빌 아일랜드 마켓에서 브런치','개스타운 증기시계 앞에서 사진 찍기','캐필라노 서스펜션 브리지 건너기','잉글리시 베이에서 노을 보기'];
+let saved = {};
+try{ saved = JSON.parse(localStorage.getItem('yvr-plan')||'{}'); }catch(e){}
+$('plan').innerHTML = plans.map((p,i)=>`<li><label><input type="checkbox" id="plan-${i}" ${saved[i]?'checked':''}> <span>${p}</span></label></li>`).join('');
+$('plan').addEventListener('change', e=>{
+  const i = e.target.id.split('-')[1]; saved[i] = e.target.checked;
+  try{ localStorage.setItem('yvr-plan', JSON.stringify(saved)); }catch(err){}
+  if (e.target.checked) addMood(4);
+});
+
+// ---------- 안내 방송 스케줄 ----------
+const events = [
+  {at:START+0.2, fn:()=>{ say('인천국제공항을 이용해 주셔서 감사합니다.', 'Welcome to Incheon International Airport.'); note('보안검색을 마치고 27번 게이트에 도착했다. 탑승까지 30분.'); }},
+  {at:START+8,  fn:()=> say('메이플 에어 071편 밴쿠버행 승객 여러분, 탑승은 18시 40분부터 27번 게이트에서 시작됩니다.', 'Maple Air flight 071 to Vancouver will begin boarding at 18:40 at Gate 27.') },
+  {at:START+18, fn:()=>{ takeoff(); say('다른 비행기 한 대가 이륙합니다. 창밖을 보세요.'); }},
+  {at:BOARD-3,  fn:()=> say('잠시 후 탑승을 시작합니다. 탑승권과 여권을 준비해 주십시오.', 'Please have your boarding pass and passport ready.') },
+  {at:BOARD,    fn:()=>{ setRemark(2,'BOARDING'); say('메이플 에어 071편 밴쿠버행 탑승을 시작합니다.', 'Maple Air flight 071 to Vancouver is now boarding at Gate 27.');
+                         $('boardBtn').disabled = false; $('boardHint').textContent = '탑승이 시작됐어요. 줄이 짧아지면 천천히 가도 됩니다.'; note('탑승 안내 방송이 나왔다. 심장이 조금 빨라진다.'); addMood(10); }},
+];
+
+// ---------- 창밖 풍경 (캔버스) ----------
+const cv = $('sky'), cx = cv.getContext('2d');
+let W=0,H=0, stars=[], cityLights=[], planes=[], cupSteam=false;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function resize(){
+  const r = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio||1);
+  W = r.width; H = r.height; cv.width = W*dpr; cv.height = H*dpr; cx.setTransform(dpr,0,0,dpr,0,0);
+  stars = Array.from({length:70},()=>({x:Math.random()*W,y:Math.random()*H*.45,a:Math.random()}));
+  cityLights = Array.from({length:90},()=>({x:Math.random()*W,y:H*.58+Math.random()*H*.04,c:Math.random()<.7?'#f6c97a':'#cfe3ff',p:Math.random()*6}));
+}
+addEventListener('resize', resize);
+function takeoff(){ planes.push({x:-80, y:H*.66, vx:W/260, vy:0, t:0}); }
+
+const lerp=(a,b,t)=>a+(b-a)*t;
+function mix(c1,c2,t){ const a=c1.match(/\w\w/g).map(h=>parseInt(h,16)), b=c2.match(/\w\w/g).map(h=>parseInt(h,16));
+  return `rgb(${a.map((v,i)=>Math.round(lerp(v,b[i],t))).join(',')})`; }
+
+function drawPlane(x,y,s,rot,lit){
+  cx.save(); cx.translate(x,y); cx.rotate(rot); cx.scale(s,s);
+  cx.fillStyle='#1a1f2e';
+  cx.beginPath(); cx.ellipse(0,0,60,8,0,0,Math.PI*2); cx.fill();           // 동체
+  cx.beginPath(); cx.moveTo(-5,0); cx.lineTo(-25,26); cx.lineTo(-12,26); cx.lineTo(18,0); cx.fill(); // 날개
+  cx.beginPath(); cx.moveTo(-45,-2); cx.lineTo(-62,-26); cx.lineTo(-52,-26); cx.lineTo(-35,-2); cx.fill(); // 꼬리
+  if (lit){ cx.fillStyle = (performance.now()/500|0)%2 ? '#ff5a4e' : '#5a1f1f'; cx.beginPath(); cx.arc(-58,-25,2.2,0,7); cx.fill(); }
+  cx.restore();
+}
+
+function frame(now){
+  const t = Math.min(1,(gm-START)/(DEPART-START));       // 0 = 해질녘, 1 = 밤
+  // 하늘
+  const g = cx.createLinearGradient(0,0,0,H*.6);
+  g.addColorStop(0, mix('#3b4a7a','#0c1226',t));
+  g.addColorStop(.6, mix('#d98a6a','#1c2444',t));
+  g.addColorStop(1, mix('#f5c37b','#2c2f4a',t));
+  cx.fillStyle=g; cx.fillRect(0,0,W,H*.6);
+  // 별
+  stars.forEach(s=>{ cx.fillStyle=`rgba(255,255,255,${s.a*t*(.6+.4*Math.sin(now/900+s.x))})`; cx.fillRect(s.x,s.y,1.4,1.4); });
+  // 먼 산 실루엣
+  cx.fillStyle=mix('#5a5470','#151a2c',t);
+  cx.beginPath(); cx.moveTo(0,H*.6);
+  for(let x=0;x<=W;x+=W/12) cx.lineTo(x, H*(.52+.04*Math.sin(x*.012)+.02*Math.sin(x*.05)));
+  cx.lineTo(W,H*.6); cx.fill();
+  // 도시 불빛
+  cityLights.forEach(l=>{ cx.globalAlpha = Math.min(1,.2+t)*(.6+.4*Math.sin(now/700+l.p)); cx.fillStyle=l.c; cx.fillRect(l.x,l.y,1.6,1.6); });
+  cx.globalAlpha=1;
+  // 활주로
+  cx.fillStyle=mix('#4a4a58','#14182a',t); cx.fillRect(0,H*.6,W,H*.4);
+  cx.fillStyle=mix('#5c5b68','#1b2033',t); cx.fillRect(0,H*.64,W,H*.05);
+  for(let x=0;x<W;x+=28){ const on = ((x/28|0)+Math.floor(now/400))%10<8;
+    cx.fillStyle= on ? '#ffd27a' : '#6b5a3a'; cx.fillRect(x,H*.635,3,2); cx.fillStyle= on?'#7fd0ff':'#2e4a5c'; cx.fillRect(x+14,H*.692,3,2); }
+  // 이륙하는 비행기
+  planes.forEach(p=>{ p.t++; p.x+=p.vx*(reduce?2:1); if(p.x>W*.45){ p.vy-=.012; } p.y+=p.vy;
+    drawPlane(p.x,p.y,.55,Math.max(-.25,p.vy*.12),true); });
+  planes = planes.filter(p=>p.y>-40 && p.x<W+100);
+  // 게이트에 서 있는 내 비행기 (크게)
+  drawPlane(W*.68, H*.8, Math.max(1.6, W/420), 0, false);
+  cx.fillStyle='#f2efe6'; cx.globalAlpha=.85;
+  for(let i=0;i<14;i++) cx.fillRect(W*.68 - W*.12 + i*(W*.017), H*.795, W*.007, H*.012); // 객실 창문
+  cx.globalAlpha=1;
+  // 탑승교
+  cx.fillStyle='#2a3048'; cx.fillRect(W*.84, H*.72, W*.16, H*.1);
+  // 창틀과 유리 반사
+  cx.fillStyle='rgba(10,13,24,.9)';
+  [0, W/3, W*2/3, W-6].forEach(x=>cx.fillRect(x,0,6,H));
+  cx.fillRect(0,0,W,6); cx.fillRect(0,H*.9,W,H*.1);
+  cx.fillStyle='rgba(255,255,255,.035)';
+  cx.beginPath(); cx.moveTo(W*.1,0); cx.lineTo(W*.22,0); cx.lineTo(W*.08,H); cx.lineTo(-W*.04,H); cx.fill();
+  // 라떼 김
+  if (cupSteam){
+    cx.fillStyle='#e9e1d2'; cx.fillRect(W*.08,H*.86,W*.028,H*.05);
+    cx.strokeStyle='rgba(255,255,255,.35)'; cx.lineWidth=1.5;
+    for(let k=0;k<2;k++){ cx.beginPath();
+      for(let y=0;y<H*.08;y+=2) cx.lineTo(W*.088+k*W*.012+Math.sin((y+now/60)/6)*3, H*.855-y);
+      cx.stroke(); }
+  }
+}
+
+// ---------- 메인 루프 ----------
+let lastT = performance.now();
+function loop(now){
+  const dt = (now-lastT)/1000; lastT = now;
+  if (!boarded && gm < DEPART) gm = Math.min(DEPART, gm + dt*SPEED);
+  while (events.length && gm >= events[0].at) events.shift().fn();
+  $('time').textContent = fmt(gm);
+  const left = Math.ceil(BOARD-gm);
+  $('left').textContent = left>0 ? `탑승 시작까지 ${left}분` : `출발까지 ${Math.ceil(DEPART-gm)}분`;
+  frame(now);
+  requestAnimationFrame(loop);
+}
+
+// ---------- 탑승 ----------
+$('boardBtn').addEventListener('click', ()=>{
+  boarded = true;
+  const ov = $('overlay'); ov.hidden = false;
+  ov.innerHTML = `<div style="display:grid;gap:18px;justify-items:center">
+    <div class="pass" id="bp">
+      <div class="main">
+        <div class="air">MAPLE AIR · BOARDING PASS</div>
+        <div class="route"><div>ICN<span>서울/인천</span></div>✈<div>YVR<span>밴쿠버</span></div></div>
+        <dl><dt>FLIGHT</dt><dt>GATE</dt><dt>SEAT</dt><dd>MP 071</dd><dd>27</dd><dd>32A</dd>
+            <dt>DATE</dt><dt>BOARD</dt><dt>GROUP</dt><dd>27 OCT</dd><dd>18:40</dd><dd>3</dd></dl>
+      </div>
+      <dl class="stub"><dt>SEAT</dt><dd style="font-size:22px;font-weight:600">32A</dd><dt>ZONE</dt><dd>3</dd></dl>
+    </div>
+    <button id="scan">탑승권 내밀기</button></div>`;
+  $('scan').focus();
+  $('scan').addEventListener('click', ()=>{
+    $('bp').classList.add('torn'); chime();
+    setTimeout(()=>{
+      ov.innerHTML = `<div class="endcard">
+        <span class="chapter">Chapter 3 완료 · 설렘 ${mood}%</span>
+        <h2>"좋은 여행 되세요."</h2>
+        <p>탑승교를 걸어 32A 창가 자리에 앉았다. 밴쿠버까지 비행시간 약 10시간. 창밖 활주로 불빛이 천천히 뒤로 밀려난다.</p>
+        <p style="color:var(--amber)">다음 장: 기내식 (준비 중)</p>
+        <button id="again" style="justify-self:center">처음부터 다시</button></div>`;
+      $('again').addEventListener('click', ()=>location.reload());
+    }, 1300);
+  });
+});
+
+resize(); renderBoard(); renderActs();
+requestAnimationFrame(loop);
+</script>
