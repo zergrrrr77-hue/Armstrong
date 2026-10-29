@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """《잊혀진 대장간》 웹 버전용 메이플풍 고해상도 에셋 생성기.
 
-주인공(키 약 48px, 남/여), 몬스터 3종을 도트 시트 PNG로 뽑고, 프레임 정보(JSON)와 함께
+주인공(키 약 48px, 남/여), 몬스터 3종, 무기·아이콘, 지형·소품(world_art.py)을 도트 시트 PNG로 뽑고, 프레임 정보(JSON)와 함께
 forgotten-forge/index.html 안의 WEB_ASSETS 블록에 data URI로 주입한다.
 
 커스터마이징은 "열쇠 색"으로 한다. 머리·피부·눈·옷 부위를 정해진 기본색으로 그려 두면
@@ -21,6 +21,7 @@ from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import make_assets as MA  # noqa: E402  (픽셀 캔버스 Cv 재사용)
+import world_art  # noqa: E402  (3단계: 지형·소품)
 
 Cv = MA.Cv
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -992,11 +993,17 @@ def main():
         im.save(os.path.join(OUT, f'{name}.png'))
         big = Image.new('RGBA', im.size, (60, 52, 70, 255)); big.alpha_composite(im)
         big.resize((im.width * 3, im.height * 3), Image.NEAREST).save(os.path.join(PREVIEW, f'{name}_preview.png'))
-    meta = {'hero': hero_meta, **mon_meta, 'weapons': {'cw': 64, 'ch': 44, 'items': wmeta}, 'icons': iorder}
+    world_sheets, world_meta = world_art.build_world()
+    for name, im in world_sheets.items():
+        im.save(os.path.join(OUT, f'{name}.png'))
+        big = Image.new('RGBA', im.size, (120, 170, 210, 255)); big.alpha_composite(im)
+        big.resize((im.width * 3, im.height * 3), Image.NEAREST).save(os.path.join(PREVIEW, f'{name}_preview.png'))
+    meta = {'hero': hero_meta, **mon_meta, 'weapons': {'cw': 64, 'ch': 44, 'items': wmeta}, 'icons': iorder, **world_meta}
     json.dump(meta, open(os.path.join(OUT, 'meta.json'), 'w'))
     inject({'hero_m': data_uri(hero_sheets['m']), 'hero_f': data_uri(hero_sheets['f']),
             **{k: data_uri(im) for k, im in mon_sheets.items()},
-            'weapons': data_uri(wsheet), 'icons': data_uri(isheet), 'arrow': data_uri(arrow), 'portraits': data_uri(portraits), 'meta': meta})
+            'weapons': data_uri(wsheet), 'icons': data_uri(isheet), 'arrow': data_uri(arrow), 'portraits': data_uri(portraits),
+            **{k: data_uri(im) for k, im in world_sheets.items()}, 'meta': meta})
     print('완료:', OUT)
 
 
