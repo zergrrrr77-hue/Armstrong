@@ -65,6 +65,19 @@ _vals = list(WPAL.values())
 assert len(set(_vals)) == len(_vals), '팔레트에 중복 색이 있음'
 MA.RGB.update({k: tuple(int(v[i:i + 2], 16) for i in (1, 3, 5)) for k, v in WPAL.items()})
 
+class _AutoRGB(dict):
+    """'#rrggbb' 이름은 등록 없이도 바로 색으로 쓴다."""
+
+    def __missing__(self, k):
+        if isinstance(k, str) and k.startswith('#') and len(k) == 7:
+            v = tuple(int(k[i:i + 2], 16) for i in (1, 3, 5))
+            self[k] = v
+            return v
+        raise KeyError(k)
+
+
+MA.RGB = _AutoRGB(MA.RGB)
+
 # 외곽선: 안쪽 색에 맞춘 어두운 색(셀아웃). 열쇠 부위는 열쇠 외곽선 색으로.
 OUTLINE_OF = {}
 for k in WPAL:
@@ -558,6 +571,344 @@ def build_monsters():
     return sheets, meta
 
 
+# ───────── 2단계: 무기 · 장비 아이콘 ─────────
+def img_outline(im, dark=0.32):
+    """이미지 단위 셀아웃: 바깥 테두리를 이웃 색의 어두운 버전으로."""
+    im = im.copy()
+    px = im.load()
+    W_, H_ = im.size
+    add = {}
+    for y in range(H_):
+        for x in range(W_):
+            if px[x, y][3]:
+                continue
+            for dx, dy in ((0, 1), (1, 0), (-1, 0), (0, -1)):
+                xx, yy = x + dx, y + dy
+                if 0 <= xx < W_ and 0 <= yy < H_ and px[xx, yy][3]:
+                    r, g, b_, _ = px[xx, yy]
+                    k = dark * (0.7 if dy == -1 else 1.0)
+                    add[(x, y)] = (int(r * k) + 8, int(g * k) + 6, int(b_ * k) + 12, 255)
+                    break
+    for q, c_ in add.items():
+        px[q] = c_
+    return im
+
+
+def rot45(im):
+    """도트를 45° 돌리기: 4배로 키워 돌린 뒤 4×4 칸마다 다수결로 줄인다."""
+    big = im.resize((im.width * 4, im.height * 4), Image.NEAREST).rotate(45, Image.NEAREST, expand=True)
+    W_, H_ = big.width // 4, big.height // 4
+    out = Image.new('RGBA', (W_, H_), (0, 0, 0, 0))
+    bp, op = big.load(), out.load()
+    for y in range(H_):
+        for x in range(W_):
+            cols = {}
+            n = 0
+            for yy in range(4):
+                for xx in range(4):
+                    c_ = bp[x * 4 + xx, y * 4 + yy]
+                    if c_[3]:
+                        n += 1
+                        cols[c_] = cols.get(c_, 0) + 1
+            if n >= 7:
+                op[x, y] = max(cols, key=cols.get)
+    bb = out.getbbox()
+    return out.crop(bb) if bb else out
+
+
+def fit_icon(im, size=32):
+    im = im.crop(im.getbbox()) if im.getbbox() else im
+    out = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+    out.alpha_composite(im, ((size - im.width) // 2, (size - im.height) // 2))
+    return out
+
+
+WEAPONS = {
+    # id: 계열, 색 정의
+    'rusty':    ('sword', dict(edge='#c4ccd8', blade='#8a94a8', shadow='#5a6278', guard=('#5a6278', '#3a4050'), grip=('#8a5a34', '#5e3a20'), pommel='#5a6278', L=18, rust=True)),
+    'squire':   ('sword', dict(edge='#eef2f6', blade='#c4ccd8', shadow='#8a94a8', guard=('#8a94a8', '#5a6278'), grip=('#5e3a20', '#3a2414'), pommel='#8a94a8', L=19)),
+    'hunter':   ('sword', dict(edge='#ffffff', blade='#d8dee6', shadow='#9aa4b6', guard=('#e8c060', '#a8802a'), grip=('#3e9038', '#276028'), pommel='#e8c060', gem='#6cc048', L=20, fuller='#a8b0c0')),
+    'thorn':    ('sword', dict(edge='#d8f0b8', blade='#8fc86a', shadow='#4f8a3a', guard=('#5e3a20', '#3a2414'), grip=('#3e9038', '#276028'), pommel='#4f8a3a', gem='#c8f088', L=21, thorns=True)),
+    'moon':     ('sword', dict(edge='#f0fbff', blade='#a8e0ff', shadow='#6ab8f0', guard=('#eef2f6', '#8a94a8'), grip=('#284080', '#1a2a58'), pommel='#c4ccd8', gem='#2a5ad8', L=22, fuller='#2a5ad8', crescent=True)),
+    'ember':    ('sword', dict(edge='#fff0a0', blade='#ffb030', shadow='#f06020', guard=('#f0c850', '#b88a2a'), grip=('#3a2414', '#b88a2a'), pommel='#f0c850', gem='#e03030', L=24, fuller='#a02818', flames=True)),
+    'shortbow': ('bow', dict(wood='#a06a3c', dark='#6a4426', light='#c8905a', grip='#5e3a20', string='#e8e0d0')),
+    'bonebow':  ('bow', dict(wood='#e8dcc0', dark='#b0a080', light='#fff8e8', grip='#7a5236', string='#d8d0c0', bands=True)),
+    'windbow':  ('bow', dict(wood='#5fb8a0', dark='#2f7868', light='#a8ecd8', grip='#3a2414', string='#f0fff8', feathers=True)),
+    'starbow':  ('bow', dict(wood='#a888f0', dark='#6a4ab0', light='#e0d0ff', grip='#2a1a48', string='#fff6c0', stars=True)),
+    'rustspear':   ('spear', dict(head='#a89a88', headD='#6e6456', headL='#d0c4b0', shaft='#7a5230', shaftD='#54361e', ring='#5a6278')),
+    'knightspear': ('spear', dict(head='#d8dee6', headD='#8a94a8', headL='#ffffff', shaft='#6a4426', shaftD='#3a2414', ring='#e8c060', tassel='#d03838')),
+    'guardspear':  ('spear', dict(head='#b98cff', headD='#7a4ad0', headL='#efe0ff', shaft='#3a2a4a', shaftD='#22182e', ring='#e8c060', wings=True)),
+    'club':     ('mace', dict(shape='club', head='#8a5a30', headD='#5e3c1e', headL='#b07a48', handle='#6b4526')),
+    'morning':  ('mace', dict(shape='spike', head='#8d9096', headD='#5a5e66', headL='#d0d4dc', handle='#5e3a20')),
+    'earth':    ('mace', dict(shape='hammer', head='#c08a4a', headD='#7a5428', headL='#e8b878', handle='#4a2e18', rune='#c06bff')),
+}
+
+
+def draw_weapon(kind, d, short=False):
+    """손잡이를 기준점으로 오른쪽을 향한 무기. 반환: (Cv, 기준점, 길이, 활 시위 정보)."""
+    c = Cv(64, 44)
+    string = None
+    if kind == 'sword':
+        ax, ay = 9, 22
+        L = d['L'] - (2 if short else 0)
+        c.rect(2, 21, 3, 3, d['pommel']); c.px(2, 21, shade(d['pommel'], 40))
+        for x in range(5, 12):
+            c.rect(x, 21, 1, 3, d['grip'][(x // 2) % 2])
+        c.rect(12, 15, 3, 13, d['guard'][0]); c.rect(12, 15, 3, 1, d['guard'][1]); c.rect(12, 27, 3, 1, d['guard'][1])
+        c.rect(14, 16, 1, 11, d['guard'][1])
+        if d.get('crescent'):
+            c.rect(11, 13, 2, 3, d['guard'][0]); c.rect(11, 27, 2, 3, d['guard'][0]); c.px(10, 12, d['guard'][0]); c.px(10, 30, d['guard'][0])
+        if d.get('gem'):
+            c.rect(12, 20, 3, 3, d['gem']); c.px(12, 20, '#ffffff')
+        x0 = 15
+        for i in range(L):
+            x = x0 + i
+            taper = max(0, i - (L - 4))
+            top, bot = 19 + taper // 2 + (1 if taper >= 3 else 0), 24 - (taper + 1) // 2
+            for y in range(top, bot):
+                col = d['blade']
+                if y == top:
+                    col = d['edge']
+                elif y == bot - 1:
+                    col = d['shadow']
+                c.px(x, y, col)
+            if d.get('fuller') and 1 < i < L - 6:
+                c.px(x, 21, d['fuller'])
+        c.px(x0 + L, 21, d['edge'])
+        if d.get('rust'):
+            for i, col in ((3, '#a06e3c'), (7, '#7a5030'), (11, '#a06e3c'), (14, '#7a5030')):
+                c.px(x0 + i, 21 + (i % 2), col)
+            c.px(x0 + 9, 19, None); c.px(x0 + 10, 19, None)
+        if d.get('thorns'):
+            for i in range(3, L - 3, 4):
+                c.px(x0 + i, 18, d['shadow']); c.px(x0 + i + 2, 24, d['shadow'])
+        if d.get('flames'):
+            for i in range(2, L - 2, 4):
+                c.px(x0 + i, 18, d['blade']); c.px(x0 + i + 1, 17, d['edge'])
+                c.px(x0 + i + 2, 24, d['shadow']); c.px(x0 + i + 3, 25, d['blade'])
+        length = x0 + L - ax
+    elif kind == 'spear':
+        ax, ay = 18, 22
+        end = 46 if not short else 34
+        c.rect(2, 21, 3, 2, d['ring'])
+        for x in range(5, end):
+            c.px(x, 21, d['shaft']); c.px(x, 22, d['shaftD'])
+            if x % 7 == 0:
+                c.px(x, 21, d['shaftD'])
+        c.rect(end, 20, 2, 4, d['ring'])
+        hx = end + 2
+        for i in range(10):
+            hw = [1, 2, 3, 3, 3, 2, 2, 1, 1, 0][i]
+            for o in range(-hw, hw + 1):
+                c.px(hx + i, 21.5 + o, d['head'] if o < 0 else d['headD'])
+            c.px(hx + i, 21, d['headL']) if i < 8 else None
+        c.px(hx + 10, 21, d['headL'])
+        if d.get('tassel'):
+            for k_ in range(5):
+                c.px(end - 1 - (k_ % 2), 24 + k_, d['tassel'])
+        if d.get('wings'):
+            c.poly([(hx - 1, 19), (hx - 4, 14), (hx + 2, 18)], d['head']); c.poly([(hx - 1, 24), (hx - 4, 29), (hx + 2, 25)], d['headD'])
+        length = hx + 10 - ax
+    elif kind == 'mace':
+        ax, ay = 6, 22
+        for x in range(2, 18):
+            c.rect(x, 21, 1, 3, d['handle'] if x % 4 else shade(d['handle'], -25))
+        c.rect(2, 20, 2, 5, shade(d['handle'], -30))
+        if d['shape'] == 'club':
+            c.ell(23, 22, 7, 5.5, d['head']); c.ell(22, 20.5, 4.5, 2.5, d['headL'])
+            c.ell(24, 24.5, 5, 2, d['headD'])
+            for q in ((20, 24), (26, 19), (24, 23)):
+                c.px(q[0], q[1], d['headD'])
+            for q in ((28, 20), (23, 17), (27, 26)):
+                c.px(q[0], q[1], '#d0ccc4')
+            length = 30 - ax
+        elif d['shape'] == 'spike':
+            c.ell(23, 22, 5.5, 5.5, d['head']); c.ell(21.5, 20.5, 2.5, 2.5, d['headL']); c.ell(24.5, 24, 3, 2, d['headD'])
+            for (sx, sy, ex, ey) in ((23, 16, 23, 13), (23, 28, 23, 31), (29, 22, 32, 22), (19, 18, 17, 16), (27, 18, 29, 16), (19, 26, 17, 28), (27, 26, 29, 28)):
+                c.line(sx, sy, ex, ey, '#e8ecf0')
+            length = 32 - ax
+        else:
+            c.rect(17, 14, 12, 17, d['head']); c.rect(17, 14, 12, 2, d['headL']); c.rect(17, 29, 12, 2, d['headD'])
+            c.rect(27, 16, 2, 13, d['headD']); c.rect(17, 16, 1, 13, d['headL'])
+            c.rect(21, 19, 4, 7, d['rune']); c.rect(22, 20, 2, 5, shade(d['rune'], 60))
+            length = 29 - ax
+    else:  # bow
+        ax, ay = 12, 22
+        top, bot = 4, 40
+        for y in range(top, bot + 1):
+            dy = (y - 22) / 18
+            x = round(12 - 7 * dy * dy)
+            w_ = 3 if abs(dy) < 0.5 else 2
+            for k_ in range(w_):
+                c.px(x + k_, y, d['light'] if k_ == w_ - 1 else (d['wood'] if k_ else d['dark']))
+            if d.get('bands') and y % 5 == 0:
+                c.rect(x, y, w_, 1, d['dark'])
+        c.rect(11, 19, 4, 7, d['grip']); c.px(14, 19, shade(d['grip'], 40))
+        c.line(5, top + 1, 5, bot - 1, d['string'])
+        c.px(5, top, d['dark']); c.px(5, bot, d['dark'])
+        if d.get('feathers'):
+            c.line(6, 6, 9, 9, '#ffffff'); c.line(6, 38, 9, 35, '#ffffff')
+        if d.get('stars'):
+            for (sx, sy) in ((9, 9), (9, 35), (15, 22)):
+                c.px(sx, sy, '#ffffff'); c.px(sx - 1, sy, '#fff6c0'); c.px(sx + 1, sy, '#fff6c0'); c.px(sx, sy - 1, '#fff6c0'); c.px(sx, sy + 1, '#fff6c0')
+        length = 6
+        string = [5 - ax, top + 1 - ay, bot - 1 - ay]
+    return c, (ax, ay), length, string
+
+
+def armor_icon(kind):
+    c = Cv(32, 32)
+    if kind == 'cloth':
+        b0, b1, b2 = '#a08a6a', '#7d6a55', '#5a4a3a'
+        c.poly([(7, 7), (12, 5), (20, 5), (25, 7), (27, 15), (23, 15), (23, 27), (9, 27), (9, 15), (5, 15)], b1)
+        c.rect(9, 7, 14, 2, b0); c.poly([(13, 5), (16, 9), (19, 5)], b2)
+        c.rect(11, 17, 5, 5, '#8a7a5a'); c.rect(11, 17, 5, 1, '#b0a080'); c.px(12, 19, b2); c.px(14, 20, b2)
+        c.rect(18, 22, 4, 3, '#6a5a44')
+        c.rect(9, 25, 14, 2, b2)
+    elif kind == 'leather':
+        b0, b1, b2 = '#b07a48', '#8a5a33', '#5e3a20'
+        c.poly([(8, 6), (13, 5), (16, 9), (19, 5), (24, 6), (25, 27), (7, 27)], b1)
+        c.rect(8, 6, 3, 21, b2); c.rect(22, 7, 2, 20, b0)
+        for y in range(10, 25, 3):
+            c.px(15, y, '#e8d8b0'); c.px(17, y + 1, '#e8d8b0')
+        c.line(16, 9, 16, 26, b2)
+        c.rect(7, 25, 18, 2, '#3a2414')
+    elif kind == 'cloak':
+        b0, b1, b2 = '#6cc048', '#3f6b3a', '#244a24'
+        c.poly([(16, 3), (24, 8), (27, 28), (5, 28), (8, 8)], b1)
+        c.ell(16, 9, 6, 6, b2); c.ell(16, 10, 4, 4, '#14200c')
+        c.line(10, 14, 7, 27, b2); c.line(22, 14, 25, 27, b0); c.line(16, 16, 16, 27, b2)
+        c.rect(14, 15, 4, 2, '#e8c060')
+    elif kind == 'plate':
+        b0, b1, b2 = '#b0b4bc', '#6d6f73', '#45474c'
+        c.poly([(6, 8), (12, 5), (20, 5), (26, 8), (25, 20), (16, 27), (7, 20)], b1)
+        c.poly([(9, 9), (16, 7), (16, 24), (9, 19)], b0)
+        c.line(16, 7, 16, 25, b2)
+        for (x, y) in ((8, 10), (24, 10), (10, 18), (22, 18), (16, 23)):
+            c.px(x, y, '#e8ecf0')
+        c.rect(12, 13, 3, 2, '#8a5030'); c.rect(18, 15, 3, 2, '#8a5030')   # 고블린식 덧댄 판
+    elif kind == 'shadow':
+        b0, b1, b2 = '#5a7ac8', '#2f4f86', '#1a2a58'
+        c.poly([(5, 8), (12, 5), (20, 5), (27, 8), (26, 20), (16, 28), (6, 20)], b1)
+        c.poly([(8, 9), (16, 7), (16, 25), (8, 18)], b0)
+        c.ell(16, 15, 4, 4, '#e0f8ff'); c.ell(17.5, 14, 3.5, 3.5, b1)   # 초승달 문장
+        c.line(16, 7, 16, 26, b2)
+        c.rect(5, 8, 3, 3, '#a8e0ff'); c.rect(24, 8, 3, 3, '#a8e0ff')
+    else:  # shell
+        b0, b1, b2 = '#a060d0', '#5b2f7a', '#3a1a52'
+        c.poly([(4, 10), (10, 4), (22, 4), (28, 10), (26, 22), (16, 29), (6, 22)], b1)
+        for y in (9, 15, 21):
+            c.line(8, y, 24, y, b2)
+            c.line(9, y - 1, 23, y - 1, b0)
+        c.poly([(4, 10), (1, 4), (8, 7)], '#e8d0ff'); c.poly([(28, 10), (31, 4), (24, 7)], '#e8d0ff')
+        c.rect(14, 12, 4, 4, '#c45ad8'); c.px(14, 12, '#ffd0ff')
+    return c
+
+
+def ring_icon(kind):
+    c = Cv(32, 32)
+    band = {'copper': ('#e8a060', '#b06a30', '#7a4418'), 'wind': ('#eef2f6', '#a8b0c0', '#6a7488'), 'shade': ('#6a6a88', '#3a3a52', '#22222e'),
+            'life': ('#fff0a0', '#e8c060', '#a8802a'), 'seal': ('#fff0a0', '#e8c060', '#a8802a')}[kind]
+    for a in range(0, 360, 4):
+        r_ = math.radians(a)
+        for rr, col in ((8.5, band[2]), (7.5, band[1]), (6.6, band[0] if 200 < a < 340 else band[1])):
+            c.px(16 + math.cos(r_) * rr, 19 + math.sin(r_) * rr * 0.8, col)
+    gem = {'copper': None, 'wind': '#7fe0c0', 'shade': '#6a5ae0', 'life': '#ff4a6a', 'seal': None}[kind]
+    if gem:
+        c.ell(16, 10, 4.5, 4, shade(gem, -50)); c.ell(16, 9.5, 3.5, 3, gem); c.rect(14, 8, 2, 2, '#ffffff')
+        c.rect(12, 12, 8, 2, band[1])
+    if kind == 'seal':
+        c.rect(11, 6, 10, 8, band[1]); c.rect(11, 6, 10, 1, band[0]); c.rect(12, 13, 8, 1, band[2])
+        c.line(13, 11, 18, 8, '#5e3a20'); c.rect(17, 7, 3, 2, '#5a6278')   # 망치 문양
+    if kind == 'copper':
+        c.px(10, 15, '#ffd0a0'); c.px(11, 14, '#ffd0a0')
+    if kind == 'wind':
+        c.line(22, 8, 27, 6, '#bff0ff'); c.line(23, 11, 28, 10, '#bff0ff')
+    if kind == 'life':
+        c.px(16, 6, '#ffffff'); c.px(22, 7, '#ff9ab0'); c.px(9, 8, '#ff9ab0')
+    if kind == 'shade':
+        for q in ((24, 9), (8, 12), (23, 26)):
+            c.px(q[0], q[1], '#9a8af0')
+    return c
+
+
+def misc_icon(kind):
+    c = Cv(32, 32)
+    if kind == 'key':
+        for a in range(0, 360, 5):
+            r_ = math.radians(a)
+            c.px(10 + math.cos(r_) * 5, 11 + math.sin(r_) * 5, '#e8c060')
+            c.px(10 + math.cos(r_) * 4, 11 + math.sin(r_) * 4, '#fff0a0' if a > 180 else '#e8c060')
+        c.px(10, 11, '#c06bff'); c.px(9, 11, '#c06bff')
+        thick_line(c, 14, 15, 26, 27, '#e8c060', 2)
+        c.line(14, 14, 26, 26, '#fff0a0')
+        c.rect(20, 23, 2, 4, '#e8c060'); c.rect(23, 26, 2, 4, '#e8c060')
+    elif kind == 'gel':
+        c.ell(16, 20, 8, 6, '#5cbf4c'); c.ell(14, 18, 4, 2.5, '#8fe070'); c.rect(12, 16, 2, 2, '#ffffff')
+    elif kind == 'iron':
+        c.poly([(8, 22), (13, 13), (22, 12), (25, 20), (18, 25)], '#8d8a86'); c.poly([(13, 13), (22, 12), (19, 17)], '#c4c0bc')
+        c.px(17, 20, '#a06e3c'); c.px(20, 22, '#7a5030')
+    elif kind == 'coal':
+        c.poly([(8, 21), (12, 13), (20, 11), (25, 18), (20, 25), (11, 25)], '#2e2830'); c.poly([(12, 13), (20, 11), (17, 16)], '#5a5262')
+        c.px(18, 20, '#ff7a30'); c.px(14, 22, '#ffb030')
+    elif kind == 'gold':
+        c.ell(16, 16, 7, 7, '#a8802a'); c.ell(16, 16, 6, 6, '#e8c060'); c.ell(15, 15, 3, 3, '#fff0a0'); c.rect(15, 12, 2, 8, '#a8802a')
+    return c
+
+
+ARMOR_IDS = ['cloth', 'leather', 'cloak', 'plate', 'shadow', 'shell']
+RING_IDS = ['copper', 'wind', 'shade', 'life', 'seal']
+MISC_IDS = ['key', 'gel', 'iron', 'coal', 'gold']
+
+
+def build_items():
+    # 손에 든 무기: 64×44 칸에 하나씩, 기준점·길이·시위 정보 기록
+    cells, wmeta = [], {}
+    icons, order = [], []
+    for wid, (kind, d) in WEAPONS.items():
+        cv, (ax, ay), length, string = draw_weapon(kind, d)
+        im = img_outline(cv.image())
+        cells.append(im)
+        wmeta[wid] = {'i': len(cells) - 1, 'ax': ax, 'ay': ay, 'len': length, 'kind': kind}
+        if string:
+            wmeta[wid]['string'] = string
+        icv, _, _, _ = draw_weapon(kind, d, short=True)
+        raw = icv.image()
+        icon = rot45(raw) if kind != 'bow' else rot45(raw)
+        icons.append(img_outline(fit_icon(icon, 32)))
+        order.append(wid)
+    wsheet = Image.new('RGBA', (64 * len(cells), 44), (0, 0, 0, 0))
+    for i, im in enumerate(cells):
+        wsheet.alpha_composite(im, (i * 64, 0))
+    for aid in ARMOR_IDS:
+        icons.append(img_outline(armor_icon(aid).image())); order.append(aid)
+    for rid in RING_IDS:
+        icons.append(img_outline(ring_icon(rid).image())); order.append(rid)
+    for mid in MISC_IDS:
+        icons.append(img_outline(misc_icon(mid).image())); order.append(mid)
+    isheet = Image.new('RGBA', (32 * len(icons), 32), (0, 0, 0, 0))
+    for i, im in enumerate(icons):
+        isheet.alpha_composite(im, (i * 32, 0))
+    # 화살
+    ar = Cv(22, 7)
+    ar.rect(0, 3, 17, 1, '#c9a070'); ar.poly([(16, 0.5), (22, 3.5), (16, 6.5)], '#d8dce0'); ar.px(18, 3, '#ffffff')
+    ar.rect(0, 1, 4, 1, '#f0f0f0'); ar.rect(0, 5, 4, 1, '#f0f0f0'); ar.rect(1, 2, 3, 1, '#d03838'); ar.rect(1, 4, 3, 1, '#d03838')
+    arrow = img_outline(ar.image())
+    return wsheet, wmeta, isheet, order, arrow
+
+
+def build_portraits(mon_sheets):
+    """HUD 초상화: 새 몬스터 스프라이트의 얼굴 부분을 48×48로 자른다."""
+    crops = {'slime': (0, 0, 40, 32), 'goblin': (6, 2, 48, 44), 'boss': (22, 12, 106, 96)}
+    out = Image.new('RGBA', (48 * 3, 48), (0, 0, 0, 0))
+    for i, k in enumerate(('slime', 'goblin', 'boss')):
+        fr = mon_sheets[k].crop(crops[k])
+        if fr.width > 48 or fr.height > 48:
+            fr = fr.resize((48, round(48 * fr.height / fr.width)), Image.NEAREST)
+        out.alpha_composite(fr, (i * 48 + (48 - fr.width) // 2, (48 - fr.height) // 2))
+    return out
+
+
 # ───────── 공용: 시트 저장 · 메타데이터 ─────────
 def pack(frames, fw, fh):
     im = Image.new('RGBA', (fw * len(frames), fh), (0, 0, 0, 0))
@@ -635,10 +986,17 @@ def main():
         im.save(os.path.join(OUT, f'{k}.png'))
         big = Image.new('RGBA', im.size, (60, 52, 70, 255)); big.alpha_composite(im)
         big.resize((im.width * 3, im.height * 3), Image.NEAREST).save(os.path.join(PREVIEW, f'{k}_preview.png'))
-    meta = {'hero': hero_meta, **mon_meta}
+    wsheet, wmeta, isheet, iorder, arrow = build_items()
+    portraits = build_portraits(mon_sheets)
+    for name, im in (('weapons', wsheet), ('icons', isheet), ('arrow', arrow), ('portraits', portraits)):
+        im.save(os.path.join(OUT, f'{name}.png'))
+        big = Image.new('RGBA', im.size, (60, 52, 70, 255)); big.alpha_composite(im)
+        big.resize((im.width * 3, im.height * 3), Image.NEAREST).save(os.path.join(PREVIEW, f'{name}_preview.png'))
+    meta = {'hero': hero_meta, **mon_meta, 'weapons': {'cw': 64, 'ch': 44, 'items': wmeta}, 'icons': iorder}
     json.dump(meta, open(os.path.join(OUT, 'meta.json'), 'w'))
     inject({'hero_m': data_uri(hero_sheets['m']), 'hero_f': data_uri(hero_sheets['f']),
-            **{k: data_uri(im) for k, im in mon_sheets.items()}, 'meta': meta})
+            **{k: data_uri(im) for k, im in mon_sheets.items()},
+            'weapons': data_uri(wsheet), 'icons': data_uri(isheet), 'arrow': data_uri(arrow), 'portraits': data_uri(portraits), 'meta': meta})
     print('완료:', OUT)
 
 
