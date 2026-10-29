@@ -1,0 +1,3 @@
+# 루트 .gitignore가 무시하는 내보내기 설정을 이 프로젝트에서는 커밋한다
+!export_presets.cfg
+.godot/

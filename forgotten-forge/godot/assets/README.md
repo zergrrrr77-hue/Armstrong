@@ -4,7 +4,7 @@
 
 ## Godot 4에 넣기
 
-1. 이 `assets` 폴더를 Godot 프로젝트 루트에 그대로 복사합니다 → 경로가 `res://assets/...`가 됩니다.
+1. 이 폴더는 `forgotten-forge/godot` 프로젝트 안에 있어 경로가 `res://assets/...`입니다. 다른 프로젝트에서 쓰려면 `assets` 폴더째 그 프로젝트 루트에 복사합니다.
 2. **프로젝트 설정 → 렌더링 → 텍스처 → 기본 텍스처 필터 = Nearest** (픽셀이 흐려지지 않게).
 3. 바로 쓰는 리소스
    - `godot/player_frames.tres`, `godot/slime_frames.tres` → `AnimatedSprite2D`의 Sprite Frames에 지정
@@ -56,7 +56,7 @@
 - 수면 프레임 1·2를 번갈아 쓰면 물결이 움직입니다(TileSet 아틀라스 애니메이션으로 지정 가능).
 - 흙 속·암벽 텍스처는 좌표 기반 노이즈라 같은 타일을 반복해도 이음새가 보이지 않습니다.
 - 충돌: 지면·절벽·돌길은 윗면부터 막힘, 발판은 한쪽 통과(one-way), 물·장식은 충돌 없음.
-- 조립 예시: `../assets-preview/tileset_demo.png`
+- 조립 예시: `forgotten-forge/assets-preview/tileset_demo.png`
 
 ## 오브젝트 (투명 배경, 바닥선 = 이미지 맨 아래)
 

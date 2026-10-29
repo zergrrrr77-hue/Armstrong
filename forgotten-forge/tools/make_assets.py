@@ -5,7 +5,7 @@
 색이나 포즈를 바꾸고 다시 실행하면 같은 규격으로 전부 새로 뽑힌다.
 
 실행:  python3 forgotten-forge/tools/make_assets.py
-출력:  forgotten-forge/assets/          (게임용 에셋 — Godot 프로젝트 루트에 그대로 복사)
+출력:  forgotten-forge/godot/assets/    (Godot 프로젝트 안의 게임용 에셋)
        forgotten-forge/assets-preview/  (확인용 확대 미리보기 — 게임에는 넣지 않음)
 """
 import math
@@ -15,7 +15,7 @@ import sys
 from PIL import Image, ImageDraw
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, 'assets')
+OUT = os.path.join(ROOT, 'godot', 'assets')
 PREVIEW = os.path.join(ROOT, 'assets-preview')
 
 # ───────────────────────── 팔레트 (모든 에셋 공용) ─────────────────────────
