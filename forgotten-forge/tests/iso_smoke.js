@@ -67,8 +67,24 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
     await page.waitForTimeout(300);
     const eq2 = await page.evaluate(() => { const G = __game, P = G.P; if (!P.bag.length) return 0; G.equip(P.bag[P.bag.length - 1].uid); return G.equipDef(P.weapon.key).atk; });
     check(eq2 > eq, '장비 줍기·착용으로 공격력 상승', fails);
-    const tables = await page.evaluate(() => document.getElementById('dropTable').textContent.includes('다이어울프') && document.getElementById('encTable').textContent.includes('%'));
+    await page.keyboard.press('KeyI'); await page.locator('#invTabs button', { hasText: '확률표' }).click(); await page.waitForTimeout(200);
+    const tables = await page.evaluate(() => { const d = document.getElementById('dropTable'), e = document.getElementById('encTable'); return d.offsetHeight > 50 && e.offsetHeight > 50 && d.textContent.includes('다이어울프') && e.textContent.includes('%'); });
+    if (cls === 'knight') await (await page.$('#inv')).screenshot({ path: `${OUT}/g8_prob.png` });
+    await page.keyboard.press('KeyI');
     check(tables, '드롭률·강화 확률 표 표시', fails);
+
+    // 상점: 마을 노점 옆에서 열고 물약 구매
+    const shop = await page.evaluate(() => { const G = __game, P = G.P; const st = G.map.props.find(p => p.name === 'stall'); P.x = st.x + 1.2; P.y = st.y + 0.6; P.gold = 1000; return true; });
+    await page.waitForTimeout(300);
+    await page.keyboard.press('KeyF'); await page.waitForTimeout(200);
+    const bought = await page.evaluate(() => { const G = __game, P = G.P; const n = P.inv.pot_red; const vis = !document.getElementById('shop').classList.contains('hidden'); G.buy(G.SHOP[0], 10); return vis && P.inv.pot_red === n + 10 && P.gold === 750; });
+    check(bought, '마을 상점에서 물약 구매', fails);
+    const safe = await page.evaluate(() => __game.inTown(__game.P));
+    check(safe, '마을은 안전 지대', fails);
+    await page.keyboard.press('Escape');
+    // 목표: 늑대 처치가 목표 진행에 반영
+    const q = await page.evaluate(() => { const S = __game.STATE; return { quest: S.quest || 0, qn: S.qn || 0, text: document.getElementById('qt').textContent }; });
+    check(q.text.length > 0, '목표 창 표시: ' + q.text, fails);
 
     // 자동사냥: 켜 두면 스스로 대상을 찾아 공격
     const k0 = await page.evaluate(() => { const P = __game.P; P.hp = P.maxhp; P.target = null; P.goal = null; __game.setAuto(true); return __game.STATE.kills; });
@@ -99,6 +115,15 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
       check(dead, '보스 처치', fails);
       await page.screenshot({ path: `${OUT}/g5_victory.png` });
     }
+    // 저장 → 새로고침 → 이어하기
+    const lv0 = await page.evaluate(() => { const P = __game.P; P.lv = 6; P.gold = 4321; __game.save(); return P.lv; });
+    await page.reload();
+    await page.waitForFunction(() => document.querySelectorAll('.cls').length === 3, null, { timeout: 20000 });
+    const contVis = await page.evaluate(() => !document.getElementById('continue').classList.contains('hidden'));
+    if (contVis) await page.click('#continue');
+    await page.waitForTimeout(500);
+    const restored = await page.evaluate(() => __game.P && __game.P.lv === 6 && __game.P.gold === 4321);
+    check(contVis && restored, '자동 저장 후 이어하기', fails);
     check(errors.length === 0, '콘솔 오류 0건' + (errors.length ? ': ' + errors.slice(0, 3).join(' | ') : ''), fails);
     await page.close();
   }
