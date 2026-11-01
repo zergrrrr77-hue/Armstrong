@@ -215,6 +215,42 @@
     enchant_ok: v => { [659, 988, 1318].forEach((f, i) => { const g = v.gain(0); v.osc('sine', f, g, 1.4); env(g.gain, v.t + i * 0.06, 0.005, 0.15, 1.2); }); clank(v, 1760, 1.2, 0.06, [1, 2.7]); return 1.4; },
     enchant_fail: v => { const g = v.gain(0); const o = v.osc('sawtooth', 220, v.filter('lowpass', 900, 1, g), 0.9); o.frequency.exponentialRampToValueAtTime(70, v.t + 0.85); env(g.gain, v.t, 0.01, 0.25, 0.85); crack(v, 400, 0.6, 0.6, 0.4, 'brown'); return 0.9; },
 
+    // 스킬 ─────────────────────────
+    skill_spin: v => {
+      // 소용돌이 바람(여러 번 휘감기는 휘두름) + 맑은 칼날 울림
+      for (let i = 0; i < 3; i++) { const p = v.gain(1); whoosh(V(v.ctx, p, v.t + i * 0.12), {}, 500 + i * 300, 2600 + i * 400, 0.28, 1.3 - i * 0.25); }
+      clank(v, 1180, 0.9, 0.08, [1, 2.01, 3.0]);
+      return 0.9;
+    },
+    skill_slam_charge: v => {
+      const g = v.gain(0); const o = v.osc('sawtooth', 110, v.filter('lowpass', 900, 3, g), 0.6);
+      o.frequency.exponentialRampToValueAtTime(440, v.t + 0.55); g.gain.setValueAtTime(0.0001, v.t); g.gain.exponentialRampToValueAtTime(0.25, v.t + 0.5); g.gain.exponentialRampToValueAtTime(0.0001, v.t + 0.6);
+      const sg = v.gain(0); v.osc('sine', 1760, sg, 0.6); env(sg.gain, v.t + 0.3, 0.2, 0.05, 0.3);
+      return 0.6;
+    },
+    skill_slam: v => {
+      thud(v, 60, 24, 1.0, 1.0); crack(v, 260, 0.6, 0.9, 0.9, 'brown'); crack(v, 2400, 1.2, 0.08, 0.5);
+      const g = v.gain(0); const lp = v.filter('lowpass', 5000, 0.7, g); lp.frequency.exponentialRampToValueAtTime(400, v.t + 1.0);
+      v.noise('pink', lp, 1.1); env(g.gain, v.t, 0.004, 0.6, 1.05);
+      clank(v, 1500, 1.4, 0.07, [1, 1.5, 2.25, 3.4]);
+      for (let i = 0; i < 6; i++) crack(v, rnd(1500, 3500), 3, 0.05, 0.25, 'white', v.t + 0.15 + i * rnd(0.05, 0.12));
+      return 1.4;
+    },
+    skill_guard: v => {
+      // 낮은 웅웅거림 + 반짝이는 화음
+      const g = v.gain(0); [220, 330, 440].forEach(f => { v.osc('sine', f, g, 1.6, rnd(-6, 6)); });
+      const trem = v.ctx.createOscillator(); trem.frequency.value = 6; const tg = v.ctx.createGain(); tg.gain.value = 0.04; trem.connect(tg); tg.connect(g.gain); trem.start(v.t); trem.stop(v.t + 1.7);
+      g.gain.setValueAtTime(0.0001, v.t); g.gain.linearRampToValueAtTime(0.12, v.t + 0.25); g.gain.setValueAtTime(0.12, v.t + 1.0); g.gain.exponentialRampToValueAtTime(0.0001, v.t + 1.6);
+      [1318, 1760, 2637].forEach((f, i) => { const sg = v.gain(0); v.osc('triangle', f, sg, 1.0); env(sg.gain, v.t + 0.05 + i * 0.07, 0.005, 0.08, 0.8); });
+      return 1.6;
+    },
+    skill_bless: v => {
+      // 합창 화음(장조) + 종소리
+      [[57, 'a'], [61, 'a'], [64, 'o'], [69, 'a']].forEach(([n, vw], i) => voice(v, { f0: 440 * Math.pow(2, (n - 69) / 12), f1: 440 * Math.pow(2, (n - 69) / 12), dur: 2.0, vowel: vw, vowel2: 'o', level: 0.12, rough: 0, vib: 5, breath: 0.05, curve: 'flat' }));
+      [880, 1320, 1760].forEach((f, i) => { clank(V(v.ctx, v.gain(1), v.t + 0.1 + i * 0.18), f, 1.6, 0.07, [1, 2.76, 5.4]); });
+      return 2.1;
+    },
+
     // 몬스터 ─────────────────────────
     orc_attack: v => voice(v, { f0: 120, f1: 85, dur: 0.55, vowel: 'a', vowel2: 'o', level: 0.55, rough: 0.7, curve: 'rise' }),
     orc_hurt: v => voice(v, { f0: 150, f1: 95, dur: 0.28, vowel: 'u', vowel2: 'a', level: 0.5, rough: 0.6 }),
@@ -242,10 +278,18 @@
     step_swamp: v => { const g = v.gain(0); const bp = v.filter('bandpass', 500, 6, g); bp.frequency.exponentialRampToValueAtTime(1100, v.t + 0.12); v.noise('brown', bp, 0.16); env(g.gain, v.t, 0.01, 2.2, 0.15); return 0.18; },
   };
 
+  // 스킬 동작별 소리: 프레임 번호 → 소리
+  const SKILL_CUES = {
+    skill_spin: [[1, 'skill_spin']],
+    skill_slam: [[1, 'skill_slam_charge'], [4, 'skill_slam']],
+    skill_guard: [[0, 'skill_guard']],
+    skill_bless: [[1, 'skill_bless']],
+  };
+
   // 발소리 자동 매핑용: 동작별 사운드
   const ACTOR_SFX = {
-    knight: { swing: 'swing_sword', hit: 'hit_sword' },
-    lord: { swing: 'swing_sword', hit: 'hit_sword' },
+    knight: { swing: 'swing_sword', hit: 'hit_sword', skills: SKILL_CUES },
+    lord: { swing: 'swing_sword', hit: 'hit_sword', skills: SKILL_CUES },
     elf: { swing: 'bow_release', hit: 'arrow_hit' },
     mage: { swing: 'magic_cast', hit: 'magic_hit' },
     orc: { swing: 'swing_heavy', hit: 'hit_blunt', attack: 'orc_attack', hurt: 'orc_hurt', death: 'orc_death' },
@@ -261,6 +305,8 @@
     ['전투', 'hit_blunt', '둔기 적중'], ['전투', 'hit_flesh', '물어뜯기·살 타격'], ['전투', 'bow_release', '활 시위'],
     ['전투', 'arrow_hit', '화살 꽂힘'], ['전투', 'magic_cast', '마법 시전'], ['전투', 'magic_hit', '마법 폭발'],
     ['전투', 'critical', '치명타'], ['전투', 'block', '방패 막기'],
+    ['스킬', 'skill_spin', '회전 베기'], ['스킬', 'skill_slam_charge', '대지 강타 · 모으기'], ['스킬', 'skill_slam', '대지 강타 · 폭발'],
+    ['스킬', 'skill_guard', '수호 결계'], ['스킬', 'skill_bless', '성스러운 축복'],
     ['시스템', 'level_up', '레벨 업'], ['시스템', 'enchant_ok', '강화 성공'], ['시스템', 'enchant_fail', '강화 실패'],
     ['오크 전사', 'orc_attack', '공격 함성'], ['오크 전사', 'orc_hurt', '피격'], ['오크 전사', 'orc_death', '사망'],
     ['해골 병사', 'skeleton_attack', '공격'], ['해골 병사', 'skeleton_hurt', '피격'], ['해골 병사', 'skeleton_death', '무너짐'],

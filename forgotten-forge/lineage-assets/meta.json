@@ -40,6 +40,12 @@
   }
  ],
  "hit_frame": 4,
+ "skill_hit": {
+  "skill_spin": 2,
+  "skill_slam": 4,
+  "skill_guard": 1,
+  "skill_bless": 3
+ },
  "characters": {
   "knight": {
    "label": "기사",
@@ -48,7 +54,7 @@
    "fh": 104,
    "ax": 56,
    "ay": 70,
-   "cols": 31,
+   "cols": 61,
    "rows": [
     "S",
     "SE",
@@ -79,8 +85,30 @@
     "death": [
      25,
      6
+    ],
+    "skill_spin": [
+     31,
+     8
+    ],
+    "skill_slam": [
+     39,
+     8
+    ],
+    "skill_guard": [
+     47,
+     6
+    ],
+    "skill_bless": [
+     53,
+     8
     ]
-   }
+   },
+   "skills": [
+    "skill_spin",
+    "skill_slam",
+    "skill_guard",
+    "skill_bless"
+   ]
   },
   "elf": {
    "label": "요정",
@@ -121,7 +149,8 @@
      25,
      6
     ]
-   }
+   },
+   "skills": []
   },
   "mage": {
    "label": "마법사",
@@ -162,7 +191,8 @@
      25,
      6
     ]
-   }
+   },
+   "skills": []
   },
   "lord": {
    "label": "군주",
@@ -171,7 +201,7 @@
    "fh": 104,
    "ax": 56,
    "ay": 70,
-   "cols": 31,
+   "cols": 61,
    "rows": [
     "S",
     "SE",
@@ -202,8 +232,30 @@
     "death": [
      25,
      6
+    ],
+    "skill_spin": [
+     31,
+     8
+    ],
+    "skill_slam": [
+     39,
+     8
+    ],
+    "skill_guard": [
+     47,
+     6
+    ],
+    "skill_bless": [
+     53,
+     8
     ]
-   }
+   },
+   "skills": [
+    "skill_spin",
+    "skill_slam",
+    "skill_guard",
+    "skill_bless"
+   ]
   }
  },
  "monsters": {
@@ -246,7 +298,8 @@
      25,
      6
     ]
-   }
+   },
+   "skills": []
   },
   "skeleton": {
    "label": "해골 병사",
@@ -287,7 +340,8 @@
      25,
      6
     ]
-   }
+   },
+   "skills": []
   },
   "wolf": {
    "label": "다이어울프",
@@ -328,7 +382,8 @@
      25,
      6
     ]
-   }
+   },
+   "skills": []
   },
   "spider": {
    "label": "거대 거미",
@@ -369,7 +424,8 @@
      25,
      6
     ]
-   }
+   },
+   "skills": []
   },
   "ooze": {
    "label": "늪 점액",
@@ -410,7 +466,8 @@
      25,
      6
     ]
-   }
+   },
+   "skills": []
   },
   "boss": {
    "label": "몰락한 왕",
@@ -451,7 +508,8 @@
      25,
      6
     ]
-   }
+   },
+   "skills": []
   }
  },
  "props": {
@@ -1257,6 +1315,76 @@
    9,
    10
   ]
+ },
+ "effects": {
+  "spin": {
+   "label": "회전 베기",
+   "sheet": "effects/spin.png",
+   "fw": 176,
+   "fh": 112,
+   "ax": 88,
+   "ay": 78,
+   "frames": 8,
+   "anim": "skill_spin",
+   "loop": false,
+   "blend": "lighter",
+   "rows": [
+    "under",
+    "over"
+   ],
+   "color": "blue"
+  },
+  "slam": {
+   "label": "대지 강타",
+   "sheet": "effects/slam.png",
+   "fw": 144,
+   "fh": 176,
+   "ax": 72,
+   "ay": 134,
+   "frames": 8,
+   "anim": "skill_slam",
+   "loop": false,
+   "blend": "lighter",
+   "rows": [
+    "under",
+    "over"
+   ],
+   "color": "blue"
+  },
+  "guard": {
+   "label": "수호 결계",
+   "sheet": "effects/guard.png",
+   "fw": 144,
+   "fh": 150,
+   "ax": 72,
+   "ay": 110,
+   "frames": 6,
+   "anim": "skill_guard",
+   "loop": true,
+   "blend": "lighter",
+   "rows": [
+    "under",
+    "over"
+   ],
+   "color": "blue"
+  },
+  "bless": {
+   "label": "성스러운 축복",
+   "sheet": "effects/bless.png",
+   "fw": 136,
+   "fh": 200,
+   "ax": 68,
+   "ay": 164,
+   "frames": 8,
+   "anim": "skill_bless",
+   "loop": false,
+   "blend": "lighter",
+   "rows": [
+    "under",
+    "over"
+   ],
+   "color": "gold"
+  }
  },
  "item_atlas": {
   "sheet": "items/icons.png",

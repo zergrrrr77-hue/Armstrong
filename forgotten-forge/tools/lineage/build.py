@@ -40,16 +40,24 @@ def entities():
     return ents
 
 
+def anims_for(ent):
+    if ent['kind'] == 'class' and ent['src']['weapon'] == 'blade':
+        return Hm.ANIMS + Hm.SKILLS
+    return Hm.ANIMS
+
+
 def build_scene(ent, anim, f, n):
     src = ent['src']
     if ent['kind'] == 'class':
-        p = Hm.pose_for(src['weapon'], anim, f, n)
+        p = Hm.skill_pose(anim, f, n) if anim.startswith('skill_') else Hm.pose_for(src['weapon'], anim, f, n)
         r = Hm.Rig(p, src['build'])
         it = Hm.body_items(r, p, src['parts'], src['opts'])
         src['gear'](r, p, it)
         M = t = None
         if anim == 'death':
             M, t = (Hm.death_xform_forward if src['weapon'] == 'blade' else Hm.death_xform)(f, n)
+        elif anim.startswith('skill_'):
+            M, t = Hm.skill_xform(anim, f, n)
         return it, src['mats'], M, t
     it, M, t = src['build'](anim, f, n)
     return it, src['mats'], M, t
@@ -120,7 +128,7 @@ def main():
     tasks = []
     for nm in names:
         for d in dirs:
-            for an, n in anims:
+            for an, n in anims_for(ents[nm]):
                 for f in range(n):
                     tasks.append((nm, d, an, f, n, None))
     # 강화 무기 쇼케이스: 기사 대기(남쪽) × 강화 단계
@@ -137,10 +145,11 @@ def main():
 
     meta = dict(version=1, style='리니지풍 프리렌더 도트 (쿼터뷰 30°, 2:1 타일)', tile=dict(w=F.TW, h=F.TH, world=F.CELL),
                 dirs=DIRS, dir_note='행 = 방향(yaw 45°씩: S, SE, E, NE, N, NW, W, SW). 좌우 반전 없이 8방향을 모두 렌더링.',
-                anims=[dict(name=a, frames=n) for a, n in anims], hit_frame=Hm.HIT_FRAME, characters={}, monsters={}, props={}, tiles={}, items={})
-    ncol = sum(n for _, n in anims)
+                anims=[dict(name=a, frames=n) for a, n in Hm.ANIMS], hit_frame=Hm.HIT_FRAME, skill_hit=Hm.SKILL_HIT, characters={}, monsters={}, props={}, tiles={}, items={})
     for nm in names:
         ent = ents[nm]
+        anims = anims_for(ent)
+        ncol = sum(n for _, n in anims)
         W, H, ax, ay = ent['frame']
         sheet = Image.new('RGBA', (W * ncol, H * len(dirs)))
         for ri, d in enumerate(dirs):
@@ -156,7 +165,8 @@ def main():
             starts[an] = [c, n]
             c += n
         meta[group][nm] = dict(label=ent['label'], sheet=rel, fw=W, fh=H, ax=ax, ay=ay, cols=ncol,
-                               rows=[DIRS[d] for d in dirs], anims=starts)
+                               rows=[DIRS[d] for d in dirs], anims=starts,
+                               skills=[a for a, _ in anims if a.startswith('skill_')])
         # 미리보기 GIF (남동 방향 또는 첫 방향의 걷기·공격)
         dsel = 1 if 1 in dirs else dirs[0]
         seq = [frames[(nm, dsel, 'walk', f, 0)] for f in range(NA['walk'])] + [frames[(nm, dsel, 'attack', f, 0)] for f in range(NA['attack'])]
@@ -172,6 +182,19 @@ def main():
     for e in I.ENCHANTS[1:]:
         gif([frames[('knight', 0, 'idle', f, e[0])] for f in range(NA['idle'])], os.path.join('preview', f'knight_plus{e[0]}.gif'), 180)
     print(f'캐릭터·몬스터 완료 {time.time() - t0:.0f}s', flush=True)
+
+    # ── 스킬 이펙트 (가산 혼합용 2층 시트: 0행 under, 1행 over)
+    import effects as EF
+    meta['effects'] = {}
+    for key, e in EF.build_all().items():
+        n = len(e['under'])
+        sh = Image.new('RGBA', (e['fw'] * n, e['fh'] * 2))
+        for i in range(n):
+            sh.alpha_composite(e['under'][i], (i * e['fw'], 0))
+            sh.alpha_composite(e['over'][i], (i * e['fw'], e['fh']))
+        meta['effects'][key] = dict(label=e['label'], sheet=save(sh, 'effects', f'{key}.png'), fw=e['fw'], fh=e['fh'],
+                                    ax=e['ax'], ay=e['ay'], frames=n, anim=e['anim'], loop=bool(e.get('loop')),
+                                    blend='lighter', rows=['under', 'over'], color=e['color'])
 
     # ── 필드
     tiles, rows = F.build_tiles(4)

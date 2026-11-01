@@ -848,3 +848,77 @@ def death_xform(f, n=6):
     pivot = V(0, -3.5, 0)
     t = pivot - M @ pivot + V(0, 0, -drop)
     return M, t
+
+
+# ───────────────────────── 스킬 (기사·군주) ─────────────────────────
+# 이펙트는 effects.py의 별도 시트를 겹쳐 그린다. 각 스킬의 '터지는' 프레임은 SKILL_HIT.
+
+SKILLS = [('skill_spin', 8), ('skill_slam', 8), ('skill_guard', 6), ('skill_bless', 8)]
+SKILL_HIT = {'skill_spin': 2, 'skill_slam': 4, 'skill_guard': 1, 'skill_bless': 3}
+SPIN_ANG = [0, -20, -80, -160, -240, -310, -360, -360]
+
+
+def skill_pose(anim, f, n):
+    st = STANCE['blade']
+    legs = {k: st[k] for k in LEG_KEYS}
+    if anim == 'skill_spin':
+        # 회전 베기: 몸을 낮추고 검을 옆으로 쭉 뻗은 채 한 바퀴
+        wind = 1.0 if f == 0 else 0.0
+        p = dict(legs)
+        p.update(plant=1, lhip=16, rhip=-12, lhip_side=14, rhip_side=14, lean=10, twist=30 * wind - 6 * (1 - wind),
+                 rsh=88, rab=78 if f else 60, rel=4, wpn=92, wpn_side=88 if f else 70,
+                 lsh=40, lab=50, lel=20, cape=18 if 1 <= f <= 6 else 8, sink=1.4, head=-4)
+        if f == 7:
+            p.update(rsh=24, rab=20, rel=24, wpn=50, wpn_side=6, lsh=8, lab=20, lel=24, cape=10, sink=0.6, twist=6)
+        return Pose(**_bend(p))
+    if anim == 'skill_slam':
+        # 대지 강타: 검을 역수로 머리 위까지 → 뛰어올라 → 무릎 꿇으며 땅에 꽂음
+        keys = [
+            dict(rsh=20, rel=30, wpn=40, wpn_side=10, lsh=10, lel=24, lean=4, bob=0, sink=0.4, head=0),
+            dict(rsh=120, rel=40, wpn=190, wpn_side=0, lsh=118, lel=42, lab=8, lean=-6, bob=1.5, sink=0.8, head=-8),
+            dict(rsh=165, rel=20, wpn=200, wpn_side=0, lsh=162, lel=22, lab=6, lean=-10, bob=6, sink=0.0, head=-12),
+            dict(rsh=140, rel=10, wpn=150, wpn_side=0, lsh=138, lel=12, lab=6, lean=8, bob=5, sink=0.2, head=-4),
+            dict(rsh=70, rel=12, wpn=4, wpn_side=0, lsh=68, lel=14, lab=6, lean=32, bob=-3, sink=3.2, head=10),
+            dict(rsh=68, rel=12, wpn=2, wpn_side=0, lsh=66, lel=14, lab=6, lean=34, bob=-3.4, sink=3.4, head=12),
+            dict(rsh=66, rel=14, wpn=2, wpn_side=0, lsh=64, lel=16, lab=6, lean=30, bob=-3, sink=3.0, head=8),
+            dict(rsh=30, rel=26, wpn=40, wpn_side=8, lsh=14, lel=24, lab=14, lean=8, bob=-0.5, sink=1.0, head=0),
+        ]
+        k = keyed(keys, f, n)
+        p = dict(legs)
+        p.update(k)
+        p['plant'] = 0 if 1 <= f <= 6 else 1
+        if 4 <= f <= 6:
+            p['bob'] = 0.0
+        p['rab'] = 10
+        if 1 <= f <= 3:   # 공중: 다리를 모아 접음
+            p.update(lhip=30, rhip=10, lknee=60, rknee=50, lhip_side=4, rhip_side=4)
+        if 4 <= f <= 6:   # 오른 무릎 꿇기
+            p.update(lhip=62, lknee=88, rhip=-4, rknee=100, sink=0.0)
+        p['cape'] = {1: 4, 2: -4, 3: 2, 4: 22, 5: 18, 6: 12}.get(f, 6)
+        return Pose(**_bend(p))
+    if anim == 'skill_guard':
+        # 수호 결계: 검을 가로로 들어 앞을 막고 낮게 버팀(지속 동작)
+        b = math.sin(2 * math.pi * f / n)
+        p = dict(legs)
+        p.update(plant=1, lhip=12, rhip=-10, lhip_side=14, rhip_side=14, lean=8 + 0.6 * b, twist=4,
+                 rsh=72, rab=26, rel=38, wpn=95, wpn_side=-84, lsh=70, lab=30, lel=44,
+                 sink=1.8 + 0.2 * b, cape=6 + 2 * b, head=-2)
+        if f == 0:
+            p.update(rsh=40, rel=40, wpn=120, wpn_side=-40, lsh=40, sink=1.0)
+        return Pose(**_bend(p))
+    if anim == 'skill_bless':
+        # 성스러운 축복: 검을 얼굴 앞에 곧추세우고 고개 숙여 기도
+        u = min(1.0, f / 2.0)
+        b = math.sin(2 * math.pi * f / n)
+        p = dict(legs)
+        p.update(plant=1, lhip=6, rhip=-4, lhip_side=8, rhip_side=8, lean=2, twist=0,
+                 rsh=12 + 58 * u, rab=14, rel=24 + 70 * u, wpn=38 + 142 * u, wpn_side=-18 * u,
+                 lsh=8 + 58 * u, lab=24, lel=22 + 76 * u, head=12 * u, bob=0.3 * b * u, cape=3 + 2 * b, sink=0.3)
+        return Pose(**_bend(p))
+    raise ValueError(anim)
+
+
+def skill_xform(anim, f, n):
+    if anim == 'skill_spin':
+        return S.rz(SPIN_ANG[min(f, len(SPIN_ANG) - 1)]), V(0, 0, 0)
+    return None, None

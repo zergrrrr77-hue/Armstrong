@@ -124,6 +124,12 @@ th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #2a241e; 
 th { font-weight: 500; color: var(--muted); font-size: 12px; letter-spacing: .06em; background: var(--panel-2); }
 td code, .mono { font-family: var(--mono); font-size: 12px; color: #d9c9a8; font-variant-numeric: tabular-nums; }
 .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.skills { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0; }
+.skill { display: grid; justify-items: center; gap: 6px; padding: 14px 8px 12px; border-right: 1px solid #241f1a; border-bottom: 1px solid #241f1a; cursor: pointer; background: radial-gradient(ellipse at 50% 80%, #1c1a26 0%, transparent 70%); font: inherit; color: inherit; border-top: 0; border-left: 0; }
+.skill:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.skill canvas { image-rendering: pixelated; max-width: 100%; height: auto; }
+.skill b { font-family: var(--display); font-size: 17px; }
+.skill span { font-size: 12px; color: var(--muted); }
 .sound { display: grid; gap: 18px; padding: 16px; }
 .sgroup { display: grid; gap: 8px; }
 .sgroup h3 { margin: 0; font-size: 13px; font-weight: 500; color: var(--muted); letter-spacing: .06em; }
@@ -203,6 +209,12 @@ footer code { font-family: var(--mono); color: #d9c9a8; }
   </section>
 
   <section>
+    <h2>스킬 <small>기사·군주 전용 · 캐릭터 동작 + 이펙트 시트(가산 혼합) + 사운드</small></h2>
+    <p class="note">카드를 누르면 처음부터 소리와 함께 재생합니다. 이펙트는 캐릭터 뒤(바닥)와 앞 두 층으로 나뉘어 있어서, 게임에서 캐릭터를 사이에 두고 겹쳐 그리면 됩니다.</p>
+    <div class="frame skills" id="skills"></div>
+  </section>
+
+  <section>
     <h2>강화 발광 <small>+7 · +8 · +9 · +10</small></h2>
     <p class="note">무기 부위에만 광채를 입힙니다. 같은 규칙을 아이콘에도 적용해서, 강화 단계가 인벤토리와 필드에서 똑같이 보입니다.</p>
     <div class="frame enchant" id="enchant"></div>
@@ -240,7 +252,8 @@ footer code { font-family: var(--mono); color: #d9c9a8; }
 <script>
 const META = /*META*/{}/*END*/;
 const DIR_LABEL = { S: '남', SE: '남동', E: '동', NE: '북동', N: '북', NW: '북서', W: '서', SW: '남서' };
-const ANIM_LABEL = { idle: '대기', walk: '걷기', attack: '공격', hurt: '피격', death: '사망' };
+const ANIM_LABEL = { idle: '대기', walk: '걷기', attack: '공격', hurt: '피격', death: '사망', skill_spin: '회전 베기', skill_slam: '대지 강타', skill_guard: '수호 결계', skill_bless: '성스러운 축복' };
+const FX_BY_ANIM = Object.fromEntries(Object.entries(META.effects || {}).map(([k, e]) => [e.anim, e]));
 const imgs = {};
 function load(src) {
   if (!imgs[src]) {
@@ -308,7 +321,8 @@ function renderPickers() {
     k => { state.group = 'characters'; state.name = k; renderPickers(); });
   chipRow('pickMon', Object.entries(META.monsters).map(([k, v]) => [k, v.label]), k => state.group === 'monsters' && state.name === k,
     k => { state.group = 'monsters'; state.name = k; renderPickers(); });
-  chipRow('pickAnim', META.anims.map(a => [a.name, ANIM_LABEL[a.name] + ' ' + a.frames]), k => state.anim === k,
+  if (!actor().anims[state.anim]) state.anim = 'idle';
+  chipRow('pickAnim', Object.entries(actor().anims).map(([k, v]) => [k, (k.startsWith('skill_') ? '★ ' : '') + ANIM_LABEL[k] + ' ' + v[1]]), k => state.anim === k,
     k => { state.anim = k; state.t = 0; renderPickers(); });
   const pad = document.getElementById('dpad');
   pad.innerHTML = '';
@@ -336,7 +350,9 @@ function cue(f) {
   lastCue = key;
   const m = LineageAudio.ACTOR_SFX[state.name] || {};
   const hitF = META.hit_frame || 4;
-  if (state.anim === 'attack') {
+  if (state.anim.startsWith('skill_')) {
+    ((m.skills || {})[state.anim] || []).forEach(([cf, nm]) => { if (cf === f) sfx(nm); });
+  } else if (state.anim === 'attack') {
     if (f === 1 && m.attack) sfx(m.attack, { gain: 0.9 });
     if (f === (m.swing === 'magic_cast' ? 1 : 3) && m.swing) sfx(m.swing);
     if (f === (m.swing === 'bow_release' ? 6 : hitF) && m.hit) sfx(m.hit, { delay: m.swing === 'bow_release' ? 0.18 : 0 });
@@ -375,19 +391,33 @@ async function frame(ts) {
   if (state.playing && ts - last > 1000 / fps) { state.t++; last = ts; advanced = true; }
   const [start, n] = a.anims[state.anim];
   const looping = state.anim !== 'death';
+  const fx = FX_BY_ANIM[state.anim];
+  let fxImg = null;
+  if (fx) { try { fxImg = await load(fx.sheet); } catch (e) { fxImg = null; } }
   const f = looping ? state.t % n : Math.min(state.t % (n + 6), n - 1);
   const col = start + f;
   if (advanced && (looping || state.t % (n + 6) < n)) cue(f);
   // 큰 화면: 최대 3배
-  const scale = Math.max(1, Math.min(3, Math.floor(Math.min(stage.parentElement.clientWidth - 16, 300 * 3) / a.fw)));
-  const W = a.fw * scale, H = a.fh * scale;
+  const hasFx = !!(a.skills && a.skills.length);
+  const baseW = hasFx ? Math.max(a.fw, 180) : a.fw, baseH = hasFx ? Math.max(a.fh, 200) : a.fh;
+  const scale = Math.max(1, Math.min(3, Math.floor(Math.min(stage.parentElement.clientWidth - 16, 300 * 3) / baseW)));
+  const W = baseW * scale, H = baseH * scale;
   if (stage.width !== W || stage.height !== H) { stage.width = W; stage.height = H; sx.imageSmoothingEnabled = false; }
   sx.clearRect(0, 0, W, H);
   const footY = Math.round(H - Math.max(10, (a.fh - a.ay) * scale) - 4);
   const ox = Math.round(W / 2 - a.ax * scale), oy = footY - a.ay * scale;
   drawGround(sx, W / 2, footY, scale);
   const r = a.rows.indexOf(state.dir);
+  const drawFx = (row) => {
+    if (!fx || !fxImg) return;
+    const ff = Math.min(f, fx.frames - 1);
+    sx.save(); sx.globalCompositeOperation = 'lighter';
+    sx.drawImage(fxImg, ff * fx.fw, row * fx.fh, fx.fw, fx.fh, Math.round(W / 2 - fx.ax * scale), footY - fx.ay * scale, fx.fw * scale, fx.fh * scale);
+    sx.restore();
+  };
+  drawFx(0);
   sx.drawImage(img, col * a.fw, r * a.fh, a.fw, a.fh, ox, oy, a.fw * scale, a.fh * scale);
+  drawFx(1);
   // 8방향 스트립
   const s2 = a.fw > 120 ? 1 : 1;
   const SW = a.fw * 8 * s2, SH = a.fh * s2 + 16;
@@ -404,6 +434,47 @@ async function frame(ts) {
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
+
+/* ── 스킬 카드 */
+(async function skills() {
+  const box = document.getElementById('skills');
+  if (!META.effects) return;
+  const a = META.characters.knight;
+  const img = await load(a.sheet);
+  const desc = { skill_spin: '몸을 한 바퀴 돌며 주변을 벤다', skill_slam: '뛰어올라 검을 땅에 꽂아 빛 기둥을 일으킨다', skill_guard: '검을 가로로 들고 마법진 결계를 친다', skill_bless: '검을 세워 기도하고 금빛 축복을 내린다' };
+  for (const [k, fx] of Object.entries(META.effects)) {
+    const fxImg = await load(fx.sheet);
+    const [start, n] = a.anims[fx.anim];
+    const S2 = 2, W = 180, H = 200;
+    const c = el('canvas', { width: W * S2, height: H * S2 });
+    const x = ctx2d(c);
+    const card = el('button', { class: 'skill', type: 'button' }, [c, el('b', { text: fx.label }), el('span', { text: desc[fx.anim] || '' })]);
+    let t = 0;
+    const r = a.rows.indexOf('SE');
+    const footY = H - 24;
+    function draw() {
+      const f = t % (n + 4) < n ? t % (n + 4) : (fx.loop ? t % n : n - 1);
+      x.clearRect(0, 0, W * S2, H * S2);
+      x.save(); x.globalCompositeOperation = 'lighter';
+      x.drawImage(fxImg, Math.min(f, fx.frames - 1) * fx.fw, 0, fx.fw, fx.fh, (W / 2 - fx.ax) * S2, (footY - fx.ay) * S2, fx.fw * S2, fx.fh * S2);
+      x.restore();
+      x.drawImage(img, (start + Math.min(f, n - 1)) * a.fw, r * a.fh, a.fw, a.fh, (W / 2 - a.ax) * S2, (footY - a.ay) * S2, a.fw * S2, a.fh * S2);
+      x.save(); x.globalCompositeOperation = 'lighter';
+      x.drawImage(fxImg, Math.min(f, fx.frames - 1) * fx.fw, fx.fh, fx.fw, fx.fh, (W / 2 - fx.ax) * S2, (footY - fx.ay) * S2, fx.fw * S2, fx.fh * S2);
+      x.restore();
+      if (card._sound && f < n) {
+        const cues = (LineageAudio.ACTOR_SFX.knight.skills || {})[fx.anim] || [];
+        cues.forEach(([cf, nm]) => { if (cf === f) sfx(nm); });
+        if (f === n - 1) card._sound = false;
+      }
+      t++;
+    }
+    card.addEventListener('click', () => { t = 0; card._sound = true; audio(); });
+    draw();
+    setInterval(draw, 110);
+    box.append(card);
+  }
+})();
 
 /* ── 강화 */
 (async function enchant() {
