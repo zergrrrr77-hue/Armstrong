@@ -1,0 +1,416 @@
+<title>리니지풍 에셋 도감</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* 레이아웃: 어두운 석판 위 금속 테두리 패널 — 장면 → 스프라이트 뷰어 → 필드 → 아이템 → 규격 순으로 내려가는 한 줄 기둥 */
+:root {
+  --bg: #0f0d0c;
+  --panel: #1a1714;
+  --panel-2: #231f1b;
+  --line: #3a322a;
+  --line-hi: #6b5a43;
+  --fg: #e6dccb;
+  --muted: #a49681;
+  --gold: #d4a64a;
+  --gold-dim: #8a6a2c;
+  --blood: #b23a2e;
+  --display: "Nanum Myeongjo", "Batang", "AppleMyungjo", serif;
+  --body: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  background-image: radial-gradient(ellipse at 50% -10%, #2a2118 0%, transparent 60%);
+  color: var(--fg);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: 40px;
+}
+header { display: grid; gap: 10px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold-dim); }
+h1 { font-family: var(--display); font-weight: 800; font-size: clamp(30px, 5vw, 46px); line-height: 1.15; margin: 0; text-wrap: balance; color: #f2e6cf; letter-spacing: -0.01em; }
+h1 em { font-style: normal; color: var(--gold); }
+.lede { color: var(--muted); max-width: 64ch; margin: 0; }
+.counts { display: flex; flex-wrap: wrap; gap: 8px 22px; font-family: var(--mono); font-size: 13px; color: var(--muted); }
+.counts b { color: var(--fg); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+section { display: grid; gap: 16px; }
+h2 { font-family: var(--display); font-weight: 800; font-size: 24px; margin: 0; color: #efe2c8; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+h2 small { font-family: var(--mono); font-weight: 400; font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+.note { color: var(--muted); font-size: 14px; margin: 0; max-width: 70ch; }
+
+/* 금속 테두리 패널 (게임 UI 창틀 느낌) */
+.frame {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: inset 0 0 0 1px #000, inset 0 1px 0 0 #4a3e30, 0 10px 30px -12px #000;
+  border-radius: 3px;
+  min-width: 0;
+}
+.scene { overflow-x: auto; }
+.scene img { display: block; width: 100%; min-width: 640px; height: auto; image-rendering: pixelated; }
+
+/* 뷰어 */
+.viewer { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 0; }
+.stage { position: relative; display: grid; place-items: center; min-height: 380px; background:
+  radial-gradient(ellipse at 50% 70%, #2a3022 0%, #151812 70%); border-right: 1px solid var(--line); }
+.stage canvas { image-rendering: pixelated; max-width: 100%; }
+.stage .tag { position: absolute; left: 12px; top: 10px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.controls { padding: 16px; display: grid; gap: 16px; align-content: start; }
+.ctl-label { font-size: 12px; color: var(--muted); letter-spacing: .08em; margin-bottom: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  font: inherit; font-size: 13px; color: var(--fg); background: var(--panel-2); border: 1px solid var(--line);
+  padding: 5px 10px; border-radius: 2px; cursor: pointer;
+}
+.chip:hover { border-color: var(--line-hi); }
+.chip[aria-pressed="true"] { background: #3a2c16; border-color: var(--gold); color: #fbe7b8; }
+.chip:focus-visible, .dir:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.dpad { display: grid; grid-template-columns: repeat(3, 40px); gap: 4px; }
+.dir { font: 500 12px var(--mono); height: 34px; background: var(--panel-2); color: var(--muted); border: 1px solid var(--line); border-radius: 2px; cursor: pointer; }
+.dir[aria-pressed="true"] { background: #3a2c16; border-color: var(--gold); color: #fbe7b8; }
+.dir.center { visibility: hidden; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.speed { accent-color: var(--gold); width: 120px; }
+.strip { overflow-x: auto; border-top: 1px solid var(--line); grid-column: 1 / -1; padding: 10px 12px; background: #121010; }
+.strip canvas { display: block; image-rendering: pixelated; }
+
+/* 강화 */
+.enchant { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; }
+.ench { display: grid; justify-items: center; gap: 4px; padding: 14px 6px 12px; border-right: 1px solid var(--line); }
+.ench:last-child { border-right: 0; }
+.ench canvas { image-rendering: pixelated; max-width: 100%; }
+.ench .lv { font-family: var(--display); font-weight: 800; font-size: 20px; }
+.ench .lvn { font-size: 12px; color: var(--muted); }
+
+/* 타일·소품 */
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; padding: 14px; }
+.tile { display: grid; gap: 4px; justify-items: center; }
+.tile canvas { image-rendering: pixelated; }
+.tile span, .prop span { font-size: 13px; color: var(--muted); }
+.props { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0; }
+.prop { display: grid; grid-template-rows: 1fr auto; justify-items: center; align-items: end; gap: 6px; padding: 14px 8px 10px; border-right: 1px solid #241f1a; border-bottom: 1px solid #241f1a; min-height: 160px;
+  background: radial-gradient(ellipse at 50% 88%, #263020 0%, transparent 62%); }
+.prop canvas { image-rendering: pixelated; max-width: 100%; height: auto; }
+.prop span b { color: var(--fg); font-weight: 500; }
+
+/* 아이템 */
+.filters { padding: 12px 14px 0; }
+.items { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; padding: 14px; }
+.item { display: grid; justify-items: center; gap: 4px; padding: 6px 2px; text-align: center; }
+.item canvas { image-rendering: pixelated; width: 72px; height: 72px; }
+.item .nm { font-size: 12px; line-height: 1.35; color: var(--fg); }
+.item .gd { font-family: var(--mono); font-size: 11px; }
+.grades { display: flex; flex-wrap: wrap; gap: 14px; padding: 0 14px 14px; font-size: 13px; color: var(--muted); }
+.grades i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: 0; border: 1px solid #000; }
+
+/* 규격 표 */
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 620px; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #2a241e; }
+th { font-weight: 500; color: var(--muted); font-size: 12px; letter-spacing: .06em; background: var(--panel-2); }
+td code, .mono { font-family: var(--mono); font-size: 12px; color: #d9c9a8; font-variant-numeric: tabular-nums; }
+footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px; }
+footer code { font-family: var(--mono); color: #d9c9a8; }
+
+@media (max-width: 820px) {
+  .viewer { grid-template-columns: 1fr; }
+  .stage { border-right: 0; border-bottom: 1px solid var(--line); min-height: 300px; }
+  .enchant { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .ench .lv { font-size: 16px; }
+  .items { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">잊혀진 대장간 · 에셋 1차 세트</div>
+    <h1>어두운 중세, <em>쿼터뷰 도트</em>로 다시 굽다</h1>
+    <p class="lede">3D로 형태를 만든 뒤 30° 쿼터뷰로 픽셀을 구웠습니다(프리렌더). 모든 캐릭터와 몬스터는 좌우 반전 없이 8방향을 따로 그렸고, 소품과 아이콘도 같은 빛 방향(왼쪽 위)으로 맞췄습니다.</p>
+    <div class="counts" id="counts"></div>
+  </header>
+
+  <section>
+    <h2>필드 장면 <small>scene.png · 실제 에셋만으로 조립</small></h2>
+    <div class="frame scene"><img src="scene@2x.png" alt="성벽과 성탑 아래 마을 광장, 숲과 늪지에서 기사·요정·마법사·군주가 오크와 다이어울프와 싸우고, 묘지에는 해골 병사, 늪가에는 보스 몰락한 왕이 서 있는 쿼터뷰 장면"></div>
+  </section>
+
+  <section>
+    <h2>캐릭터·몬스터 뷰어 <small>8방향 × 대기 4 · 걷기 6 · 공격 5 · 피격 2 · 사망 4</small></h2>
+    <div class="frame viewer">
+      <div class="stage"><span class="tag" id="stageTag"></span><canvas id="stage" width="288" height="264"></canvas></div>
+      <div class="controls">
+        <div><div class="ctl-label">클래스</div><div class="chips" id="pickClass"></div></div>
+        <div><div class="ctl-label">몬스터</div><div class="chips" id="pickMon"></div></div>
+        <div><div class="ctl-label">동작</div><div class="chips" id="pickAnim"></div></div>
+        <div class="row">
+          <div><div class="ctl-label">방향</div><div class="dpad" id="dpad"></div></div>
+          <div style="display:grid;gap:10px">
+            <label><div class="ctl-label">속도</div><input id="speed" class="speed" type="range" min="3" max="14" value="8"></label>
+            <button class="chip" id="playBtn" aria-pressed="true">재생 중</button>
+          </div>
+        </div>
+      </div>
+      <div class="strip"><canvas id="strip"></canvas></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>강화 발광 <small>+7 · +8 · +9 · +10</small></h2>
+    <p class="note">무기 부위에만 광채를 입힙니다. 같은 규칙을 아이콘에도 적용해서, 강화 단계가 인벤토리와 필드에서 똑같이 보입니다.</p>
+    <div class="frame enchant" id="enchant"></div>
+  </section>
+
+  <section>
+    <h2>지면 타일 <small>64×32 마름모 · 지형당 변형 4종 · 이음매 연결</small></h2>
+    <div class="frame tiles" id="tiles"></div>
+  </section>
+
+  <section>
+    <h2>필드 소품 <small>같은 카메라·빛으로 렌더 · 불꽃은 4프레임</small></h2>
+    <div class="frame props" id="props"></div>
+  </section>
+
+  <section>
+    <h2>아이템 아이콘 <small>32×32 · 등급 테두리 5종</small></h2>
+    <div class="frame">
+      <div class="filters"><div class="chips" id="pickCat"></div></div>
+      <div class="items" id="items"></div>
+      <div class="grades" id="gradeLegend"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>규격 <small>meta.json 요약</small></h2>
+    <div class="frame tbl"><table id="spec"><thead><tr><th>에셋</th><th>파일</th><th>프레임</th><th>기준점(발)</th><th>구성</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <footer>생성기: <code>forgotten-forge/tools/lineage/build.py</code> · 결과물: <code>forgotten-forge/lineage-assets/</code> · 1 타일 = 64×32px, 캐릭터 키 약 48px</footer>
+</div>
+
+<script>
+const META = /*META*/{}/*END*/;
+const DIR_LABEL = { S: '남', SE: '남동', E: '동', NE: '북동', N: '북', NW: '북서', W: '서', SW: '남서' };
+const ANIM_LABEL = { idle: '대기', walk: '걷기', attack: '공격', hurt: '피격', death: '사망' };
+const imgs = {};
+function load(src) {
+  if (!imgs[src]) {
+    imgs[src] = new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('이미지를 불러오지 못했습니다: ' + src)); i.src = src; });
+  }
+  return imgs[src];
+}
+function ctx2d(c) { const x = c.getContext('2d'); x.imageSmoothingEnabled = false; return x; }
+function el(tag, attrs = {}, kids = []) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) { if (k === 'text') e.textContent = v; else e.setAttribute(k, v); }
+  for (const k of kids) e.append(k);
+  return e;
+}
+
+/* ── 개수 */
+(function counts() {
+  const nC = Object.keys(META.characters).length, nM = Object.keys(META.monsters).length;
+  const frames = nC * 8 * 21 + nM * 8 * 21;
+  const box = document.getElementById('counts');
+  [['클래스', nC], ['몬스터', nM], ['스프라이트 프레임', frames.toLocaleString()], ['지면 타일', META.tiles.rows.length * 4],
+   ['소품', Object.keys(META.props).length], ['아이콘', Object.keys(META.items).length]].forEach(([k, v]) => {
+    box.append(el('span', {}, [k + ' ', el('b', { text: String(v) })]));
+  });
+})();
+
+/* ── 뷰어 */
+const state = { group: 'characters', name: 'knight', anim: 'walk', dir: 'SE', playing: true, t: 0 };
+function actor() { return META[state.group][state.name]; }
+function chipRow(boxId, items, isOn, onPick) {
+  const box = document.getElementById(boxId);
+  box.innerHTML = '';
+  for (const [key, label] of items) {
+    const b = el('button', { class: 'chip', type: 'button', 'aria-pressed': String(isOn(key)), text: label });
+    b.addEventListener('click', () => onPick(key));
+    box.append(b);
+  }
+}
+function renderPickers() {
+  chipRow('pickClass', Object.entries(META.characters).map(([k, v]) => [k, v.label]), k => state.group === 'characters' && state.name === k,
+    k => { state.group = 'characters'; state.name = k; renderPickers(); });
+  chipRow('pickMon', Object.entries(META.monsters).map(([k, v]) => [k, v.label]), k => state.group === 'monsters' && state.name === k,
+    k => { state.group = 'monsters'; state.name = k; renderPickers(); });
+  chipRow('pickAnim', META.anims.map(a => [a.name, ANIM_LABEL[a.name] + ' ' + a.frames]), k => state.anim === k,
+    k => { state.anim = k; state.t = 0; renderPickers(); });
+  const pad = document.getElementById('dpad');
+  pad.innerHTML = '';
+  ['NW', 'N', 'NE', 'W', '', 'E', 'SW', 'S', 'SE'].forEach(d => {
+    const b = el('button', { class: 'dir' + (d ? '' : ' center'), type: 'button', 'aria-pressed': String(state.dir === d), 'aria-label': d ? DIR_LABEL[d] + '쪽' : '', text: d ? DIR_LABEL[d] : '' });
+    if (d) b.addEventListener('click', () => { state.dir = d; renderPickers(); });
+    pad.append(b);
+  });
+  const a = actor();
+  document.getElementById('stageTag').textContent = `${a.label} · ${ANIM_LABEL[state.anim]} · ${DIR_LABEL[state.dir]} · ${a.fw}×${a.fh}`;
+}
+renderPickers();
+document.getElementById('playBtn').addEventListener('click', e => {
+  state.playing = !state.playing;
+  e.currentTarget.setAttribute('aria-pressed', String(state.playing));
+  e.currentTarget.textContent = state.playing ? '재생 중' : '멈춤';
+});
+
+function drawGround(x, cx, cy, s) {
+  x.save();
+  x.translate(cx, cy);
+  x.fillStyle = 'rgba(0,0,0,.35)';
+  x.beginPath(); x.ellipse(0, 0, 15 * s, 6 * s, 0, 0, Math.PI * 2); x.fill();
+  x.strokeStyle = 'rgba(212,166,74,.22)'; x.lineWidth = 1;
+  x.beginPath(); x.moveTo(-32 * s, 0); x.lineTo(0, -16 * s); x.lineTo(32 * s, 0); x.lineTo(0, 16 * s); x.closePath(); x.stroke();
+  x.restore();
+}
+const stage = document.getElementById('stage'), sx = ctx2d(stage);
+const strip = document.getElementById('strip'), stx = ctx2d(strip);
+let last = 0;
+async function frame(ts) {
+  const a = actor();
+  let img;
+  try { img = await load(a.sheet); } catch (err) { document.getElementById('stageTag').textContent = err.message; return; }
+  const fps = +document.getElementById('speed').value;
+  if (state.playing && ts - last > 1000 / fps) { state.t++; last = ts; }
+  const [start, n] = a.anims[state.anim];
+  const looping = state.anim !== 'death';
+  const f = looping ? state.t % n : Math.min(state.t % (n + 6), n - 1);
+  const col = start + f;
+  // 큰 화면: 최대 3배
+  const scale = Math.max(1, Math.min(3, Math.floor(Math.min(stage.parentElement.clientWidth - 16, 300 * 3) / a.fw)));
+  const W = a.fw * scale, H = a.fh * scale;
+  if (stage.width !== W || stage.height !== H) { stage.width = W; stage.height = H; sx.imageSmoothingEnabled = false; }
+  sx.clearRect(0, 0, W, H);
+  const footY = Math.round(H - Math.max(10, (a.fh - a.ay) * scale) - 4);
+  const ox = Math.round(W / 2 - a.ax * scale), oy = footY - a.ay * scale;
+  drawGround(sx, W / 2, footY, scale);
+  const r = a.rows.indexOf(state.dir);
+  sx.drawImage(img, col * a.fw, r * a.fh, a.fw, a.fh, ox, oy, a.fw * scale, a.fh * scale);
+  // 8방향 스트립
+  const s2 = a.fw > 120 ? 1 : 1;
+  const SW = a.fw * 8 * s2, SH = a.fh * s2 + 16;
+  if (strip.width !== SW || strip.height !== SH) { strip.width = SW; strip.height = SH; stx.imageSmoothingEnabled = false; }
+  stx.clearRect(0, 0, SW, SH);
+  stx.font = '11px "Noto Sans KR", sans-serif'; stx.textAlign = 'center';
+  a.rows.forEach((d, i) => {
+    stx.fillStyle = d === state.dir ? 'rgba(212,166,74,.12)' : 'transparent';
+    stx.fillRect(i * a.fw * s2, 0, a.fw * s2, SH);
+    stx.drawImage(img, col * a.fw, i * a.fh, a.fw, a.fh, i * a.fw * s2, 0, a.fw * s2, a.fh * s2);
+    stx.fillStyle = d === state.dir ? '#d4a64a' : '#a49681';
+    stx.fillText(DIR_LABEL[d], i * a.fw * s2 + a.fw * s2 / 2, SH - 4);
+  });
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ── 강화 */
+(async function enchant() {
+  const box = document.getElementById('enchant');
+  const e = META.enchant_showcase, img = await load(e.sheet);
+  const names = { 0: '기본', 7: '은빛', 8: '청광', 9: '자광', 10: '혈광' };
+  const colors = { 0: '#a49681', 7: '#e1ebff', 8: '#5aa5ff', 9: '#b969ff', 10: '#ff4632' };
+  e.levels.forEach((lv, i) => {
+    const c = el('canvas', { width: 96 * 2, height: 72 * 2 });
+    const x = ctx2d(c);
+    x.drawImage(img, i * e.fw, 0, e.fw, 72, 0, 0, 96 * 2, 72 * 2);
+    const lab = el('div', { class: 'lv', text: lv ? '+' + lv : '+0' }); lab.style.color = colors[lv];
+    box.append(el('div', { class: 'ench' }, [c, lab, el('div', { class: 'lvn', text: names[lv] })]));
+  });
+})();
+
+/* ── 타일 */
+(async function tiles() {
+  const t = META.tiles, img = await load(t.sheet), box = document.getElementById('tiles');
+  t.rows.forEach((r, ri) => {
+    const c = el('canvas', { width: 128, height: 96 });
+    const x = ctx2d(c);
+    // 2×2 배열로 이음매 보여주기 (변형 섞기)
+    const pos = [[0, 0], [1, 0], [0, 1], [1, 1]];
+    pos.forEach(([i, j], k) => {
+      const px = 64 + (i - j) * 32 - 32, py = 16 + (i + j) * 16;
+      x.drawImage(img, ((k + ri) % 4) * 64, ri * 32, 64, 32, px, py, 64, 32);
+    });
+    if (r.name === 'water') {
+      let f = 0;
+      setInterval(() => { x.clearRect(0, 0, 128, 96); pos.forEach(([i, j]) => { const px = 64 + (i - j) * 32 - 32, py = 16 + (i + j) * 16; x.drawImage(img, f * 64, ri * 32, 64, 32, px, py, 64, 32); }); f = (f + 1) % 4; }, 260);
+    }
+    box.append(el('div', { class: 'tile' }, [c, el('span', { text: r.label })]));
+  });
+})();
+
+/* ── 소품 */
+(async function props() {
+  const box = document.getElementById('props');
+  const order = Object.entries(META.props).sort((a, b) => b[1].fh * b[1].fw - a[1].fh * a[1].fw);
+  for (const [k, p] of order) {
+    const img = await load(p.sheet);
+    const maxH = 230, s = p.fh > maxH ? maxH / p.fh : Math.max(1, Math.min(3, Math.floor(90 / p.fh)));
+    const c = el('canvas', { width: Math.round(p.fw * s), height: Math.round(p.fh * s) });
+    const x = ctx2d(c);
+    let f = 0;
+    const draw = () => { x.clearRect(0, 0, c.width, c.height); x.drawImage(img, f * p.fw, 0, p.fw, p.fh, 0, 0, c.width, c.height); };
+    draw();
+    if (p.frames > 1) setInterval(() => { f = (f + 1) % p.frames; draw(); }, 140);
+    box.append(el('div', { class: 'prop' }, [c, el('span', {}, [el('b', { text: p.label }), document.createTextNode(` ${p.fw}×${p.fh}`)])]));
+  }
+})();
+
+/* ── 아이템 */
+const itemState = { cat: '전체' };
+(async function items() {
+  const atlas = await load(META.item_atlas.sheet), frames = await load(META.grades.sheet);
+  const grades = Object.fromEntries(META.grades.list.map((g, i) => [g.id, { ...g, i }]));
+  const cats = ['전체', ...new Set(Object.values(META.items).map(d => d.cat))];
+  const box = document.getElementById('items');
+  function draw() {
+    box.innerHTML = '';
+    for (const [id, d] of Object.entries(META.items)) {
+      if (itemState.cat !== '전체' && d.cat !== itemState.cat) continue;
+      const g = grades[d.grade];
+      const c = el('canvas', { width: 36, height: 36, title: `${d.name} (${g.label})` });
+      const x = ctx2d(c);
+      x.drawImage(frames, g.i * 36, 0, 36, 36, 0, 0, 36, 36);
+      const cols = META.item_atlas.cols;
+      x.drawImage(atlas, (d.index % cols) * 32, Math.floor(d.index / cols) * 32, 32, 32, 2, 2, 32, 32);
+      const gd = el('div', { class: 'gd', text: g.label }); gd.style.color = g.color;
+      box.append(el('div', { class: 'item' }, [c, el('div', { class: 'nm', text: d.name }), gd]));
+    }
+  }
+  chipRowCat();
+  function chipRowCat() {
+    chipRow('pickCat', cats.map(c => [c, c]), k => itemState.cat === k, k => { itemState.cat = k; chipRowCat(); draw(); });
+  }
+  draw();
+  const lg = document.getElementById('gradeLegend');
+  META.grades.list.forEach(g => { const i = el('i'); i.style.background = g.color; lg.append(el('span', {}, [i, document.createTextNode(g.label)])); });
+})();
+
+/* ── 규격 표 */
+(function spec() {
+  const tb = document.querySelector('#spec tbody');
+  const add = (a, f, fr, an, comp) => tb.append(el('tr', {}, [el('td', { text: a }), el('td', {}, [el('code', { text: f })]), el('td', { class: 'mono', text: fr }), el('td', { class: 'mono', text: an }), el('td', { text: comp })]));
+  for (const g of ['characters', 'monsters']) for (const [k, a] of Object.entries(META[g]))
+    add(a.label, a.sheet, `${a.fw}×${a.fh}`, `${a.ax}, ${a.ay}`, `8행(방향) × ${a.cols}열`);
+  add('지면 타일', META.tiles.sheet, '64×32', '중심', `${META.tiles.rows.length}행 × 4열`);
+  add('아이콘', META.item_atlas.sheet, '32×32', '-', `${Object.keys(META.items).length}개, ${META.item_atlas.cols}열`);
+  add('등급 테두리', META.grades.sheet, '36×36', '-', '5종');
+  add('강화 아이콘', META.enchant_icons.sheet, '32×32', '-', `무기 ${META.enchant_icons.rows.length}종 × 5단계`);
+  for (const [k, p] of Object.entries(META.props)) add(p.label, p.sheet, `${p.fw}×${p.fh}`, `${p.ax}, ${p.ay}`, p.frames > 1 ? `${p.frames}프레임` : '정지');
+})();
+</script>
