@@ -278,7 +278,7 @@ def round_shield(r, face, rim, boss, size=5.6):
             Item(S.sphere(c + out * 0.9 * s, 1.5 * s), boss)]
 
 
-def cape(r, p, mat, length=30, width=7.0, sway=0.0, tatter=False):
+def cape(r, p, mat, length=30, width=7.0, sway=0.0, tatter=False, split=False):
     """어깨에서 늘어진 망토(뒤로 휘는 정도 = p.cape)."""
     s = r.s
     back = -r.fwd
@@ -297,6 +297,8 @@ def cape(r, p, mat, length=30, width=7.0, sway=0.0, tatter=False):
         f = S.box(c, V(wd, 0.55 * s, length * s / segs / 2 + 0.6), M, 0.4)
         if tatter and k == segs - 1:
             f = S.sub(f, S.displace(S.halfspace(dn, np.dot(dn, nxt) - 2.5 * s), 2.5, 0.45, seed=7))
+        if split and k == segs - 1:   # 끝을 두 갈래로 가름
+            f = S.sub(f, S.box(nxt, V(0.9 * s, 2.0 * s, length * s / segs * 0.55), M))
         it.append(Item(f, mat))
         prev = nxt
     return it
@@ -471,26 +473,40 @@ M_COMMON = {
 def _class_knight():
     m = dict(M_COMMON)
     m.update({
-        'tabard': Mat(['#0e1426', '#172243', '#22335f', '#304679', '#3f5a92']),
+        'redcloth': Mat(['#2c0607', '#4a0c0e', '#6c1416', '#8f1f1f', '#b0302a']),
         'mail': Mat(['#1d2026', '#30343c', '#474c56', '#626874', '#7d8491'], metal=True,
                     tex=lambda P, n: 0.6 * ((np.floor(P[:, 2] * 0.9) + np.floor(P[:, 0] * 0.9)) % 2 - 0.5)),
-        'plume': Mat(['#3a0c0c', '#5e1414', '#861d1d', '#aa2a26', '#c94236']),
-        'hair': Mat(['#1a120c', '#2a1d14', '#3b2a1d', '#4d3827', '#5f4632']),
+        'hair': Mat(['#0e0a08', '#18120e', '#241b15', '#30241c', '#3d2e24']),
     })
     parts = dict(skin='skin', hair='hair', eyes='eyes', torso='steel', pelvis='mail', legs='mail', shin='steel',
                  boots='steel_dk', arms='mail', farm='steel', hands='steel_dk')
 
     def gear(r, p, it):
-        it += helmet_knight(r, 'steel', 'cloth_dk', plume='plume')
-        it += pauldrons(r, 'steel', 3.4, trim='steel_dk')
-        it += skirt(r, 'tabard', 5.4, 6.4, 9.0)
-        # 가슴 위 휘장(사각 천)
-        it.append(Item(S.box(r.chest + r.fwd * 3.9 * r.s - r.up * 3.0 * r.s, V(3.4 * r.s, 0.5 * r.s, 6.0 * r.s), r.rot, 0.3), 'tabard'))
-        it.append(Item(S.box(r.chest + r.fwd * 4.4 * r.s - r.up * 1.8 * r.s, V(0.5 * r.s, 0.4 * r.s, 2.4 * r.s), r.rot, 0.1), 'gold'))
-        it.append(Item(S.box(r.chest + r.fwd * 4.4 * r.s - r.up * 1.2 * r.s, V(1.8 * r.s, 0.4 * r.s, 0.5 * r.s), r.rot, 0.1), 'gold'))
-        it += broadsword(r, 17.5, 2.1, guard='steel_dk', grip='leather', blade='steel', pommel='gold')
-        it += shield_kite(r, 'tabard', 'steel', 'gold', 1.0, emblem='gold')
-    return dict(name='knight', label='기사', mats=m, parts=parts, gear=gear, weapon='sword', build=None, opts=dict(hair=False, eyes=False))
+        s = r.s
+        H, HR = r.head, r.head_rot
+        # 흐트러진 앞머리·옆머리 (투구 없음)
+        for ox, oz, ln in ((-2.6, 3.2, 2.6), (-0.6, 3.8, 3.0), (1.6, 3.4, 2.4), (3.0, 2.4, 2.0)):
+            a0 = H + HR @ V(ox * s, 2.2 * s, oz * s)
+            it.append(Item(S.capsule(a0, a0 + HR @ V(ox * 0.25 * s, 1.6 * s, -ln * s), 1.0 * s, 0.4 * s), 'hair'))
+        it.append(Item(S.ellipsoid(H + HR @ V(0, -1.4 * s, -1.2 * s), V(4.2 * s, 3.4 * s, 3.6 * s), HR), 'hair'))
+        it += pauldrons(r, 'steel', 3.9, trim='gold')
+        it += cape(r, p, 'redcloth', length=30, width=6.5, split=True)
+        # 목에 두른 붉은 스카프 + 뒤로 날리는 자락
+        it.append(Item(S.torus(r.neck - r.up * 1.2 * s, r.rot, 3.4 * s, 1.5 * s), 'redcloth'))
+        back = -r.fwd
+        t0 = r.neck - r.up * 1.0 * s + back * 3.0 * s + r.right * 1.5 * s
+        flow = math.radians(20 + p.cape * 1.6)
+        t1 = t0 + (back * math.sin(flow) - r.up * math.cos(flow)) * 7 * s + r.right * 1.5 * s
+        it.append(Item(S.capsule(t0, t1, 1.3 * s, 0.7 * s), 'redcloth'))
+        it += skirt(r, 'mail', 5.4, 6.6, 9.0)
+        # 금 테두리 흉갑 장식
+        it.append(Item(S.box(r.chest + r.fwd * 4.3 * s + r.up * 0.6 * s, V(4.6 * s, 0.35 * s, 0.45 * s), r.rot, 0.1), 'gold'))
+        it.append(Item(S.box(r.chest + r.fwd * 4.5 * s - r.up * 1.4 * s, V(0.45 * s, 0.35 * s, 2.0 * s), r.rot, 0.1), 'gold'))
+        it.append(Item(S.box(r.waist + r.up * 0.4 * s, V(5.4 * s, 4.4 * s, 0.9 * s), r.rot, 0.4), 'leather'))
+        it.append(Item(S.box(r.waist + r.up * 0.4 * s + r.fwd * 4.3 * s, V(1.2 * s, 0.4 * s, 1.0 * s), r.rot, 0.2), 'gold'))
+        it += broadsword(r, 18.0, 2.0, guard='gold', grip='leather', blade='steel', pommel='gold')
+    return dict(name='knight', label='기사', mats=m, parts=parts, gear=gear, weapon='blade', build=None,
+                opts=dict(hair=True, eyes=True, limb=1.12, chest=(7.2, 4.6, 6.0), belly=(5.0, 5.8)))
 
 
 def _class_elf():
@@ -569,7 +585,7 @@ def _class_lord():
         it += skirt(r, 'cape', 5.8, 7.2, 9.5)
         it.append(Item(S.box(r.chest + r.fwd * 4.1 * r.s - r.up * 0.5 * r.s, V(2.3 * r.s, 0.5 * r.s, 2.3 * r.s), r.rot @ S.ry(45), 0.3), 'gold'))
         it += broadsword(r, 18.5, 1.9, guard='gold', grip='cape', blade='steel', pommel='gem')
-    return dict(name='lord', label='군주', mats=m, parts=parts, gear=gear, weapon='sword', build=dict(scale=1.02),
+    return dict(name='lord', label='군주', mats=m, parts=parts, gear=gear, weapon='blade', build=dict(scale=1.02),
                 opts=dict(chest=(6.9, 4.3, 5.8)))
 
 
@@ -668,7 +684,22 @@ STANCE = {
     'staff': dict(lhip=10, rhip=-8, lhip_side=9, rhip_side=9, lknee=22, rknee=12, twist=8, head_yaw=-6, lean=5,
                   rsh=24, rab=16, rel=48, wpn=172, wpn_side=-6, lsh=22, lab=18, lel=50),
 }
+# 기사·군주: 참고 시트처럼 무게 실은 직립 — 발은 어깨너비, 무릎 살짝, 검은 몸 옆에서 아래로 비스듬히
+STANCE['blade'] = dict(lhip=8, rhip=-6, lhip_side=8, rhip_side=8, lknee=16, rknee=12, twist=8, head_yaw=-6, lean=3,
+                       rsh=12, rab=20, rel=24, wpn=38, wpn_side=14, lsh=6, lab=18, lel=22)
 STANCE['axe'] = STANCE['sword']
+
+# 가로 베기 (팔을 끝까지 뻗음): 준비 → 검을 오른쪽 뒤로 당김 → 몸을 비틀며 앞으로 내디딤 → 왼쪽까지 베어 넘김
+ATK_BLADE = [
+    dict(rsh=14, rab=22, rel=26, wpn=45, wpn_side=14, lean=4, twist=8, lsh=8, lab=18, lel=24, lhip=0, rhip=0, sink=0.2),
+    dict(rsh=60, rab=55, rel=40, wpn=95, wpn_side=55, lean=2, twist=26, lsh=30, lab=10, lel=50, lhip=-2, rhip=2, sink=0.7),
+    dict(rsh=78, rab=70, rel=30, wpn=100, wpn_side=80, lean=0, twist=38, lsh=45, lab=8, lel=55, lhip=-4, rhip=4, sink=1.0),
+    dict(rsh=86, rab=30, rel=8, wpn=95, wpn_side=20, lean=12, twist=6, lsh=20, lab=30, lel=30, lhip=20, rhip=-18, sink=1.4),
+    dict(rsh=88, rab=6, rel=2, wpn=92, wpn_side=-55, lean=18, twist=-26, lsh=-10, lab=40, lel=20, lhip=30, rhip=-26, sink=1.9),
+    dict(rsh=88, rab=4, rel=2, wpn=91, wpn_side=-62, lean=19, twist=-28, lsh=-12, lab=42, lel=20, lhip=30, rhip=-26, sink=2.0),
+    dict(rsh=70, rab=6, rel=10, wpn=80, wpn_side=-85, lean=15, twist=-32, lsh=-6, lab=36, lel=24, lhip=26, rhip=-22, sink=1.6),
+    dict(rsh=24, rab=18, rel=24, wpn=50, wpn_side=0, lean=6, twist=0, lsh=4, lab=20, lel=24, lhip=8, rhip=-6, sink=0.6),
+]
 LEG_KEYS = ('lhip', 'rhip', 'lhip_side', 'rhip_side', 'lknee', 'rknee')
 
 
@@ -694,6 +725,20 @@ def pose_for(kind, anim, f, n):
         p['wpn'] = base.get('wpn', 70) + 2 * c
         return Pose(**p)
 
+    if anim == 'walk' and kind == 'blade':
+        # 참고 시트의 이동: 상체를 깊이 숙이고, 검은 뒤로 낮게 끌며, 망토는 크게 휘날림
+        sw = math.sin(ph)
+        cw = math.cos(ph)
+        lift_l = max(0.0, cw) ** 1.3
+        lift_r = max(0.0, -cw) ** 1.3
+        contact = 1 - abs(cw)
+        p = dict(lhip=6 + 34 * sw, rhip=6 - 34 * sw,
+                 lknee=26 + 50 * lift_l + 10 * contact, rknee=26 + 50 * lift_r + 10 * contact,
+                 lhip_side=6, rhip_side=6, lean=20, twist=-8 * sw + 6, roll=2.5 * cw, head=-12 + 2 * contact,
+                 rsh=-38 - 8 * sw, rab=22, rel=12, wpn=-30, wpn_side=18,
+                 lsh=30 - 26 * sw, lab=16, lel=40, cape=15 + 5 * abs(cw), bob=0.4 * abs(math.sin(ph)))
+        return Pose(**p)
+
     if anim == 'walk':
         # 무기를 겨눈 채 낮은 자세로 걷기: 보폭은 넓고, 디딜 때 무릎으로 충격 흡수
         sw = math.sin(ph)
@@ -716,7 +761,7 @@ def pose_for(kind, anim, f, n):
         return Pose(**p)
 
     if anim == 'attack':
-        keys = {'bow': ATK_BOW, 'staff': ATK_STAFF, 'great': ATK_GREAT}.get(kind, ATK_SWORD)
+        keys = {'bow': ATK_BOW, 'staff': ATK_STAFF, 'great': ATK_GREAT, 'blade': ATK_BLADE}.get(kind, ATK_SWORD)
         k = keyed(keys, f, n)
         p = dict(base)
         p.update(rab=16, lab=20, shd=1, plant=1)
@@ -731,7 +776,7 @@ def pose_for(kind, anim, f, n):
         p['lknee'] = legs['lknee']
         p['rknee'] = legs['rknee']
         p['twist'] = k.get('twist', 0) + legs['lhip'] * 0.3
-        p['cape'] = 6 + 6 * abs(k.get('twist', 0)) / 25 + (6 if f in (3, 4) else 0)
+        p['cape'] = min(16, 6 + 6 * abs(k.get('twist', 0)) / 25 + (6 if f in (3, 4) else 0))
         return Pose(**_bend(p))
 
     if anim == 'hurt':
@@ -742,6 +787,17 @@ def pose_for(kind, anim, f, n):
                  lsh=base['lsh'] + 18 * k, rsh=base['rsh'] - 12 * k,
                  rab=28 * k + 14, lab=24 * k + 16, cape=16 * k, sink=0.6 * k)
         return Pose(**_bend(p))
+
+    if anim == 'death' and kind == 'blade':
+        u = f / max(1, n - 1)
+        kneel = min(1.0, u * 2.2)          # 앞 절반: 오른 무릎을 꿇음
+        fall = max(0.0, (u - 0.35) / 0.65)  # 뒤 절반: 앞으로 엎어짐
+        p = dict(base)
+        p.update(lhip=8 + 62 * kneel, lknee=16 + 80 * kneel, rhip=-6 + 4 * kneel, rknee=12 + 100 * kneel,
+                 lhip_side=8, rhip_side=8, lean=3 + 28 * kneel + 20 * fall, head=10 * kneel + 10 * fall,
+                 rsh=12 + 30 * kneel - 20 * fall, rel=24 + 30 * kneel, wpn=38 - 20 * kneel, wpn_side=14,
+                 lsh=6 + 40 * kneel + 40 * fall, lab=18, lel=22 + 30 * kneel, cape=6 + 14 * fall)
+        return Pose(**p)
 
     if anim == 'death':
         u = f / max(1, n - 1)
@@ -759,6 +815,23 @@ def pose_for(kind, anim, f, n):
 
 DEATH_ANG = [6, 16, 38, 68, 92, 87]     # 무릎 꺾임 → 가속하며 넘어짐 → 바닥에 튕겼다 가라앉음
 DEATH_DROP = [0, 0.3, 0.8, 1.6, 2.6, 2.4]
+
+
+DEATH_FWD_ANG = [0, 0, 0, 22, 62, 86]
+DEATH_FWD_DROP = [0, 0, 0, 0.6, 1.6, 2.6]
+
+
+def death_xform_forward(f, n=6):
+    """무릎 꿇은 뒤 앞으로 엎어지는 강체 변환(무릎 앞쪽 축)."""
+    u = f / max(1, n - 1) * (len(DEATH_FWD_ANG) - 1)
+    i = min(int(u), len(DEATH_FWD_ANG) - 2)
+    w = u - i
+    ang = DEATH_FWD_ANG[i] + (DEATH_FWD_ANG[i + 1] - DEATH_FWD_ANG[i]) * w
+    drop = DEATH_FWD_DROP[i] + (DEATH_FWD_DROP[i + 1] - DEATH_FWD_DROP[i]) * w
+    M = S.rx(-ang)                    # 머리가 +y(앞)로 넘어감
+    pivot = V(0, 6.0, 0)
+    t = pivot - M @ pivot + V(0, 0, -drop)
+    return M, t
 
 
 def death_xform(f, n=6):

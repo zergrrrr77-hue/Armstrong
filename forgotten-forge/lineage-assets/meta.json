@@ -44,10 +44,10 @@
   "knight": {
    "label": "기사",
    "sheet": "characters/knight.png",
-   "fw": 96,
-   "fh": 88,
-   "ax": 48,
-   "ay": 66,
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
    "cols": 31,
    "rows": [
     "S",
@@ -85,10 +85,10 @@
   "elf": {
    "label": "요정",
    "sheet": "characters/elf.png",
-   "fw": 96,
-   "fh": 88,
-   "ax": 48,
-   "ay": 66,
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
    "cols": 31,
    "rows": [
     "S",
@@ -126,10 +126,10 @@
   "mage": {
    "label": "마법사",
    "sheet": "characters/mage.png",
-   "fw": 96,
-   "fh": 88,
-   "ax": 48,
-   "ay": 66,
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
    "cols": 31,
    "rows": [
     "S",
@@ -167,10 +167,10 @@
   "lord": {
    "label": "군주",
    "sheet": "characters/lord.png",
-   "fw": 96,
-   "fh": 88,
-   "ax": 48,
-   "ay": 66,
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
    "cols": 31,
    "rows": [
     "S",
@@ -1248,8 +1248,8 @@
  },
  "enchant_showcase": {
   "sheet": "characters/knight_enchant.png",
-  "fw": 96,
-  "fh": 88,
+  "fw": 112,
+  "fh": 104,
   "levels": [
    0,
    7,

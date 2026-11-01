@@ -27,7 +27,7 @@ import items as I        # noqa: E402
 
 OUT = os.path.normpath(os.path.join(HERE, '..', '..', 'lineage-assets'))
 DIRS = ['S', 'SE', 'E', 'NE', 'N', 'NW', 'W', 'SW']      # yaw = 45° × 번호
-CHAR_FRAME = (96, 88, 48, 66)
+CHAR_FRAME = (112, 104, 56, 70)
 NA = dict(Hm.ANIMS)
 
 
@@ -49,7 +49,7 @@ def build_scene(ent, anim, f, n):
         src['gear'](r, p, it)
         M = t = None
         if anim == 'death':
-            M, t = Hm.death_xform(f, n)
+            M, t = (Hm.death_xform_forward if src['weapon'] == 'blade' else Hm.death_xform)(f, n)
         return it, src['mats'], M, t
     it, M, t = src['build'](anim, f, n)
     return it, src['mats'], M, t
