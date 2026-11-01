@@ -251,6 +251,65 @@
       return 2.1;
     },
 
+    // 요정 스킬 ─────────────────────────
+    elf_charge: v => {   // 바람이 감기며 모이는 소리
+      const g = v.gain(0); const bp = v.filter('bandpass', 400, 3, g); bp.frequency.exponentialRampToValueAtTime(2400, v.t + 0.6);
+      v.noise('pink', bp, 0.7); g.gain.setValueAtTime(0.0001, v.t); g.gain.exponentialRampToValueAtTime(1.8, v.t + 0.55); g.gain.exponentialRampToValueAtTime(0.0001, v.t + 0.7);
+      [1046, 1318].forEach((f, i) => { const sg = v.gain(0); v.osc('sine', f, sg, 0.7); env(sg.gain, v.t + 0.2 + i * 0.1, 0.1, 0.05, 0.4); });
+      return 0.7;
+    },
+    elf_wind_shot: v => {   // 시위 + 길게 뻗는 바람 화살
+      R.bow_release(v);
+      const g = v.gain(0); const bp = v.filter('bandpass', 3000, 2, g); bp.frequency.exponentialRampToValueAtTime(700, v.t + 0.7);
+      v.noise('white', bp, 0.8); env(g.gain, v.t + 0.02, 0.02, 0.5, 0.7);
+      return 0.8;
+    },
+    elf_volley: v => {   // 도약 + 세 발 연속 시위
+      whoosh(v, {}, 300, 1400, 0.3, 1.0);
+      for (let i = 0; i < 3; i++) { const p = v.gain(0.8); R.bow_release(V(v.ctx, p, v.t + 0.32 + i * 0.07)); }
+      return 0.8;
+    },
+    elf_whirl: v => {   // 잎을 휘감는 회오리
+      for (let i = 0; i < 4; i++) { const p = v.gain(1); whoosh(V(v.ctx, p, v.t + i * 0.15), {}, 350 + i * 120, 1800 + i * 200, 0.35, 1.0); }
+      for (let i = 0; i < 14; i++) crack(v, rnd(2500, 6000), 4, 0.03, 0.15, 'white', v.t + rnd(0, 0.8));
+      return 0.95;
+    },
+    elf_fairy: v => {   // 요정 날갯짓 반짝임 + 맑은 화음
+      [784, 988, 1175, 1568].forEach((f, i) => { const g = v.gain(0); v.osc('triangle', f, g, 1.8); env(g.gain, v.t + i * 0.12, 0.02, 0.2, 1.4); });
+      for (let i = 0; i < 18; i++) { const g = v.gain(0); const t = v.t + rnd(0, 1.4); const o = v.osc('sine', rnd(2500, 5000), g, 0.1); o.frequency.setValueAtTime(rnd(2500, 5000), t); env(g.gain, t, 0.002, 0.05, 0.08); }
+      return 1.8;
+    },
+
+    // 마법사 스킬 ─────────────────────────
+    mage_charge: v => {
+      const g = v.gain(0); [330, 495].forEach(f => { const o = v.osc('sawtooth', f, v.filter('lowpass', 1200, 4, g), 0.6); o.frequency.exponentialRampToValueAtTime(f * 2, v.t + 0.55); });
+      g.gain.setValueAtTime(0.0001, v.t); g.gain.exponentialRampToValueAtTime(0.12, v.t + 0.5); g.gain.exponentialRampToValueAtTime(0.0001, v.t + 0.6);
+      return 0.6;
+    },
+    mage_bolt: v => {   // 휙 날아가는 마력 + 보랏빛 폭발
+      const g = v.gain(0); const o = v.osc('square', 1600, v.filter('bandpass', 2000, 3, g), 0.3); o.frequency.exponentialRampToValueAtTime(400, v.t + 0.25); env(g.gain, v.t, 0.005, 0.2, 0.25);
+      const p = v.gain(1); R.magic_hit(V(v.ctx, p, v.t + 0.22));
+      return 1.1;
+    },
+    mage_ice: v => {   // 얼음이 솟으며 쩍쩍 갈라짐
+      thud(v, 90, 40, 0.4, 0.7);
+      for (let i = 0; i < 10; i++) { const t = v.t + 0.05 + i * rnd(0.03, 0.07); clank(V(v.ctx, v.gain(1), t), rnd(1800, 3600), 0.35, 0.06, [1, 2.3, 3.7]); crack(v, rnd(3000, 6000), 2, 0.04, 0.3, 'white', t); }
+      const g = v.gain(0); v.noise('white', v.filter('highpass', 5000, 0.7, g), 1.0); env(g.gain, v.t, 0.01, 0.15, 0.9);
+      return 1.0;
+    },
+    mage_meteor_fall: v => {   // 하늘에서 떨어지는 굉음
+      const g = v.gain(0); const lp = v.filter('lowpass', 300, 2, g); lp.frequency.exponentialRampToValueAtTime(2500, v.t + 0.8);
+      v.noise('brown', lp, 0.9); g.gain.setValueAtTime(0.0001, v.t); g.gain.exponentialRampToValueAtTime(1.6, v.t + 0.8); g.gain.exponentialRampToValueAtTime(0.0001, v.t + 0.9);
+      return 0.9;
+    },
+    mage_meteor_hit: v => { thud(v, 55, 20, 1.2, 0.6); crack(v, 200, 0.5, 1.0, 0.55, 'brown'); R.hit_blunt(v); for (let i = 0; i < 8; i++) crack(v, rnd(800, 2500), 2, 0.06, 0.3, 'pink', v.t + 0.1 + i * rnd(0.05, 0.1)); return 1.3; },
+    mage_pillar: v => {   // 솟구치는 마나: 상승음 + 합창
+      const g = v.gain(0); [220, 277, 330].forEach(f => { const o = v.osc('sawtooth', f, v.filter('lowpass', 1500, 1, g), 1.8); o.frequency.exponentialRampToValueAtTime(f * 2, v.t + 1.6); });
+      g.gain.setValueAtTime(0.0001, v.t); g.gain.linearRampToValueAtTime(0.06, v.t + 0.4); g.gain.exponentialRampToValueAtTime(0.0001, v.t + 1.8);
+      voice(v, { f0: 440, f1: 660, dur: 1.6, vowel: 'a', vowel2: 'o', level: 0.12, rough: 0, vib: 5, breath: 0.05, curve: 'flat' });
+      return 1.8;
+    },
+
     // 몬스터 ─────────────────────────
     orc_attack: v => voice(v, { f0: 120, f1: 85, dur: 0.55, vowel: 'a', vowel2: 'o', level: 0.55, rough: 0.7, curve: 'rise' }),
     orc_hurt: v => voice(v, { f0: 150, f1: 95, dur: 0.28, vowel: 'u', vowel2: 'a', level: 0.5, rough: 0.6 }),
@@ -284,14 +343,22 @@
     skill_slam: [[1, 'skill_slam_charge'], [4, 'skill_slam']],
     skill_guard: [[0, 'skill_guard']],
     skill_bless: [[1, 'skill_bless']],
+    skill_wind: [[1, 'elf_charge'], [5, 'elf_wind_shot']],
+    skill_volley: [[1, 'elf_volley']],
+    skill_whirl: [[1, 'elf_whirl']],
+    skill_fairy: [[1, 'elf_fairy']],
+    skill_bolt: [[1, 'mage_charge'], [4, 'mage_bolt']],
+    skill_ice: [[1, 'mage_charge'], [3, 'mage_ice']],
+    skill_meteor: [[2, 'mage_meteor_fall'], [5, 'mage_meteor_hit']],
+    skill_pillar: [[1, 'mage_pillar']],
   };
 
   // 발소리 자동 매핑용: 동작별 사운드
   const ACTOR_SFX = {
     knight: { swing: 'swing_sword', hit: 'hit_sword', skills: SKILL_CUES },
     lord: { swing: 'swing_sword', hit: 'hit_sword', skills: SKILL_CUES },
-    elf: { swing: 'bow_release', hit: 'arrow_hit' },
-    mage: { swing: 'magic_cast', hit: 'magic_hit' },
+    elf: { swing: 'bow_release', hit: 'arrow_hit', skills: SKILL_CUES },
+    mage: { swing: 'magic_cast', hit: 'magic_hit', skills: SKILL_CUES },
     orc: { swing: 'swing_heavy', hit: 'hit_blunt', attack: 'orc_attack', hurt: 'orc_hurt', death: 'orc_death' },
     skeleton: { swing: 'swing_sword', hit: 'hit_sword', attack: 'skeleton_attack', hurt: 'skeleton_hurt', death: 'skeleton_death' },
     wolf: { hit: 'hit_flesh', attack: 'wolf_attack', hurt: 'wolf_hurt', death: 'wolf_death' },
@@ -307,6 +374,10 @@
     ['전투', 'critical', '치명타'], ['전투', 'block', '방패 막기'],
     ['스킬', 'skill_spin', '회전 베기'], ['스킬', 'skill_slam_charge', '대지 강타 · 모으기'], ['스킬', 'skill_slam', '대지 강타 · 폭발'],
     ['스킬', 'skill_guard', '수호 결계'], ['스킬', 'skill_bless', '성스러운 축복'],
+    ['요정 스킬', 'elf_charge', '바람 모으기'], ['요정 스킬', 'elf_wind_shot', '바람 화살'], ['요정 스킬', 'elf_volley', '도약 연사'],
+    ['요정 스킬', 'elf_whirl', '잎 회오리'], ['요정 스킬', 'elf_fairy', '요정의 축복'],
+    ['마법사 스킬', 'mage_charge', '마력 모으기'], ['마법사 스킬', 'mage_bolt', '마력 화살'], ['마법사 스킬', 'mage_ice', '얼음 결정 폭발'],
+    ['마법사 스킬', 'mage_meteor_fall', '운석 · 낙하'], ['마법사 스킬', 'mage_meteor_hit', '운석 · 충돌'], ['마법사 스킬', 'mage_pillar', '마나 기둥'],
     ['시스템', 'level_up', '레벨 업'], ['시스템', 'enchant_ok', '강화 성공'], ['시스템', 'enchant_fail', '강화 실패'],
     ['오크 전사', 'orc_attack', '공격 함성'], ['오크 전사', 'orc_hurt', '피격'], ['오크 전사', 'orc_death', '사망'],
     ['해골 병사', 'skeleton_attack', '공격'], ['해골 병사', 'skeleton_hurt', '피격'], ['해골 병사', 'skeleton_death', '무너짐'],

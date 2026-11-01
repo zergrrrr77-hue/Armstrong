@@ -509,57 +509,129 @@ def _class_knight():
                 opts=dict(hair=True, eyes=True, limb=1.12, chest=(7.2, 4.6, 6.0), belly=(5.0, 5.8)))
 
 
+def long_hair(r, mat, length=16, width=4.6, flow=0.0, side_locks=True):
+    """등 뒤로 길게 늘어지는 머리(흐름 flow만큼 뒤로 날림) + 얼굴 옆 머리."""
+    s = r.s
+    H, HR = r.head, r.head_rot
+    it = [Item(S.ellipsoid(H + HR @ V(0, -0.9 * s, 0.8 * s), V(4.7 * s, 4.7 * s, 4.9 * s), HR), mat)]
+    back = -r.fwd
+    top = H + HR @ V(0, -2.8 * s, -0.5 * s)
+    prev = top
+    segs = 3
+    for k in range(segs):
+        a = math.radians(8 + flow * (0.6 + k * 0.5))
+        dn = S.nrm(V(0, 0, -1) * math.cos(a) + back * math.sin(a))
+        nxt = prev + dn * (length * s / segs)
+        w0 = (width - k * 0.6) * s
+        it.append(Item(S.capsule(prev, nxt, w0, w0 - 0.6 * s), mat))
+        prev = nxt
+    if side_locks:
+        for sx in (-1, 1):
+            a0 = H + HR @ V(sx * 3.6 * s, 1.2 * s, 0.5 * s)
+            it.append(Item(S.capsule(a0, a0 + HR @ V(sx * 0.6 * s, 0.6 * s, -9.5 * s), 1.4 * s, 0.9 * s), mat))
+    return it
+
+
+def leaf(c, along, normal, length, width, mat):
+    """잎 모양(납작한 타원)."""
+    M = S.frame_from(normal, along)
+    return Item(S.ellipsoid(c, V(width, length, 0.45), np.stack([M[:, 0], M[:, 1], M[:, 2]], 1)), mat)
+
+
 def _class_elf():
     m = dict(M_COMMON)
     m.update({
-        'skin': Mat(['#5b4236', '#8c6a58', '#b89480', '#d8b9a3', '#efd9c6']),
-        'cloak': Mat(['#0d1a10', '#16291a', '#213b25', '#2e5032', '#3d6740']),
-        'tunic': Mat(['#1e2a12', '#2f421c', '#435c28', '#587636', '#6f9145']),
-        'hair': Mat(['#4a3812', '#73561c', '#9c7a2a', '#c29e3e', '#e0c25e']),
-        'fletch': Mat(['#4a1010', '#6e1a18', '#922622', '#b33a30', '#cc5544']),
-        'bowwood': Mat(['#2a180c', '#432812', '#5f3b1c', '#7c5128', '#9a6936'], gloss=0.4),
+        'skin': Mat(['#5e443a', '#93705e', '#c09c86', '#ddc1ab', '#f2dfcd']),
+        'leafarmor': Mat(['#0f1e0c', '#1c3414', '#2c4e1c', '#3f6a26', '#588a34'], gloss=0.3),
+        'leaf2': Mat(['#1c2e0c', '#2f4a14', '#48681e', '#64882a', '#86aa3a']),
+        'inner': Mat(['#2a0e0a', '#461a12', '#62281a', '#7e3824', '#984a30']),
+        'hair': Mat(['#5a4214', '#8a6a24', '#b8923a', '#dcba5a', '#f2dc8a']),
+        'gem': Mat(['#0a2a5a', '#14448e', '#2266c4', '#4a90e8', '#9ac8ff'], gloss=1.0),
+        'bowwood': Mat(['#3a2410', '#5a3a18', '#7e5424', '#a27032', '#c08c44'], gloss=0.4),
+        'fletch': Mat(['#2a4a14', '#3e6a1c', '#58902a', '#7ab43c', '#a6d860']),
+        'arrowglow': Mat(['#2a6a10', '#4a9a1c', '#7ccc34', '#b4ee6a', '#eaffc0'], emit=True),
     })
-    parts = dict(skin='skin', hair='hair', eyes='eyes', torso='tunic', pelvis='leather', legs='leather_lt', shin='leather',
-                 boots='leather', arms='tunic', farm='leather', hands='leather')
+    parts = dict(skin='skin', hair='hair', eyes='eyes', torso='inner', pelvis='inner', legs='skin', shin='leafarmor',
+                 boots='leafarmor', arms='skin', farm='leafarmor', hands='leather')
 
     def gear(r, p, it):
-        it += hood(r, 'cloak', peak=True) if p.get('hooded', False) else []
-        # 긴 머리 꽁지
-        H, HR, s = r.head, r.head_rot, r.s
-        it.append(Item(S.capsule(H + HR @ V(0, -3.5 * s, 0.5 * s), r.neck - r.fwd * 3.6 * s - r.up * 6 * s, 2.2 * s, 1.4 * s), 'hair'))
-        it += cape(r, p, 'cloak', length=24, width=6.0)
-        it.append(Item(S.box(r.waist + r.up * 0.5 * s, V(5.3 * s, 4.2 * s, 0.9 * s), r.rot, 0.5), 'leather'))
+        s = r.s
+        it += long_hair(r, 'hair', length=17, width=4.4, flow=p.cape * 1.2)
+        H, HR = r.head, r.head_rot
+        it.append(Item(S.sphere(H + HR @ V(-3.2 * s, 1.0 * s, 3.4 * s), 1.1 * s), 'gem'))      # 머리 장식
+        it.append(leaf(H + HR @ V(-3.8 * s, 0.0, 3.0 * s), HR @ V(0, -0.6, 1), HR @ V(-1, 0, 0), 2.6 * s, 1.0 * s, 'leaf2'))
+        # 잎 흉갑
+        R = r.rot
+        it.append(Item(S.ellipsoid(r.chest + R @ V(0, 1.4 * s, 1.4 * s), V(6.2 * s, 4.0 * s, 3.6 * s), R), 'leafarmor'))
+        for sx in (-1, 1):
+            it.append(leaf(r.chest + R @ V(sx * 2.6 * s, 4.4 * s, 1.0 * s), R @ V(sx * 0.4, 0, 1), R @ V(0, 1, 0), 3.2 * s, 2.0 * s, 'leaf2'))
+        # 잎 어깨
+        for sh, sx in ((r.lsh, -1), (r.rsh, 1)):
+            for k in range(3):
+                it.append(leaf(sh + r.up * (1.2 - k * 0.6) * s + r.right * sx * (0.6 + k * 0.9) * s,
+                               r.right * sx * 0.8 - r.up * 0.6, r.up + r.right * sx * 0.5, 2.6 * s, 1.4 * s, 'leafarmor' if k % 2 else 'leaf2'))
+        # 허리띠 + 잎 치마(앞뒤로 갈라진 잎)
+        it.append(Item(S.box(r.waist + r.up * 0.2 * s, V(5.2 * s, 4.0 * s, 0.8 * s), R, 0.4), 'leather'))
+        it.append(Item(S.box(r.waist + r.up * 0.2 * s + r.fwd * 3.9 * s, V(1.0 * s, 0.4 * s, 0.9 * s), R, 0.2), 'gold'))
+        for k in range(8):
+            a = math.radians(k * 45 + 22)
+            d = R @ V(math.cos(a), math.sin(a), 0)
+            c = r.hip + d * 5.2 * s - r.up * 2.4 * s
+            it.append(leaf(c, -r.up + d * 0.35, d, 4.8 * s, 2.0 * s, 'leafarmor' if k % 2 else 'leaf2'))
+        # 허벅지 높은 장화 테두리
+        for kn in (r.lkn, r.rkn):
+            it.append(Item(S.sphere(kn + r.up * 0.5 * s, 2.5 * s), 'leafarmor'))
+        it += cape(r, p, 'leaf2', length=18, width=4.6)
         it += quiver(r, 'leather', 'fletch')
         it += bow(r, 'bowwood', 'string', draw=p.draw)
+        if p.draw > 0.3:   # 시위에 건 빛나는 화살
+            c = r.lha
+            hand = c - r.fwd * (2 + p.draw * 9) * s
+            it.append(Item(S.capsule(hand, c + r.fwd * 4 * s, 0.55 * s), 'arrowglow'))
     return dict(name='elf', label='요정', mats=m, parts=parts, gear=gear, weapon='bow',
-                build=dict(scale=0.97, sh_w=6.0), opts=dict(ears=True, limb=0.9, chest=(6.0, 3.9, 5.2), belly=(4.2, 4.9)))
+                build=dict(scale=0.96, sh_w=5.8, hip_w=3.2), opts=dict(ears=True, limb=0.86, chest=(5.6, 3.7, 5.0), belly=(3.9, 4.6), pelvis=(4.9, 3.5, 3.9)))
 
 
 def _class_mage():
     m = dict(M_COMMON)
     m.update({
-        'robe': Mat(['#160b1e', '#251334', '#371d4c', '#4b2965', '#61367f']),
+        'skin': Mat(['#5e443a', '#93705e', '#c09c86', '#ddc1ab', '#f2dfcd']),
+        'robe': Mat(['#0a1030', '#121c50', '#1c2c78', '#2a40a0', '#3c58c4']),
+        'white': Mat(['#4e5262', '#7a7e8e', '#a6aab8', '#cdd0da', '#eceef4']),
         'trim': Mat(['#4a2e0c', '#7c5316', '#b07d22', '#d9a83a', '#f2d36b'], metal=True, hi='#fff2b8'),
-        'orb': Mat(['#2a6fbf', '#4f9be0', '#7cc3f5', '#b5e4ff', '#e8f8ff'], emit=True),
-        'hair': Mat(['#6a6a6e', '#8e8e94', '#b0b0b6', '#ceced4', '#e6e6ea']),
-        'beard': Mat(['#6a6a6e', '#8e8e94', '#b0b0b6', '#ceced4', '#e6e6ea']),
+        'orb': Mat(['#2a5fcf', '#4f8bf0', '#7cb3ff', '#b5d8ff', '#eef8ff'], emit=True),
+        'hair': Mat(['#5e6070', '#8a8c9c', '#b2b4c2', '#d2d4de', '#eceef4']),
     })
     parts = dict(skin='skin', hair='hair', eyes='eyes', torso='robe', pelvis='robe', legs='robe', shin='robe',
                  boots='leather', arms='robe', farm='robe', hands='skin')
 
     def gear(r, p, it):
         s = r.s
+        R = r.rot
+        it += long_hair(r, 'hair', length=20, width=4.6, flow=p.cape * 1.0)
         it += robe(r, p, 'robe', 'trim')
-        it += wizard_hat(r, 'robe', 'trim')
-        H, HR = r.head, r.head_rot
-        it.append(Item(S.capsule(H + HR @ V(0, 3.4 * s, -2.0 * s), H + HR @ V(0, 2.4 * s, -8.0 * s), 2.4 * s, 0.6 * s), 'beard'))
-        # 넓은 소매
+        # 앞자락 흰 판 + 금테
+        a = r.waist + r.fwd * 4.6 * s
+        b = V(a[0], a[1] + (r.lan[1] + r.ran[1]) * 0.25, 1.2 * s)
+        it.append(Item(S.capsule(a, b + r.fwd * 2.0 * s, 1.9 * s, 3.0 * s), 'white'))
+        it.append(Item(S.capsule(a + r.right * 2.3 * s, b + r.fwd * 2.2 * s + r.right * 3.3 * s, 0.45 * s), 'trim'))
+        it.append(Item(S.capsule(a - r.right * 2.3 * s, b + r.fwd * 2.2 * s - r.right * 3.3 * s, 0.45 * s), 'trim'))
+        # 가슴 흰 장식 + 높은 깃
+        it.append(Item(S.box(r.chest + r.fwd * 4.0 * s, V(2.0 * s, 0.6 * s, 4.6 * s), R, 0.4), 'white'))
+        it.append(Item(S.box(r.chest + r.fwd * 4.5 * s + r.up * 1.6 * s, V(0.5 * s, 0.4 * s, 0.5 * s), R, 0.1), 'trim'))
+        it.append(Item(S.sub(S.capsule(r.neck - r.up * 1.6 * s, r.neck + r.up * 1.6 * s, 4.4 * s, 4.0 * s),
+                             S.capsule(r.neck - r.up * 2 * s, r.neck + r.up * 3 * s, 3.4 * s, 3.4 * s),
+                             S.halfspace(-r.fwd, -np.dot(-r.fwd, r.neck) - 1.5 * s)), 'robe'))
+        it += pauldrons(r, 'robe', 3.2, trim='trim')
+        # 넓은 소매 + 금 소맷단
         for el, ha in ((r.lel, r.lha), (r.rel, r.rha)):
-            it.append(Item(S.capsule(el, ha + (ha - el) * -0.15, 2.2 * s, 3.0 * s), 'robe'))
-        it.append(Item(S.cylinder(r.waist + r.up * 0.8 * s, 5.3 * s, 0.8 * s, r.rot, 0.3), 'trim'))
-        it += staff(r, 'wood', 'orb', 'gold', 32)
+            end = ha + (ha - el) * -0.1
+            it.append(Item(S.capsule(el, end, 2.2 * s, 3.4 * s), 'robe'))
+            it.append(Item(S.torus(end, S.frame_from(end - el), 3.1 * s, 0.6 * s), 'trim'))
+        it.append(Item(S.cylinder(r.waist + r.up * 0.8 * s, 5.2 * s, 0.7 * s, R, 0.3), 'trim'))
+        it += staff(r, 'g_dark', 'orb', 'gold', 34)
     return dict(name='mage', label='마법사', mats=m, parts=parts, gear=gear, weapon='staff', build=None,
-                opts=dict(no_legs=True, chest=(6.2, 4.0, 5.4)))
+                opts=dict(no_legs=True, chest=(6.0, 3.9, 5.2)))
 
 
 def _class_lord():
@@ -679,10 +751,10 @@ STANCE = {
                   rsh=26, rab=16, rel=58, wpn=158, wpn_side=-8, lsh=30, lab=12, lel=52),
     'great': dict(lhip=16, rhip=-14, lhip_side=12, rhip_side=12, lknee=30, rknee=18, twist=18, head_yaw=-14, lean=8,
                   rsh=34, rab=20, rel=64, wpn=145, wpn_side=-32, lsh=44, lab=24, lel=74),
-    'bow': dict(lhip=12, rhip=-10, lhip_side=11, rhip_side=11, lknee=24, rknee=14, twist=22, head_yaw=-18, lean=5,
-                lsh=34, lab=14, lel=18, rsh=16, rab=14, rel=40, wpn=40),
-    'staff': dict(lhip=10, rhip=-8, lhip_side=9, rhip_side=9, lknee=22, rknee=12, twist=8, head_yaw=-6, lean=5,
-                  rsh=24, rab=16, rel=48, wpn=172, wpn_side=-6, lsh=22, lab=18, lel=50),
+    'bow': dict(lhip=6, rhip=-4, lhip_side=7, rhip_side=7, lknee=12, rknee=8, twist=10, head_yaw=-8, lean=2,
+                lsh=14, lab=16, lel=14, rsh=8, rab=14, rel=26, wpn=40),
+    'staff': dict(lhip=4, rhip=-4, lhip_side=7, rhip_side=7, lknee=10, rknee=8, twist=6, head_yaw=-4, lean=1,
+                  rsh=18, rab=18, rel=40, wpn=176, wpn_side=-4, lsh=14, lab=22, lel=36),
 }
 # 기사·군주: 참고 시트처럼 무게 실은 직립 — 발은 어깨너비, 무릎 살짝, 검은 몸 옆에서 아래로 비스듬히
 STANCE['blade'] = dict(lhip=8, rhip=-6, lhip_side=8, rhip_side=8, lknee=16, rknee=12, twist=8, head_yaw=-6, lean=3,
@@ -921,4 +993,131 @@ def skill_pose(anim, f, n):
 def skill_xform(anim, f, n):
     if anim == 'skill_spin':
         return S.rz(SPIN_ANG[min(f, len(SPIN_ANG) - 1)]), V(0, 0, 0)
+    return None, None
+
+
+# ───────────────────────── 스킬 (요정·마법사) ─────────────────────────
+
+ELF_SKILLS = [('skill_wind', 8), ('skill_volley', 8), ('skill_whirl', 8), ('skill_fairy', 8)]
+MAGE_SKILLS = [('skill_bolt', 8), ('skill_ice', 8), ('skill_meteor', 8), ('skill_pillar', 8)]
+SKILL_HIT.update({'skill_wind': 5, 'skill_volley': 4, 'skill_whirl': 3, 'skill_fairy': 3,
+                  'skill_bolt': 4, 'skill_ice': 3, 'skill_meteor': 5, 'skill_pillar': 2})
+
+
+def _draw_keys(k_draw, extra=None):
+    """활 당김 정도(0..1)에 맞춘 팔 자세."""
+    d = dict(lsh=88, lel=2, lab=4, rsh=86, rel=60 + 78 * k_draw, rab=10, draw=k_draw)
+    if extra:
+        d.update(extra)
+    return d
+
+
+def skill_pose2(anim, f, n):
+    if anim in ('skill_wind', 'skill_volley', 'skill_whirl', 'skill_fairy'):
+        st = STANCE['bow']
+    else:
+        st = STANCE['staff']
+    legs = {k: st[k] for k in LEG_KEYS}
+    base = {k: v for k, v in st.items() if k not in LEG_KEYS}
+    p = dict(base)
+    p.update(legs)
+    p['plant'] = 1
+
+    if anim == 'skill_wind':
+        # 바람 화살: 낮게 버티고 끝까지 당겼다가 놓음, 반동으로 몸이 뒤로
+        dr = [0.0, 0.3, 0.7, 1.0, 1.0, 0.0, 0.0, 0.0][f]
+        p.update(_draw_keys(dr), lhip=14, rhip=-12, lhip_side=11, rhip_side=11, lknee=26, rknee=14,
+                 twist=24, head_yaw=-20, lean=[3, 4, 5, 6, 6, -4, -2, 2][f], cape=[4, 6, 8, 10, 10, 18, 14, 8][f])
+        if f >= 5:
+            p.update(rel=150, rab=36, rsh=74)
+        if f == 7:
+            p.update(rsh=40, rel=60, lsh=50)
+        return Pose(**_bend(p))
+
+    if anim == 'skill_volley':
+        # 도약 연사: 뒤로 뛰어오르며 공중에서 당겨 쏘고 착지
+        dr = [0.0, 0.2, 0.6, 1.0, 0.0, 0.0, 0.0, 0.0][f]
+        p.update(_draw_keys(dr), twist=20, head_yaw=-16)
+        if 1 <= f <= 5:
+            p.update(plant=0, lhip=40, rhip=-30, lknee=70, rknee=40, lhip_side=8, rhip_side=8,
+                     lean=-8, cape=-4 if f < 4 else 14)
+        else:
+            p.update(lhip=16, rhip=-12, lknee=34 if f == 6 else 14, rknee=22 if f == 6 else 10, sink=1.2 if f == 6 else 0.2)
+        if f >= 4:
+            p.update(rel=150, rab=34)
+        return Pose(**_bend(p))
+
+    if anim == 'skill_whirl':
+        # 잎 회오리: 활을 옆으로 쭉 뻗고 한 바퀴
+        p.update(lsh=88, lab=70, lel=4, rsh=60, rab=60, rel=30, lhip=12, rhip=-10, lhip_side=12, rhip_side=12,
+                 lknee=24, rknee=16, twist=0, lean=6, cape=16 if 1 <= f <= 6 else 6, sink=1.0)
+        if f in (0, 7):
+            p.update(lsh=40, lab=20, rsh=20, rab=20, cape=6, sink=0.4)
+        return Pose(**_bend(p))
+
+    if anim == 'skill_fairy':
+        # 요정의 축복: 두 팔을 벌리고 하늘을 올려다보며 살짝 떠오름
+        u = min(1.0, f / 2.0)
+        b = math.sin(2 * math.pi * f / n)
+        p.update(lsh=20 + 90 * u, lab=20 + 50 * u, lel=10, rsh=20 + 90 * u, rab=20 + 50 * u, rel=10,
+                 head=-16 * u, lean=-4 * u, bob=1.5 * u + 0.4 * b * u, cape=4 + 6 * u + 2 * b,
+                 lknee=10 + 10 * u, rknee=6 + 18 * u, plant=0 if u > 0.5 else 1)
+        return Pose(**p)
+
+    if anim == 'skill_bolt':
+        # 마력 화살: 왼손을 내뻗어 쏘고, 지팡이는 몸 옆에 세움
+        k = [0.0, 0.4, 0.8, 1.0, 1.0, 1.0, 0.6, 0.2][f]
+        p.update(lsh=20 + 72 * k, lab=22 - 12 * k, lel=40 - 36 * k, twist=6 + 18 * k, head_yaw=-4 - 14 * k,
+                 lean=1 + 6 * k, lhip=4 + 10 * k, rhip=-4 - 8 * k, lknee=10 + 14 * k, rknee=8 + 6 * k,
+                 cape=4 + 10 * (1 if f in (4, 5) else 0))
+        if f == 1:
+            p.update(lsh=50, lel=90, twist=-6)   # 손을 가슴으로 끌어당겨 모음
+        return Pose(**_bend(p))
+
+    if anim == 'skill_ice':
+        # 얼음 결정: 지팡이를 높이 들었다가 땅에 내리꽂음
+        keys = [dict(rsh=18, rel=40, wpn=176, lsh=14, lel=36, lean=1, sink=0.2),
+                dict(rsh=120, rel=40, wpn=190, lsh=60, lel=30, lean=-6, sink=0.4),
+                dict(rsh=160, rel=20, wpn=182, lsh=100, lel=20, lean=-10, sink=0.6),
+                dict(rsh=70, rel=30, wpn=178, lsh=50, lel=40, lean=10, sink=1.8),
+                dict(rsh=66, rel=30, wpn=178, lsh=46, lel=40, lean=11, sink=1.9),
+                dict(rsh=60, rel=32, wpn=178, lsh=40, lel=40, lean=9, sink=1.6),
+                dict(rsh=40, rel=36, wpn=178, lsh=24, lel=38, lean=5, sink=1.0),
+                dict(rsh=20, rel=40, wpn=176, lsh=14, lel=36, lean=2, sink=0.3)]
+        p.update(keyed(keys, f, n))
+        p['cape'] = 4 + (8 if f in (3, 4) else 0)
+        return Pose(**_bend(p))
+
+    if anim == 'skill_meteor':
+        # 운석 낙하: 지팡이와 손을 하늘로 → 앞으로 내려 가리킴
+        keys = [dict(rsh=18, rel=40, wpn=176, lsh=14, lel=36, lab=22, head=0, lean=1),
+                dict(rsh=100, rel=50, wpn=190, lsh=100, lel=50, lab=30, head=-10, lean=-4),
+                dict(rsh=165, rel=10, wpn=180, lsh=165, lel=10, lab=24, head=-20, lean=-8),
+                dict(rsh=168, rel=6, wpn=180, lsh=168, lel=6, lab=22, head=-22, lean=-9),
+                dict(rsh=120, rel=10, wpn=140, lsh=100, lel=8, lab=14, head=-6, lean=2),
+                dict(rsh=95, rel=6, wpn=110, lsh=92, lel=4, lab=10, head=4, lean=8),
+                dict(rsh=92, rel=6, wpn=105, lsh=90, lel=4, lab=10, head=4, lean=8),
+                dict(rsh=30, rel=36, wpn=170, lsh=20, lel=34, lab=20, head=0, lean=2)]
+        p.update(keyed(keys, f, n))
+        p['cape'] = [4, 6, 10, 12, 10, 16, 12, 6][f]
+        return Pose(**p)
+
+    if anim == 'skill_pillar':
+        # 마나 기둥: 지팡이를 앞에 세워 짚고 왼손을 위로
+        u = min(1.0, f / 2.0)
+        b = math.sin(2 * math.pi * f / n)
+        p.update(rsh=40 + 20 * u, rel=40 - 10 * u, wpn=178, lsh=14 + 140 * u, lab=24 + 10 * u, lel=36 - 26 * u,
+                 head=-10 * u, bob=0.6 * u + 0.3 * b * u, cape=4 + 8 * u + 2 * b, lean=1)
+        return Pose(**p)
+    raise ValueError(anim)
+
+
+def skill_xform2(anim, f, n):
+    if anim == 'skill_whirl':
+        ang = [0, -40, -110, -190, -260, -330, -360, -360][f]
+        return S.rz(ang), V(0, 0, 0)
+    if anim == 'skill_volley':
+        back = [0, 2, 7, 12, 15, 17, 16, 16][f]   # 뒤로 물러남(물체 공간 -y)
+        up = [0, 3, 9, 12, 11, 6, 0, 0][f]
+        return np.eye(3), V(0, -back, up)
     return None, None

@@ -41,15 +41,19 @@ def entities():
 
 
 def anims_for(ent):
-    if ent['kind'] == 'class' and ent['src']['weapon'] == 'blade':
-        return Hm.ANIMS + Hm.SKILLS
+    if ent['kind'] == 'class':
+        extra = {'blade': Hm.SKILLS, 'bow': Hm.ELF_SKILLS, 'staff': Hm.MAGE_SKILLS}.get(ent['src']['weapon'], [])
+        return Hm.ANIMS + extra
     return Hm.ANIMS
 
 
 def build_scene(ent, anim, f, n):
     src = ent['src']
     if ent['kind'] == 'class':
-        p = Hm.skill_pose(anim, f, n) if anim.startswith('skill_') else Hm.pose_for(src['weapon'], anim, f, n)
+        if anim.startswith('skill_'):
+            p = Hm.skill_pose(anim, f, n) if src['weapon'] == 'blade' else Hm.skill_pose2(anim, f, n)
+        else:
+            p = Hm.pose_for(src['weapon'], anim, f, n)
         r = Hm.Rig(p, src['build'])
         it = Hm.body_items(r, p, src['parts'], src['opts'])
         src['gear'](r, p, it)
@@ -57,7 +61,7 @@ def build_scene(ent, anim, f, n):
         if anim == 'death':
             M, t = (Hm.death_xform_forward if src['weapon'] == 'blade' else Hm.death_xform)(f, n)
         elif anim.startswith('skill_'):
-            M, t = Hm.skill_xform(anim, f, n)
+            M, t = (Hm.skill_xform if src['weapon'] == 'blade' else Hm.skill_xform2)(anim, f, n)
         return it, src['mats'], M, t
     it, M, t = src['build'](anim, f, n)
     return it, src['mats'], M, t
@@ -183,18 +187,30 @@ def main():
         gif([frames[('knight', 0, 'idle', f, e[0])] for f in range(NA['idle'])], os.path.join('preview', f'knight_plus{e[0]}.gif'), 180)
     print(f'캐릭터·몬스터 완료 {time.time() - t0:.0f}s', flush=True)
 
-    # ── 스킬 이펙트 (가산 혼합용 2층 시트: 0행 under, 1행 over)
+    # ── 스킬 이펙트: 층(under=캐릭터 뒤 가산, over=캐릭터 앞 가산, solid=캐릭터 앞 일반 혼합)
+    #    dirs=True 이면 방향마다 층 묶음이 반복됨(행 = 방향 × 층)
     import effects as EF
     meta['effects'] = {}
-    for key, e in EF.build_all().items():
-        n = len(e['under'])
-        sh = Image.new('RGBA', (e['fw'] * n, e['fh'] * 2))
-        for i in range(n):
-            sh.alpha_composite(e['under'][i], (i * e['fw'], 0))
-            sh.alpha_composite(e['over'][i], (i * e['fw'], e['fh']))
+    allfx = dict(EF.build_all())
+    allfx.update(EF.build_all2())
+    for key, e in allfx.items():
+        layers = ['under', 'over'] + (['solid'] if e.get('solid') else [])
+        dirs_ = bool(e.get('dirs'))
+        groups = range(8) if dirs_ else [None]
+        n = len(e['under'][0]) if dirs_ else len(e['under'])
+        nrow = len(layers) * (8 if dirs_ else 1)
+        sh = Image.new('RGBA', (e['fw'] * n, e['fh'] * nrow))
+        row = 0
+        for g in groups:
+            for ly in layers:
+                seq = e[ly][g] if dirs_ else e[ly]
+                for i in range(n):
+                    sh.alpha_composite(seq[i], (i * e['fw'], row * e['fh']))
+                row += 1
         meta['effects'][key] = dict(label=e['label'], sheet=save(sh, 'effects', f'{key}.png'), fw=e['fw'], fh=e['fh'],
-                                    ax=e['ax'], ay=e['ay'], frames=n, anim=e['anim'], loop=bool(e.get('loop')),
-                                    blend='lighter', rows=['under', 'over'], color=e['color'])
+                                    ax=e['ax'], ay=e['ay'], frames=n, anim=e['anim'], actor=e.get('actor', 'knight'),
+                                    loop=bool(e.get('loop')), dirs=dirs_, layers=layers,
+                                    blend={'under': 'lighter', 'over': 'lighter', 'solid': 'source-over'}, color=e['color'])
 
     # ── 필드
     tiles, rows = F.build_tiles(4)

@@ -44,7 +44,15 @@
   "skill_spin": 2,
   "skill_slam": 4,
   "skill_guard": 1,
-  "skill_bless": 3
+  "skill_bless": 3,
+  "skill_wind": 5,
+  "skill_volley": 4,
+  "skill_whirl": 3,
+  "skill_fairy": 3,
+  "skill_bolt": 4,
+  "skill_ice": 3,
+  "skill_meteor": 5,
+  "skill_pillar": 2
  },
  "characters": {
   "knight": {
@@ -117,7 +125,7 @@
    "fh": 104,
    "ax": 56,
    "ay": 70,
-   "cols": 31,
+   "cols": 63,
    "rows": [
     "S",
     "SE",
@@ -148,9 +156,30 @@
     "death": [
      25,
      6
+    ],
+    "skill_wind": [
+     31,
+     8
+    ],
+    "skill_volley": [
+     39,
+     8
+    ],
+    "skill_whirl": [
+     47,
+     8
+    ],
+    "skill_fairy": [
+     55,
+     8
     ]
    },
-   "skills": []
+   "skills": [
+    "skill_wind",
+    "skill_volley",
+    "skill_whirl",
+    "skill_fairy"
+   ]
   },
   "mage": {
    "label": "마법사",
@@ -159,7 +188,7 @@
    "fh": 104,
    "ax": 56,
    "ay": 70,
-   "cols": 31,
+   "cols": 63,
    "rows": [
     "S",
     "SE",
@@ -190,9 +219,30 @@
     "death": [
      25,
      6
+    ],
+    "skill_bolt": [
+     31,
+     8
+    ],
+    "skill_ice": [
+     39,
+     8
+    ],
+    "skill_meteor": [
+     47,
+     8
+    ],
+    "skill_pillar": [
+     55,
+     8
     ]
    },
-   "skills": []
+   "skills": [
+    "skill_bolt",
+    "skill_ice",
+    "skill_meteor",
+    "skill_pillar"
+   ]
   },
   "lord": {
    "label": "군주",
@@ -1326,12 +1376,18 @@
    "ay": 78,
    "frames": 8,
    "anim": "skill_spin",
+   "actor": "knight",
    "loop": false,
-   "blend": "lighter",
-   "rows": [
+   "dirs": false,
+   "layers": [
     "under",
     "over"
    ],
+   "blend": {
+    "under": "lighter",
+    "over": "lighter",
+    "solid": "source-over"
+   },
    "color": "blue"
   },
   "slam": {
@@ -1343,12 +1399,18 @@
    "ay": 134,
    "frames": 8,
    "anim": "skill_slam",
+   "actor": "knight",
    "loop": false,
-   "blend": "lighter",
-   "rows": [
+   "dirs": false,
+   "layers": [
     "under",
     "over"
    ],
+   "blend": {
+    "under": "lighter",
+    "over": "lighter",
+    "solid": "source-over"
+   },
    "color": "blue"
   },
   "guard": {
@@ -1360,12 +1422,18 @@
    "ay": 110,
    "frames": 6,
    "anim": "skill_guard",
+   "actor": "knight",
    "loop": true,
-   "blend": "lighter",
-   "rows": [
+   "dirs": false,
+   "layers": [
     "under",
     "over"
    ],
+   "blend": {
+    "under": "lighter",
+    "over": "lighter",
+    "solid": "source-over"
+   },
    "color": "blue"
   },
   "bless": {
@@ -1377,13 +1445,204 @@
    "ay": 164,
    "frames": 8,
    "anim": "skill_bless",
+   "actor": "knight",
    "loop": false,
-   "blend": "lighter",
-   "rows": [
+   "dirs": false,
+   "layers": [
     "under",
     "over"
    ],
+   "blend": {
+    "under": "lighter",
+    "over": "lighter",
+    "solid": "source-over"
+   },
    "color": "gold"
+  },
+  "wind": {
+   "label": "바람 화살",
+   "sheet": "effects/wind.png",
+   "fw": 240,
+   "fh": 170,
+   "ax": 120,
+   "ay": 118,
+   "frames": 8,
+   "anim": "skill_wind",
+   "actor": "elf",
+   "loop": false,
+   "dirs": true,
+   "layers": [
+    "under",
+    "over"
+   ],
+   "blend": {
+    "under": "lighter",
+    "over": "lighter",
+    "solid": "source-over"
+   },
+   "color": "green"
+  },
+  "volley": {
+   "label": "도약 연사",
+   "sheet": "effects/volley.png",
+   "fw": 240,
+   "fh": 190,
+   "ax": 120,
+   "ay": 140,
+   "frames": 8,
+   "anim": "skill_volley",
+   "actor": "elf",
+   "loop": false,
+   "dirs": true,
+   "layers": [
+    "under",
+    "over"
+   ],
+   "blend": {
+    "under": "lighter",
+    "over": "lighter",
+    "solid": "source-over"
+   },
+   "color": "green"
+  },
+  "whirl": {
+   "label": "잎 회오리",
+   "sheet": "effects/whirl.png",
+   "fw": 176,
+   "fh": 150,
+   "ax": 88,
+   "ay": 112,
+   "frames": 8,
+   "anim": "skill_whirl",
+   "actor": "elf",
+   "loop": false,
+   "dirs": false,
+   "layers": [
+    "under",
+    "over"
+   ],
+   "blend": {
+    "under": "lighter",
+    "over": "lighter",
+    "solid": "source-over"
+   },
+   "color": "green"
+  },
+  "fairy": {
+   "label": "요정의 축복",
+   "sheet": "effects/fairy.png",
+   "fw": 160,
+   "fh": 180,
+   "ax": 80,
+   "ay": 140,
+   "frames": 8,
+   "anim": "skill_fairy",
+   "actor": "elf",
+   "loop": false,
+   "dirs": false,
+   "layers": [
+    "under",
+    "over"
+   ],
+   "blend": {
+    "under": "lighter",
+    "over": "lighter",
+    "solid": "source-over"
+   },
+   "color": "green"
+  },
+  "bolt": {
+   "label": "마력 화살",
+   "sheet": "effects/bolt.png",
+   "fw": 240,
+   "fh": 170,
+   "ax": 120,
+   "ay": 118,
+   "frames": 8,
+   "anim": "skill_bolt",
+   "actor": "mage",
+   "loop": false,
+   "dirs": true,
+   "layers": [
+    "under",
+    "over"
+   ],
+   "blend": {
+    "under": "lighter",
+    "over": "lighter",
+    "solid": "source-over"
+   },
+   "color": "blue"
+  },
+  "ice": {
+   "label": "얼음 결정 폭발",
+   "sheet": "effects/ice.png",
+   "fw": 200,
+   "fh": 170,
+   "ax": 100,
+   "ay": 130,
+   "frames": 8,
+   "anim": "skill_ice",
+   "actor": "mage",
+   "loop": false,
+   "dirs": false,
+   "layers": [
+    "under",
+    "over"
+   ],
+   "blend": {
+    "under": "lighter",
+    "over": "lighter",
+    "solid": "source-over"
+   },
+   "color": "blue"
+  },
+  "meteor": {
+   "label": "운석 낙하",
+   "sheet": "effects/meteor.png",
+   "fw": 240,
+   "fh": 260,
+   "ax": 120,
+   "ay": 196,
+   "frames": 8,
+   "anim": "skill_meteor",
+   "actor": "mage",
+   "loop": false,
+   "dirs": true,
+   "layers": [
+    "under",
+    "over",
+    "solid"
+   ],
+   "blend": {
+    "under": "lighter",
+    "over": "lighter",
+    "solid": "source-over"
+   },
+   "color": "purple"
+  },
+  "pillar": {
+   "label": "마나 기둥",
+   "sheet": "effects/pillar.png",
+   "fw": 140,
+   "fh": 210,
+   "ax": 70,
+   "ay": 172,
+   "frames": 8,
+   "anim": "skill_pillar",
+   "actor": "mage",
+   "loop": false,
+   "dirs": false,
+   "layers": [
+    "under",
+    "over"
+   ],
+   "blend": {
+    "under": "lighter",
+    "over": "lighter",
+    "solid": "source-over"
+   },
+   "color": "purple"
   }
  },
  "item_atlas": {
