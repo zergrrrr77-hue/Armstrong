@@ -310,6 +310,32 @@
       return 1.8;
     },
 
+    // 보스 스킬 ─────────────────────────
+    boss_darkslash: v => {
+      voice(v, { f0: 80, f1: 55, dur: 0.6, vowel: 'a', vowel2: 'o', level: 0.5, rough: 0.9, vib: 3 });
+      whoosh(V(v.ctx, v.gain(1), v.t + 0.25), {}, 200, 1600, 0.5, 2.2);
+      const g = v.gain(0); const lp = v.filter('lowpass', 1800, 2, g); lp.frequency.exponentialRampToValueAtTime(200, v.t + 1.0);
+      v.noise('brown', lp, 1.0); env(g.gain, v.t + 0.3, 0.02, 1.2, 0.8);
+      return 1.1;
+    },
+    boss_hellfire_charge: v => {
+      voice(v, { f0: 65, f1: 90, dur: 1.0, vowel: 'o', vowel2: 'a', level: 0.6, rough: 0.9, vib: 2.5, curve: 'rise' });
+      const g = v.gain(0); const lp = v.filter('lowpass', 200, 3, g); lp.frequency.exponentialRampToValueAtTime(1200, v.t + 1.0);
+      v.noise('brown', lp, 1.1); g.gain.setValueAtTime(0.0001, v.t); g.gain.exponentialRampToValueAtTime(1.0, v.t + 1.0); g.gain.exponentialRampToValueAtTime(0.0001, v.t + 1.1);
+      return 1.1;
+    },
+    boss_hellfire: v => {
+      thud(v, 45, 18, 1.4, 0.7); crack(v, 180, 0.5, 1.4, 0.7, 'brown');
+      R.campfire_burst(v);
+      return 1.6;
+    },
+    campfire_burst: v => {
+      const g = v.gain(0); const bp = v.filter('bandpass', 900, 0.6, g); bp.frequency.exponentialRampToValueAtTime(300, v.t + 1.3);
+      v.noise('pink', bp, 1.4); env(g.gain, v.t, 0.02, 1.4, 1.3);
+      for (let i = 0; i < 20; i++) crack(v, rnd(1500, 5000), rnd(1, 4), rnd(0.01, 0.04), rnd(0.1, 0.4), 'white', v.t + rnd(0, 1.2));
+      return 1.4;
+    },
+
     // 몬스터 ─────────────────────────
     orc_attack: v => voice(v, { f0: 120, f1: 85, dur: 0.55, vowel: 'a', vowel2: 'o', level: 0.55, rough: 0.7, curve: 'rise' }),
     orc_hurt: v => voice(v, { f0: 150, f1: 95, dur: 0.28, vowel: 'u', vowel2: 'a', level: 0.5, rough: 0.6 }),
@@ -351,6 +377,8 @@
     skill_ice: [[1, 'mage_charge'], [3, 'mage_ice']],
     skill_meteor: [[2, 'mage_meteor_fall'], [5, 'mage_meteor_hit']],
     skill_pillar: [[1, 'mage_pillar']],
+    skill_darkslash: [[1, 'boss_darkslash']],
+    skill_hellfire: [[1, 'boss_hellfire_charge'], [5, 'boss_hellfire']],
   };
 
   // 발소리 자동 매핑용: 동작별 사운드
@@ -364,7 +392,7 @@
     wolf: { hit: 'hit_flesh', attack: 'wolf_attack', hurt: 'wolf_hurt', death: 'wolf_death' },
     spider: { hit: 'hit_flesh', attack: 'spider_attack', hurt: 'spider_hurt', death: 'spider_death' },
     ooze: { hit: 'hit_flesh', attack: 'ooze_attack', hurt: 'ooze_hurt', death: 'ooze_death' },
-    boss: { swing: 'swing_heavy', hit: 'critical', attack: 'boss_attack', hurt: 'boss_hurt', death: 'boss_death' },
+    boss: { swing: 'swing_heavy', hit: 'critical', attack: 'boss_attack', hurt: 'boss_hurt', death: 'boss_death', skills: SKILL_CUES },
   };
 
   const SOUNDS = [
@@ -378,6 +406,7 @@
     ['요정 스킬', 'elf_whirl', '잎 회오리'], ['요정 스킬', 'elf_fairy', '요정의 축복'],
     ['마법사 스킬', 'mage_charge', '마력 모으기'], ['마법사 스킬', 'mage_bolt', '마력 화살'], ['마법사 스킬', 'mage_ice', '얼음 결정 폭발'],
     ['마법사 스킬', 'mage_meteor_fall', '운석 · 낙하'], ['마법사 스킬', 'mage_meteor_hit', '운석 · 충돌'], ['마법사 스킬', 'mage_pillar', '마나 기둥'],
+    ['몰락한 왕', 'boss_darkslash', '암흑 베기'], ['몰락한 왕', 'boss_hellfire_charge', '지옥불 · 포효'], ['몰락한 왕', 'boss_hellfire', '지옥불 · 폭발'],
     ['시스템', 'level_up', '레벨 업'], ['시스템', 'enchant_ok', '강화 성공'], ['시스템', 'enchant_fail', '강화 실패'],
     ['오크 전사', 'orc_attack', '공격 함성'], ['오크 전사', 'orc_hurt', '피격'], ['오크 전사', 'orc_death', '사망'],
     ['해골 병사', 'skeleton_attack', '공격'], ['해골 병사', 'skeleton_hurt', '피격'], ['해골 병사', 'skeleton_death', '무너짐'],

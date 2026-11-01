@@ -52,7 +52,9 @@
   "skill_bolt": 4,
   "skill_ice": 3,
   "skill_meteor": 5,
-  "skill_pillar": 2
+  "skill_pillar": 2,
+  "skill_darkslash": 4,
+  "skill_hellfire": 5
  },
  "characters": {
   "knight": {
@@ -526,7 +528,7 @@
    "fh": 128,
    "ax": 72,
    "ay": 100,
-   "cols": 31,
+   "cols": 47,
    "rows": [
     "S",
     "SE",
@@ -557,9 +559,20 @@
     "death": [
      25,
      6
+    ],
+    "skill_darkslash": [
+     31,
+     8
+    ],
+    "skill_hellfire": [
+     39,
+     8
     ]
    },
-   "skills": []
+   "skills": [
+    "skill_darkslash",
+    "skill_hellfire"
+   ]
   }
  },
  "props": {
@@ -1643,6 +1656,53 @@
     "solid": "source-over"
    },
    "color": "purple"
+  },
+  "darkslash": {
+   "label": "암흑 베기",
+   "sheet": "effects/darkslash.png",
+   "fw": 320,
+   "fh": 240,
+   "ax": 160,
+   "ay": 160,
+   "frames": 8,
+   "anim": "skill_darkslash",
+   "actor": "boss",
+   "loop": false,
+   "dirs": true,
+   "layers": [
+    "under",
+    "over",
+    "solid"
+   ],
+   "blend": {
+    "under": "lighter",
+    "over": "lighter",
+    "solid": "source-over"
+   },
+   "color": "red"
+  },
+  "hellfire": {
+   "label": "지옥불 강타",
+   "sheet": "effects/hellfire.png",
+   "fw": 300,
+   "fh": 260,
+   "ax": 150,
+   "ay": 190,
+   "frames": 8,
+   "anim": "skill_hellfire",
+   "actor": "boss",
+   "loop": false,
+   "dirs": false,
+   "layers": [
+    "under",
+    "over"
+   ],
+   "blend": {
+    "under": "lighter",
+    "over": "lighter",
+    "solid": "source-over"
+   },
+   "color": "red"
   }
  },
  "item_atlas": {

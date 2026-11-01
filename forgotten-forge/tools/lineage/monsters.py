@@ -26,11 +26,54 @@ def samp(keys, f, n):
     return a + (b - a) * w
 
 
+# ───────────────────────── 보스 스킬 ─────────────────────────
+BOSS_SKILLS = [('skill_darkslash', 8), ('skill_hellfire', 8)]
+BOSS_SKILL_HIT = {'skill_darkslash': 4, 'skill_hellfire': 5}
+
+
+def boss_skill_pose(anim, f, n):
+    st = Hm.STANCE['great']
+    legs = {k: st[k] for k in Hm.LEG_KEYS}
+    p = {k: v for k, v in st.items() if k not in Hm.LEG_KEYS}
+    p.update(legs)
+    p['plant'] = 1
+    if anim == 'skill_darkslash':
+        # 암흑 베기: 대검을 오른쪽 뒤로 크게 감았다가 몸 전체로 가로질러 벰
+        keys = [dict(rsh=34, rel=62, wpn=145, wpn_side=-30, lsh=44, lel=74, twist=8, lean=5, sink=0.4),
+                dict(rsh=70, rel=40, wpn=100, wpn_side=60, lsh=60, lel=60, twist=34, lean=0, sink=0.9),
+                dict(rsh=86, rel=26, wpn=96, wpn_side=88, lsh=70, lel=50, twist=46, lean=-2, sink=1.2),
+                dict(rsh=90, rel=10, wpn=94, wpn_side=30, lsh=60, lel=30, twist=10, lean=10, sink=1.6),
+                dict(rsh=90, rel=4, wpn=92, wpn_side=-60, lsh=40, lel=20, twist=-30, lean=18, sink=2.2),
+                dict(rsh=90, rel=4, wpn=91, wpn_side=-68, lsh=38, lel=20, twist=-33, lean=19, sink=2.3),
+                dict(rsh=70, rel=12, wpn=84, wpn_side=-86, lsh=36, lel=30, twist=-36, lean=15, sink=1.8),
+                dict(rsh=36, rel=56, wpn=135, wpn_side=-30, lsh=44, lel=70, twist=6, lean=6, sink=0.6)]
+        p.update(Hm.keyed(keys, f, n))
+        p['lhip'] = legs['lhip'] + (14 if f >= 3 else 0)
+        p['rhip'] = legs['rhip'] - (12 if f >= 3 else 0)
+        p['cape'] = [6, 10, 14, 18, 22, 20, 14, 8][f]
+    elif anim == 'skill_hellfire':
+        # 지옥불 강타: 대검을 머리 위로 치켜들고 포효 → 땅에 내리꽂음
+        keys = [dict(rsh=34, rel=62, wpn=145, wpn_side=-30, lsh=44, lel=74, lean=5, head=0, sink=0.4),
+                dict(rsh=120, rel=40, wpn=190, wpn_side=-6, lsh=118, lel=42, lab=10, lean=-6, head=-10, sink=0.6),
+                dict(rsh=165, rel=16, wpn=200, wpn_side=0, lsh=160, lel=18, lab=8, lean=-12, head=-20, sink=0.4),
+                dict(rsh=168, rel=12, wpn=202, wpn_side=0, lsh=163, lel=14, lab=8, lean=-13, head=-22, sink=0.4),
+                dict(rsh=110, rel=10, wpn=120, wpn_side=0, lsh=106, lel=12, lab=8, lean=14, head=0, sink=1.6),
+                dict(rsh=70, rel=12, wpn=30, wpn_side=0, lsh=66, lel=14, lab=8, lean=30, head=10, sink=3.0),
+                dict(rsh=68, rel=12, wpn=28, wpn_side=0, lsh=64, lel=14, lab=8, lean=31, head=10, sink=3.1),
+                dict(rsh=40, rel=50, wpn=130, wpn_side=-24, lsh=44, lel=66, lab=20, lean=8, head=0, sink=0.8)]
+        p.update(Hm.keyed(keys, f, n))
+        p['cape'] = [6, 4, 0, 0, 10, 22, 18, 8][f]
+    return Hm.Pose(**Hm._bend(p))
+
+
 # ───────────────────────── 사람형 몬스터 공통 ─────────────────────────
 
 def humanoid_monster(name, label, mats, parts, opts, build, kind, gear, frame, lean=0.0, extra_pose=None):
     def make(anim, f, n):
-        p = Hm.pose_for(kind, anim, f, n)
+        if anim.startswith('skill_'):
+            p = boss_skill_pose(anim, f, n)
+        else:
+            p = Hm.pose_for(kind, anim, f, n)
         p['lean'] = p['lean'] + lean
         if extra_pose:
             extra_pose(p, anim, f, n)

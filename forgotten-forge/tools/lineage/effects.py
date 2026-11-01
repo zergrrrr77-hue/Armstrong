@@ -618,3 +618,93 @@ def mana_pillar(n=8):
 def build_all2():
     return {'wind': wind_arrow(), 'volley': volley(), 'whirl': whirl(), 'fairy': fairy(),
             'bolt': magic_bolt(), 'ice': ice_burst(), 'meteor': meteor(), 'pillar': mana_pillar()}
+
+
+
+# ───────────────────────── 보스 스킬 이펙트 ─────────────────────────
+HELL = ['#2a0402', '#6a0c04', '#b8260a', '#f06a1c', '#ffc060', '#ffffff']
+
+
+def _smoke(draw, x, y, r, a):
+    draw.ellipse([x - r, y - r * 0.8, x + r, y + r * 0.8], fill=(14, 6, 10, int(255 * a)))
+
+
+def dark_slash(n=8):
+    """암흑 베기: 앞으로 날아가는 검붉은 초승달 충격파 + 검은 연기(일반 혼합)."""
+    W, H, ax, ay = 320, 240, 160, 160
+    under, over, solid = [[] for _ in range(8)], [[] for _ in range(8)], [[] for _ in range(8)]
+    for d in range(8):
+        dx, dy = screen_dir(d)
+        face = math.atan2(dy * 2, dx)       # 바닥 평면 기준 각도
+        for f in range(n):
+            U, O = Layer(W, H), Layer(W, H)
+            Sd = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+            dr = ImageDraw.Draw(Sd)
+            if 1 <= f <= 3:   # 대검에 모이는 불꽃
+                k = f / 3
+                O.dot(ax - dx * 20, ay - 50 - dy * 20, 4 + 6 * k, 0.9 * k)
+                for j in range(6):
+                    a = j * 1.05 + f
+                    O.dot(ax - dx * 20 + math.cos(a) * 14 * (1 - k), ay - 50 + math.sin(a) * 10 * (1 - k), 1.4, 0.9)
+            if f >= 4:
+                t = (f - 4) / (n - 5)
+                dist = 30 + 110 * t
+                cx, cy = ax + dx * dist, ay - 30 + dy * dist
+                R = 44 + 10 * t
+                fade = 1 - 0.6 * t
+                O.ring(cx - dx * R * 0.6, cy - dy * R * 0.6, R, R * 0.5, 7, 1.1 * fade, face - 1.1, face + 1.1, fade=None)
+                O.ring(cx - dx * R * 0.6, cy - dy * R * 0.6, R * 0.82, R * 0.41, 3, 0.8 * fade, face - 0.9, face + 0.9)
+                for j in range(9):   # 꼬리 쪽 검은 연기
+                    a = face + (j - 4) * 0.25
+                    px = cx - dx * R * 0.6 + math.cos(a) * R * 0.75 - dx * 10
+                    py = cy - dy * R * 0.6 + math.sin(a) * R * 0.375 - dy * 10
+                    _smoke(dr, px, py, 6 + (j % 3) * 2, 0.55 * fade)
+                if f == 4:
+                    U.disk(ax, ay, 50, 22, 0.6)
+            under[d].append(U.image(HELL))
+            over[d].append(O.image(HELL))
+            solid[d].append(Sd)
+    return dict(label='암흑 베기', fw=W, fh=H, ax=ax, ay=ay, under=under, over=over, solid=solid, anim='skill_darkslash',
+                color='red', dirs=True, actor='boss')
+
+
+def hellfire(n=8):
+    """지옥불 강타: 예고 원 → 땅에 꽂는 순간 용암 균열과 불기둥."""
+    W, H, ax, ay = 300, 260, 150, 190
+    hit = 5
+    under, over = [], []
+    r0 = _rng(1300)
+    cracks = [(r0.uniform(0, 6.3), r0.uniform(60, 95)) for _ in range(12)]
+    pillars = [(r0.uniform(0, 6.3), r0.uniform(30, 85)) for _ in range(12)]
+    for f in range(n):
+        U, O = Layer(W, H), Layer(W, H)
+        if f < hit:   # 예고: 바닥에 붉은 원이 차오름
+            k = (f + 1) / hit
+            U.ring(ax, ay, 95, 47.5, 1.6, 0.6 + 0.3 * k)
+            U.disk(ax, ay, 95 * k, 47.5 * k, 0.35)
+            O.dot(ax, ay - 110, 3 + 8 * k, 0.9 * k)
+        else:
+            t = (f - hit) / max(1, n - 1 - hit)
+            fade = 1 - 0.5 * t
+            for (a, ln) in cracks:   # 용암 균열
+                x1, y1 = ax + math.cos(a) * ln, ay + math.sin(a) * ln * 0.5
+                xm, ym = ax + math.cos(a + 0.2) * ln * 0.5, ay + math.sin(a + 0.2) * ln * 0.25
+                U.line(ax, ay, xm, ym, 2.2, 1.0 * fade)
+                U.line(xm, ym, x1, y1, 1.6, 0.9 * fade)
+            U.disk(ax, ay, 60, 30, 0.9 * fade, 1.0)
+            U.ring(ax, ay, 40 + 60 * t, 20 + 30 * t, 3.5, 1.0 * fade)
+            for j, (a, rad) in enumerate(pillars):   # 불기둥
+                grow = min(1.0, (f - hit + 1) / 1.5)
+                px, py = ax + math.cos(a) * rad, ay + math.sin(a) * rad * 0.5
+                O.beam(px, py, (50 + (j * 13) % 40) * grow * (1.2 - 0.5 * t), 4 + j % 3, 1.0 * fade)
+            O.beam(ax, ay, 140 * min(1.0, (f - hit + 1) / 1.5), 10, 1.1 * fade)
+            rr = _rng(1400 + f)
+            for j in range(20):
+                O.dot(ax + rr.uniform(-90, 90), ay - rr.uniform(10, 150), rr.uniform(0.8, 1.8), 1.0 * fade)
+        under.append(U.image(HELL))
+        over.append(O.image(HELL))
+    return dict(label='지옥불 강타', fw=W, fh=H, ax=ax, ay=ay, under=under, over=over, anim='skill_hellfire', color='red', actor='boss')
+
+
+def build_boss():
+    return {'darkslash': dark_slash(), 'hellfire': hellfire()}

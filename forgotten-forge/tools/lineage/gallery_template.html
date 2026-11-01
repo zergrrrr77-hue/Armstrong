@@ -252,7 +252,7 @@ footer code { font-family: var(--mono); color: #d9c9a8; }
 <script>
 const META = /*META*/{}/*END*/;
 const DIR_LABEL = { S: '남', SE: '남동', E: '동', NE: '북동', N: '북', NW: '북서', W: '서', SW: '남서' };
-const ANIM_LABEL = { idle: '대기', walk: '걷기', attack: '공격', hurt: '피격', death: '사망', skill_spin: '회전 베기', skill_slam: '대지 강타', skill_guard: '수호 결계', skill_bless: '성스러운 축복', skill_wind: '바람 화살', skill_volley: '도약 연사', skill_whirl: '잎 회오리', skill_fairy: '요정의 축복', skill_bolt: '마력 화살', skill_ice: '얼음 결정 폭발', skill_meteor: '운석 낙하', skill_pillar: '마나 기둥' };
+const ANIM_LABEL = { idle: '대기', walk: '걷기', attack: '공격', hurt: '피격', death: '사망', skill_spin: '회전 베기', skill_slam: '대지 강타', skill_guard: '수호 결계', skill_bless: '성스러운 축복', skill_wind: '바람 화살', skill_volley: '도약 연사', skill_whirl: '잎 회오리', skill_fairy: '요정의 축복', skill_bolt: '마력 화살', skill_ice: '얼음 결정 폭발', skill_meteor: '운석 낙하', skill_pillar: '마나 기둥', skill_darkslash: '암흑 베기', skill_hellfire: '지옥불 강타' };
 // 한 이펙트를 그리는 공통 함수: 층(under/over/solid)과 방향(dirs)을 고려
 function fxRow(fx, layer, dir) {
   const li = fx.layers.indexOf(layer);
@@ -450,11 +450,12 @@ requestAnimationFrame(frame);
   if (!META.effects) return;
   const desc = { skill_spin: '몸을 한 바퀴 돌며 주변을 벤다', skill_slam: '뛰어올라 검을 땅에 꽂아 빛 기둥을 일으킨다', skill_guard: '검을 가로로 들고 마법진 결계를 친다', skill_bless: '검을 세워 기도하고 금빛 축복을 내린다',
     skill_wind: '바람을 모아 꿰뚫는 화살을 쏜다', skill_volley: '뒤로 뛰어오르며 화살 세 발을 부채꼴로 쏜다', skill_whirl: '몸을 돌려 잎 회오리를 일으킨다', skill_fairy: '요정 날개가 돋아나며 잎비가 내린다',
+    skill_darkslash: '대검을 휘둘러 검붉은 충격파를 날린다', skill_hellfire: '바닥에 예고 원을 그린 뒤 대검을 꽂아 불기둥을 일으킨다',
     skill_bolt: '손끝 마법진에서 마력 화살을 쏜다', skill_ice: '지팡이를 꽂아 얼음 결정을 솟구치게 한다', skill_meteor: '앞쪽 마법진 위로 운석을 떨어뜨린다', skill_pillar: '발밑 룬에서 마나 기둥이 솟는다' };
-  const order = ['knight', 'elf', 'mage'];
+  const order = ['knight', 'elf', 'mage', 'boss'];
   const entries = Object.entries(META.effects).sort((x, y) => order.indexOf(x[1].actor) - order.indexOf(y[1].actor));
   for (const [k, fx] of entries) {
-    const a = META.characters[fx.actor] || META.characters.knight;
+    const a = META.characters[fx.actor] || META.monsters[fx.actor] || META.characters.knight;
     const img = await load(a.sheet);
     const fxImg = await load(fx.sheet);
     const [start, n] = a.anims[fx.anim];

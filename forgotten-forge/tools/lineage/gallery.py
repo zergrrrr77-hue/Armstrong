@@ -18,5 +18,20 @@ def write(out_dir):
     return p
 
 
+def write_game(out_dir):
+    """게임(forgotten-forge/index.html)에 meta를 넣어 만든다. 에셋은 lineage-assets/ 상대 경로."""
+    with open(os.path.join(out_dir, 'meta.json'), encoding='utf-8') as fp:
+        meta = json.load(fp)
+    with open(os.path.join(HERE, 'game_template.html'), encoding='utf-8') as fp:
+        tpl = fp.read()
+    html = tpl.replace('/*META*/{}/*END*/', json.dumps(meta, ensure_ascii=False, separators=(',', ':')))
+    p = os.path.normpath(os.path.join(out_dir, '..', 'index.html'))
+    with open(p, 'w', encoding='utf-8') as fp:
+        fp.write(html)
+    return p
+
+
 if __name__ == '__main__':
-    print(write(sys.argv[1] if len(sys.argv) > 1 else os.path.normpath(os.path.join(HERE, '..', '..', 'lineage-assets'))))
+    d = sys.argv[1] if len(sys.argv) > 1 else os.path.normpath(os.path.join(HERE, '..', '..', 'lineage-assets'))
+    print(write(d))
+    print(write_game(d))

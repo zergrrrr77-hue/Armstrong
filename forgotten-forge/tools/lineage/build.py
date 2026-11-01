@@ -44,6 +44,8 @@ def anims_for(ent):
     if ent['kind'] == 'class':
         extra = {'blade': Hm.SKILLS, 'bow': Hm.ELF_SKILLS, 'staff': Hm.MAGE_SKILLS}.get(ent['src']['weapon'], [])
         return Hm.ANIMS + extra
+    if ent['src']['name'] == 'boss':
+        return Hm.ANIMS + Mo.BOSS_SKILLS
     return Hm.ANIMS
 
 
@@ -149,7 +151,7 @@ def main():
 
     meta = dict(version=1, style='리니지풍 프리렌더 도트 (쿼터뷰 30°, 2:1 타일)', tile=dict(w=F.TW, h=F.TH, world=F.CELL),
                 dirs=DIRS, dir_note='행 = 방향(yaw 45°씩: S, SE, E, NE, N, NW, W, SW). 좌우 반전 없이 8방향을 모두 렌더링.',
-                anims=[dict(name=a, frames=n) for a, n in Hm.ANIMS], hit_frame=Hm.HIT_FRAME, skill_hit=Hm.SKILL_HIT, characters={}, monsters={}, props={}, tiles={}, items={})
+                anims=[dict(name=a, frames=n) for a, n in Hm.ANIMS], hit_frame=Hm.HIT_FRAME, skill_hit=dict(Hm.SKILL_HIT, **Mo.BOSS_SKILL_HIT), characters={}, monsters={}, props={}, tiles={}, items={})
     for nm in names:
         ent = ents[nm]
         anims = anims_for(ent)
@@ -193,6 +195,7 @@ def main():
     meta['effects'] = {}
     allfx = dict(EF.build_all())
     allfx.update(EF.build_all2())
+    allfx.update(EF.build_boss())
     for key, e in allfx.items():
         layers = ['under', 'over'] + (['solid'] if e.get('solid') else [])
         dirs_ = bool(e.get('dirs'))
@@ -264,6 +267,7 @@ def main():
         scene.compose_dungeon(OUT, meta)
     import gallery
     gallery.write(OUT)
+    gallery.write_game(OUT)
     print(f'완료 {time.time() - t0:.0f}s → {OUT}')
 
 
