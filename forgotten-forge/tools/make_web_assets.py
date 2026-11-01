@@ -418,9 +418,9 @@ def slime(rx, ry, blink=False):
 GW, GH_, GAX, GAY = 56, 56, 26, 55
 
 
-def goblin(pose):
-    c = Cv(GW, GH_)
-    g = Scaled(c, 1.5, (16, 35), (GAX, GAY))
+def goblin(pose, k=1.5, size=(GW, GH_), anchor=(GAX, GAY)):
+    c = Cv(*size)
+    g = Scaled(c, k, (16, 35), anchor)
     S, SD, SL, TU, TD = '#74a84a', '#4f7a30', '#9bd067', '#7a5230', '#54361e'
     b = 1 if pose in ('idle1', 'walk1') else 0
     lean = {'windup': -2, 'strike': 2, 'hurt': -2}.get(pose, 0)
@@ -484,9 +484,9 @@ def MA_lerp(a, b_, t):
 BW, BH_, BAX, BAY = 136, 126, 64, 123
 
 
-def boss(pose):
-    c = Cv(BW, BH_)
-    g = Scaled(c, 1.35, (38, 75), (BAX, BAY))
+def boss(pose, k=1.35, size=(BW, BH_), anchor=(BAX, BAY)):
+    c = Cv(*size)
+    g = Scaled(c, k, (38, 75), anchor)
     B, BD, BL, BEL, HORN, HD, CLAW = '#6a3590', '#47206a', '#8d52b8', '#c45ad8', '#c77ff0', '#8a42b8', '#ecd8ff'
     crouch = {'wind_c': 4, 'charge': 3, 'melee': 2}.get(pose, 0)
     lean = {'wind_c': 5, 'charge': 8, 'hurt': -4, 'melee': 4}.get(pose, 0)
@@ -965,45 +965,35 @@ def inject(payload):
 
 
 def main():
+    """쿼터뷰(오픈필드) 판: iso_art로 주인공·몬스터·무기·지형·소품을 만들고, 아이콘·초상화는 기존 것을 쓴다."""
+    import iso_art
+    iso_art.setup(sys.modules[__name__])
     os.makedirs(OUT, exist_ok=True)
     os.makedirs(PREVIEW, exist_ok=True)
-    hero_sheets, hero_meta = build_hero()
-    for g, im in hero_sheets.items():
-        im.save(os.path.join(OUT, f'hero_{g}.png'))
-    # 미리보기: 기본색 + 다른 조합 두 가지
-    looks = [KEY_DEFAULT, {'hair': '#f08ab8', 'skin': '#ffe3cc', 'eye': '#2f62d0', 'outfit': '#6a4aa8'},
-             {'hair': '#e8c050', 'skin': '#c4875a', 'eye': '#2e9a58', 'outfit': '#b0403b'}]
-    rows = []
-    for g in ('m', 'f'):
-        for lk in looks:
-            rows.append(recolor_preview(hero_sheets[g], lk))
-    W = max(r.width for r in rows)
-    sheet = Image.new('RGBA', (W, HH * len(rows)), (60, 52, 70, 255))
-    for i, r in enumerate(rows):
-        sheet.alpha_composite(r, (0, i * HH))
-    sheet.resize((sheet.width * 4, sheet.height * 4), Image.NEAREST).save(os.path.join(PREVIEW, 'hero_preview.png'))
-    mon_sheets, mon_meta = build_monsters()
-    for k, im in mon_sheets.items():
-        im.save(os.path.join(OUT, f'{k}.png'))
-        big = Image.new('RGBA', im.size, (60, 52, 70, 255)); big.alpha_composite(im)
-        big.resize((im.width * 3, im.height * 3), Image.NEAREST).save(os.path.join(PREVIEW, f'{k}_preview.png'))
-    wsheet, wmeta, isheet, iorder, arrow = build_items()
-    portraits = build_portraits(mon_sheets)
-    for name, im in (('weapons', wsheet), ('icons', isheet), ('arrow', arrow), ('portraits', portraits)):
+    hero_sheets, hero_meta = iso_art.build_hero()
+    looks = [KEY_DEFAULT, {'hair': '#e8c050', 'skin': '#c4875a', 'eye': '#2e9a58', 'outfit': '#b0403b'}]
+    rows = [recolor_preview(hero_sheets['m'], looks[0]), recolor_preview(hero_sheets['f'], looks[1])]
+    pv = Image.new('RGBA', (rows[0].width, rows[0].height * 2), (90, 130, 80, 255))
+    pv.alpha_composite(rows[0], (0, 0)); pv.alpha_composite(rows[1], (0, rows[0].height))
+    pv.resize((pv.width * 3, pv.height * 3), Image.NEAREST).save(os.path.join(PREVIEW, 'iso_hero_preview.png'))
+    mon_sheets, mon_meta = iso_art.build_monsters()
+    big_mon, _ = build_monsters()            # 초상화는 큰 그림에서 자른다
+    portraits = build_portraits(big_mon)
+    _, _, isheet, iorder, _ = build_items()
+    wsheet, wmeta, arrow = iso_art.build_weapons()
+    tiles, tmeta = iso_art.build_tiles()
+    props, pmeta = iso_art.build_props()
+    sheets = {'hero_m': hero_sheets['m'], 'hero_f': hero_sheets['f'], **mon_sheets, 'weapons': wsheet, 'icons': isheet,
+              'arrow': arrow, 'portraits': portraits, 'tiles': tiles, 'props': props}
+    for name, im in sheets.items():
         im.save(os.path.join(OUT, f'{name}.png'))
-        big = Image.new('RGBA', im.size, (60, 52, 70, 255)); big.alpha_composite(im)
-        big.resize((im.width * 3, im.height * 3), Image.NEAREST).save(os.path.join(PREVIEW, f'{name}_preview.png'))
-    world_sheets, world_meta = world_art.build_world()
-    for name, im in world_sheets.items():
-        im.save(os.path.join(OUT, f'{name}.png'))
-        big = Image.new('RGBA', im.size, (120, 170, 210, 255)); big.alpha_composite(im)
-        big.resize((im.width * 3, im.height * 3), Image.NEAREST).save(os.path.join(PREVIEW, f'{name}_preview.png'))
-    meta = {'hero': hero_meta, **mon_meta, 'weapons': {'cw': 64, 'ch': 44, 'items': wmeta}, 'icons': iorder, **world_meta}
+    for name in ('tiles', 'props', 'slime', 'goblin', 'boss', 'weapons'):
+        im = sheets[name]
+        big = Image.new('RGBA', im.size, (90, 130, 80, 255)); big.alpha_composite(im)
+        big.resize((im.width * 2, im.height * 2), Image.NEAREST).save(os.path.join(PREVIEW, f'iso_{name}_preview.png'))
+    meta = {'hero': hero_meta, **mon_meta, 'weapons': wmeta, 'icons': iorder, 'tiles': tmeta, 'props': pmeta}
     json.dump(meta, open(os.path.join(OUT, 'meta.json'), 'w'))
-    inject({'hero_m': data_uri(hero_sheets['m']), 'hero_f': data_uri(hero_sheets['f']),
-            **{k: data_uri(im) for k, im in mon_sheets.items()},
-            'weapons': data_uri(wsheet), 'icons': data_uri(isheet), 'arrow': data_uri(arrow), 'portraits': data_uri(portraits),
-            **{k: data_uri(im) for k, im in world_sheets.items()}, 'meta': meta})
+    inject({**{k: data_uri(im) for k, im in sheets.items()}, 'meta': meta})
     print('완료:', OUT)
 
 
