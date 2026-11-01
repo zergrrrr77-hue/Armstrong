@@ -25,7 +25,7 @@ class Pose(dict):
         lhip=0.0, rhip=0.0, lknee=4.0, rknee=4.0, lhip_side=0.0, rhip_side=0.0,
         lsh=8.0, rsh=8.0, lab=10.0, rab=10.0, lel=18.0, rel=18.0,
         wpn=70.0, wpn_side=0.0, wpn_roll=0.0, shd=0.0,
-        head=0.0, head_yaw=0.0, cape=0.0, crouch=0.0, glow=0.0, draw=0.0, mouth=0.0,
+        head=0.0, head_yaw=0.0, cape=0.0, crouch=0.0, glow=0.0, draw=0.0, mouth=0.0, plant=0.0,
     )
 
     def __init__(self, **kw):
@@ -59,8 +59,30 @@ class Rig:
             kn = hp + sagittal(a, ab, side) * b['thigh'] * s
             an = kn + sagittal(a - k, ab, side) * b['shin'] * s
             return hp, kn, an
-        self.lhp, self.lkn, self.lan = leg(-1, p.lhip, p.lknee, p.lhip_side)
-        self.rhp, self.rkn, self.ran = leg(1, p.rhip, p.rknee, p.rhip_side)
+        lk, rk = p.lknee, p.rknee
+        if p.plant:
+            # 두 발 모두 땅을 딛도록: 더 길게 뻗은 다리의 무릎을 굽혀 높이를 맞춘다
+            def drop(a, k, ab, side):
+                return leg(side, a, k, ab)[2][2]
+            zl, zr = drop(p.lhip, lk, p.lhip_side, -1), drop(p.rhip, rk, p.rhip_side, 1)
+            if abs(zl - zr) > 0.2:
+                if zl < zr:   # 왼다리가 더 아래로 뻗음 → 왼 무릎을 더 굽힘
+                    a_, ab_, sd, k0, target = p.lhip, p.lhip_side, -1, lk, zr
+                else:
+                    a_, ab_, sd, k0, target = p.rhip, p.rhip_side, 1, rk, zl
+                lo, hi = k0, k0 + 120
+                for _ in range(24):
+                    mid = (lo + hi) / 2
+                    if drop(a_, mid, ab_, sd) < target:
+                        lo = mid
+                    else:
+                        hi = mid
+                if sd < 0:
+                    lk = (lo + hi) / 2
+                else:
+                    rk = (lo + hi) / 2
+        self.lhp, self.lkn, self.lan = leg(-1, p.lhip, lk, p.lhip_side)
+        self.rhp, self.rkn, self.ran = leg(1, p.rhip, rk, p.rhip_side)
         # 접지: 낮은 발목이 z=3s
         minz = min(self.lan[2], self.ran[2]) - 3.0 * s
         off = V(0, 0, -minz + p.bob - p.crouch)
@@ -160,6 +182,35 @@ def sword(r, mats, length=21, width=1.45, guard='gold', grip='leather', blade='s
     it.append(Item(S.box(h + w * 2.1 * s, V(3.6 * s, 0.9 * s, 0.7 * s), M, 0.35), guard))
     it.append(Item(S.capsule(h - w * 2.4 * s, h + w * 1.8 * s, 0.85 * s), grip))
     it.append(Item(S.sphere(h - w * 3.0 * s, 1.15 * s), pommel or guard))
+    return it
+
+
+def broadsword(r, length=17.5, width=2.1, guard='steel_dk', grip='leather', blade='steel', pommel='gold', tag='blade'):
+    """넓은 외날 기사검: 두꺼운 칼날, 등쪽은 곧고 칼끝은 날 쪽에서 비스듬히 잘림, 아래로 휜 큰 코등이."""
+    s = r.s
+    h = r.rha
+    w = r.wdir
+    M = S.frame_from(w, r.right)       # 로컬 z = 칼날 방향
+    ex = M[:, 0]                        # 칼날 폭 방향(날 ↔ 등)
+    base = h + w * 2.6 * s
+    tip = base + w * length * s
+    body = S.box((base + tip) / 2, V(width * s, 0.5 * s, length * s / 2), M, 0.15)
+    # 칼끝: 날 쪽(+ex)에서 등 쪽 끝으로 비스듬히 자름
+    n_cut = S.nrm(w * 1.0 + ex * 0.55)
+    body = S.inter(body, S.halfspace(n_cut, np.dot(n_cut, tip - ex * width * s * 0.9)))
+    it = [Item(body, blade, tag),
+          # 홈(풀러): 칼날 가운데 어두운 줄
+          Item(S.box(base + w * length * s * 0.38 - ex * 0.35 * s, V(0.42 * s, 0.56 * s, length * s * 0.32), M, 0.1), 'steel_dk', tag)]
+    # 코등이: 가운데 블록 + 아래(손 쪽)로 휘는 양 날개
+    gc = h + w * 2.2 * s
+    it.append(Item(S.box(gc, V(1.6 * s, 1.0 * s, 1.0 * s), M, 0.3), guard))
+    for sg in (-1, 1):
+        a = gc + ex * sg * 1.2 * s
+        b = gc + ex * sg * 4.6 * s - w * 1.4 * s
+        it.append(Item(S.capsule(a, b, 0.75 * s, 0.5 * s), guard))
+        it.append(Item(S.sphere(b, 0.75 * s), guard))
+    it.append(Item(S.capsule(h - w * 2.2 * s, h + w * 1.6 * s, 0.9 * s), grip))
+    it.append(Item(S.ellipsoid(h - w * 2.9 * s, V(1.3 * s, 1.0 * s, 1.0 * s), M), pommel))
     return it
 
 
@@ -437,7 +488,7 @@ def _class_knight():
         it.append(Item(S.box(r.chest + r.fwd * 3.9 * r.s - r.up * 3.0 * r.s, V(3.4 * r.s, 0.5 * r.s, 6.0 * r.s), r.rot, 0.3), 'tabard'))
         it.append(Item(S.box(r.chest + r.fwd * 4.4 * r.s - r.up * 1.8 * r.s, V(0.5 * r.s, 0.4 * r.s, 2.4 * r.s), r.rot, 0.1), 'gold'))
         it.append(Item(S.box(r.chest + r.fwd * 4.4 * r.s - r.up * 1.2 * r.s, V(1.8 * r.s, 0.4 * r.s, 0.5 * r.s), r.rot, 0.1), 'gold'))
-        it += sword(r, m, 21, guard='steel_dk', grip='leather', blade='steel', pommel='gold')
+        it += broadsword(r, 17.5, 2.1, guard='steel_dk', grip='leather', blade='steel', pommel='gold')
         it += shield_kite(r, 'tabard', 'steel', 'gold', 1.0, emblem='gold')
     return dict(name='knight', label='기사', mats=m, parts=parts, gear=gear, weapon='sword', build=None, opts=dict(hair=False, eyes=False))
 
@@ -517,7 +568,7 @@ def _class_lord():
         it.append(Item(S.torus(r.neck - r.up * 1.5 * s - r.fwd * 0.5 * s, r.rot, 4.6 * s, 2.1 * s), 'fur'))
         it += skirt(r, 'cape', 5.8, 7.2, 9.5)
         it.append(Item(S.box(r.chest + r.fwd * 4.1 * r.s - r.up * 0.5 * r.s, V(2.3 * r.s, 0.5 * r.s, 2.3 * r.s), r.rot @ S.ry(45), 0.3), 'gold'))
-        it += sword(r, m, 22, guard='gold', grip='cape', blade='steel', pommel='gem')
+        it += broadsword(r, 18.5, 1.9, guard='gold', grip='cape', blade='steel', pommel='gem')
     return dict(name='lord', label='군주', mats=m, parts=parts, gear=gear, weapon='sword', build=dict(scale=1.02),
                 opts=dict(chest=(6.9, 4.3, 5.8)))
 
@@ -565,24 +616,24 @@ def _bend(p):
 
 # 공격 키프레임 (8프레임: 준비 → 예비동작 2 → 휘두름 → 타격 → 멈춤(히트스톱) → 여운 → 복귀)
 ATK_SWORD = [
-    dict(rsh=30, rel=50, wpn=105, wpn_side=-10, lean=0, twist=0, sink=0.3, lhip=0, rhip=0),
+    dict(rsh=26, rel=58, wpn=150, wpn_side=-8, lean=4, twist=6, sink=0.3, lhip=0, rhip=0),
     dict(rsh=115, rel=65, wpn=185, wpn_side=-14, lean=-5, twist=-16, sink=0.8, lhip=-4, rhip=6),
     dict(rsh=158, rel=42, wpn=212, wpn_side=-10, lean=-10, twist=-28, sink=1.1, lhip=-6, rhip=8),
     dict(rsh=118, rel=14, wpn=140, wpn_side=8, lean=4, twist=0, sink=0.6, lhip=14, rhip=-12),
     dict(rsh=66, rel=6, wpn=98, wpn_side=22, lean=14, twist=24, sink=1.6, lhip=22, rhip=-18),
     dict(rsh=60, rel=6, wpn=94, wpn_side=24, lean=15, twist=26, sink=1.7, lhip=22, rhip=-18),
     dict(rsh=34, rel=18, wpn=78, wpn_side=20, lean=11, twist=20, sink=1.3, lhip=18, rhip=-14),
-    dict(rsh=24, rel=40, wpn=92, wpn_side=2, lean=4, twist=6, sink=0.5, lhip=6, rhip=-4),
+    dict(rsh=26, rel=54, wpn=140, wpn_side=-6, lean=5, twist=8, sink=0.4, lhip=4, rhip=-3),
 ]
 ATK_GREAT = [
-    dict(rsh=36, rel=44, wpn=125, wpn_side=-22, lean=2, twist=0, sink=0.4),
+    dict(rsh=34, rel=62, wpn=145, wpn_side=-30, lean=5, twist=8, sink=0.4),
     dict(rsh=120, rel=60, wpn=190, wpn_side=-24, lean=-6, twist=-22, sink=1.0, lhip=-6, rhip=8),
     dict(rsh=165, rel=40, wpn=218, wpn_side=-14, lean=-12, twist=-34, sink=1.4, lhip=-8, rhip=10),
     dict(rsh=125, rel=18, wpn=150, wpn_side=6, lean=6, twist=-4, sink=0.8, lhip=16, rhip=-14),
     dict(rsh=60, rel=8, wpn=92, wpn_side=26, lean=18, twist=26, sink=2.0, lhip=26, rhip=-20),
     dict(rsh=55, rel=8, wpn=88, wpn_side=28, lean=19, twist=28, sink=2.1, lhip=26, rhip=-20),
     dict(rsh=32, rel=20, wpn=78, wpn_side=22, lean=14, twist=22, sink=1.6, lhip=20, rhip=-16),
-    dict(rsh=30, rel=38, wpn=110, wpn_side=-10, lean=5, twist=8, sink=0.6, lhip=6, rhip=-4),
+    dict(rsh=34, rel=60, wpn=140, wpn_side=-28, lean=6, twist=10, sink=0.5, lhip=4, rhip=-3),
 ]
 ATK_BOW = [
     dict(lsh=45, lel=10, rsh=14, rel=30, twist=0, lean=2, draw=0.0, sink=0.3),
@@ -606,46 +657,61 @@ ATK_STAFF = [
 ]
 
 
+# 전투 대기 기준 자세(모든 동작의 출발점): 발을 앞뒤·좌우로 넓게, 무릎 굽혀 낮게, 몸은 비스듬히
+STANCE = {
+    'sword': dict(lhip=14, rhip=-12, lhip_side=11, rhip_side=11, lknee=28, rknee=18, twist=14, head_yaw=-12, lean=6,
+                  rsh=26, rab=16, rel=58, wpn=158, wpn_side=-8, lsh=30, lab=12, lel=52),
+    'great': dict(lhip=16, rhip=-14, lhip_side=12, rhip_side=12, lknee=30, rknee=18, twist=18, head_yaw=-14, lean=8,
+                  rsh=34, rab=20, rel=64, wpn=145, wpn_side=-32, lsh=44, lab=24, lel=74),
+    'bow': dict(lhip=12, rhip=-10, lhip_side=11, rhip_side=11, lknee=24, rknee=14, twist=22, head_yaw=-18, lean=5,
+                lsh=34, lab=14, lel=18, rsh=16, rab=14, rel=40, wpn=40),
+    'staff': dict(lhip=10, rhip=-8, lhip_side=9, rhip_side=9, lknee=22, rknee=12, twist=8, head_yaw=-6, lean=5,
+                  rsh=24, rab=16, rel=48, wpn=172, wpn_side=-6, lsh=22, lab=18, lel=50),
+}
+STANCE['axe'] = STANCE['sword']
+LEG_KEYS = ('lhip', 'rhip', 'lhip_side', 'rhip_side', 'lknee', 'rknee')
+
+
 def pose_for(kind, anim, f, n):
     """kind: 'sword' | 'axe' | 'great' | 'bow' | 'staff'"""
     t = f / n
     ph = 2 * math.pi * t
-    if kind == 'bow':
-        base = dict(lsh=40, lab=6, lel=10, rsh=12, rab=12, rel=30, wpn=40)
-    elif kind == 'staff':
-        base = dict(rsh=26, rel=45, rab=14, wpn=170, wpn_side=-6, lsh=10, lel=25)
-    elif kind == 'great':
-        base = dict(rsh=30, rel=40, rab=18, wpn=125, wpn_side=-22, lsh=26, lel=55, lab=20)
-    else:  # sword / axe
-        base = dict(rsh=14, rel=34, rab=12, wpn=62, wpn_side=-12, lsh=30, lel=46, lab=16)
+    st = dict(STANCE.get(kind, STANCE['sword']))
+    legs = {k: st[k] for k in LEG_KEYS}
+    base = {k: v for k, v in st.items() if k not in LEG_KEYS}
 
     if anim == 'idle':
-        # 들숨(어깨·가슴 올라감)과 날숨, 무게중심이 좌우로 살짝 옮겨감
+        # 낮게 버틴 채 숨쉬기: 들숨에 상체가 오르고 무릎이 펴짐, 날숨에 가라앉음
         b = math.sin(ph)
         c = math.sin(ph - 0.9)
         p = dict(base)
-        p.update(bob=-0.45 + 0.45 * b, lean=2 + 0.8 * b, roll=0.6 * c,
-                 cape=1 + 1.4 * c, head=-1.2 * c, lknee=6 + 2 * c, rknee=4 - 1 * c)
-        p['rsh'] = base['rsh'] + 1.5 * c
+        p.update(legs)
+        p.update(plant=1, bob=-0.5 + 0.5 * b, lean=base['lean'] + 0.8 * b, roll=0.5 * c,
+                 cape=2 + 1.4 * c, head=-1.0 * c)
+        p['lknee'] = legs['lknee'] + 3 * (1 - b)
+        p['rsh'] = base['rsh'] + 2 * c
         p['lsh'] = base['lsh'] + 1.5 * c
+        p['wpn'] = base.get('wpn', 70) + 2 * c
         return Pose(**p)
 
     if anim == 'walk':
-        # 8프레임 보행: 디딤(무릎 약간 굽혀 충격 흡수) → 밀어내기 → 들어올림 → 앞으로 뻗기
+        # 무기를 겨눈 채 낮은 자세로 걷기: 보폭은 넓고, 디딜 때 무릎으로 충격 흡수
         sw = math.sin(ph)
         cw = math.cos(ph)
         lift_l = max(0.0, cw) ** 1.3
         lift_r = max(0.0, -cw) ** 1.3
-        contact = 1 - abs(cw)             # 두 발 디딤 순간
+        contact = 1 - abs(cw)
         p = dict(base)
-        p.update(lhip=28 * sw, rhip=-28 * sw,
-                 lknee=8 + 42 * lift_l + 6 * contact, rknee=8 + 42 * lift_r + 6 * contact,
-                 lean=6, twist=-7 * sw, roll=2.2 * cw, head=1.5 * contact,
-                 cape=9 + 5 * abs(cw), lhip_side=1.5, rhip_side=1.5)
-        if kind != 'bow':
-            p['lsh'] = base['lsh'] + (-18 * sw if kind != 'staff' else -26 * sw)
-        p['rsh'] = base['rsh'] + 15 * sw
-        p['rel'] = base['rel'] + 6 * max(0.0, sw)
+        p.update(lhip=4 + 28 * sw, rhip=-4 - 28 * sw,
+                 lknee=16 + 42 * lift_l + 8 * contact, rknee=16 + 42 * lift_r + 8 * contact,
+                 lhip_side=5, rhip_side=5,
+                 lean=base['lean'] + 1, twist=base['twist'] * 0.5 - 7 * sw, roll=2.2 * cw, head=1.5 * contact,
+                 head_yaw=base.get('head_yaw', 0) * 0.5, cape=9 + 5 * abs(cw))
+        if kind == 'staff':
+            p['lsh'] = base['lsh'] - 22 * sw
+        elif kind != 'bow':
+            p['lsh'] = base['lsh'] - 8 * sw
+        p['rsh'] = base['rsh'] + 10 * sw
         p['bob'] = 0.3 * abs(math.sin(ph))
         return Pose(**p)
 
@@ -653,28 +719,40 @@ def pose_for(kind, anim, f, n):
         keys = {'bow': ATK_BOW, 'staff': ATK_STAFF, 'great': ATK_GREAT}.get(kind, ATK_SWORD)
         k = keyed(keys, f, n)
         p = dict(base)
-        p.update(rab=16, lab=20, shd=1, lknee=10, rknee=8)
+        p.update(rab=16, lab=20, shd=1, plant=1)
         if kind in ('sword', 'axe'):
-            p.update(lsh=40, lel=50)
+            p.update(lsh=34, lel=54, lab=14)
         p.update(k)
+        # 발은 대기 자세처럼 넓게 벌린 채 휘두름(키프레임의 다리 값은 그 위에 더함)
+        p['lhip'] = legs['lhip'] * 0.6 + k.get('lhip', 0)
+        p['rhip'] = legs['rhip'] * 0.6 + k.get('rhip', 0)
+        p['lhip_side'] = legs['lhip_side']
+        p['rhip_side'] = legs['rhip_side']
+        p['lknee'] = legs['lknee']
+        p['rknee'] = legs['rknee']
+        p['twist'] = k.get('twist', 0) + legs['lhip'] * 0.3
         p['cape'] = 6 + 6 * abs(k.get('twist', 0)) / 25 + (6 if f in (3, 4) else 0)
         return Pose(**_bend(p))
 
     if anim == 'hurt':
-        # 맞는 순간 크게 젖혀졌다가 반동으로 돌아옴
         k = [1.0, 0.75, 0.3][f] if n == 3 else (1.0 - f / max(1, n - 1) * 0.7)
         p = dict(base)
-        p.update(lean=-16 * k, head=-16 * k, twist=8 * k, lsh=base['lsh'] + 24 * k, rsh=base['rsh'] - 12 * k,
-                 rab=28 * k + 10, lab=24 * k + 10, lhip=-10 * k, rhip=8 * k, cape=16 * k, sink=0.8 * k)
+        p.update(legs)
+        p.update(plant=1, lean=base['lean'] - 22 * k, head=-16 * k, twist=base['twist'] + 8 * k,
+                 lsh=base['lsh'] + 18 * k, rsh=base['rsh'] - 12 * k,
+                 rab=28 * k + 14, lab=24 * k + 16, cape=16 * k, sink=0.6 * k)
         return Pose(**_bend(p))
 
     if anim == 'death':
         u = f / max(1, n - 1)
         k = min(1.0, u * 1.25)
         p = dict(base)
-        p.update(lean=-6 - 12 * k, head=-22 * k, lknee=10 + 45 * k, rknee=8 + 35 * k, lhip=24 * k, rhip=14 * k,
-                 lsh=base['lsh'] + 50 * k, rsh=base['rsh'] + 60 * k, lab=10 + 40 * k, rab=10 + 45 * k,
-                 lel=20, rel=20, wpn=base['wpn'] + 50 * k, cape=20 + 10 * k)
+        p.update(lean=base['lean'] * (1 - k) - 6 - 12 * k, head=-22 * k,
+                 lhip=legs['lhip'] * (1 - k) + 24 * k, rhip=legs['rhip'] * (1 - k) + 14 * k,
+                 lhip_side=legs['lhip_side'], rhip_side=legs['rhip_side'],
+                 lknee=legs['lknee'] + 30 * k, rknee=legs['rknee'] + 25 * k,
+                 lsh=base['lsh'] + 40 * k, rsh=base['rsh'] + 50 * k, lab=14 + 36 * k, rab=14 + 40 * k,
+                 lel=20, rel=20, wpn=base.get('wpn', 70) + 40 * k, cape=20 + 10 * k)
         return Pose(**p)
     raise ValueError(anim)
 
