@@ -661,7 +661,7 @@ def _class_lord():
                 opts=dict(chest=(6.9, 4.3, 5.8)))
 
 
-CLASSES = [_class_knight(), _class_elf(), _class_mage(), _class_lord()]
+CLASSES = [_class_knight(), _class_elf(), _class_mage()]   # 군주는 기사와 스킬이 같아 제외(_class_lord는 참고용으로 남김)
 
 
 # ───────────────────────── 동작 ─────────────────────────

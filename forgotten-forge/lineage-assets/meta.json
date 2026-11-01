@@ -245,69 +245,6 @@
     "skill_meteor",
     "skill_pillar"
    ]
-  },
-  "lord": {
-   "label": "군주",
-   "sheet": "characters/lord.png",
-   "fw": 112,
-   "fh": 104,
-   "ax": 56,
-   "ay": 70,
-   "cols": 61,
-   "rows": [
-    "S",
-    "SE",
-    "E",
-    "NE",
-    "N",
-    "NW",
-    "W",
-    "SW"
-   ],
-   "anims": {
-    "idle": [
-     0,
-     6
-    ],
-    "walk": [
-     6,
-     8
-    ],
-    "attack": [
-     14,
-     8
-    ],
-    "hurt": [
-     22,
-     3
-    ],
-    "death": [
-     25,
-     6
-    ],
-    "skill_spin": [
-     31,
-     8
-    ],
-    "skill_slam": [
-     39,
-     8
-    ],
-    "skill_guard": [
-     47,
-     6
-    ],
-    "skill_bless": [
-     53,
-     8
-    ]
-   },
-   "skills": [
-    "skill_spin",
-    "skill_slam",
-    "skill_guard",
-    "skill_bless"
-   ]
   }
  },
  "monsters": {

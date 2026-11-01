@@ -1,5 +1,5 @@
 // 잊혀진 대장간(리니지풍) 기본 점검:
-// 클래스 4종 시작 → 이동 → 기본 공격 → 스킬 4종 → 물약 → 강화 → 던전 입장 → 보스 스킬 → 보스 처치 → 오류 0건
+// 클래스 3종 시작 → 이동 → 기본 공격 → 스킬 4종 → 물약 → 강화 → 장비 드롭·착용 → 자동사냥 → 던전 입장 → 보스 스킬 → 보스 처치 → 휴대폰 정보창 겹침 → 오류 0건
 // 실행: node forgotten-forge/tests/iso_smoke.js [스크린샷 폴더]
 const { chromium } = require('playwright');
 const path = require('path');
@@ -10,15 +10,15 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
 (async () => {
   const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
   const fails = [];
-  for (const cls of ['knight', 'lord', 'elf', 'mage']) {
+  for (const cls of ['knight', 'elf', 'mage']) {
     console.log(`[${cls}]`);
     const page = await browser.newPage({ viewport: { width: 1280, height: 760 } });
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
     page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
     await page.goto('file://' + path.resolve(__dirname, '../index.html'));
-    await page.waitForFunction(() => document.querySelectorAll('.cls').length === 4, null, { timeout: 20000 });
-    const idx = ['knight', 'lord', 'elf', 'mage'].indexOf(cls);
+    await page.waitForFunction(() => document.querySelectorAll('.cls').length === 3, null, { timeout: 20000 });
+    const idx = ['knight', 'elf', 'mage'].indexOf(cls);
     await page.locator('.cls').nth(idx).click();
     if (cls === 'knight') await page.screenshot({ path: `${OUT}/g0_title.png` });
     await page.click('#start');
@@ -53,6 +53,29 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
     check(pot, '체력 물약', fails);
     const enc = await page.evaluate(() => { const P = __game.P; P.inv.scroll_weapon = 3; __game.enchant('w'); __game.enchant('w'); return P.wEnc === 2; });
     check(enc, '무기 강화(+6 이하 안전)', fails);
+    const gold = await page.evaluate(() => document.getElementById('gold').textContent.includes('골드'));
+    check(gold, '화폐 단위 골드', fails);
+
+    // 장비 드롭 → 줍기 → 착용
+    const eq = await page.evaluate(() => {
+      const G = __game, P = G.P;
+      const before = G.equipDef(P.weapon.key).atk;
+      const key = { knight: 'b_great', elf: 'w_elven', mage: 's_mana' }[P.cls];
+      G.drops.push({ id: G.equipDef(key).icon, equip: G.makeEquip(key), n: 1, x: P.x, y: P.y, t: 0 });
+      return before;
+    });
+    await page.waitForTimeout(300);
+    const eq2 = await page.evaluate(() => { const G = __game, P = G.P; if (!P.bag.length) return 0; G.equip(P.bag[P.bag.length - 1].uid); return G.equipDef(P.weapon.key).atk; });
+    check(eq2 > eq, '장비 줍기·착용으로 공격력 상승', fails);
+    const tables = await page.evaluate(() => document.getElementById('dropTable').textContent.includes('다이어울프') && document.getElementById('encTable').textContent.includes('%'));
+    check(tables, '드롭률·강화 확률 표 표시', fails);
+
+    // 자동사냥: 켜 두면 스스로 대상을 찾아 공격
+    const k0 = await page.evaluate(() => { const P = __game.P; P.hp = P.maxhp; P.target = null; P.goal = null; __game.setAuto(true); return __game.STATE.kills; });
+    await page.waitForTimeout(9000);
+    const k1 = await page.evaluate(() => ({ kills: __game.STATE.kills, target: !!__game.P.target, auto: __game.P.auto, hp: __game.P.hp }));
+    check(k1.kills > k0 || k1.target, '자동사냥으로 대상 공격', fails);
+    await page.evaluate(() => __game.setAuto(false));
 
     if (cls === 'knight') {
       // 던전 입장
@@ -71,7 +94,7 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
       await page.waitForTimeout(1500);
       // 보스 처치
       await page.evaluate(() => { const b = __game.mobs.find(m => m.type === 'boss'); b.hp = 30; __game.P.target = b; });
-      await page.waitForTimeout(4500);
+      await page.waitForTimeout(7000);
       const dead = await page.evaluate(() => __game.STATE.bossDead);
       check(dead, '보스 처치', fails);
       await page.screenshot({ path: `${OUT}/g5_victory.png` });
@@ -82,11 +105,21 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
   // 휴대폰 크기 확인
   const m = await browser.newPage({ viewport: { width: 400, height: 780 } });
   await m.goto('file://' + path.resolve(__dirname, '../index.html'));
-  await m.waitForFunction(() => document.querySelectorAll('.cls').length === 4, null, { timeout: 20000 });
-  await m.locator('.cls').nth(2).click(); await m.click('#start'); await m.waitForTimeout(800);
+  await m.waitForFunction(() => document.querySelectorAll('.cls').length === 3, null, { timeout: 20000 });
+  await m.locator('.cls').nth(1).click(); await m.click('#start'); await m.waitForTimeout(800);
   await m.screenshot({ path: `${OUT}/g6_phone.png` });
   const ov = await m.evaluate(() => document.documentElement.scrollWidth - innerWidth);
   check(ov <= 0, '휴대폰 화면 가로 넘침 없음', fails);
+  await m.evaluate(() => { const w = __game.mobs.find(x => x.type === 'wolf'); __game.P.target = w; w.hp = w.maxhp - 5; });
+  await m.waitForTimeout(400);
+  const overlap = await m.evaluate(() => {
+    const r = id => document.getElementById(id).getBoundingClientRect();
+    const hit = (a, b) => !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top);
+    const t = r('target');
+    return { shown: t.height > 0, a: hit(t, r('status')), b: hit(t, r('mini')), c: hit(t, r('bar')) };
+  });
+  check(overlap.shown && !overlap.a && !overlap.b && !overlap.c, '휴대폰에서 대상 정보창이 다른 창과 겹치지 않음', fails);
+  await m.screenshot({ path: `${OUT}/g7_phone_target.png` });
   await browser.close();
   console.log(fails.length ? `실패 ${fails.length}건` : '모두 통과');
   process.exit(fails.length ? 1 : 0);

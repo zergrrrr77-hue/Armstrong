@@ -155,7 +155,6 @@ def main_layout(put_prop, put_actor):
 
     put_actor('characters', 'knight', 6, 4, 'SE', 'attack', 4)
     put_actor('monsters', 'orc', 7, 5, 'NW', 'attack', 2)
-    put_actor('characters', 'lord', 5, 5, 'E', 'idle', 0)
     put_actor('characters', 'elf', 4, 6, 'SE', 'attack', 4, dx=8)
     put_actor('characters', 'mage', 5, 2, 'SE', 'attack', 4)
     put_actor('monsters', 'wolf', 8, 6, 'W', 'attack', 4, dx=6)
@@ -200,7 +199,6 @@ def dungeon_layout(put_prop, put_actor):
     put_actor('characters', 'knight', 6, 7, 'NW', 'attack', 4)
     put_actor('characters', 'mage', 8, 7, 'NW', 'attack', 3)
     put_actor('characters', 'elf', 7, 9, 'NW', 'attack', 4)
-    put_actor('characters', 'lord', 7, 5, 'NW', 'hurt', 0)
     put_actor('monsters', 'skeleton', 5, 3, 'SE', 'walk', 3)
     put_actor('monsters', 'skeleton', 9, 9, 'NW', 'death', 5)
     put_actor('monsters', 'spider', 9, 2, 'W', 'idle', 0)
