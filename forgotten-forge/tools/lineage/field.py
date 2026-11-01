@@ -220,6 +220,37 @@ def t_dungeon(var):
     return img
 
 
+@ground('dungeon_wet', '젖은 던전 바닥')
+def t_dungeon_wet(var):
+    img = t_dungeon(var % 3)
+    u, v, ins = _tile_uv()
+    moss = (_pfbm(u, v, 4, 650 + var, 3) > 0.6) & ins
+    img[moss, :3] = (img[moss, :3] * 0.5 + np.array(hexrgb('#1f2a18')) * 0.5).astype(np.uint8)
+    pud = (_pfbm(u, v, 3, 680 + var, 2) > 0.69) & ins
+    img[pud, :3] = hexrgb('#141b22')
+    edge = pud & ~np.roll(pud, 1, 0)
+    img[edge, :3] = hexrgb('#27313a')
+    return img
+
+
+@ground('planks', '나무 마루')
+def t_planks(var):
+    u, v, ins = _tile_uv()
+    n = 6
+    row = np.floor(u * n)
+    fu = (u * n) % 1
+    off = S.hash2(row.astype(np.int64), row.astype(np.int64) * 3, 90 + var)
+    seg = np.floor(v * 2 + off * 2)
+    tone = S.hash2(row.astype(np.int64), seg.astype(np.int64), 91 + var)
+    grain = _pnoise(u, v * 0.2, 48, 92 + var)
+    idx = 1.6 + tone * 1.4 + (grain - 0.5) * 1.0
+    gap = (fu < 0.09) | ((v * 2 + off * 2) % 1 < 0.025)
+    idx = np.where(gap, 0, idx)
+    idx = np.where((fu >= 0.09) & (fu < 0.18), idx + 0.7, idx)
+    img = _paint(['#160e08', '#2a1b10', '#3b2716', '#4d341e', '#5f4227', '#704f30'], np.floor(idx), ins)
+    return img
+
+
 def water_frames(n=4):
     """잔물결 물 타일(애니메이션)."""
     u, v, ins = _tile_uv()
@@ -318,6 +349,20 @@ PM = {
     'bone': Mat(['#3e3829', '#6a614b', '#958a6e', '#bdb294', '#dcd3b6']),
     'dirt': Mat(['#1e150e', '#2e2116', '#3e2e1e', '#4f3b27', '#604931']),
     'crystal': Mat(['#1a2a6a', '#2a48a0', '#3e6ad0', '#6a98f0', '#b8d8ff'], gloss=1.0, hi='#ffffff'),
+    'dwall': Mat(['#0d0c10', '#17151b', '#221f27', '#2e2a34', '#3b3642', '#4a4452'], tex=lambda P, n: brick_tex(P, n, 8.0, 4.0)),
+    'chain': Mat(['#121316', '#202226', '#33363b', '#4a4e54', '#64686f'], metal=True, hi='#9aa0a8'),
+    'candle': Mat(['#6a6250', '#8f866e', '#b3aa90', '#d2caae', '#e9e2c8']),
+    'gold_pile': Mat(['#4a2e0c', '#7c5316', '#b07d22', '#d9a83a', '#f2d36b'], metal=True, hi='#fff2b8',
+                     tex=lambda P, n: 0.8 * (S.vnoise(P * 1.6, 44) > 0.3)),
+    'stripe': Mat(['#2a0807', '#47100e', '#651916', '#82231e', '#9e2f27'],
+                  tex=lambda P, n: np.where((np.floor((P[:, 0] + 40) / 4.0) % 2) == 0, 0.0, 2.2)),
+    'hay': Mat(['#3a2c10', '#5a4618', '#7d6324', '#a08232', '#c0a044'],
+               tex=lambda P, n: 1.2 * S.vnoise(P * V(2.6, 2.6, 0.5), 51)),
+    'flower_r': Mat(['#4a0a14', '#7a1422', '#a82034', '#cc3a48', '#e46a6a']),
+    'flower_y': Mat(['#5a4a08', '#8a7210', '#b89a1e', '#dcc038', '#f0dc70']),
+    'paper': Mat(['#5e5038', '#857356', '#a99676', '#c8b796', '#e2d4b4']),
+    'leather': Mat(['#20140d', '#3a2416', '#55361f', '#70492b', '#8a5e3a']),
+    'hot': Mat(['#5a1004', '#9a2606', '#d84c0c', '#ff8a28', '#ffd070'], emit=True),
 }
 
 
@@ -326,9 +371,9 @@ PM = {
 PROPS = {}
 
 
-def prop(name, label, frame, yaw=0.0, frames=1, scale=1.0):
+def prop(name, label, frame, yaw=0.0, frames=1, scale=1.0, group=None):
     def deco(fn):
-        PROPS[name] = dict(label=label, frame=tuple(int(round(v * scale)) for v in frame), yaw=yaw, fn=fn, frames=frames, scale=scale)
+        PROPS[name] = dict(label=label, frame=tuple(int(round(v * scale)) for v in frame), yaw=yaw, fn=fn, frames=frames, scale=scale, group=group)
         return fn
     return deco
 
@@ -600,6 +645,335 @@ def p_bones(f):
     for a, b in (((-8, 2, 1), (2, 6, 1)), ((4, -4, 1), (11, 1, 1)), ((-6, -4, 1), (-11, 2, 1.5))):
         it.append(Item(S.capsule(V(*a), V(*b), 0.9), 'bone'))
     return it
+
+
+GROUP_OF = {
+    'oak': '자연', 'pine': '자연', 'dead_tree': '자연', 'bush': '자연', 'rock_big': '자연', 'rock_small': '자연', 'crystal': '자연',
+    'wall': '성채', 'tower': '성채', 'gate': '성채', 'torch': '성채',
+    'house': '마을', 'well': '마을', 'fence': '마을', 'barrel': '마을', 'crate': '마을', 'signpost': '마을', 'tent': '마을', 'campfire': '마을',
+    'grave': '묘지·폐허', 'cross_grave': '묘지·폐허', 'pillar': '묘지·폐허', 'bones': '묘지·폐허',
+}
+
+
+# ───────────────────────── 던전 세트 ─────────────────────────
+
+@prop('dungeon_wall', '던전 벽', (128, 140, 64, 100), yaw=45, scale=2.0, group='던전')
+def p_dwall(f):
+    L = CELL / 2
+    it = [Item(S.box(V(0, 0, 21), V(L, 5.0, 21)), 'dwall'),
+          Item(S.box(V(0, 0, 43), V(L + 0.6, 6.0, 1.4)), 'wall_dk')]
+    for x in (-L + 1.5, L - 1.5):
+        it.append(Item(S.box(V(x, -1.0, 21), V(2.4, 6.2, 22)), 'wall_dk'))
+    # 벽에 박힌 쇠사슬
+    for k in range(6):
+        it.append(Item(S.torus(V(-6, -5.6, 34 - k * 2.2), S.frame_from(V(1, 0, 0) if k % 2 else V(0, 1, 0)), 1.0, 0.35), 'chain'))
+    it.append(Item(S.box(V(-6, -5.4, 35.5), V(1.2, 0.8, 1.2)), 'iron'))
+    return it
+
+
+@prop('wall_torch', '벽 횃불', (40, 72, 20, 64), frames=4, scale=1.3, group='던전')
+def p_wtorch(f):
+    it = [Item(S.box(V(0, 2.5, 22), V(2.2, 0.8, 4.0), None, 0.3), 'iron'),
+          Item(S.capsule(V(0, 2.0, 21), V(0, -2.0, 27), 0.9), 'iron'),
+          Item(S.cylinder(V(0, -2.4, 28.5), 1.8, 1.8, None, 0.4), 'timber'),
+          Item(S.cylinder(V(0, -2.4, 30.2), 1.6, 0.6), 'ember')]
+    it += _flame(V(0, -2.4, 30.5), 2.2, 8, f)
+    return it
+
+
+@prop('portcullis', '쇠창살 문', (140, 140, 70, 104), yaw=45, scale=2.0, group='던전')
+def p_portcullis(f):
+    L = CELL * 0.6
+    body = S.box(V(0, 0, 22), V(L, 6, 22))
+    arch = S.union(S.box(V(0, 0, 9), V(10, 8, 11)), S.cylinder(V(0, 0, 20), 10, 8, S.frame_from(V(0, 1, 0))))
+    it = [Item(S.sub(body, arch), 'dwall')]
+    bars = []
+    for k in range(-4, 5):
+        bars.append(S.box(V(k * 2.3, 0, 14), V(0.45, 0.45, 16)))
+    for z in (5, 13, 21):
+        bars.append(S.box(V(0, 0, z), V(10, 0.4, 0.4)))
+    it.append(Item(S.inter(S.union(*bars), arch), 'iron'))
+    for k in range(-4, 5):
+        it.append(Item(S.cone(V(k * 2.3, 0, 1.6), V(k * 2.3, 0, -0.5), 0.8), 'iron'))
+    it.append(Item(S.sphere(V(0, -6.4, 31), 2.2), 'bone'))
+    return it
+
+
+@prop('chain_pillar', '사슬 기둥', (64, 120, 32, 104), scale=1.6, group='던전')
+def p_cpillar(f):
+    it = [Item(S.box(V(0, 0, 2), V(7, 7, 2), None, 0.4), 'wall_dk'),
+          Item(S.box(V(0, 0, 32), V(5, 5, 28), None, 0.6), 'dwall'),
+          Item(S.box(V(0, 0, 61), V(7, 7, 2), None, 0.4), 'wall_dk'),
+          Item(S.cylinder(V(0, 0, 40), 5.5, 1.0), 'iron')]
+    for k in range(9):
+        a = math.radians(k * 50)
+        it.append(Item(S.torus(V(math.cos(a) * 5.6, math.sin(a) * 5.6, 38 - k * 2.3),
+                               S.frame_from(V(-math.sin(a), math.cos(a), 0) if k % 2 else V(0, 0, 1)), 1.0, 0.35), 'chain'))
+    it.append(Item(S.box(V(0, -6, 18), V(2.2, 0.8, 2.6), None, 0.3), 'iron'))
+    return it
+
+
+def _chest(open_):
+    it = [Item(S.box(V(0, 0, 5), V(9, 6, 5), None, 0.6), 'plank'),
+          Item(S.box(V(0, 0, 5), V(9.3, 6.3, 0.8)), 'iron')]
+    for x in (-6.5, 6.5):
+        it.append(Item(S.box(V(x, 0, 5), V(0.9, 6.4, 5.2)), 'iron'))
+    if open_:
+        lid = S.inter(S.cylinder(V(0, 6, 10), 6.2, 9.2, S.frame_from(V(1, 0, 0))), S.halfspace(V(0, -1, 0), -6))
+        it.append(Item(S.xform(S.inter(S.cylinder(V(0, 0, 0), 6.2, 9.2, S.frame_from(V(1, 0, 0))), S.halfspace(V(0, 0, -1), 0)),
+                               S.rx(-100), V(0, 6, 10)), 'plank'))
+        it.append(Item(S.displace(S.ellipsoid(V(0, 0, 10), V(8, 5, 2.4)), 0.8, 0.6, seed=12), 'gold_pile'))
+        it.append(Item(S.sphere(V(3, -2, 11.5), 1.4), 'crystal'))
+        it.append(Item(S.sphere(V(-3, 1, 11.8), 1.2), 'flower_r'))
+    else:
+        lid = S.inter(S.cylinder(V(0, 0, 10), 6.2, 9.2, S.frame_from(V(1, 0, 0))), S.halfspace(V(0, 0, -1), -10))
+        it.append(Item(lid, 'plank'))
+        for x in (-6.5, 6.5):
+            it.append(Item(S.inter(S.cylinder(V(x, 0, 10), 6.5, 0.9, S.frame_from(V(1, 0, 0))), S.halfspace(V(0, 0, -1), -10)), 'iron'))
+        it.append(Item(S.box(V(0, -6.4, 9.5), V(1.6, 0.6, 2.0), None, 0.3), 'gold'))
+    return it
+
+
+@prop('chest', '보물상자', (56, 52, 28, 40), yaw=25, scale=1.3, group='던전')
+def p_chest(f):
+    return _chest(False)
+
+
+@prop('chest_open', '열린 보물상자', (56, 60, 28, 46), yaw=25, scale=1.3, group='던전')
+def p_chest_open(f):
+    return _chest(True)
+
+
+@prop('altar', '해골 제단', (72, 80, 36, 60), frames=4, scale=1.4, group='던전')
+def p_altar(f):
+    it = [Item(S.box(V(0, 0, 1.5), V(13, 8, 1.5), None, 0.4), 'wall_dk'),
+          Item(S.box(V(0, 0, 8), V(10, 6, 5.5), None, 0.6), 'grave'),
+          Item(S.box(V(0, 0, 14), V(11.5, 7, 1.2), None, 0.4), 'wall_dk'),
+          Item(S.box(V(0, -6.2, 8), V(9, 0.6, 4.5)), 'cloth_red')]
+    sk = V(0, 0, 18.5)
+    it.append(Item(S.sub(S.sphere(sk, 3.2), S.sphere(sk + V(1.2, -2.8, 0.3), 0.95), S.sphere(sk + V(-1.2, -2.8, 0.3), 0.95)), 'bone'))
+    it.append(Item(S.box(sk + V(0, -1.2, -2.6), V(2.0, 1.6, 0.9), None, 0.5), 'bone'))
+    for k, (x, y, h) in enumerate(((-8, -3, 5), (8, -3, 6.5), (-9, 3, 4), (9, 3, 3.5))):
+        it.append(Item(S.cylinder(V(x, y, 15 + h / 2), 0.9, h / 2, None, 0.2), 'candle'))
+        it += [Item(fl.f, 'fire') for fl in _flame(V(x, y, 15 + h), 0.8, 2.6, (f + k) % 4)]
+    return it
+
+
+@prop('sarcophagus', '석관', (88, 64, 44, 44), yaw=45, scale=1.5, group='던전')
+def p_sarc(f):
+    body = S.box(V(0, 0, 5.5), V(16, 7, 5.5), None, 0.8)
+    lid = S.box(V(0, 0, 12), V(16.5, 7.5, 1.5), None, 0.6)
+    fig = S.union(S.sphere(V(-11, 0, 14.5), 2.6), S.capsule(V(-8, 0, 14), V(10, 0, 14), 2.8, 2.0),
+                  S.capsule(V(-3, -2.5, 15.2), V(2, 0, 15.6), 0.9), S.capsule(V(-3, 2.5, 15.2), V(2, 0, 15.6), 0.9))
+    return [Item(body, 'grave'), Item(lid, 'wall_dk'), Item(fig, 'grave'),
+            Item(S.box(V(0, -7.2, 5), V(10, 0.5, 2.2)), 'gold')]
+
+
+@prop('cage', '쇠우리', (64, 96, 32, 80), scale=1.4, group='던전')
+def p_cage(f):
+    it = [Item(S.cylinder(V(0, 0, 1), 9, 1, None, 0.3), 'iron'), Item(S.cylinder(V(0, 0, 31), 9, 0.8, None, 0.3), 'iron'),
+          Item(S.cone(V(0, 0, 31.5), V(0, 0, 36), 7), 'iron'), Item(S.torus(V(0, 0, 37.5), S.frame_from(V(1, 0, 0)), 1.6, 0.4), 'chain')]
+    for k in range(10):
+        a = math.radians(k * 36)
+        it.append(Item(S.capsule(V(math.cos(a) * 8.6, math.sin(a) * 8.6, 1), V(math.cos(a) * 8.6, math.sin(a) * 8.6, 31), 0.45), 'iron'))
+    sk = V(1, 1, 7)
+    it.append(Item(S.sub(S.sphere(sk + V(0, 0, 0), 2.6), S.sphere(sk + V(1, -2.2, 0.3), 0.8), S.sphere(sk + V(-1, -2.2, 0.3), 0.8)), 'bone'))
+    it.append(Item(S.capsule(V(-3, 3, 2), V(0, 1, 5), 1.1), 'bone'))
+    it.append(Item(S.capsule(V(-4, -2, 1.2), V(4, -4, 1.2), 0.7), 'bone'))
+    return it
+
+
+@prop('spikes', '가시 함정', (72, 48, 36, 28), frames=1, scale=1.3, group='던전')
+def p_spikes(f):
+    it = [Item(S.box(V(0, 0, 0.8), V(13, 13, 0.8), S.rz(45), 0.2), 'iron')]
+    for i in range(-2, 3):
+        for j in range(-2, 3):
+            p = S.rz(45) @ V(i * 4.4, j * 4.4, 0)
+            h = 5.5 + ((i * 7 + j * 3) % 3)
+            it.append(Item(S.cone(p + V(0, 0, 1), p + V(0, 0, 1 + h), 1.1), 'iron'))
+    return it
+
+
+@prop('stairs', '돌계단', (96, 96, 48, 64), yaw=45, scale=1.5, group='던전')
+def p_stairs(f):
+    it = []
+    for k in range(6):
+        it.append(Item(S.box(V(0, -10 + k * 3.6, 1.6 + k * 3.2), V(9, 1.8 + (5 - k) * 0, 1.6 + k * 3.2), None, 0.2), 'wall_dk' if k % 2 else 'dwall'))
+    for sx in (-1, 1):
+        it.append(Item(S.box(V(sx * 10.5, -1, 10), V(1.8, 11, 10), None, 0.3), 'dwall'))
+        it.append(Item(S.box(V(sx * 10.5, -12, 13), V(2.2, 2.2, 13), None, 0.3), 'wall_dk'))
+        it.append(Item(S.sphere(V(sx * 10.5, -12, 27.5), 2.2), 'grave'))
+    return it
+
+
+@prop('bone_pile', '해골 무더기', (80, 56, 40, 40), scale=1.3, group='던전')
+def p_bpile(f):
+    it = [Item(S.displace(S.ellipsoid(V(0, 0, 0), V(13, 10, 5)), 1.0, 0.4, seed=61), 'bone')]
+    rng = np.random.default_rng(7)
+    for k in range(6):
+        c = V(rng.uniform(-8, 8), rng.uniform(-6, 6), rng.uniform(3, 6))
+        it.append(Item(S.sub(S.sphere(c, 2.4), S.sphere(c + V(0.9, -2.0, 0.3), 0.75), S.sphere(c + V(-0.9, -2.0, 0.3), 0.75)), 'bone'))
+    for k in range(5):
+        a = V(rng.uniform(-10, 10), rng.uniform(-7, 7), rng.uniform(2, 5))
+        b = a + V(rng.uniform(-7, 7), rng.uniform(-5, 5), rng.uniform(-1, 2))
+        it.append(Item(S.capsule(a, b, 0.8), 'bone'))
+    return it
+
+
+# ───────────────────────── 마을 생활 세트 ─────────────────────────
+
+@prop('stall', '시장 노점', (112, 112, 56, 80), yaw=45, scale=1.6, group='마을 생활')
+def p_stall(f):
+    it = [Item(S.box(V(0, 0, 7), V(16, 7, 1.0), None, 0.3), 'plank'),
+          Item(S.box(V(0, 0, 3), V(15, 6.5, 3), None, 0.3), 'plank')]
+    for x in (-15, 15):
+        for y in (-6.5, 6.5):
+            it.append(Item(S.box(V(x, y, 12), V(0.9, 0.9, 12)), 'timber'))
+    aw = S.box(V(0, -2, 24), V(17.5, 10, 0.6), S.rx(-14), 0.3)
+    it.append(Item(aw, 'stripe'))
+    it.append(Item(S.box(V(0, -11.6, 21.2), V(17.5, 0.5, 1.6)), 'stripe'))
+    # 진열품: 사과 바구니, 항아리, 천
+    it.append(Item(S.cylinder(V(-9, -1, 9.5), 3.2, 1.6, None, 0.6), 'thatch'))
+    for k in range(5):
+        it.append(Item(S.sphere(V(-9 + (k % 3 - 1) * 1.8, -1 + (k // 3) * 1.6 - 0.8, 11.3), 1.2), 'flower_r'))
+    it.append(Item(S.ellipsoid(V(2, 0, 10.5), V(2.6, 2.6, 3.5)), 'dirt'))
+    it.append(Item(S.box(V(10, -1, 8.6), V(3.5, 3, 0.8), None, 0.4), 'banner'))
+    return it
+
+
+@prop('anvil', '모루와 망치', (56, 48, 28, 36), yaw=30, scale=1.3, group='마을 생활')
+def p_anvil(f):
+    stump = S.cylinder(V(0, 0, 4), 5, 4, None, 0.6)
+    body = S.union(S.box(V(0, 0, 10), V(6, 2.6, 1.6), None, 0.4), S.box(V(0, 0, 8.4), V(2.4, 2.0, 1.2), None, 0.3),
+                   S.capsule(V(6, 0, 10.4), V(10, 0, 10.8), 1.6, 0.3), S.box(V(-6.4, 0, 10), V(1.0, 2.2, 1.4)))
+    hammer = S.union(S.capsule(V(-2, 3.5, 12.2), V(-8, 7, 12.2), 0.6), S.box(V(-1.5, 3.2, 12.2), V(1.4, 1.0, 1.0), S.rz(-30), 0.3))
+    return [Item(stump, 'plank'), Item(body, 'iron'), Item(hammer, 'iron')]
+
+
+@prop('forge', '대장간 화로', (96, 104, 48, 76), frames=4, yaw=45, scale=1.6, group='마을 생활')
+def p_forge(f):
+    base = S.box(V(0, 0, 6), V(12, 9, 6), None, 0.8)
+    pit = S.box(V(0, -2, 12), V(8, 5, 2.5))
+    it = [Item(S.sub(base, pit), 'wall'),
+          Item(S.box(V(0, -2, 10.5), V(7.8, 4.8, 1.0)), 'hot'),
+          Item(S.cone(V(0, 3, 12), V(0, 3, 30), 9), 'wall_dk'),
+          Item(S.cylinder(V(0, 3, 36), 3.2, 7, None, 0.4), 'wall_dk'),
+          Item(S.box(V(13, 0, 6), V(3, 5, 2.4), S.rz(10), 0.8), 'leather')]
+    it += [Item(x.f, 'hot') for x in _flame(V(-1, -2, 11), 3.0, 6 + (f % 2) * 2, f)]
+    # 집게
+    it.append(Item(S.capsule(V(5, -7, 13), V(10, -11, 9), 0.4), 'iron'))
+    return it
+
+
+@prop('cart', '짐수레', (96, 72, 48, 52), yaw=-30, scale=1.5, group='마을 생활')
+def p_cart(f):
+    it = [Item(S.sub(S.box(V(0, 0, 9), V(10, 7, 3.5), None, 0.4), S.box(V(0, 0, 11), V(9, 6, 3))), 'plank')]
+    for sx in (-1, 1):
+        w = S.sub(S.cylinder(V(sx * 7.6, 0, 6), 6, 0.9, S.frame_from(V(1, 0, 0)), 0.3), S.cylinder(V(sx * 7.6, 0, 6), 4.6, 2, S.frame_from(V(1, 0, 0))))
+        it.append(Item(w, 'timber'))
+        for k in range(4):
+            a = math.radians(k * 45)
+            it.append(Item(S.capsule(V(sx * 7.6, math.cos(a) * 4.8, 6 + math.sin(a) * 4.8), V(sx * 7.6, -math.cos(a) * 4.8, 6 - math.sin(a) * 4.8), 0.45), 'timber'))
+    it.append(Item(S.capsule(V(-3, -7, 8), V(-3, -20, 4), 0.7), 'timber'))
+    it.append(Item(S.capsule(V(3, -7, 8), V(3, -20, 4), 0.7), 'timber'))
+    it.append(Item(S.displace(S.ellipsoid(V(0, 1, 12), V(8, 5.5, 3)), 0.7, 0.5, seed=22), 'hay'))
+    it.append(Item(S.box(V(3, -2, 13.5), V(2.2, 2.2, 2.2), S.rz(15), 0.3), 'plank'))
+    return it
+
+
+@prop('lamp_post', '가로등', (40, 96, 20, 88), frames=4, scale=1.4, group='마을 생활')
+def p_lamp(f):
+    it = [Item(S.box(V(0, 0, 1.2), V(2.6, 2.6, 1.2), None, 0.3), 'wall_dk'),
+          Item(S.capsule(V(0, 0, 1), V(0, 0, 40), 0.9, 0.7), 'iron'),
+          Item(S.capsule(V(0, 0, 40), V(0, -5, 41), 0.5), 'iron'),
+          Item(S.box(V(0, -5, 36.5), V(2.0, 2.0, 2.8), None, 0.2), 'ember'),
+          Item(S.cone(V(0, -5, 39), V(0, -5, 42), 2.8), 'iron')]
+    flick = 1.0 + 0.15 * math.sin(f * 1.7)
+    it.append(Item(S.sphere(V(0, -5, 36.3), 1.5 * flick), 'fire'))
+    for x, y in ((-2, -3), (2, -3), (-2, -7), (2, -7)):
+        it.append(Item(S.capsule(V(x, y, 33.7), V(x, y, 39.3), 0.25), 'iron'))
+    return it
+
+
+@prop('haybale', '건초 더미', (56, 44, 28, 32), yaw=30, scale=1.3, group='마을 생활')
+def p_hay(f):
+    it = [Item(S.cylinder(V(0, 0, 5), 5.5, 7, S.frame_from(V(1, 0, 0)), 1.2), 'hay'),
+          Item(S.cylinder(V(-3, 6, 4.5), 4.6, 5, S.frame_from(V(0.3, 1, 0)), 1.0), 'hay')]
+    for x in (-3, 3):
+        it.append(Item(S.sub(S.cylinder(V(x, 0, 5), 5.7, 0.4, S.frame_from(V(1, 0, 0))), S.cylinder(V(x, 0, 5), 5.3, 1, S.frame_from(V(1, 0, 0)))), 'leather'))
+    return it
+
+
+@prop('notice_board', '게시판', (56, 72, 28, 60), yaw=15, scale=1.3, group='마을 생활')
+def p_notice(f):
+    it = [Item(S.box(V(-8, 0, 12), V(0.9, 0.9, 12)), 'timber'), Item(S.box(V(8, 0, 12), V(0.9, 0.9, 12)), 'timber'),
+          Item(S.box(V(0, 0, 17), V(9, 0.7, 6), None, 0.3), 'plank'),
+          Item(S.box(V(0, 0, 24.5), V(10.5, 3.0, 0.8), S.rx(-20), 0.3), 'roof')]
+    for (x, z, r) in ((-4.5, 18, 5), (2, 16, -6), (5.5, 19.5, 3)):
+        it.append(Item(S.box(V(x, -0.9, z), V(2.4, 0.2, 3.0), S.ry(r), 0.1), 'paper'))
+        it.append(Item(S.sphere(V(x, -1.2, z + 2.5), 0.45), 'flower_r'))
+    return it
+
+
+@prop('grindstone', '숫돌', (56, 52, 28, 40), yaw=30, scale=1.3, group='마을 생활')
+def p_grind(f):
+    return [Item(S.box(V(0, 0, 4), V(6, 3, 4), None, 0.4), 'plank'),
+            Item(S.cylinder(V(0, 0, 12), 6, 1.4, S.frame_from(V(1, 0, 0)), 0.4), 'grave'),
+            Item(S.capsule(V(-4, 0, 12), V(5, 0, 12), 0.6), 'iron'),
+            Item(S.capsule(V(5, 0, 12), V(5, -3, 12), 0.5), 'iron'),
+            Item(S.capsule(V(5, -3, 12), V(5, -3, 15), 0.6), 'timber')]
+
+
+@prop('firewood', '장작 더미', (64, 48, 32, 34), yaw=40, scale=1.3, group='마을 생활')
+def p_firewood(f):
+    it = []
+    for row in range(3):
+        for k in range(5 - row):
+            x = (k - (4 - row) / 2) * 3.2
+            it.append(Item(S.cylinder(V(x, 0, 1.6 + row * 2.9), 1.55, 7, S.frame_from(V(0, 1, 0)), 0.3), 'timber'))
+            it.append(Item(S.cylinder(V(x, -7.05, 1.6 + row * 2.9), 1.3, 0.05, S.frame_from(V(0, 1, 0))), 'plank'))
+    it.append(Item(S.box(V(-9.5, 6, 2), V(2.5, 2.5, 2), None, 0.4), 'plank'))
+    it.append(Item(S.capsule(V(-9.5, 6, 4), V(-6, 10, 8), 0.35), 'iron'))
+    return it
+
+
+@prop('planter', '꽃 화분', (48, 40, 24, 30), yaw=45, scale=1.2, group='마을 생활')
+def p_planter(f):
+    it = [Item(S.box(V(0, 0, 3), V(9, 3.5, 3), None, 0.4), 'plank'),
+          Item(S.box(V(0, 0, 5.8), V(8.4, 3.0, 0.5)), 'dirt')]
+    rng = np.random.default_rng(3)
+    for k in range(9):
+        x, y = rng.uniform(-7.5, 7.5), rng.uniform(-2.2, 2.2)
+        h = rng.uniform(1.5, 4.5)
+        it.append(Item(S.capsule(V(x, y, 6), V(x, y, 6 + h), 0.3), 'leaf'))
+        it.append(Item(S.sphere(V(x, y, 6.5 + h), 1.1), 'flower_r' if k % 2 else 'flower_y'))
+    return it
+
+
+@prop('banner_pole', '깃발 장대', (48, 104, 24, 96), scale=1.4, group='마을 생활')
+def p_banner(f):
+    it = [Item(S.box(V(0, 0, 1.0), V(3, 3, 1.0), None, 0.3), 'wall_dk'),
+          Item(S.capsule(V(0, 0, 1), V(0, 0, 50), 0.7), 'timber'),
+          Item(S.sphere(V(0, 0, 51), 1.2), 'gold'),
+          Item(S.capsule(V(-1, 0, 47), V(10, 0, 47), 0.4), 'timber')]
+    for k in range(4):
+        z = 46 - k * 4.5
+        it.append(Item(S.box(V(5, 0.3 * math.sin(k), z - 2.2), V(5, 0.4, 2.3), S.rz(4 * math.sin(k * 1.3)), 0.1), 'banner'))
+    it.append(Item(S.inter(S.box(V(5, 0, 26.5), V(5, 0.4, 2.5)), S.sub(S.box(V(5, 0, 26), V(6, 1, 3)), S.box(V(5, 0, 24.5), V(1.8, 2, 2), S.ry(45)))), 'banner'))
+    it.append(Item(S.box(V(5, -0.5, 38), V(1.6, 0.2, 1.6), S.ry(45)), 'gold'))
+    return it
+
+
+@prop('trough', '여물통', (64, 40, 32, 28), yaw=45, scale=1.3, group='마을 생활')
+def p_trough(f):
+    body = S.sub(S.box(V(0, 0, 3.5), V(10, 4, 3.5), None, 0.4), S.box(V(0, 0, 5.5), V(9, 3, 3.2)))
+    return [Item(body, 'plank'), Item(S.box(V(0, 0, 5.4), V(9, 3, 0.3)), 'water'),
+            Item(S.box(V(-6, 0, 3.5), V(0.4, 4.2, 3.6)), 'iron'), Item(S.box(V(6, 0, 3.5), V(0.4, 4.2, 3.6)), 'iron')]
+
+
+for _n, _g in GROUP_OF.items():
+    if _n in PROPS and not PROPS[_n].get('group'):
+        PROPS[_n]['group'] = _g
 
 
 def build_props():

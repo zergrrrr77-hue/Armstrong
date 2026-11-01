@@ -123,6 +123,19 @@ table { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 620p
 th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #2a241e; }
 th { font-weight: 500; color: var(--muted); font-size: 12px; letter-spacing: .06em; background: var(--panel-2); }
 td code, .mono { font-family: var(--mono); font-size: 12px; color: #d9c9a8; font-variant-numeric: tabular-nums; }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.sound { display: grid; gap: 18px; padding: 16px; }
+.sgroup { display: grid; gap: 8px; }
+.sgroup h3 { margin: 0; font-size: 13px; font-weight: 500; color: var(--muted); letter-spacing: .06em; }
+.sbtn { font: inherit; font-size: 13px; color: var(--fg); background: var(--panel-2); border: 1px solid var(--line); padding: 6px 10px; border-radius: 2px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.sbtn:hover { border-color: var(--line-hi); }
+.sbtn.on { border-color: var(--gold); background: #3a2c16; color: #fbe7b8; }
+.sbtn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.sbtn .tri { width: 0; height: 0; border-left: 6px solid currentColor; border-top: 4px solid transparent; border-bottom: 4px solid transparent; opacity: .7; }
+.mixer { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; padding-top: 4px; border-top: 1px solid var(--line); }
+.mixer label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+.mixer input { accent-color: var(--gold); width: 110px; }
+.sfxnote { font-size: 12px; color: var(--muted); }
 footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px; }
 footer code { font-family: var(--mono); color: #d9c9a8; }
 
@@ -147,12 +160,13 @@ footer code { font-family: var(--mono); color: #d9c9a8; }
   </header>
 
   <section>
-    <h2>필드 장면 <small>scene.png · 실제 에셋만으로 조립</small></h2>
-    <div class="frame scene"><img src="scene@2x.png" alt="성벽과 성탑 아래 마을 광장, 숲과 늪지에서 기사·요정·마법사·군주가 오크와 다이어울프와 싸우고, 묘지에는 해골 병사, 늪가에는 보스 몰락한 왕이 서 있는 쿼터뷰 장면"></div>
+    <h2>장면 <small>실제 에셋만으로 조립</small></h2>
+    <div class="tabs" id="sceneTabs"></div>
+    <div class="frame scene"><img id="sceneImg" src="scene@2x.png" alt="성벽과 성탑 아래 마을 광장, 숲과 늪지에서 기사·요정·마법사·군주가 오크와 다이어울프와 싸우고, 묘지에는 해골 병사, 늪가에는 보스 몰락한 왕이 서 있는 쿼터뷰 장면"></div>
   </section>
 
   <section>
-    <h2>캐릭터·몬스터 뷰어 <small>8방향 × 대기 4 · 걷기 6 · 공격 5 · 피격 2 · 사망 4</small></h2>
+    <h2>캐릭터·몬스터 뷰어 <small id="animSummary"></small></h2>
     <div class="frame viewer">
       <div class="stage"><span class="tag" id="stageTag"></span><canvas id="stage" width="288" height="264"></canvas></div>
       <div class="controls">
@@ -164,10 +178,27 @@ footer code { font-family: var(--mono); color: #d9c9a8; }
           <div style="display:grid;gap:10px">
             <label><div class="ctl-label">속도</div><input id="speed" class="speed" type="range" min="3" max="14" value="8"></label>
             <button class="chip" id="playBtn" aria-pressed="true">재생 중</button>
+            <button class="chip" id="sndBtn" aria-pressed="false">소리 켜기</button>
           </div>
         </div>
       </div>
       <div class="strip"><canvas id="strip"></canvas></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>사운드 <small>외부 파일 없이 브라우저에서 합성 · audio/sfx.js</small></h2>
+    <p class="note">버튼을 누르면 바로 재생됩니다. 뷰어에서 소리를 켜면 공격의 휘두름·타격 프레임, 피격, 사망, 발걸음에 맞춰 소리가 납니다.</p>
+    <div class="frame sound">
+      <div class="sgroup"><h3>배경음악 · 환경음</h3><div class="chips" id="loopBtns"></div></div>
+      <div id="sfxGroups" class="sound" style="padding:0"></div>
+      <div class="mixer">
+        <label>전체 <input id="vMaster" type="range" min="0" max="100" value="90"></label>
+        <label>효과음 <input id="vSfx" type="range" min="0" max="100" value="100"></label>
+        <label>음악 <input id="vMusic" type="range" min="0" max="100" value="50"></label>
+        <label>환경음 <input id="vAmb" type="range" min="0" max="100" value="60"></label>
+        <span class="sfxnote" id="sfxNote"></span>
+      </div>
     </div>
   </section>
 
@@ -184,6 +215,7 @@ footer code { font-family: var(--mono); color: #d9c9a8; }
 
   <section>
     <h2>필드 소품 <small>같은 카메라·빛으로 렌더 · 불꽃은 4프레임</small></h2>
+    <div class="tabs" id="propTabs"></div>
     <div class="frame props" id="props"></div>
   </section>
 
@@ -204,6 +236,7 @@ footer code { font-family: var(--mono); color: #d9c9a8; }
   <footer>생성기: <code>forgotten-forge/tools/lineage/build.py</code> · 결과물: <code>forgotten-forge/lineage-assets/</code> · 1 타일 = 64×32px, 캐릭터 키 약 48px</footer>
 </div>
 
+<script src="audio/sfx.js"></script>
 <script>
 const META = /*META*/{}/*END*/;
 const DIR_LABEL = { S: '남', SE: '남동', E: '동', NE: '북동', N: '북', NW: '북서', W: '서', SW: '남서' };
@@ -226,13 +259,37 @@ function el(tag, attrs = {}, kids = []) {
 /* ── 개수 */
 (function counts() {
   const nC = Object.keys(META.characters).length, nM = Object.keys(META.monsters).length;
-  const frames = nC * 8 * 21 + nM * 8 * 21;
+  const per = META.anims.reduce((a, b) => a + b.frames, 0);
+  const frames = (nC + nM) * 8 * per;
   const box = document.getElementById('counts');
-  [['클래스', nC], ['몬스터', nM], ['스프라이트 프레임', frames.toLocaleString()], ['지면 타일', META.tiles.rows.length * 4],
+  [['클래스', nC], ['몬스터', nM], ['스프라이트 프레임', frames.toLocaleString()], ['지면 타일', META.tiles.rows.length * 4], ['효과음', (window.LineageAudio ? LineageAudio.SOUNDS.length : 0)],
    ['소품', Object.keys(META.props).length], ['아이콘', Object.keys(META.items).length]].forEach(([k, v]) => {
     box.append(el('span', {}, [k + ' ', el('b', { text: String(v) })]));
   });
 })();
+
+/* ── 장면 탭 */
+(function scenes() {
+  const list = [['scene@2x.png', '필드 · 마을과 숲'], ['scene_dungeon@2x.png', '던전 · 몰락한 왕의 제단']];
+  const img = document.getElementById('sceneImg');
+  let cur = 0;
+  function draw() {
+    chipRow('sceneTabs', list.map((x, i) => [i, x[1]]), k => cur === k, k => { cur = k; img.src = list[k][0]; draw(); });
+  }
+  draw();
+})();
+document.getElementById('animSummary').textContent = '8방향 × ' + META.anims.map(a => ANIM_LABEL[a.name] + ' ' + a.frames).join(' · ');
+
+/* ── 사운드 */
+let AUDIO = null;
+function audio() {
+  if (!AUDIO) {
+    try { AUDIO = LineageAudio.create(); }
+    catch (e) { document.getElementById('sfxNote').textContent = e.message; return null; }
+  }
+  return AUDIO;
+}
+function sfx(name, o) { const A = audio(); if (A && name) { try { A.play(name, o); } catch (e) { /* 없는 소리 무시 */ } } }
 
 /* ── 뷰어 */
 const state = { group: 'characters', name: 'knight', anim: 'walk', dir: 'SE', playing: true, t: 0 };
@@ -264,6 +321,33 @@ function renderPickers() {
   document.getElementById('stageTag').textContent = `${a.label} · ${ANIM_LABEL[state.anim]} · ${DIR_LABEL[state.dir]} · ${a.fw}×${a.fh}`;
 }
 renderPickers();
+let soundOn = false;
+document.getElementById('sndBtn').addEventListener('click', e => {
+  soundOn = !soundOn;
+  if (soundOn) audio();
+  e.currentTarget.setAttribute('aria-pressed', String(soundOn));
+  e.currentTarget.textContent = soundOn ? '소리 끄기' : '소리 켜기';
+});
+let lastCue = '';
+function cue(f) {
+  if (!soundOn || !window.LineageAudio) return;
+  const key = state.name + state.anim + f + ':' + state.t;
+  if (key === lastCue) return;
+  lastCue = key;
+  const m = LineageAudio.ACTOR_SFX[state.name] || {};
+  const hitF = META.hit_frame || 4;
+  if (state.anim === 'attack') {
+    if (f === 1 && m.attack) sfx(m.attack, { gain: 0.9 });
+    if (f === (m.swing === 'magic_cast' ? 1 : 3) && m.swing) sfx(m.swing);
+    if (f === (m.swing === 'bow_release' ? 6 : hitF) && m.hit) sfx(m.hit, { delay: m.swing === 'bow_release' ? 0.18 : 0 });
+  } else if (state.anim === 'hurt' && f === 0) {
+    sfx('hit_flesh', { gain: 0.6 }); if (m.hurt) sfx(m.hurt);
+  } else if (state.anim === 'death' && f === 0) {
+    if (m.death) sfx(m.death); else sfx('hit_blunt', { gain: 0.5 });
+  } else if (state.anim === 'walk' && (f === 0 || f === 4) && state.group === 'characters') {
+    sfx('step_stone', { gain: 0.6, pan: f ? 0.15 : -0.15 });
+  }
+}
 document.getElementById('playBtn').addEventListener('click', e => {
   state.playing = !state.playing;
   e.currentTarget.setAttribute('aria-pressed', String(state.playing));
@@ -287,11 +371,13 @@ async function frame(ts) {
   let img;
   try { img = await load(a.sheet); } catch (err) { document.getElementById('stageTag').textContent = err.message; return; }
   const fps = +document.getElementById('speed').value;
-  if (state.playing && ts - last > 1000 / fps) { state.t++; last = ts; }
+  let advanced = false;
+  if (state.playing && ts - last > 1000 / fps) { state.t++; last = ts; advanced = true; }
   const [start, n] = a.anims[state.anim];
   const looping = state.anim !== 'death';
   const f = looping ? state.t % n : Math.min(state.t % (n + 6), n - 1);
   const col = start + f;
+  if (advanced && (looping || state.t % (n + 6) < n)) cue(f);
   // 큰 화면: 최대 3배
   const scale = Math.max(1, Math.min(3, Math.floor(Math.min(stage.parentElement.clientWidth - 16, 300 * 3) / a.fw)));
   const W = a.fw * scale, H = a.fh * scale;
@@ -355,9 +441,17 @@ requestAnimationFrame(frame);
 })();
 
 /* ── 소품 */
-(async function props() {
+const propState = { group: '전체' };
+const propTimers = [];
+async function props() {
   const box = document.getElementById('props');
-  const order = Object.entries(META.props).sort((a, b) => b[1].fh * b[1].fw - a[1].fh * a[1].fw);
+  box.innerHTML = '';
+  propTimers.splice(0).forEach(clearInterval);
+  const groups = ['전체', ...new Set(Object.values(META.props).map(p => p.group || '기타'))];
+  chipRow('propTabs', groups.map(g => [g, g === '전체' ? `전체 ${Object.keys(META.props).length}` : `${g} ${Object.values(META.props).filter(p => (p.group || '기타') === g).length}`]),
+    k => propState.group === k, k => { propState.group = k; props(); });
+  const order = Object.entries(META.props).filter(([, p]) => propState.group === '전체' || (p.group || '기타') === propState.group)
+    .sort((a, b) => b[1].fh * b[1].fw - a[1].fh * a[1].fw);
   for (const [k, p] of order) {
     const img = await load(p.sheet);
     const maxH = 230, s = p.fh > maxH ? maxH / p.fh : Math.max(1, Math.min(3, Math.floor(90 / p.fh)));
@@ -366,10 +460,11 @@ requestAnimationFrame(frame);
     let f = 0;
     const draw = () => { x.clearRect(0, 0, c.width, c.height); x.drawImage(img, f * p.fw, 0, p.fw, p.fh, 0, 0, c.width, c.height); };
     draw();
-    if (p.frames > 1) setInterval(() => { f = (f + 1) % p.frames; draw(); }, 140);
+    if (p.frames > 1) propTimers.push(setInterval(() => { f = (f + 1) % p.frames; draw(); }, 140));
     box.append(el('div', { class: 'prop' }, [c, el('span', {}, [el('b', { text: p.label }), document.createTextNode(` ${p.fw}×${p.fh}`)])]));
   }
-})();
+}
+props();
 
 /* ── 아이템 */
 const itemState = { cat: '전체' };
@@ -401,6 +496,37 @@ const itemState = { cat: '전체' };
   META.grades.list.forEach(g => { const i = el('i'); i.style.background = g.color; lg.append(el('span', {}, [i, document.createTextNode(g.label)])); });
 })();
 
+/* ── 사운드 보드 */
+(function soundBoard() {
+  if (!window.LineageAudio) { document.getElementById('sfxNote').textContent = 'audio/sfx.js를 불러오지 못했습니다.'; return; }
+  const box = document.getElementById('sfxGroups');
+  const groups = {};
+  LineageAudio.SOUNDS.forEach(([g, id, label]) => (groups[g] = groups[g] || []).push([id, label]));
+  for (const [g, list] of Object.entries(groups)) {
+    const row = el('div', { class: 'chips' });
+    list.forEach(([id, label]) => {
+      const b = el('button', { class: 'sbtn', type: 'button', title: id }, [el('span', { class: 'tri' }), document.createTextNode(label)]);
+      b.addEventListener('click', () => sfx(id));
+      row.append(b);
+    });
+    box.append(el('div', { class: 'sgroup' }, [el('h3', { text: g }), row]));
+  }
+  const lb = document.getElementById('loopBtns');
+  let musicOn = false, amb = null;
+  const mk = (label, onClick, isOn) => { const b = el('button', { class: 'sbtn' + (isOn() ? ' on' : ''), type: 'button', 'aria-pressed': String(isOn()) }, [el('span', { class: 'tri' }), document.createTextNode(label)]); b.addEventListener('click', () => { onClick(); drawLoops(); }); return b; };
+  function drawLoops() {
+    lb.innerHTML = '';
+    lb.append(mk('배경음악 · 어두운 중세', () => { const A = audio(); if (!A) return; musicOn = !musicOn; A.music(musicOn); }, () => musicOn));
+    for (const [k, label] of Object.entries(LineageAudio.AMBIENCES)) {
+      lb.append(mk(label, () => { const A = audio(); if (!A) return; amb = amb === k ? null : k; A.ambience(amb); }, () => amb === k));
+    }
+  }
+  drawLoops();
+  const g = id => document.getElementById(id).value / 100;
+  const vol = () => { const A = AUDIO; if (!A) return; A.setVolume({ master: g('vMaster'), sfx: g('vSfx'), music: g('vMusic'), amb: g('vAmb') }); };
+  ['vMaster', 'vSfx', 'vMusic', 'vAmb'].forEach(id => document.getElementById(id).addEventListener('input', () => { audio(); vol(); }));
+})();
+
 /* ── 규격 표 */
 (function spec() {
   const tb = document.querySelector('#spec tbody');
@@ -411,6 +537,7 @@ const itemState = { cat: '전체' };
   add('아이콘', META.item_atlas.sheet, '32×32', '-', `${Object.keys(META.items).length}개, ${META.item_atlas.cols}열`);
   add('등급 테두리', META.grades.sheet, '36×36', '-', '5종');
   add('강화 아이콘', META.enchant_icons.sheet, '32×32', '-', `무기 ${META.enchant_icons.rows.length}종 × 5단계`);
+  if (window.LineageAudio) add('사운드', 'audio/sfx.js', '-', '-', `효과음 ${LineageAudio.SOUNDS.length}종 · 환경음 ${Object.keys(LineageAudio.AMBIENCES).length}종 · 배경음악 1곡`);
   for (const [k, p] of Object.entries(META.props)) add(p.label, p.sheet, `${p.fw}×${p.fh}`, `${p.ax}, ${p.ay}`, p.frames > 1 ? `${p.frames}프레임` : '정지');
 })();
 </script>

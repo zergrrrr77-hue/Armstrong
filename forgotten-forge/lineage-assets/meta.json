@@ -20,25 +20,26 @@
  "anims": [
   {
    "name": "idle",
-   "frames": 4
-  },
-  {
-   "name": "walk",
    "frames": 6
   },
   {
+   "name": "walk",
+   "frames": 8
+  },
+  {
    "name": "attack",
-   "frames": 5
+   "frames": 8
   },
   {
    "name": "hurt",
-   "frames": 2
+   "frames": 3
   },
   {
    "name": "death",
-   "frames": 4
+   "frames": 6
   }
  ],
+ "hit_frame": 4,
  "characters": {
   "knight": {
    "label": "기사",
@@ -47,7 +48,7 @@
    "fh": 88,
    "ax": 48,
    "ay": 66,
-   "cols": 21,
+   "cols": 31,
    "rows": [
     "S",
     "SE",
@@ -61,23 +62,23 @@
    "anims": {
     "idle": [
      0,
-     4
-    ],
-    "walk": [
-     4,
      6
     ],
+    "walk": [
+     6,
+     8
+    ],
     "attack": [
-     10,
-     5
+     14,
+     8
     ],
     "hurt": [
-     15,
-     2
+     22,
+     3
     ],
     "death": [
-     17,
-     4
+     25,
+     6
     ]
    }
   },
@@ -88,7 +89,7 @@
    "fh": 88,
    "ax": 48,
    "ay": 66,
-   "cols": 21,
+   "cols": 31,
    "rows": [
     "S",
     "SE",
@@ -102,23 +103,23 @@
    "anims": {
     "idle": [
      0,
-     4
-    ],
-    "walk": [
-     4,
      6
     ],
+    "walk": [
+     6,
+     8
+    ],
     "attack": [
-     10,
-     5
+     14,
+     8
     ],
     "hurt": [
-     15,
-     2
+     22,
+     3
     ],
     "death": [
-     17,
-     4
+     25,
+     6
     ]
    }
   },
@@ -129,7 +130,7 @@
    "fh": 88,
    "ax": 48,
    "ay": 66,
-   "cols": 21,
+   "cols": 31,
    "rows": [
     "S",
     "SE",
@@ -143,23 +144,23 @@
    "anims": {
     "idle": [
      0,
-     4
-    ],
-    "walk": [
-     4,
      6
     ],
+    "walk": [
+     6,
+     8
+    ],
     "attack": [
-     10,
-     5
+     14,
+     8
     ],
     "hurt": [
-     15,
-     2
+     22,
+     3
     ],
     "death": [
-     17,
-     4
+     25,
+     6
     ]
    }
   },
@@ -170,7 +171,7 @@
    "fh": 88,
    "ax": 48,
    "ay": 66,
-   "cols": 21,
+   "cols": 31,
    "rows": [
     "S",
     "SE",
@@ -184,23 +185,23 @@
    "anims": {
     "idle": [
      0,
-     4
-    ],
-    "walk": [
-     4,
      6
     ],
+    "walk": [
+     6,
+     8
+    ],
     "attack": [
-     10,
-     5
+     14,
+     8
     ],
     "hurt": [
-     15,
-     2
+     22,
+     3
     ],
     "death": [
-     17,
-     4
+     25,
+     6
     ]
    }
   }
@@ -213,7 +214,7 @@
    "fh": 88,
    "ax": 48,
    "ay": 66,
-   "cols": 21,
+   "cols": 31,
    "rows": [
     "S",
     "SE",
@@ -227,23 +228,23 @@
    "anims": {
     "idle": [
      0,
-     4
-    ],
-    "walk": [
-     4,
      6
     ],
+    "walk": [
+     6,
+     8
+    ],
     "attack": [
-     10,
-     5
+     14,
+     8
     ],
     "hurt": [
-     15,
-     2
+     22,
+     3
     ],
     "death": [
-     17,
-     4
+     25,
+     6
     ]
    }
   },
@@ -254,7 +255,7 @@
    "fh": 88,
    "ax": 48,
    "ay": 66,
-   "cols": 21,
+   "cols": 31,
    "rows": [
     "S",
     "SE",
@@ -268,23 +269,23 @@
    "anims": {
     "idle": [
      0,
-     4
-    ],
-    "walk": [
-     4,
      6
     ],
+    "walk": [
+     6,
+     8
+    ],
     "attack": [
-     10,
-     5
+     14,
+     8
     ],
     "hurt": [
-     15,
-     2
+     22,
+     3
     ],
     "death": [
-     17,
-     4
+     25,
+     6
     ]
    }
   },
@@ -295,7 +296,7 @@
    "fh": 96,
    "ax": 56,
    "ay": 68,
-   "cols": 21,
+   "cols": 31,
    "rows": [
     "S",
     "SE",
@@ -309,23 +310,23 @@
    "anims": {
     "idle": [
      0,
-     4
-    ],
-    "walk": [
-     4,
      6
     ],
+    "walk": [
+     6,
+     8
+    ],
     "attack": [
-     10,
-     5
+     14,
+     8
     ],
     "hurt": [
-     15,
-     2
+     22,
+     3
     ],
     "death": [
-     17,
-     4
+     25,
+     6
     ]
    }
   },
@@ -336,7 +337,7 @@
    "fh": 88,
    "ax": 56,
    "ay": 60,
-   "cols": 21,
+   "cols": 31,
    "rows": [
     "S",
     "SE",
@@ -350,23 +351,23 @@
    "anims": {
     "idle": [
      0,
-     4
-    ],
-    "walk": [
-     4,
      6
     ],
+    "walk": [
+     6,
+     8
+    ],
     "attack": [
-     10,
-     5
+     14,
+     8
     ],
     "hurt": [
-     15,
-     2
+     22,
+     3
     ],
     "death": [
-     17,
-     4
+     25,
+     6
     ]
    }
   },
@@ -377,7 +378,7 @@
    "fh": 88,
    "ax": 48,
    "ay": 62,
-   "cols": 21,
+   "cols": 31,
    "rows": [
     "S",
     "SE",
@@ -391,23 +392,23 @@
    "anims": {
     "idle": [
      0,
-     4
-    ],
-    "walk": [
-     4,
      6
     ],
+    "walk": [
+     6,
+     8
+    ],
     "attack": [
-     10,
-     5
+     14,
+     8
     ],
     "hurt": [
-     15,
-     2
+     22,
+     3
     ],
     "death": [
-     17,
-     4
+     25,
+     6
     ]
    }
   },
@@ -418,7 +419,7 @@
    "fh": 128,
    "ax": 72,
    "ay": 100,
-   "cols": 21,
+   "cols": 31,
    "rows": [
     "S",
     "SE",
@@ -432,23 +433,23 @@
    "anims": {
     "idle": [
      0,
-     4
-    ],
-    "walk": [
-     4,
      6
     ],
+    "walk": [
+     6,
+     8
+    ],
     "attack": [
-     10,
-     5
+     14,
+     8
     ],
     "hurt": [
-     15,
-     2
+     22,
+     3
     ],
     "death": [
-     17,
-     4
+     25,
+     6
     ]
    }
   }
@@ -456,6 +457,7 @@
  "props": {
   "oak": {
    "label": "참나무",
+   "group": "자연",
    "sheet": "field/props/oak.png",
    "fw": 106,
    "fh": 129,
@@ -465,6 +467,7 @@
   },
   "pine": {
    "label": "전나무",
+   "group": "자연",
    "sheet": "field/props/pine.png",
    "fw": 72,
    "fh": 130,
@@ -474,6 +477,7 @@
   },
   "dead_tree": {
    "label": "고목",
+   "group": "자연",
    "sheet": "field/props/dead_tree.png",
    "fw": 65,
    "fh": 102,
@@ -483,6 +487,7 @@
   },
   "bush": {
    "label": "덤불",
+   "group": "자연",
    "sheet": "field/props/bush.png",
    "fw": 38,
    "fh": 24,
@@ -492,6 +497,7 @@
   },
   "rock_big": {
    "label": "큰 바위",
+   "group": "자연",
    "sheet": "field/props/rock_big.png",
    "fw": 61,
    "fh": 45,
@@ -501,6 +507,7 @@
   },
   "rock_small": {
    "label": "작은 바위",
+   "group": "자연",
    "sheet": "field/props/rock_small.png",
    "fw": 19,
    "fh": 14,
@@ -510,6 +517,7 @@
   },
   "wall": {
    "label": "성벽",
+   "group": "성채",
    "sheet": "field/props/wall.png",
    "fw": 88,
    "fh": 115,
@@ -519,6 +527,7 @@
   },
   "tower": {
    "label": "성탑",
+   "group": "성채",
    "sheet": "field/props/tower.png",
    "fw": 74,
    "fh": 193,
@@ -528,6 +537,7 @@
   },
   "gate": {
    "label": "성문",
+   "group": "성채",
    "sheet": "field/props/gate.png",
    "fw": 118,
    "fh": 147,
@@ -537,6 +547,7 @@
   },
   "house": {
    "label": "마을 집",
+   "group": "마을",
    "sheet": "field/props/house.png",
    "fw": 121,
    "fh": 109,
@@ -546,6 +557,7 @@
   },
   "well": {
    "label": "우물",
+   "group": "마을",
    "sheet": "field/props/well.png",
    "fw": 38,
    "fh": 60,
@@ -555,6 +567,7 @@
   },
   "fence": {
    "label": "나무 울타리",
+   "group": "마을",
    "sheet": "field/props/fence.png",
    "fw": 52,
    "fh": 43,
@@ -564,6 +577,7 @@
   },
   "torch": {
    "label": "화톳불 받침",
+   "group": "성채",
    "sheet": "field/props/torch.png",
    "fw": 15,
    "fh": 43,
@@ -573,6 +587,7 @@
   },
   "campfire": {
    "label": "모닥불",
+   "group": "마을",
    "sheet": "field/props/campfire.png",
    "fw": 27,
    "fh": 23,
@@ -582,6 +597,7 @@
   },
   "grave": {
    "label": "묘비",
+   "group": "묘지·폐허",
    "sheet": "field/props/grave.png",
    "fw": 16,
    "fh": 32,
@@ -591,6 +607,7 @@
   },
   "cross_grave": {
    "label": "나무 십자가 무덤",
+   "group": "묘지·폐허",
    "sheet": "field/props/cross_grave.png",
    "fw": 16,
    "fh": 33,
@@ -600,6 +617,7 @@
   },
   "barrel": {
    "label": "술통",
+   "group": "마을",
    "sheet": "field/props/barrel.png",
    "fw": 16,
    "fh": 20,
@@ -609,6 +627,7 @@
   },
   "crate": {
    "label": "나무 상자",
+   "group": "마을",
    "sheet": "field/props/crate.png",
    "fw": 20,
    "fh": 21,
@@ -618,6 +637,7 @@
   },
   "signpost": {
    "label": "이정표",
+   "group": "마을",
    "sheet": "field/props/signpost.png",
    "fw": 29,
    "fh": 31,
@@ -627,6 +647,7 @@
   },
   "tent": {
    "label": "야영 천막",
+   "group": "마을",
    "sheet": "field/props/tent.png",
    "fw": 78,
    "fh": 60,
@@ -636,6 +657,7 @@
   },
   "pillar": {
    "label": "부서진 기둥",
+   "group": "묘지·폐허",
    "sheet": "field/props/pillar.png",
    "fw": 34,
    "fh": 65,
@@ -645,6 +667,7 @@
   },
   "crystal": {
    "label": "마나 수정",
+   "group": "자연",
    "sheet": "field/props/crystal.png",
    "fw": 30,
    "fh": 37,
@@ -654,11 +677,252 @@
   },
   "bones": {
    "label": "해골 더미",
+   "group": "묘지·폐허",
    "sheet": "field/props/bones.png",
    "fw": 26,
    "fh": 10,
    "ax": 13,
    "ay": 7,
+   "frames": 1
+  },
+  "dungeon_wall": {
+   "label": "던전 벽",
+   "group": "던전",
+   "sheet": "field/props/dungeon_wall.png",
+   "fw": 88,
+   "fh": 124,
+   "ax": 43,
+   "ay": 99,
+   "frames": 1
+  },
+  "wall_torch": {
+   "label": "벽 횃불",
+   "group": "던전",
+   "sheet": "field/props/wall_torch.png",
+   "fw": 8,
+   "fh": 23,
+   "ax": 4,
+   "ay": 43,
+   "frames": 4
+  },
+  "portcullis": {
+   "label": "쇠창살 문",
+   "group": "던전",
+   "sheet": "field/props/portcullis.png",
+   "fw": 96,
+   "fh": 126,
+   "ax": 48,
+   "ay": 101,
+   "frames": 1
+  },
+  "chain_pillar": {
+   "label": "사슬 기둥",
+   "group": "던전",
+   "sheet": "field/props/chain_pillar.png",
+   "fw": 24,
+   "fh": 101,
+   "ax": 12,
+   "ay": 94,
+   "frames": 1
+  },
+  "chest": {
+   "label": "보물상자",
+   "group": "던전",
+   "sheet": "field/props/chest.png",
+   "fw": 32,
+   "fh": 30,
+   "ax": 16,
+   "ay": 23,
+   "frames": 1
+  },
+  "chest_open": {
+   "label": "열린 보물상자",
+   "group": "던전",
+   "sheet": "field/props/chest_open.png",
+   "fw": 35,
+   "fh": 33,
+   "ax": 19,
+   "ay": 26,
+   "frames": 1
+  },
+  "altar": {
+   "label": "해골 제단",
+   "group": "던전",
+   "sheet": "field/props/altar.png",
+   "fw": 38,
+   "fh": 37,
+   "ax": 19,
+   "ay": 30,
+   "frames": 4
+  },
+  "sarcophagus": {
+   "label": "석관",
+   "group": "던전",
+   "sheet": "field/props/sarcophagus.png",
+   "fw": 52,
+   "fh": 44,
+   "ax": 26,
+   "ay": 31,
+   "frames": 1
+  },
+  "cage": {
+   "label": "쇠우리",
+   "group": "던전",
+   "sheet": "field/props/cage.png",
+   "fw": 28,
+   "fh": 56,
+   "ax": 14,
+   "ay": 49,
+   "frames": 1
+  },
+  "spikes": {
+   "label": "가시 함정",
+   "group": "던전",
+   "sheet": "field/props/spikes.png",
+   "fw": 50,
+   "fh": 31,
+   "ax": 25,
+   "ay": 18,
+   "frames": 1
+  },
+  "stairs": {
+   "label": "돌계단",
+   "group": "던전",
+   "sheet": "field/props/stairs.png",
+   "fw": 55,
+   "fh": 72,
+   "ax": 25,
+   "ay": 57,
+   "frames": 1
+  },
+  "bone_pile": {
+   "label": "해골 무더기",
+   "group": "던전",
+   "sheet": "field/props/bone_pile.png",
+   "fw": 36,
+   "fh": 24,
+   "ax": 18,
+   "ay": 14,
+   "frames": 1
+  },
+  "stall": {
+   "label": "시장 노점",
+   "group": "마을 생활",
+   "sheet": "field/props/stall.png",
+   "fw": 65,
+   "fh": 62,
+   "ax": 30,
+   "ay": 48,
+   "frames": 1
+  },
+  "anvil": {
+   "label": "모루와 망치",
+   "group": "마을 생활",
+   "sheet": "field/props/anvil.png",
+   "fw": 28,
+   "fh": 22,
+   "ax": 15,
+   "ay": 18,
+   "frames": 1
+  },
+  "forge": {
+   "label": "대장간 화로",
+   "group": "마을 생활",
+   "sheet": "field/props/forge.png",
+   "fw": 49,
+   "fh": 77,
+   "ax": 24,
+   "ay": 65,
+   "frames": 4
+  },
+  "cart": {
+   "label": "짐수레",
+   "group": "마을 생활",
+   "sheet": "field/props/cart.png",
+   "fw": 40,
+   "fh": 36,
+   "ax": 21,
+   "ay": 25,
+   "frames": 1
+  },
+  "lamp_post": {
+   "label": "가로등",
+   "group": "마을 생활",
+   "sheet": "field/props/lamp_post.png",
+   "fw": 10,
+   "fh": 54,
+   "ax": 5,
+   "ay": 51,
+   "frames": 4
+  },
+  "haybale": {
+   "label": "건초 더미",
+   "group": "마을 생활",
+   "sheet": "field/props/haybale.png",
+   "fw": 27,
+   "fh": 21,
+   "ax": 15,
+   "ay": 17,
+   "frames": 1
+  },
+  "notice_board": {
+   "label": "게시판",
+   "group": "마을 생활",
+   "sheet": "field/props/notice_board.png",
+   "fw": 30,
+   "fh": 35,
+   "ax": 15,
+   "ay": 32,
+   "frames": 1
+  },
+  "grindstone": {
+   "label": "숫돌",
+   "group": "마을 생활",
+   "sheet": "field/props/grindstone.png",
+   "fw": 20,
+   "fh": 27,
+   "ax": 10,
+   "ay": 23,
+   "frames": 1
+  },
+  "firewood": {
+   "label": "장작 더미",
+   "group": "마을 생활",
+   "sheet": "field/props/firewood.png",
+   "fw": 35,
+   "fh": 23,
+   "ax": 20,
+   "ay": 16,
+   "frames": 1
+  },
+  "planter": {
+   "label": "꽃 화분",
+   "group": "마을 생활",
+   "sheet": "field/props/planter.png",
+   "fw": 24,
+   "fh": 21,
+   "ax": 12,
+   "ay": 15,
+   "frames": 1
+  },
+  "banner_pole": {
+   "label": "깃발 장대",
+   "group": "마을 생활",
+   "sheet": "field/props/banner_pole.png",
+   "fw": 21,
+   "fh": 68,
+   "ax": 5,
+   "ay": 65,
+   "frames": 1
+  },
+  "trough": {
+   "label": "여물통",
+   "group": "마을 생활",
+   "sheet": "field/props/trough.png",
+   "fw": 28,
+   "fh": 22,
+   "ax": 14,
+   "ay": 15,
    "frames": 1
   }
  },
@@ -691,6 +955,14 @@
    {
     "name": "dungeon",
     "label": "던전 바닥"
+   },
+   {
+    "name": "dungeon_wet",
+    "label": "젖은 던전 바닥"
+   },
+   {
+    "name": "planks",
+    "label": "나무 마루"
    },
    {
     "name": "water",

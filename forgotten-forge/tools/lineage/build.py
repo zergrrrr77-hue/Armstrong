@@ -28,6 +28,7 @@ import items as I        # noqa: E402
 OUT = os.path.normpath(os.path.join(HERE, '..', '..', 'lineage-assets'))
 DIRS = ['S', 'SE', 'E', 'NE', 'N', 'NW', 'W', 'SW']      # yaw = 45° × 번호
 CHAR_FRAME = (96, 88, 48, 66)
+NA = dict(Hm.ANIMS)
 
 
 def entities():
@@ -48,7 +49,7 @@ def build_scene(ent, anim, f, n):
         src['gear'](r, p, it)
         M = t = None
         if anim == 'death':
-            M, t = Hm.death_xform(f)
+            M, t = Hm.death_xform(f, n)
         return it, src['mats'], M, t
     it, M, t = src['build'](anim, f, n)
     return it, src['mats'], M, t
@@ -124,8 +125,8 @@ def main():
                     tasks.append((nm, d, an, f, n, None))
     # 강화 무기 쇼케이스: 기사 대기(남쪽) × 강화 단계
     for e in I.ENCHANTS[1:]:
-        for f in range(4):
-            tasks.append(('knight', 0, 'idle', f, 4, e))
+        for f in range(NA['idle']):
+            tasks.append(('knight', 0, 'idle', f, NA['idle'], e))
     print(f'프레임 {len(tasks)}개 렌더링 ({args.jobs}코어)…', flush=True)
     frames = {}
     with Pool(args.jobs) as pool:
@@ -136,7 +137,7 @@ def main():
 
     meta = dict(version=1, style='리니지풍 프리렌더 도트 (쿼터뷰 30°, 2:1 타일)', tile=dict(w=F.TW, h=F.TH, world=F.CELL),
                 dirs=DIRS, dir_note='행 = 방향(yaw 45°씩: S, SE, E, NE, N, NW, W, SW). 좌우 반전 없이 8방향을 모두 렌더링.',
-                anims=[dict(name=a, frames=n) for a, n in anims], characters={}, monsters={}, props={}, tiles={}, items={})
+                anims=[dict(name=a, frames=n) for a, n in anims], hit_frame=Hm.HIT_FRAME, characters={}, monsters={}, props={}, tiles={}, items={})
     ncol = sum(n for _, n in anims)
     for nm in names:
         ent = ents[nm]
@@ -158,7 +159,7 @@ def main():
                                rows=[DIRS[d] for d in dirs], anims=starts)
         # 미리보기 GIF (남동 방향 또는 첫 방향의 걷기·공격)
         dsel = 1 if 1 in dirs else dirs[0]
-        seq = [frames[(nm, dsel, 'walk', f, 0)] for f in range(6)] + [frames[(nm, dsel, 'attack', f, 0)] for f in range(5)]
+        seq = [frames[(nm, dsel, 'walk', f, 0)] for f in range(NA['walk'])] + [frames[(nm, dsel, 'attack', f, 0)] for f in range(NA['attack'])]
         gif(seq, os.path.join('preview', f'{nm}.gif'), 110)
 
     # 강화 쇼케이스
@@ -169,7 +170,7 @@ def main():
     meta['enchant_showcase'] = dict(sheet=save(ek, 'characters', 'knight_enchant.png'), fw=CHAR_FRAME[0], fh=CHAR_FRAME[1],
                                     levels=[0] + [e[0] for e in I.ENCHANTS[1:]])
     for e in I.ENCHANTS[1:]:
-        gif([frames[('knight', 0, 'idle', f, e[0])] for f in range(4)], os.path.join('preview', f'knight_plus{e[0]}.gif'), 180)
+        gif([frames[('knight', 0, 'idle', f, e[0])] for f in range(NA['idle'])], os.path.join('preview', f'knight_plus{e[0]}.gif'), 180)
     print(f'캐릭터·몬스터 완료 {time.time() - t0:.0f}s', flush=True)
 
     # ── 필드
@@ -189,7 +190,7 @@ def main():
         sheet = Image.new('RGBA', (fw * len(imgs), fh))
         for k, im in enumerate(imgs):
             sheet.alpha_composite(im.crop((x0, y0, x1, y1)), (k * fw, 0))
-        meta['props'][nm] = dict(label=d['label'], sheet=save(sheet, 'field', 'props', f'{nm}.png'), fw=fw, fh=fh,
+        meta['props'][nm] = dict(label=d['label'], group=d.get('group') or '기타', sheet=save(sheet, 'field', 'props', f'{nm}.png'), fw=fw, fh=fh,
                                  ax=ax - x0, ay=ay - y0, frames=len(imgs))
     print(f'필드 완료 {time.time() - t0:.0f}s', flush=True)
 
@@ -221,6 +222,7 @@ def main():
     if not args.quick:
         import scene
         scene.compose(OUT, meta)
+        scene.compose_dungeon(OUT, meta)
     import gallery
     gallery.write(OUT)
     print(f'완료 {time.time() - t0:.0f}s → {OUT}')

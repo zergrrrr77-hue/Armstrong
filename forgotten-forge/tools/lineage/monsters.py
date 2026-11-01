@@ -13,6 +13,19 @@ from sdf import V, Item, Mat
 C = Hm.M_COMMON
 
 
+def samp(keys, f, n):
+    """키 목록을 n프레임으로 부드럽게 보간(길이가 같으면 그대로). 원소는 숫자 또는 튜플."""
+    if len(keys) == n:
+        return keys[f]
+    u = f / max(1, n - 1) * (len(keys) - 1)
+    i = min(int(u), len(keys) - 2)
+    w = Hm.ease(u - i)
+    a, b = keys[i], keys[i + 1]
+    if isinstance(a, tuple):
+        return tuple(x + (y - x) * w for x, y in zip(a, b))
+    return a + (b - a) * w
+
+
 # ───────────────────────── 사람형 몬스터 공통 ─────────────────────────
 
 def humanoid_monster(name, label, mats, parts, opts, build, kind, gear, frame, lean=0.0, extra_pose=None):
@@ -26,7 +39,7 @@ def humanoid_monster(name, label, mats, parts, opts, build, kind, gear, frame, l
         gear(r, p, it)
         M = t = None
         if anim == 'death':
-            M, t = Hm.death_xform(f)
+            M, t = Hm.death_xform(f, n)
         return it, M, t
     return dict(name=name, label=label, mats=mats, build=make, frame=frame)
 
@@ -227,11 +240,12 @@ def _wolf():
             moving = True
             bob = 0.8 * abs(math.sin(2 * math.pi * t * 2))
         elif anim == 'attack':
-            seq = [(0, 0, -6, 2, 1), (-6, 2, 2, 3, -2), (8, 0, 10, 7, 8), (4, 0, 6, 5, 5), (0, 0, 0, 1, 0)]
-            pitch, head_dn, lunge, jaw, crouch = seq[f]
+            seq = [(0, 0, 0, 1, 0), (-4, 3, -3, 2, 2), (-8, 5, -6, 4, 3), (2, 0, 6, 6, 0), (9, -2, 12, 8, 6),
+                   (9, -2, 12, 7, 6), (5, 0, 7, 4, 4), (1, 0, 1, 1, 1)]
+            pitch, head_dn, lunge, jaw, crouch = samp(seq, f, n)
             head_dn = -head_dn
         elif anim == 'hurt':
-            pitch, head_dn, lunge = [(-10, 8, -3), (-5, 4, -1)][f]
+            pitch, head_dn, lunge = samp([(-12, 10, -4), (-7, 6, -2), (-2, 2, -0.5)], f, n)
         elif anim == 'death':
             pitch = 0
         s = 1.0
@@ -284,8 +298,8 @@ def _wolf():
             if not moving:
                 swing, lift = 0, 0
             if anim == 'attack' and front:
-                swing += [0, -3, 7, 5, 0][f]
-                lift += [0, 0, 4, 2, 0][f]
+                swing += samp([0, -2, -4, 3, 8, 8, 5, 1], f, n)
+                lift += samp([0, 0, 1, 4, 3, 3, 1.5, 0], f, n)
             foot = V(root[0] + sx * 0.3, root[1] + swing + (1.5 if front else -0.5), lift)
             # 무릎/관절: 앞다리는 뒤로, 뒷다리는 앞으로(굽은 비절)
             mid = (root + foot) / 2 + V(0, (-2.0 if front else 3.4), 0)
@@ -295,10 +309,10 @@ def _wolf():
             it.append(Item(S.ellipsoid(foot + V(0, 1.2, 1.0), V(1.5, 2.2, 1.1)), 'fur_lt'))
         M = tt = None
         if anim == 'death':
-            ang = [15, 40, 70, 88][f]
+            ang = samp([6, 18, 44, 76, 94, 88], f, n)
             M = S.ry(ang)
             pivot = V(5.0, 0, 0)
-            tt = pivot - M @ pivot + V(0, 0, -[0, 0.5, 1.5, 2.5][f])
+            tt = pivot - M @ pivot + V(0, 0, -samp([0, 0.3, 1.0, 1.8, 2.7, 2.5], f, n))
         return it, M, tt
     return dict(name='wolf', label='다이어울프', mats=m, build=make, frame=(112, 96, 56, 68), scale=1.25)
 
@@ -329,12 +343,12 @@ def _spider():
         elif anim == 'walk':
             bob = 0.5 * abs(math.sin(4 * math.pi * t))
         elif anim == 'attack':
-            rear, lunge, fang = [(10, -2, 0), (28, -3, 1), (-6, 7, 2), (-4, 5, 1.5), (4, 0, 0)][f]
+            rear, lunge, fang = samp([(2, 0, 0), (14, -2, 0.5), (30, -4, 1), (8, 3, 1.5), (-8, 8, 2), (-8, 8, 2), (-3, 4, 1), (2, 0, 0)], f, n)
         elif anim == 'hurt':
-            rear, lunge = [(-8, -3), (-4, -1)][f]
+            rear, lunge = samp([(-10, -4), (-6, -2), (-2, -0.5)], f, n)
         elif anim == 'death':
-            curl = [0.3, 0.6, 0.9, 1.0][f]
-            bob = -[1, 3, 5, 6][f]
+            curl = samp([0.1, 0.3, 0.55, 0.8, 1.0, 1.0], f, n)
+            bob = -samp([0, 1, 2.5, 4.5, 6.5, 6], f, n)
         rot = S.rx(-rear)
         bodyZ = 12.0 + bob
         cep = V(0, 3 + lunge, bodyZ)
@@ -365,7 +379,7 @@ def _spider():
                 lift = max(0, math.cos(ph)) * 4.0 if anim == 'walk' else 0
                 a = math.radians(a0 + swing)
                 if anim == 'attack' and i == 0:
-                    lift += [3, 10, 4, 3, 1][f]
+                    lift += samp([1, 5, 11, 6, 3, 3, 2, 1], f, n)
                 root = cep + rot @ V(sx * 4.6, 1.5 * math.sin(a) * 2, -0.5)
                 dirv = V(sx * math.cos(a), math.sin(a), 0)
                 reach = 20 - curl * 12
@@ -397,11 +411,11 @@ def _ooze():
             sq = 1.0 + 0.16 * math.sin(2 * math.pi * t)
             fw = 2.5 * math.sin(2 * math.pi * t)
         elif anim == 'attack':
-            sq, fw, up = [(0.8, -2, 0), (1.35, 0, 3), (0.75, 9, 0), (0.9, 6, 0), (1.0, 1, 0)][f]
+            sq, fw, up = samp([(1.0, 0, 0), (0.82, -2, 0), (0.7, -3, 0), (1.4, 2, 4), (0.72, 10, 0), (0.75, 10, 0), (0.92, 5, 0), (1.0, 1, 0)], f, n)
         elif anim == 'hurt':
-            sq, fw = [(0.7, -3), (0.85, -1)][f]
+            sq, fw = samp([(0.65, -3), (1.12, -1), (0.94, 0)], f, n)
         elif anim == 'death':
-            melt = [0.25, 0.5, 0.78, 1.0][f]
+            melt = samp([0.1, 0.3, 0.5, 0.72, 0.92, 1.0], f, n)
             sq = 1.0 - 0.75 * melt
         hz = 9.0 * sq
         rw = 11.0 / math.sqrt(sq)

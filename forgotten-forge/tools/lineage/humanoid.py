@@ -526,12 +526,88 @@ CLASSES = [_class_knight(), _class_elf(), _class_mage(), _class_lord()]
 
 
 # ───────────────────────── 동작 ─────────────────────────
+# 프레임 수: 대기 6 · 걷기 8 · 공격 8 · 피격 3 · 사망 6. 공격의 타격 프레임은 HIT_FRAME.
 
-ANIMS = [('idle', 4), ('walk', 6), ('attack', 5), ('hurt', 2), ('death', 4)]
+ANIMS = [('idle', 6), ('walk', 8), ('attack', 8), ('hurt', 3), ('death', 6)]
+HIT_FRAME = 4
+
+
+def ease(u):
+    return u * u * (3 - 2 * u)
+
+
+def keyed(keys, f, n):
+    """keys: 프레임 번호와 맞춘 dict 목록(길이 n이면 그대로), 다르면 부드럽게 보간."""
+    if len(keys) == n:
+        return dict(keys[f])
+    u = f / max(1, n - 1) * (len(keys) - 1)
+    i = min(int(u), len(keys) - 2)
+    w = ease(u - i)
+    a, b = keys[i], keys[i + 1]
+    out = {}
+    for k in set(a) | set(b):
+        va, vb = a.get(k, b.get(k)), b.get(k, a.get(k))
+        out[k] = va + (vb - va) * w
+    return out
+
+
+def _bend(p):
+    """'sink'(무게 실어 주저앉기)를 무릎·고관절 굽힘으로 바꾼다(발은 땅에 붙은 채 몸이 내려감)."""
+    s = p.pop('sink', 0.0)
+    if s:
+        p['lknee'] = p.get('lknee', 4.0) + s * 11
+        p['rknee'] = p.get('rknee', 4.0) + s * 11
+        p['lhip'] = p.get('lhip', 0.0) + s * 5
+        p['rhip'] = p.get('rhip', 0.0) + s * 5
+        p['lean'] = p.get('lean', 0.0) + s * 2
+    return p
+
+
+# 공격 키프레임 (8프레임: 준비 → 예비동작 2 → 휘두름 → 타격 → 멈춤(히트스톱) → 여운 → 복귀)
+ATK_SWORD = [
+    dict(rsh=30, rel=50, wpn=105, wpn_side=-10, lean=0, twist=0, sink=0.3, lhip=0, rhip=0),
+    dict(rsh=115, rel=65, wpn=185, wpn_side=-14, lean=-5, twist=-16, sink=0.8, lhip=-4, rhip=6),
+    dict(rsh=158, rel=42, wpn=212, wpn_side=-10, lean=-10, twist=-28, sink=1.1, lhip=-6, rhip=8),
+    dict(rsh=118, rel=14, wpn=140, wpn_side=8, lean=4, twist=0, sink=0.6, lhip=14, rhip=-12),
+    dict(rsh=66, rel=6, wpn=98, wpn_side=22, lean=14, twist=24, sink=1.6, lhip=22, rhip=-18),
+    dict(rsh=60, rel=6, wpn=94, wpn_side=24, lean=15, twist=26, sink=1.7, lhip=22, rhip=-18),
+    dict(rsh=34, rel=18, wpn=78, wpn_side=20, lean=11, twist=20, sink=1.3, lhip=18, rhip=-14),
+    dict(rsh=24, rel=40, wpn=92, wpn_side=2, lean=4, twist=6, sink=0.5, lhip=6, rhip=-4),
+]
+ATK_GREAT = [
+    dict(rsh=36, rel=44, wpn=125, wpn_side=-22, lean=2, twist=0, sink=0.4),
+    dict(rsh=120, rel=60, wpn=190, wpn_side=-24, lean=-6, twist=-22, sink=1.0, lhip=-6, rhip=8),
+    dict(rsh=165, rel=40, wpn=218, wpn_side=-14, lean=-12, twist=-34, sink=1.4, lhip=-8, rhip=10),
+    dict(rsh=125, rel=18, wpn=150, wpn_side=6, lean=6, twist=-4, sink=0.8, lhip=16, rhip=-14),
+    dict(rsh=60, rel=8, wpn=92, wpn_side=26, lean=18, twist=26, sink=2.0, lhip=26, rhip=-20),
+    dict(rsh=55, rel=8, wpn=88, wpn_side=28, lean=19, twist=28, sink=2.1, lhip=26, rhip=-20),
+    dict(rsh=32, rel=20, wpn=78, wpn_side=22, lean=14, twist=22, sink=1.6, lhip=20, rhip=-16),
+    dict(rsh=30, rel=38, wpn=110, wpn_side=-10, lean=5, twist=8, sink=0.6, lhip=6, rhip=-4),
+]
+ATK_BOW = [
+    dict(lsh=45, lel=10, rsh=14, rel=30, twist=0, lean=2, draw=0.0, sink=0.3),
+    dict(lsh=80, lel=4, rsh=60, rel=70, twist=8, lean=3, draw=0.0, sink=0.5, lhip=8, rhip=-8),
+    dict(lsh=88, lel=2, rsh=86, rel=60, twist=12, lean=4, draw=0.15, sink=0.7, lhip=10, rhip=-10),
+    dict(lsh=88, lel=2, rsh=86, rel=100, twist=18, lean=4, draw=0.55, sink=0.8, lhip=10, rhip=-10),
+    dict(lsh=88, lel=2, rsh=84, rel=135, twist=24, lean=4, draw=1.0, sink=0.9, lhip=10, rhip=-10),
+    dict(lsh=88, lel=2, rsh=84, rel=138, twist=25, lean=4, draw=1.0, sink=0.9, lhip=10, rhip=-10),
+    dict(lsh=92, lel=0, rsh=70, rel=160, rab=40, twist=20, lean=-2, draw=0.0, sink=0.7, lhip=10, rhip=-10),
+    dict(lsh=60, lel=8, rsh=30, rel=60, twist=6, lean=2, draw=0.0, sink=0.4, lhip=4, rhip=-4),
+]
+ATK_STAFF = [
+    dict(rsh=30, rel=45, wpn=170, wpn_side=-6, lsh=12, lel=25, lean=0, glow=0.0, sink=0.2),
+    dict(rsh=80, rel=90, wpn=180, wpn_side=-4, lsh=30, lel=40, lean=-4, glow=0.2, sink=0.5),
+    dict(rsh=140, rel=55, wpn=198, wpn_side=0, lsh=60, lel=30, lean=-9, glow=0.5, sink=0.9, lhip=-4, rhip=6),
+    dict(rsh=158, rel=30, wpn=206, wpn_side=0, lsh=80, lel=20, lean=-12, glow=0.8, sink=1.1, lhip=-6, rhip=8),
+    dict(rsh=85, rel=8, wpn=125, wpn_side=0, lsh=90, lel=6, lean=10, glow=1.0, sink=1.5, lhip=16, rhip=-14),
+    dict(rsh=80, rel=8, wpn=120, wpn_side=0, lsh=92, lel=6, lean=11, glow=1.0, sink=1.6, lhip=16, rhip=-14),
+    dict(rsh=55, rel=24, wpn=140, wpn_side=-2, lsh=60, lel=20, lean=6, glow=0.5, sink=1.0, lhip=10, rhip=-8),
+    dict(rsh=34, rel=42, wpn=165, wpn_side=-6, lsh=20, lel=25, lean=2, glow=0.1, sink=0.4),
+]
 
 
 def pose_for(kind, anim, f, n):
-    """kind: 'sword' | 'bow' | 'staff' | 'axe' | 'claw'"""
+    """kind: 'sword' | 'axe' | 'great' | 'bow' | 'staff'"""
     t = f / n
     ph = 2 * math.pi * t
     if kind == 'bow':
@@ -544,59 +620,80 @@ def pose_for(kind, anim, f, n):
         base = dict(rsh=14, rel=34, rab=12, wpn=62, wpn_side=-12, lsh=30, lel=46, lab=16)
 
     if anim == 'idle':
+        # 들숨(어깨·가슴 올라감)과 날숨, 무게중심이 좌우로 살짝 옮겨감
         b = math.sin(ph)
-        return Pose(**base, bob=-0.35 + 0.35 * b, lean=2 + 0.6 * b, cape=1 + b)
+        c = math.sin(ph - 0.9)
+        p = dict(base)
+        p.update(bob=-0.45 + 0.45 * b, lean=2 + 0.8 * b, roll=0.6 * c,
+                 cape=1 + 1.4 * c, head=-1.2 * c, lknee=6 + 2 * c, rknee=4 - 1 * c)
+        p['rsh'] = base['rsh'] + 1.5 * c
+        p['lsh'] = base['lsh'] + 1.5 * c
+        return Pose(**p)
+
     if anim == 'walk':
+        # 8프레임 보행: 디딤(무릎 약간 굽혀 충격 흡수) → 밀어내기 → 들어올림 → 앞으로 뻗기
         sw = math.sin(ph)
         cw = math.cos(ph)
+        lift_l = max(0.0, cw) ** 1.3
+        lift_r = max(0.0, -cw) ** 1.3
+        contact = 1 - abs(cw)             # 두 발 디딤 순간
         p = dict(base)
-        p.update(lhip=26 * sw, rhip=-26 * sw,
-                 lknee=6 + 34 * max(0.0, cw), rknee=6 + 34 * max(0.0, -cw),
-                 lean=5, twist=-5 * sw, cape=8 + 3 * abs(cw))
-        if kind not in ('bow',):
-            p['lsh'] = base['lsh'] + (-16 * sw if kind != 'staff' else -24 * sw)
-        p['rsh'] = base['rsh'] + 14 * sw
-        p['bob'] = 0.5 * abs(math.sin(ph))
+        p.update(lhip=28 * sw, rhip=-28 * sw,
+                 lknee=8 + 42 * lift_l + 6 * contact, rknee=8 + 42 * lift_r + 6 * contact,
+                 lean=6, twist=-7 * sw, roll=2.2 * cw, head=1.5 * contact,
+                 cape=9 + 5 * abs(cw), lhip_side=1.5, rhip_side=1.5)
+        if kind != 'bow':
+            p['lsh'] = base['lsh'] + (-18 * sw if kind != 'staff' else -26 * sw)
+        p['rsh'] = base['rsh'] + 15 * sw
+        p['rel'] = base['rel'] + 6 * max(0.0, sw)
+        p['bob'] = 0.3 * abs(math.sin(ph))
         return Pose(**p)
+
     if anim == 'attack':
-        if kind == 'bow':
-            k = [0.0, 0.5, 1.0, 1.0, 0.2][f]
-            return Pose(lsh=88, lab=4, lel=2, rsh=88 - 6 * k, rab=10, rel=40 + 100 * k, lean=4, twist=10 + 14 * k,
-                        draw=k if f < 4 else 0.0, rhip=-10, lhip=10)
-        if kind == 'staff':
-            seq = [(60, 120, 165, -6, 0), (140, 60, 200, 0, 0.5), (150, 30, 205, 0, 1.0), (80, 10, 120, 0, 1.0), (45, 30, 150, -4, 0.3)]
-            rs, rl, w, ws, g = seq[f]
-            return Pose(rsh=rs, rel=rl, rab=14, wpn=w, wpn_side=ws, lsh=40 + 40 * g, lel=20, lab=26,
-                        lean=-4 + 10 * g, glow=g, lhip=8 * g, rhip=-8 * g)
-        if kind == 'great':
-            seq = [(70, 80, 160, -30, -8, -14), (150, 50, 205, -10, -12, -24), (110, 20, 130, 10, 6, 6),
-                   (40, 15, 70, 25, 12, 24), (20, 30, 95, 10, 6, 12)]
-        else:
-            seq = [(60, 70, 150, -20, -6, -10), (150, 40, 200, -10, -10, -22), (105, 15, 120, 10, 6, 6),
-                   (35, 10, 60, 22, 10, 22), (20, 35, 95, 0, 4, 8)]
-        rs, rl, w, ws, ln, tw = seq[f]
-        return Pose(rsh=rs, rel=rl, rab=16, wpn=w, wpn_side=ws, lsh=40, lel=50, lab=20, shd=1,
-                    lean=ln, twist=tw, lhip=10 if f >= 2 else 0, rhip=-12 if f >= 2 else 0, lknee=12, rknee=10)
+        keys = {'bow': ATK_BOW, 'staff': ATK_STAFF, 'great': ATK_GREAT}.get(kind, ATK_SWORD)
+        k = keyed(keys, f, n)
+        p = dict(base)
+        p.update(rab=16, lab=20, shd=1, lknee=10, rknee=8)
+        if kind in ('sword', 'axe'):
+            p.update(lsh=40, lel=50)
+        p.update(k)
+        p['cape'] = 6 + 6 * abs(k.get('twist', 0)) / 25 + (6 if f in (3, 4) else 0)
+        return Pose(**_bend(p))
+
     if anim == 'hurt':
-        k = [1.0, 0.55][f]
+        # 맞는 순간 크게 젖혀졌다가 반동으로 돌아옴
+        k = [1.0, 0.75, 0.3][f] if n == 3 else (1.0 - f / max(1, n - 1) * 0.7)
         p = dict(base)
-        p.update(lean=-14 * k, head=-12 * k, lsh=base['lsh'] + 20 * k, rsh=base['rsh'] - 10 * k, rab=24 * k + 10,
-                 lknee=14 * k, rknee=10 * k, lhip=-8 * k, rhip=6 * k, cape=14 * k)
-        return Pose(**p)
+        p.update(lean=-16 * k, head=-16 * k, twist=8 * k, lsh=base['lsh'] + 24 * k, rsh=base['rsh'] - 12 * k,
+                 rab=28 * k + 10, lab=24 * k + 10, lhip=-10 * k, rhip=8 * k, cape=16 * k, sink=0.8 * k)
+        return Pose(**_bend(p))
+
     if anim == 'death':
+        u = f / max(1, n - 1)
+        k = min(1.0, u * 1.25)
         p = dict(base)
-        k = [0.15, 0.45, 0.8, 1.0][f]
-        p.update(lean=-6 - 10 * k, head=-20 * k, lknee=40 * k, rknee=30 * k, lhip=20 * k, rhip=12 * k,
-                 lsh=60 * k, rsh=70 * k, lab=40 * k, rab=40 * k, lel=20, rel=20, wpn=110 + 60 * k, cape=20)
+        p.update(lean=-6 - 12 * k, head=-22 * k, lknee=10 + 45 * k, rknee=8 + 35 * k, lhip=24 * k, rhip=14 * k,
+                 lsh=base['lsh'] + 50 * k, rsh=base['rsh'] + 60 * k, lab=10 + 40 * k, rab=10 + 45 * k,
+                 lel=20, rel=20, wpn=base['wpn'] + 50 * k, cape=20 + 10 * k)
         return Pose(**p)
     raise ValueError(anim)
 
 
-def death_xform(f, height=50.0):
+DEATH_ANG = [6, 16, 38, 68, 92, 87]     # 무릎 꺾임 → 가속하며 넘어짐 → 바닥에 튕겼다 가라앉음
+DEATH_DROP = [0, 0.3, 0.8, 1.6, 2.6, 2.4]
+
+
+def death_xform(f, n=6):
     """뒤로 쓰러지는 강체 변환(발 뒤쪽 축)."""
-    ang = [8, 30, 64, 86][f]
-    M = S.rx(ang)                     # 머리가 -y(뒤)로 넘어감
+    if n == len(DEATH_ANG):
+        ang, drop = DEATH_ANG[f], DEATH_DROP[f]
+    else:
+        u = f / max(1, n - 1) * (len(DEATH_ANG) - 1)
+        i = min(int(u), len(DEATH_ANG) - 2)
+        w = u - i
+        ang = DEATH_ANG[i] + (DEATH_ANG[i + 1] - DEATH_ANG[i]) * w
+        drop = DEATH_DROP[i] + (DEATH_DROP[i + 1] - DEATH_DROP[i]) * w
+    M = S.rx(ang)
     pivot = V(0, -3.5, 0)
-    drop = [0, 0.5, 1.5, 2.5][f]
     t = pivot - M @ pivot + V(0, 0, -drop)
     return M, t
