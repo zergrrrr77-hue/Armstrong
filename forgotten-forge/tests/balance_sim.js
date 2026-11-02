@@ -30,7 +30,7 @@ const { chromium } = require('playwright');
           // 물약이 떨어지면 상점 가격으로 보충(골드 소비로 계산)
           for (const [id, price] of [['pot_red', 25], ['pot_blue', 35]]) if ((P.inv[id] || 0) < 3 && P.gold >= price * 10) { P.gold -= price * 10; P.inv[id] += 10; bought += 10; }
           // 착용 가능한 더 좋은 장비 자동 착용
-          for (const e of [...P.bag]) { const d = G.equipDef(e.key), cur = P[d.slot]; const cd = G.equipDef(cur.key); if (P.lv >= d.lv && (d.atk || d.def) > (cd.atk || cd.def)) G.equip(e.uid); }
+          for (const e of [...P.bag]) { const d = G.equipDef(e.key), sl = G.slotFor(e); if (P.lv >= d.lv && G.slotAllowed(sl) && G.statVal(e) > G.statVal(P.eq[sl]) + 0.01) G.equip(e.uid); }
           // 던전 입장 목표에 도달하면 던전에서 사냥
           if (P.lv >= 8 && G.map.id === 'field') G.enterMap('dungeon');
         }

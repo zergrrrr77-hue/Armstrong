@@ -121,6 +121,33 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
       const toast = await page.evaluate(() => document.getElementById('encToast').textContent);
       check(/강화/.test(toast), '강화 결과 알림: ' + toast, fails);
       await (await page.$('#inv')).screenshot({ path: `${OUT}/g9_detail.png` });
+      // 창고형 장비창: 11칸 · 부위 장비 드롭/착용/해제 · 착용 버튼이 화면 안에 보임
+      const slots = await page.evaluate(() => document.querySelectorAll('#dslots .dslot').length);
+      check(slots === 11, '장비 칸 11개(투구·목걸이·무기·갑옷·방패·망토·장갑·장화·반지 2·팔찌): ' + slots, fails);
+      const gear = await page.evaluate(() => {
+        const G = __game, P = G.P; P.lv = Math.max(P.lv, 20);
+        const hp0 = P.maxhp, keys = ['helm_2', 'gloves_2', 'boots_2', 'cloak_2', 'shield_2', 'amulet_2', 'ringS_2', 'ringI_2', 'bracelet_2'];
+        for (const k of keys) P.bag.push(G.makeEquip(k));
+        G.renderInv(); return { hp0, def0: G.EQS().def };
+      });
+      await page.locator('#bagFilter .chip', { hasText: '방어구' }).click();
+      await page.locator('#eqgrid .cell[title*="기사의 투구"]').click();
+      const vis = await page.evaluate(() => { const b = document.getElementById('btnEquip'); if (!b) return false; const r = b.getBoundingClientRect(); return r.bottom <= innerHeight && r.top >= 0 && r.width > 0; });
+      check(vis, '아이템 선택 시 착용 버튼이 화면 안에 보임', fails);
+      await page.click('#btnEquip');
+      await page.locator('#bagFilter .chip', { hasText: '전체' }).click();
+      const g2 = await page.evaluate(() => { const G = __game, P = G.P; for (const e of [...P.bag]) if (/_2$/.test(e.key)) G.equip(e.uid); G.renderInv();
+        return { n: Object.values(P.eq).filter(Boolean).length, def: G.EQS().def, hp: P.maxhp, r1: !!P.eq.ring1, r2: !!P.eq.ring2 }; });
+      check(g2.n === 11 && g2.r1 && g2.r2, '11부위 모두 착용(반지 2개): ' + g2.n, fails);
+      check(g2.def > gear.def0 && g2.hp > gear.hp0, `부위 장비 능력치 반영(방어 ${gear.def0}→${g2.def}, HP ${gear.hp0}→${g2.hp})`, fails);
+      await (await page.$('#inv')).screenshot({ path: `${OUT}/g9b_store.png` });
+      await page.click('.dslot[data-slot="helm"]'); await page.click('#btnUnequip');
+      const un = await page.evaluate(() => !__game.P.eq.helm && __game.P.bag.some(e => e.key === 'helm_2'));
+      check(un, '장비 해제 → 가방으로', fails);
+      const encH = await page.evaluate(() => { const G = __game, P = G.P; P.inv.scroll_armor = 3; const e = P.eq.boots; G.enchantItem(e); return P.inv.scroll_armor === 2; });
+      check(encH, '장화를 갑옷 주문서로 강화', fails);
+      const accNo = await page.evaluate(() => __game.enchantItem(__game.P.eq.amulet) === false);
+      check(accNo, '장신구는 강화 불가', fails);
       await page.keyboard.press('KeyI');
       const pot = await page.evaluate(() => { const G = __game, P = G.P; G.OPT.potHp = 60; P.hp = P.maxhp * 0.5; return P.inv.pot_red; });
       await page.waitForTimeout(600);

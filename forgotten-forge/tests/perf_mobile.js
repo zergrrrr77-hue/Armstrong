@@ -22,6 +22,8 @@ async function scriptCost(page) {
     console.log(`[${name}]`);
     const ctx = await browser.newContext({ viewport: vp, hasTouch: mobile, isMobile: mobile, deviceScaleFactor: mobile ? 3 : 1 });
     const page = await ctx.newPage();
+    // 게시 환경(문서 뼈대)이 넣어 주는 viewport 메타를 재현 — 없으면 휴대폰이 980px 폭으로 렌더링됨
+    if (mobile) await page.addInitScript(() => document.addEventListener('DOMContentLoaded', () => { const m = document.createElement('meta'); m.name = 'viewport'; m.content = 'width=device-width, initial-scale=1, viewport-fit=cover'; document.head.prepend(m); }));
     const errors = []; page.on('pageerror', e => errors.push(e.message)); page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
     await page.goto('file://' + path.resolve(__dirname, '../index.html'));
     await page.waitForFunction(() => document.querySelectorAll('.cls').length === 3, null, { timeout: 20000 });
@@ -49,7 +51,7 @@ async function scriptCost(page) {
     const st0 = await page.evaluate(() => ({ auto: __game.P.auto }));
     await press('#btnAuto'); check(await page.evaluate(a => __game.P.auto !== a, st0.auto), '자동 버튼'); await press('#btnAuto');
     await press('#btnInv'); check(await page.evaluate(() => !document.getElementById('inv').classList.contains('hidden')), '가방 버튼');
-    for (const tab of ['소모품', '능력치', '확률표', '장비']) { await (mobile ? page.locator('#invTabs button', { hasText: tab }).tap() : page.locator('#invTabs button', { hasText: tab }).click()); }
+    for (const tab of ['능력치', '획득 기록', '확률표', '장비창']) { await (mobile ? page.locator('#invTabs button', { hasText: tab }).tap() : page.locator('#invTabs button', { hasText: tab }).click()); }
     check(await page.evaluate(() => !document.querySelector('[data-pane="eq"]').classList.contains('hidden')), '가방 탭 4개 전환');
     await press('#invClose'); check(await page.evaluate(() => document.getElementById('inv').classList.contains('hidden')), '가방 닫기');
     await press('#btnOpt'); check(await page.evaluate(() => !document.getElementById('opt').classList.contains('hidden')), '설정 버튼');

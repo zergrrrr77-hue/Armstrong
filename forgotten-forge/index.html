@@ -163,9 +163,56 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 #target.boss { border-color: #8a2a1a; width: min(460px, 70vw); }
 #target.boss b { color: #ff9a6a; font-size: 16px; }
 
-#inv { right: max(10px, env(safe-area-inset-right, 0px)); top: 230px; width: 320px; max-height: calc(100vh - 250px); overflow-y: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 3px; padding: 12px; display: grid; gap: 10px; box-shadow: inset 0 1px 0 #4a3e30; }
-#inv h3 { margin: 0; font-family: var(--display); font-size: 16px; display: flex; justify-content: space-between; }
-#inv h3 button { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 14px; }
+#inv { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(980px, calc(100vw - 24px)); height: min(680px, calc(100vh - 24px)); background: #120f0c; border: 1px solid var(--gold); border-radius: 4px; display: grid; grid-template-rows: auto 1fr auto; box-shadow: 0 0 0 1px #000, inset 0 1px 0 #4a3e30, 0 20px 60px #000; z-index: 25; overflow: hidden; }
+.whead { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--line); background: linear-gradient(#1e1812, #15110d); flex-wrap: wrap; }
+.whead > b { font-family: var(--display); font-size: 18px; color: #f3e5c8; }
+.whead .tabs { flex: 1; min-width: 240px; max-width: 460px; }
+.wgold { color: #ffd76a; font-weight: 700; font-variant-numeric: tabular-nums; margin-left: auto; }
+.wclose { background: #1c1712; border: 1px solid var(--line-hi); color: var(--fg); width: 34px; height: 34px; border-radius: 3px; cursor: pointer; font-size: 16px; }
+.wbody { display: grid; grid-template-columns: 300px 1fr; min-height: 0; overflow: hidden; }
+.wpad { padding: 14px; overflow-y: auto; display: grid; gap: 10px; align-content: start; min-height: 0; }
+.doll { position: relative; border-right: 1px solid var(--line); background: radial-gradient(ellipse at 50% 35%, #2e2519 0%, #120f0c 70%); padding: 10px; display: grid; grid-template-rows: 380px auto; gap: 8px; overflow-y: auto; }
+.doll canvas#dollCv { position: absolute; left: 50%; top: 70px; transform: translateX(-50%); width: 176px; height: 220px; image-rendering: pixelated; pointer-events: none; }
+.dslots { position: relative; height: 380px; }
+.dslot { position: absolute; width: 46px; height: 46px; padding: 0; border: 1px solid #4a3e30; background: rgba(10,8,6,.85); border-radius: 3px; cursor: pointer; }
+.dslot canvas { width: 100%; height: 100%; image-rendering: pixelated; display: block; }
+.dslot .sl { position: absolute; left: 0; right: 0; bottom: -14px; font-size: 10px; color: var(--muted); text-align: center; white-space: nowrap; }
+.dslot .en { position: absolute; right: 2px; top: 0; font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 0 #000; }
+.dslot.empty canvas { opacity: .25; filter: grayscale(1); }
+.dslot.sel { outline: 2px solid #fff; outline-offset: 1px; }
+.dslot.locked { opacity: .35; cursor: default; }
+.dslot.hint { box-shadow: 0 0 0 2px #8ae07a; }
+.dsum { display: grid; grid-template-columns: auto 1fr auto 1fr auto 1fr; gap: 3px 8px; font-size: 12px; background: #0e0c0a; border: 1px solid var(--line); border-radius: 2px; padding: 8px; font-variant-numeric: tabular-nums; }
+.dsum span { color: var(--muted); } .dsum b { text-align: right; font-weight: 500; }
+.store { display: grid; grid-template-rows: auto 1fr auto; gap: 8px; padding: 10px 12px; min-height: 0; }
+.chips { display: flex; gap: 4px; flex-wrap: wrap; }
+.chip { background: #16120e; border: 1px solid var(--line); color: var(--muted); padding: 6px 12px; min-height: 34px; font-size: 12px; border-radius: 14px; cursor: pointer; }
+.chip[aria-pressed="true"] { color: #fbe7b8; border-color: var(--gold); background: #2a1e10; }
+.sbar2 { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.bagcount { margin-left: auto; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.sgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 5px; align-content: start; overflow-y: auto; padding: 2px; min-height: 0; }
+.cell { position: relative; aspect-ratio: 1; padding: 0; border: 1px solid #2e2620; background: #0c0a08; border-radius: 3px; cursor: pointer; }
+.cell canvas { width: 100%; height: 100%; image-rendering: pixelated; display: block; }
+.cell .en { position: absolute; left: 3px; top: 1px; font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 0 #000; }
+.cell .ct { position: absolute; right: 3px; bottom: 1px; font-size: 11px; color: #fff; text-shadow: 0 1px 0 #000, 0 0 3px #000; font-variant-numeric: tabular-nums; }
+.cell .up { position: absolute; right: 2px; top: 1px; font-size: 11px; color: #8ae07a; text-shadow: 0 1px 0 #000; font-weight: 700; }
+.cell.sel { outline: 2px solid #fff; outline-offset: -1px; }
+.cell.nolv canvas { filter: grayscale(.8) brightness(.6); }
+.cell.blank { cursor: default; border-style: dashed; border-color: #221c17; background: transparent; }
+.detail2 { border-top: 1px solid var(--line); background: linear-gradient(#17130f, #100d0a); padding: 10px 14px; min-height: 92px; display: grid; grid-template-columns: 58px 1fr auto; gap: 12px; align-items: center; }
+.detail2 .dempty { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
+.detail2 canvas { width: 56px; height: 56px; image-rendering: pixelated; }
+.detail2 .dinfo { display: grid; gap: 3px; font-size: 12px; min-width: 0; }
+.detail2 .dinfo b { font-size: 15px; }
+.detail2 .dline { display: flex; flex-wrap: wrap; gap: 4px 12px; color: var(--muted); }
+.detail2 .dline em { font-style: normal; color: var(--fg); }
+.detail2 .up { color: #8ae07a; } .detail2 .down { color: #ff8a7a; }
+.dact { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.dact button { min-width: 78px; min-height: 40px; background: linear-gradient(#5a3e14, #3a280c); border: 1px solid var(--gold); color: #fbe7b8; border-radius: 3px; font-weight: 700; cursor: pointer; font-size: 13px; }
+.dact button.sub { background: #1c1712; border-color: var(--line-hi); color: var(--fg); font-weight: 500; }
+.dact button:disabled { opacity: .35; cursor: default; }
+#inv .tabpane[data-pane="eq"]:not(.hidden) ~ .detail2 { display: grid; }
+#inv.notab-eq .detail2 { display: none; }
 .eq { display: grid; grid-template-columns: 44px 1fr; gap: 8px; align-items: center; }
 .eq canvas { width: 44px; height: 44px; image-rendering: pixelated; }
 .eq b { font-size: 13px; display: block; }
@@ -218,10 +265,26 @@ details.info th { color: var(--gold); font-weight: 500; }
   .orb { width: 64px; height: 64px; }
   .orbtxt b { font-size: 13px; }
   #quest { top: calc(max(8px, env(safe-area-inset-top, 0px)) + 74px); width: 170px; font-size: 11px; }
-  #inv { left: 8px; right: 8px; width: auto; top: auto; bottom: max(84px, calc(env(safe-area-inset-bottom, 0px) + 80px)); max-height: 58vh; }
-  #mini canvas { width: 104px; height: 104px; }
+  #inv { left: 0; top: 0; transform: none; width: 100vw; height: 100%; border-radius: 0; padding-top: env(safe-area-inset-top, 0px); }
+  .wbody { display: block; overflow-y: auto; }
+  .doll { border-right: 0; border-bottom: 1px solid var(--line); grid-template-rows: 330px auto; overflow: visible; }
+  .dslots { height: 330px; }
+  .doll canvas#dollCv { top: 60px; width: 160px; height: 200px; }
+  .dslot { width: 42px; height: 42px; }
+  .store { min-height: 300px; display: grid; } .sgrid { overflow: visible; }
+  .sgrid { grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); }
+  .detail2 { grid-template-columns: 48px 1fr; padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)); }
+  .detail2 canvas { width: 46px; height: 46px; }
+  .dact { grid-column: 1 / -1; justify-content: stretch; } .dact button { flex: 1; }
+  .whead .tabs { order: 3; flex-basis: 100%; max-width: none; }
+  #mini canvas { width: 92px; height: 92px; margin: 0 auto; }
+  #mini { padding: 4px; gap: 3px; }
+  #mini .zone { font-size: 11px; }
+  #mini .gold { font-size: 12px; }
+  #mini .mbtn { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+  #quest { width: 150px; }
   .slot { width: 50px; height: 50px; }
-  .mbtn button { min-height: 32px; font-size: 12px; padding: 4px 7px; }
+  .mbtn button { min-height: 30px; font-size: 11px; padding: 3px 5px; }
   .sbar { width: 84px; }
   .orbtxt .num { flex-direction: column; gap: 0; font-size: 10px; }
   .orbtxt { max-width: 96px; }
@@ -276,31 +339,40 @@ details.info th { color: var(--gold); font-weight: 500; }
 <div class="hud hidden" id="xp"><i></i></div>
 <div class="hud hidden" id="log"></div>
 <div class="hud hidden" id="banner"><b></b><span></span></div>
-<div class="hud hidden" id="inv">
-  <h3>가방 <button type="button" id="invClose" aria-label="가방 닫기">✕</button></h3><div id="encToast"></div>
-  <div class="tabs" id="invTabs"><button type="button" data-tab="eq" aria-pressed="true">장비</button><button type="button" data-tab="use" aria-pressed="false">소모품</button><button type="button" data-tab="stat" aria-pressed="false">능력치</button><button type="button" data-tab="prob" aria-pressed="false">확률표</button></div>
-  <div class="tabpane" data-pane="eq">
-    <div class="sect">착용 중</div>
-    <div class="eq"><canvas id="wIcon" width="36" height="36"></canvas><div><b id="wName">무기</b><small id="wInfo"></small></div></div>
-    <div class="eq"><canvas id="aIcon" width="36" height="36"></canvas><div><b id="aName">갑옷</b><small id="aInfo"></small></div></div>
-    <div class="act"><button type="button" id="encW">무기 강화</button><button type="button" id="encA">갑옷 강화</button></div>
-    <div class="detail hidden" id="detail"></div>
-    <div class="sect">장비 <span id="bagCount"></span></div>
-    <div class="eqgrid" id="eqgrid"></div>
-    <label class="chk"><input type="checkbox" id="autoSell"> 일반 등급 장비는 주울 때 자동 판매</label>
+<div class="hud hidden" id="inv" role="dialog" aria-label="가방과 장비">
+  <div class="whead">
+    <b>가방 · 장비</b>
+    <div class="tabs" id="invTabs"><button type="button" data-tab="eq" aria-pressed="true">장비창</button><button type="button" data-tab="stat" aria-pressed="false">능력치</button><button type="button" data-tab="log" aria-pressed="false">획득 기록</button><button type="button" data-tab="prob" aria-pressed="false">확률표</button></div>
+    <span class="wgold" id="wGold"></span>
+    <button type="button" id="invClose" class="wclose" aria-label="가방 닫기">✕</button>
   </div>
-  <div class="tabpane hidden" data-pane="use">
-    <div class="invgrid" id="invgrid"></div>
-    <div class="note">물약은 Q/E 또는 스킬바 오른쪽 칸으로 마십니다. 마을 상점에서 물약과 주문서를 사고, 루비는 팔 수 있습니다.</div>
-    <div class="sect">최근 획득</div>
-    <div class="loot" id="lootList"></div>
+  <div id="encToast"></div>
+  <div class="tabpane wbody" data-pane="eq">
+    <div class="doll">
+      <canvas id="dollCv" width="160" height="200"></canvas>
+      <div class="dslots" id="dslots"></div>
+      <div class="dsum" id="dsum"></div>
+    </div>
+    <div class="store">
+      <div class="sbar2">
+        <div class="chips" id="bagFilter"></div>
+        <span class="bagcount" id="bagCount"></span>
+      </div>
+      <div class="sgrid" id="eqgrid"></div>
+      <label class="chk"><input type="checkbox" id="autoSell"> 일반 등급 장비는 주울 때 자동 판매</label>
+    </div>
   </div>
-  <div class="tabpane hidden" data-pane="stat">
+  <div class="detail2" id="detail"><div class="dempty">아이템이나 장비 칸을 누르면 정보와 착용·강화 버튼이 여기에 나옵니다. 가방의 장비를 두 번 누르면 바로 착용합니다.</div></div>
+  <div class="tabpane hidden wpad" data-pane="stat">
     <div class="sect">남은 포인트 <b id="spLeft">0</b> · 레벨마다 2점</div>
     <div id="statRows"></div>
     <div class="detail" id="statSum"></div>
   </div>
-  <div class="tabpane hidden" data-pane="prob">
+  <div class="tabpane hidden wpad" data-pane="log">
+    <div class="sect">최근 획득</div>
+    <div class="loot" id="lootList"></div>
+  </div>
+  <div class="tabpane hidden wpad" data-pane="prob">
     <div class="sect">강화 확률</div><div id="encTable"></div>
     <div class="sect">몬스터별 드롭률</div><div id="dropTable"></div>
   </div>
@@ -494,6 +566,37 @@ const SP_PER_LV = 2;
 const SKILL_LV = [1, 2, 4, 6];               // 스킬 1~4 해금 레벨
 const GRADE_LV = { common: 1, uncommon: 3, rare: 6, heroic: 9, legend: 12 };   // 장비 착용 레벨
 const DUNGEON_MIN = 5;                       // 던전 입장 최소 레벨
+// 장비 칸(리니지식 11칸). kind: weapon(무기 주문서) / armor(갑옷 주문서) / acc(장신구, 강화 불가)
+const SLOTS = [
+  { id: 'helm', label: '투구', kind: 'armor', item: 'helm' }, { id: 'amulet', label: '목걸이', kind: 'acc', item: 'amulet' },
+  { id: 'weapon', label: '무기', kind: 'weapon', item: 'weapon' }, { id: 'armor', label: '갑옷', kind: 'armor', item: 'armor' },
+  { id: 'shield', label: '방패', kind: 'armor', item: 'shield', only: 'knight' }, { id: 'cloak', label: '망토', kind: 'armor', item: 'cloak' },
+  { id: 'gloves', label: '장갑', kind: 'armor', item: 'gloves' }, { id: 'boots', label: '장화', kind: 'armor', item: 'boots' },
+  { id: 'ring1', label: '반지', kind: 'acc', item: 'ring' }, { id: 'ring2', label: '반지', kind: 'acc', item: 'ring' },
+  { id: 'bracelet', label: '팔찌', kind: 'acc', item: 'bracelet' },
+];
+const SLOT_KIND = { weapon: 'weapon', armor: 'armor', helm: 'armor', cloak: 'armor', gloves: 'armor', boots: 'armor', shield: 'armor', amulet: 'acc', ring: 'acc', bracelet: 'acc' };
+const ITEM_LABEL = { weapon: '무기', armor: '갑옷', helm: '투구', cloak: '망토', gloves: '장갑', boots: '장화', shield: '방패', amulet: '목걸이', ring: '반지', bracelet: '팔찌' };
+// 모든 클래스가 쓰는 부위 장비: 등급 순서(일반→전설)로 이름·수치
+const GEAR_TABLE = {
+  helm:     { icon: 'helm', names: ['가죽 모자', '철 투구', '기사의 투구', '수호자의 투구', '몰락한 왕의 투구'], def: [1, 2, 3, 5, 7] },
+  gloves:   { icon: 'gauntlet', names: ['가죽 장갑', '철 장갑', '힘의 장갑', '영웅의 건틀릿', '왕의 건틀릿'], def: [1, 1, 2, 3, 4], atk: [0, 1, 2, 3, 5] },
+  boots:    { icon: 'boots', names: ['가죽 장화', '철 장화', '질풍의 장화', '영웅의 장화', '왕의 장화'], def: [1, 1, 2, 3, 4], spd: [0, 0.03, 0.05, 0.07, 0.1] },
+  cloak:    { icon: 'cloak', names: ['여행자 망토', '두꺼운 망토', '마법 저항 망토', '영웅의 망토', '어둠의 망토'], def: [1, 2, 3, 4, 6], hp: [0, 10, 20, 35, 50] },
+  shield:   { icon: 'kite_shield', names: ['나무 방패', '철 방패', '기사단 방패', '수호의 방패', '왕의 방패'], def: [2, 3, 5, 7, 10] },
+  amulet:   { icon: 'amulet', names: ['구리 목걸이', '은 목걸이', '수호 목걸이', '영웅의 목걸이', '왕의 목걸이'], hp: [10, 20, 35, 55, 80], mp: [5, 10, 20, 30, 45] },
+  ringS:    { slot: 'ring', icon: 'ring_ruby', names: ['구리 힘의 반지', '은 힘의 반지', '루비 힘의 반지', '영웅의 힘의 반지', '왕의 힘의 반지'], atk: [1, 2, 3, 5, 7] },
+  ringI:    { slot: 'ring', icon: 'ring_sapph', names: ['구리 지혜의 반지', '은 지혜의 반지', '사파이어 지혜의 반지', '영웅의 지혜의 반지', '왕의 지혜의 반지'], mp: [8, 15, 25, 40, 60], crit: [0, 0.01, 0.02, 0.03, 0.04] },
+  bracelet: { icon: 'bracelet', names: ['가죽 팔찌', '철 팔찌', '용사의 팔찌', '영웅의 팔찌', '왕의 팔찌'], hp: [15, 25, 40, 60, 90], crit: [0, 0.01, 0.02, 0.03, 0.04] },
+};
+const GEAR = {};
+for (const [k, g] of Object.entries(GEAR_TABLE)) g.names.forEach((nm, gi) => {
+  const d = { key: `${k}_${gi}`, name: nm, icon: g.icon, grade: GRADES[gi], slot: g.slot || k };
+  for (const st of ['atk', 'def', 'hp', 'mp', 'crit', 'spd']) if (g[st]) d[st] = g[st][gi];
+  GEAR[d.key] = d;
+});
+// 드롭 시 부위 비율(방패는 기사만)
+const DROP_SLOTS = [['weapon', 28], ['armor', 16], ['helm', 10], ['gloves', 9], ['boots', 9], ['cloak', 8], ['shield', 6], ['amulet', 4], ['ringS', 3], ['ringI', 3], ['bracelet', 4]];
 const START_EQUIP = { blade: ['b_long', 'p_chain'], bow: ['w_hunt', 'l_leather'], staff: ['s_novice', 'r_novice'] };
 // 몬스터별 드롭: equip = 장비 드롭 확률, odds = 등급 확률(%), n = 떨어뜨리는 장비 수
 const DROP_TABLE = {
@@ -513,7 +616,7 @@ const ENCHANT = {
   armor: { safe: 4, chance: { 4: 60, 5: 50, 6: 40, 7: 30, 8: 25, 9: 20 }, def: 1.5 },
 };
 const encChance = (slot, lv) => lv < ENCHANT[slot].safe ? 100 : (ENCHANT[slot].chance[lv] || 0);
-const equipDef = key => { for (const base of Object.values(EQUIP)) for (const slot of ['weapon', 'armor']) { const d = base[slot].find(x => x.key === key); if (d) return Object.assign({ slot, lv: GRADE_LV[d.grade] }, d); } return null; };
+const equipDef = key => { if (GEAR[key]) return Object.assign({ lv: GRADE_LV[GEAR[key].grade] }, GEAR[key]); for (const base of Object.values(EQUIP)) for (const slot of ['weapon', 'armor']) { const d = base[slot].find(x => x.key === key); if (d) return Object.assign({ slot, lv: GRADE_LV[d.grade] }, d); } return null; };
 let UID = 1;
 const makeEquip = (key, enc = 0) => ({ uid: UID++, key, enc });
 function rollGrade(odds) {
@@ -738,7 +841,9 @@ function newPlayer(cls) {
     lv: 1, xp: 0, hp: c.hp, mp: c.mp, maxhp: c.hp, maxmp: c.mp, atkCd: 0, target: null, goal: null, buffs: {},
     cds: {}, casting: null, gold: 0, inv: { pot_red: 6, pot_blue: 4, scroll_weapon: 2, scroll_armor: 2 }, stepT: 0, hitFlash: 0, dead: false, regenT: 0,
     st: Object.assign({}, BASE_STATS[cls]), sp: 0,
-    weapon: makeEquip(START_EQUIP[c.base][0]), armor: makeEquip(START_EQUIP[c.base][1]), bag: [], auto: false, autoHold: 0, autoT: 0,
+    eq: { weapon: makeEquip(START_EQUIP[c.base][0]), armor: makeEquip(START_EQUIP[c.base][1]) }, bag: [],
+    get weapon() { return this.eq.weapon; }, set weapon(v) { this.eq.weapon = v; },
+    get armor() { return this.eq.armor || { uid: -1, key: START_EQUIP[c.base][1], enc: 0, none: true }; }, set armor(v) { this.eq.armor = v; }, auto: false, autoHold: 0, autoT: 0,
     get wEnc() { return this.weapon.enc; }, get aEnc() { return this.armor.enc; } };
 }
 function newMob(s) {
@@ -755,9 +860,22 @@ function stat(e, k) {
   return v;
 }
 const bonus = (k) => P && P.st ? P.st[k] - BASE_STATS[P.cls][k] : 0;
+// 착용 장비 능력치 합계(무기 강화 +2.4 공격력, 방어구 강화 +1.5 방어력)
+function EQS() {
+  const t = { atk: 0, def: 0, hp: 0, mp: 0, crit: 0, spd: 0 };
+  if (!P || !P.eq) return t;
+  for (const e of Object.values(P.eq)) {
+    if (!e) continue;
+    const d = equipDef(e.key); if (!d) continue;
+    for (const k in t) t[k] += d[k] || 0;
+    if (SLOT_KIND[d.slot] === 'weapon') t.atk += e.enc * ENCHANT.weapon.atk;
+    else if (SLOT_KIND[d.slot] === 'armor') t.def += e.enc * ENCHANT.armor.def;
+  }
+  return t;
+}
 function statAtk(e) { const m = MAIN_STAT[e.cls]; let v = bonus(m) * 1.0; for (const k of ['str', 'dex', 'int']) if (k !== m) v += bonus(k) * 0.4 * (k === 'str' ? 1 : 0); return v; }
 function atkRoll(e) {
-  if (e.kind === 'player') { const [a, b] = e.c.atk; return (rnd(a, b) + e.lv * 1.6 + statAtk(e) + equipDef(e.weapon.key).atk + e.weapon.enc * ENCHANT.weapon.atk) * stat(e, 'atk'); }
+  if (e.kind === 'player') { const [a, b] = e.c.atk; return (rnd(a, b) + e.lv * 1.6 + statAtk(e) + EQS().atk) * stat(e, 'atk'); }
   return rnd(e.d.atk[0], e.d.atk[1]);
 }
 function setAnim(e, a, force) {
@@ -792,11 +910,11 @@ function damage(target, amount, src, opts = {}) {
   if (target.dead) return 0;
   let dmg = amount;
   if (target.kind === 'player') {
-    dmg = Math.max(1, dmg - (target.c.def + equipDef(target.armor.key).def + target.armor.enc * ENCHANT.armor.def)) * (target.buffs.guard > 0 ? (1 - BUFFS.guard.def) : 1) * (panelOpen() ? 0.5 : 1);
+    dmg = Math.max(1, dmg - (target.c.def + EQS().def)) * (target.buffs.guard > 0 ? (1 - BUFFS.guard.def) : 1) * (panelOpen() ? 0.5 : 1);
   } else {
     dmg = Math.max(1, dmg - target.d.def);
   }
-  const crit = opts.crit != null ? opts.crit : (src && src.kind === 'player' && Math.random() < 0.12 + bonus('dex') * 0.004);
+  const crit = opts.crit != null ? opts.crit : (src && src.kind === 'player' && Math.random() < 0.12 + bonus('dex') * 0.004 + EQS().crit);
   if (crit) { dmg *= 1.8; shake = Math.max(shake, 3); }
   dmg = Math.round(dmg);
   target.hp -= dmg;
@@ -855,9 +973,12 @@ function killMob(m) {
     if (Math.random() >= T.equip) continue;
     const g = rollGrade(T.odds);
     const base = EQUIP[P.c.base];
-    const slot = Math.random() < 0.55 ? 'weapon' : 'armor';
-    const pool = base[slot].filter(x => x.grade === g);
-    const pick = pool.length ? pool[irnd(0, pool.length - 1)] : base[slot][0];
+    const ds = DROP_SLOTS.filter(([k]) => k !== 'shield' || P.cls === 'knight');
+    let r = Math.random() * ds.reduce((a, b) => a + b[1], 0), part = ds[0][0];
+    for (const [k, w] of ds) { r -= w; if (r < 0) { part = k; break; } }
+    let pick;
+    if (part === 'weapon' || part === 'armor') { const pool = base[part].filter(x => x.grade === g); pick = pool.length ? pool[irnd(0, pool.length - 1)] : base[part][0]; }
+    else pick = GEAR[`${part}_${GRADES.indexOf(g)}`];
     drops.push({ id: pick.icon, equip: makeEquip(pick.key), n: 1, x: m.x + rnd(-0.7, 0.7), y: m.y + rnd(-0.7, 0.7), t: 0, grade: g });
     if (g === 'rare') { log(`[희귀] ${pick.name}이(가) 떨어졌습니다!`, 'sys'); sfx('enchant_ok', { gain: 0.35 }); }
     if (g === 'heroic' || g === 'legend') { banner(`${GRADE_LABEL[g]} 아이템!`, `${pick.name}이(가) 떨어졌습니다`); sfx('level_up', { gain: 0.6 }); }
@@ -1143,7 +1264,7 @@ function updatePlayer(dt) {
     if (d < 0.15) P.goal = null; else mv = pathDir(P, P.goal.x, P.goal.y);
   }
   if (mv && !busy) {
-    const sp = P.c.speed * stat(P, 'speed') * dt;
+    const sp = P.c.speed * stat(P, 'speed') * (1 + EQS().spd) * dt;
     const went = steer(P, mv.x, mv.y, sp);
     if (went) { P.stuck = 0; P.dir = dirOf(went.x, went.y); setAnim(P, 'walk'); }
     else { P.stuck = (P.stuck || 0) + dt; if (P.stuck > 0.6) { P.path = null; if (P.goal) P.goal = null; if (P.auto && P.target) P.target = null; P.stuck = 0; } setAnim(P, 'idle'); }
@@ -1184,7 +1305,7 @@ function pickup(d) {
   if (d.equip) {
     const dd = equipDef(d.equip.key);
     if (P.autoSell && dd.grade === 'common') { const pr = Math.round(sellPrice(d.equip)); P.gold += pr; log(`${dd.name} 자동 판매 +${pr} 골드`); sfx('arrow_hit', { gain: 0.25 }); return; }
-    if (P.bag.length >= 30) { d.taken = false; if (now - (P.fullWarn || -99) > 8) { P.fullWarn = now; log('가방이 가득 찼습니다. 장비를 팔거나 버리세요.', 'bad'); banner('가방이 가득 찼습니다', '상점에서 일반 장비를 한 번에 팔 수 있습니다'); } return; }
+    if (P.bag.length >= BAG_MAX) { d.taken = false; if (now - (P.fullWarn || -99) > 8) { P.fullWarn = now; log('가방이 가득 찼습니다. 장비를 팔거나 버리세요.', 'bad'); banner('가방이 가득 찼습니다', '상점에서 일반 장비를 한 번에 팔 수 있습니다'); } return; }
     P.bag.push(d.equip);
     const def = equipDef(d.equip.key);
     log(`[${GRADE_LABEL[def.grade]}] ${def.name}을(를) 얻었습니다.`, def.grade === 'common' ? '' : 'sys');
@@ -1778,100 +1899,197 @@ function drawEnchIcon(canvas, weaponId, lv) {
   const draw = () => { c.clearRect(0, 0, 36, 36); c.drawImage(im, ENCH_COL(lv) * 32, r * 32, 32, 32, 2, 2, 32, 32); };
   if (im.complete) draw(); else im.addEventListener('load', draw);
 }
-let selUid = null;
+let selUid = null, selCons = null, bagFilter = 'all';
+const BAG_MAX = 48;
+// 칸 배치(인형 둘레, 단위 px): 데스크톱 기준. 휴대폰에서는 비율로 축소
+// [열(L/R), 행] — 왼쪽·오른쪽 기둥 사이에 캐릭터를 크게 세운다
+const SLOT_POS = {
+  helm: ['L', 0], amulet: ['L', 1], weapon: ['L', 2], cloak: ['L', 3], ring1: ['L', 4], bracelet: ['L', 5],
+  armor: ['R', 0], shield: ['R', 1], gloves: ['R', 2], boots: ['R', 3], ring2: ['R', 4],
+};
 function gradeFrame(canvas, grade, iconId, enc, encIconId) {
   const c = canvas.getContext('2d'); c.imageSmoothingEnabled = false;
   const gi = GRADES.indexOf(grade);
   const fr = img(META.grades.sheet);
   const draw = () => {
-    c.clearRect(0, 0, 36, 36);
-    c.drawImage(fr, gi * 36, 0, 36, 36, 0, 0, 36, 36);
+    c.clearRect(0, 0, canvas.width, canvas.height);
+    c.drawImage(fr, gi * 36, 0, 36, 36, 0, 0, canvas.width, canvas.height);
+    const k = canvas.width / 36;
     const er = META.enchant_icons.rows.indexOf(encIconId || iconId);
-    if (er >= 0 && enc >= 7) c.drawImage(img(META.enchant_icons.sheet), ENCH_COL(enc) * 32, er * 32, 32, 32, 2, 2, 32, 32);
-    else { const ic = itemIcon(iconId); if (ic) c.drawImage(ic.im, ic.sx, ic.sy, 32, 32, 2, 2, 32, 32); }
+    if (er >= 0 && enc >= 7) c.drawImage(img(META.enchant_icons.sheet), ENCH_COL(enc) * 32, er * 32, 32, 32, 2 * k, 2 * k, 32 * k, 32 * k);
+    else { const ic = itemIcon(iconId); if (ic) c.drawImage(ic.im, ic.sx, ic.sy, 32, 32, 2 * k, 2 * k, 32 * k, 32 * k); }
   };
   if (fr.complete) draw(); else fr.addEventListener('load', draw);
 }
-const statText = (e) => { const d = equipDef(e.key); return d.slot === 'weapon' ? `공격력 ${d.atk + e.enc * ENCHANT.weapon.atk}` : `방어력 ${d.def + e.enc * ENCHANT.armor.def}`; };
-const statVal = (e) => { const d = equipDef(e.key); return d.slot === 'weapon' ? d.atk + e.enc * ENCHANT.weapon.atk : d.def + e.enc * ENCHANT.armor.def; };
+const kindOf = e => SLOT_KIND[equipDef(e.key).slot];
+const STAT_NAME = { atk: '공격력', def: '방어력', hp: 'HP', mp: 'MP', crit: '치명타', spd: '이동 속도' };
+function itemStats(e, enc = e.enc) {
+  const d = equipDef(e.key), o = {};
+  for (const k of ['atk', 'def', 'hp', 'mp', 'crit', 'spd']) if (d[k]) o[k] = d[k];
+  if (SLOT_KIND[d.slot] === 'weapon') o.atk = (o.atk || 0) + enc * ENCHANT.weapon.atk;
+  if (SLOT_KIND[d.slot] === 'armor') o.def = (o.def || 0) + enc * ENCHANT.armor.def;
+  return o;
+}
+const fmtStat = (k, v) => k === 'crit' || k === 'spd' ? `${v >= 0 ? '+' : ''}${(v * 100).toFixed(0)}%` : (Number.isInteger(v) ? String(v) : v.toFixed(1));
+const score = (o) => (o.atk || 0) * 1 + (o.def || 0) * 1.2 + (o.hp || 0) * 0.08 + (o.mp || 0) * 0.06 + (o.crit || 0) * 120 + (o.spd || 0) * 60;
+const statText = (e) => Object.entries(itemStats(e)).map(([k, v]) => `${STAT_NAME[k]} ${fmtStat(k, v)}`).join(' · ');
+const statVal = (e) => e ? score(itemStats(e)) : 0;
 const sellPrice = (e) => { const d = equipDef(e.key); return [20, 60, 180, 500, 1500][GRADES.indexOf(d.grade)] * (1 + e.enc * 0.5); };
-function equippedOf(e) { return e === P.weapon || e === P.armor; }
-function findEquip(uid) { return P.weapon.uid === uid ? P.weapon : P.armor.uid === uid ? P.armor : P.bag.find(e => e.uid === uid); }
-function statAt(e, enc) { const d = equipDef(e.key); return d.slot === 'weapon' ? d.atk + enc * ENCHANT.weapon.atk : d.def + enc * ENCHANT.armor.def; }
+function slotFor(e) {
+  // 아이템이 들어갈 칸: 반지는 빈 칸 → 약한 쪽
+  const sl = equipDef(e.key).slot;
+  if (sl !== 'ring') return sl;
+  if (!P.eq.ring1) return 'ring1';
+  if (!P.eq.ring2) return 'ring2';
+  return statVal(P.eq.ring1) <= statVal(P.eq.ring2) ? 'ring1' : 'ring2';
+}
+function equippedSlotOf(e) { for (const [k, v] of Object.entries(P.eq)) if (v === e) return k; return null; }
+function equippedOf(e) { return !!equippedSlotOf(e); }
+function findEquip(uid) { for (const v of Object.values(P.eq)) if (v && v.uid === uid) return v; return P.bag.find(e => e.uid === uid); }
+function statAt(e, enc) { const o = itemStats(e, enc); return SLOT_KIND[equipDef(e.key).slot] === 'weapon' ? o.atk || 0 : o.def || 0; }
+function slotAllowed(slot) { const s2 = SLOTS.find(x => x.id === slot); return !s2 || !s2.only || s2.only === P.cls; }
+
+// 인형(캐릭터 그림) — 대기 동작을 남쪽 방향으로 재생
+let dollT = 0;
+function drawDoll() {
+  if ($('inv').classList.contains('hidden')) return;
+  const cv = $('dollCv'), c = cv.getContext('2d'), sh = META.characters[P.cls];
+  const [st, n] = sh.anims.idle;
+  c.clearRect(0, 0, cv.width, cv.height); c.imageSmoothingEnabled = false;
+  c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(80, 176, 40, 11, 0, 0, Math.PI * 2); c.fill();
+  const sc = 3.4, f = Math.floor(dollT) % n;
+  c.drawImage(img(sh.sheet), (st + f) * sh.fw, 0, sh.fw, sh.fh, 80 - sh.ax * sc, 182 - sh.ay * sc, sh.fw * sc, sh.fh * sc);
+  dollT += 0.12;
+}
+setInterval(drawDoll, 100);
+
 function renderInv() {
   if (!P) return;
-  const w = equipDef(P.weapon.key), a = equipDef(P.armor.key);
-  $('wName').innerHTML = `<span class="g-${w.grade}">+${P.weapon.enc} ${w.name}</span>`;
-  $('wInfo').textContent = `${statText(P.weapon)} · 다음 강화 ${P.weapon.enc >= 10 ? '최대' : encChance('weapon', P.weapon.enc) + '%'} · 주문서 ${P.inv.scroll_weapon || 0}장`;
-  $('aName').innerHTML = `<span class="g-${a.grade}">+${P.armor.enc} ${a.name}</span>`;
-  $('aInfo').textContent = `${statText(P.armor)} · 다음 강화 ${P.armor.enc >= 10 ? '최대' : encChance('armor', P.armor.enc) + '%'} · 주문서 ${P.inv.scroll_armor || 0}장`;
-  gradeFrame($('wIcon'), w.grade, w.icon, P.weapon.enc);
-  gradeFrame($('aIcon'), a.grade, a.icon, 0);
-  $('wIcon').classList.toggle('sel', selUid === P.weapon.uid); $('aIcon').classList.toggle('sel', selUid === P.armor.uid);
-  $('encW').disabled = !(P.inv.scroll_weapon > 0) || P.weapon.enc >= 10;
-  $('encA').disabled = !(P.inv.scroll_armor > 0) || P.armor.enc >= 10;
+  $('wGold').textContent = `${P.gold.toLocaleString()} 골드`;
   $('autoSell').checked = !!P.autoSell;
-  $('encW').textContent = `무기 강화 ${P.weapon.enc >= 10 ? '최대' : encChance('weapon', P.weapon.enc) + '%'}`;
-  $('encA').textContent = `갑옷 강화 ${P.armor.enc >= 10 ? '최대' : encChance('armor', P.armor.enc) + '%'}`;
-  // 장비 목록
-  $('bagCount').textContent = `${P.bag.length}/30`;
-  const eg = $('eqgrid'); eg.innerHTML = '';
-  for (const e of P.bag) {
+  // 장비 칸
+  const box = $('dslots'); box.innerHTML = '';
+  const rowH = window.innerWidth < 720 ? 54 : 62;
+  const selItem = selUid != null ? findEquip(selUid) : null;
+  const hintSlot = selItem && !equippedOf(selItem) ? slotFor(selItem) : null;
+  for (const sd of SLOTS) {
+    const e = P.eq[sd.id], allowed = slotAllowed(sd.id);
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'dslot'; b.dataset.slot = sd.id;
+    if (sd.id === 'weapon') b.id = 'wIcon';
+    if (sd.id === 'armor') b.id = 'aIcon';
+    const [col, row] = SLOT_POS[sd.id]; b.style[col === 'L' ? 'left' : 'right'] = '6px'; b.style.top = (row * rowH + 4) + 'px';
+    const cv = document.createElement('canvas'); cv.width = 36; cv.height = 36; b.append(cv);
+    if (e) { const d = equipDef(e.key); gradeFrame(cv, d.grade, d.icon, e.enc); b.title = `${sd.label}: +${e.enc} ${d.name}`; if (e.enc) b.insertAdjacentHTML('beforeend', `<span class="en">+${e.enc}</span>`); }
+    else { b.classList.add('empty'); const ic = { helm: 'helm', amulet: 'amulet', weapon: P.c.weapon, armor: P.c.armor, shield: 'kite_shield', cloak: 'cloak', gloves: 'gauntlet', boots: 'boots', ring1: 'ring_ruby', ring2: 'ring_sapph', bracelet: 'bracelet' }[sd.id]; gradeFrame(cv, 'common', ic, 0); b.title = `${sd.label} (비어 있음)`; }
+    if (!allowed) { b.classList.add('locked'); b.title = `${sd.label}: 기사 전용`; }
+    b.insertAdjacentHTML('beforeend', `<span class="sl">${sd.label}</span>`);
+    if (e && selUid === e.uid) b.classList.add('sel');
+    if (hintSlot === sd.id) b.classList.add('hint');
+    b.addEventListener('click', () => { if (!allowed) return; selCons = null; selUid = e ? e.uid : null; renderInv(); });
+    box.append(b);
+  }
+  // 합계
+  const q = EQS();
+  const atkAvg = (P.c.atk[0] + P.c.atk[1]) / 2 + P.lv * 1.6 + statAtk(P) + q.atk;
+  $('dsum').innerHTML = `<span>공격력</span><b>${atkAvg.toFixed(1)}</b><span>방어력</span><b>${(P.c.def + q.def).toFixed(1)}</b>
+    <span>HP</span><b>${P.maxhp}</b><span>MP</span><b>${P.maxmp}</b>
+    <span>치명타</span><b>${((0.12 + bonus('dex') * 0.004 + q.crit) * 100).toFixed(1)}%</b><span>이동</span><b>+${(q.spd * 100).toFixed(0)}%</b>`;
+  // 필터
+  const filters = [['all', '전체'], ['weapon', '무기'], ['armor', '방어구'], ['acc', '장신구'], ['use', '소모품']];
+  const fb = $('bagFilter'); fb.innerHTML = '';
+  for (const [id, label] of filters) { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = label; b.setAttribute('aria-pressed', String(bagFilter === id)); b.onclick = () => { bagFilter = id; renderInv(); }; fb.append(b); }
+  // 창고 칸
+  const items = P.bag.filter(e => bagFilter === 'all' || (bagFilter !== 'use' && kindOf(e) === bagFilter))
+    .sort((a, b) => GRADES.indexOf(equipDef(b.key).grade) - GRADES.indexOf(equipDef(a.key).grade) || b.enc - a.enc);
+  const cons = (bagFilter === 'all' || bagFilter === 'use') ? Object.entries(P.inv).filter(([, n]) => n > 0) : [];
+  $('bagCount').textContent = `장비 ${P.bag.length} / ${BAG_MAX}`;
+  const g = $('eqgrid'); g.innerHTML = '';
+  for (const e of items) {
     const d = equipDef(e.key);
-    const b = document.createElement('button'); b.type = 'button'; b.title = d.name; b.setAttribute('aria-pressed', String(e.uid === selUid));
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'cell'; b.title = `+${e.enc} ${d.name}`;
     const cv = document.createElement('canvas'); cv.width = 36; cv.height = 36; b.append(cv); gradeFrame(cv, d.grade, d.icon, e.enc);
-    if (e.enc) b.insertAdjacentHTML('beforeend', `<span>+${e.enc}</span>`);
-    if (d.lv && P.lv < d.lv) cv.style.filter = 'grayscale(.8) brightness(.7)';
-    b.addEventListener('click', () => { selUid = selUid === e.uid ? null : e.uid; renderInv(); });
-    eg.append(b);
+    if (e.enc) b.insertAdjacentHTML('beforeend', `<span class="en">+${e.enc}</span>`);
+    const tgt = slotAllowed(slotFor(e)) ? P.eq[slotFor(e)] : null;
+    if (slotAllowed(slotFor(e)) && P.lv >= d.lv && statVal(e) > statVal(tgt) + 0.01) b.insertAdjacentHTML('beforeend', '<span class="up">▲</span>');
+    if (P.lv < d.lv || !slotAllowed(slotFor(e))) b.classList.add('nolv');
+    if (selUid === e.uid) b.classList.add('sel');
+    b.addEventListener('click', () => { selCons = null; selUid = e.uid; renderInv(); });
+    b.addEventListener('dblclick', () => { equip(e.uid); });
+    g.append(b);
   }
-  if (!P.bag.length) eg.innerHTML = '<div class="note" style="grid-column:1/-1">몬스터가 떨어뜨린 장비가 여기에 모입니다.</div>';
-  // 선택한 장비 상세(착용 중 장비도 선택 가능)
-  const sel = selUid != null ? findEquip(selUid) : null;
+  for (const [id, n] of cons) {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'cell'; b.title = META.items[id] ? META.items[id].name : id;
+    const cv = document.createElement('canvas'); cv.width = 32; cv.height = 32; b.append(cv); iconTo(cv, id);
+    b.insertAdjacentHTML('beforeend', `<span class="ct">${n}</span>`);
+    if (selCons === id) b.classList.add('sel');
+    b.addEventListener('click', () => { selUid = null; selCons = selCons === id ? null : id; renderInv(); });
+    g.append(b);
+  }
+  const used = items.length + cons.length;
+  for (let i = used; i < Math.max(24, Math.ceil(used / 8) * 8); i++) { const d2 = document.createElement('div'); d2.className = 'cell blank'; g.append(d2); }
+  renderDetail();
+}
+function renderDetail() {
   const det = $('detail');
-  if (sel) {
-    const d = equipDef(sel.key), slot = d.slot, on = equippedOf(sel), cur = P[slot];
-    const word = slot === 'weapon' ? '공격력' : '방어력';
-    const scroll = slot === 'weapon' ? 'scroll_weapon' : 'scroll_armor', have = P.inv[scroll] || 0;
-    const now = statAt(sel, sel.enc), next = sel.enc < 10 ? statAt(sel, sel.enc + 1) : null;
-    const diff = now - statVal(cur);
-    const reqLv = d.lv || 1;
-    const ch = sel.enc < 10 ? encChance(slot, sel.enc) : 0;
-    det.classList.remove('hidden');
-    det.innerHTML = `<b class="g-${d.grade}">+${sel.enc} ${d.name}</b>
-      <div class="row"><span>등급</span><span class="g-${d.grade}">${GRADE_LABEL[d.grade]} ${slot === 'weapon' ? '무기' : '갑옷'}</span></div>
-      <div class="row"><span>${word}</span><span>${now.toFixed(1)}${on ? '' : ` <span class="${diff > 0 ? 'up' : diff < 0 ? 'down' : ''}">(${diff >= 0 ? '+' : ''}${diff.toFixed(1)})</span>`}</span></div>
-      <div class="row"><span>강화</span><span>+${sel.enc} / +10</span></div>
-      <div class="row"><span>착용</span><span>${on ? '착용 중' : `미착용 · 비교 대상: +${cur.enc} ${equipDef(cur.key).name}`}</span></div>
-      <div class="row"><span>착용 레벨</span><span class="${P.lv < reqLv ? 'down' : ''}">Lv ${reqLv}</span></div>
-      ${next != null ? `<div class="row"><span>다음 강화</span><span>${word} ${now.toFixed(1)} → <span class="up">${next.toFixed(1)}</span> · 성공 ${ch}%${sel.enc >= ENCHANT[slot].safe ? ' · 실패 시 +0' : ' · 안전'}</span></div>
-      <div class="row"><span>필요 재료</span><span class="${have ? '' : 'down'}">${META.items[scroll].name} 1장 (보유 ${have})</span></div>` : '<div class="row"><span>다음 강화</span><span>최대 강화</span></div>'}
-      <div class="act">${on ? '' : `<button type="button" id="btnEquip" ${P.lv < reqLv ? 'disabled' : ''}>착용</button>`}<button type="button" id="btnEnc" ${(!have || sel.enc >= 10) ? 'disabled' : ''}>강화 ${next != null ? ch + '%' : ''}</button>${on ? '' : `<button type="button" id="btnSell">판매 ${Math.round(sellPrice(sel))} G</button>`}</div>`;
-    if (!on) { $('btnEquip').onclick = () => equip(sel.uid); $('btnSell').onclick = () => sell(sel.uid); }
-    $('btnEnc').onclick = () => enchantItem(sel);
-  } else det.classList.add('hidden');
-  // 소모품
-  const g = $('invgrid'); g.innerHTML = '';
-  for (const [id, n] of Object.entries(P.inv)) {
-    if (!n) continue;
-    const dd = document.createElement('div'); dd.title = META.items[id] ? META.items[id].name : id;
-    const cv = document.createElement('canvas'); cv.width = 32; cv.height = 32; dd.append(cv); iconTo(cv, id);
-    dd.insertAdjacentHTML('beforeend', `<span>${n}</span>`);
-    g.append(dd);
+  const sel = selUid != null ? findEquip(selUid) : null;
+  if (selCons) {
+    const it = META.items[selCons], n = P.inv[selCons] || 0;
+    const use = { pot_red: '체력 회복(최대 HP의 32%)', pot_blue: '마나 회복(최대 MP의 40%)', scroll_weapon: '무기 강화에 사용', scroll_armor: '방어구(투구·갑옷·망토·장갑·장화·방패) 강화에 사용', gem_ruby: `상점에서 ${GEM_PRICE} 골드에 판매` }[selCons] || '';
+    det.innerHTML = `<canvas width="32" height="32"></canvas><div class="dinfo"><b>${it ? it.name : selCons} × ${n}</b><div class="dline">${use}</div></div>
+      <div class="dact">${selCons.startsWith('pot_') ? '<button type="button" id="btnUse">사용</button>' : ''}${selCons.startsWith('scroll_') ? '<span class="note">강화할 장비를 선택한 뒤 [강화]를 누르세요</span>' : ''}</div>`;
+    iconTo(det.querySelector('canvas'), selCons);
+    const bu = $('btnUse'); if (bu) bu.onclick = () => { drink(selCons); renderInv(); };
+    return;
   }
+  if (!sel) { det.innerHTML = '<div class="dempty">아이템이나 장비 칸을 누르면 정보와 착용·강화 버튼이 여기에 나옵니다. 가방의 장비를 두 번 누르면 바로 착용합니다.</div>'; return; }
+  const d = equipDef(sel.key), kind = SLOT_KIND[d.slot], on = equippedSlotOf(sel);
+  const tgtSlot = on || slotFor(sel), cur = on ? null : P.eq[tgtSlot];
+  const st = itemStats(sel), cs = cur ? itemStats(cur) : {};
+  const keys = [...new Set([...Object.keys(st), ...Object.keys(cs)])];
+  const lines = keys.map(k => { const v = st[k] || 0, df = v - (cs[k] || 0); return `<span>${STAT_NAME[k]} <em>${fmtStat(k, v)}</em>${on ? '' : ` <span class="${df > 0 ? 'up' : df < 0 ? 'down' : ''}">(${df >= 0 ? '+' : ''}${fmtStat(k, df)})</span>`}</span>`; }).join('');
+  const scroll = kind === 'weapon' ? 'scroll_weapon' : kind === 'armor' ? 'scroll_armor' : null, have = scroll ? (P.inv[scroll] || 0) : 0;
+  const ch = scroll && sel.enc < 10 ? encChance(kind, sel.enc) : 0;
+  const nxt = scroll && sel.enc < 10 ? itemStats(sel, sel.enc + 1) : null;
+  const encLine = !scroll ? '<span>장신구는 강화할 수 없습니다</span>' : sel.enc >= 10 ? '<span>최대 강화(+10)</span>'
+    : `<span>다음 강화 <em>${kind === 'weapon' ? '공격력' : '방어력'} ${fmtStat(kind === 'weapon' ? 'atk' : 'def', kind === 'weapon' ? st.atk : st.def)} → <span class="up">${fmtStat(kind === 'weapon' ? 'atk' : 'def', kind === 'weapon' ? nxt.atk : nxt.def)}</span></em> · 성공 ${ch}%${sel.enc >= ENCHANT[kind].safe ? ' · 실패 시 +0' : ' · 안전'}</span><span>필요 재료 <em>${META.items[scroll].name} 1장</em> (보유 ${have})</span>`;
+  const lvOk = P.lv >= d.lv, allowed = slotAllowed(tgtSlot);
+  det.innerHTML = `<canvas width="36" height="36"></canvas>
+    <div class="dinfo"><b class="g-${d.grade}">+${sel.enc} ${d.name}</b>
+      <div class="dline"><span>등급 <em class="g-${d.grade}">${GRADE_LABEL[d.grade]}</em> · ${ITEM_LABEL[d.slot]}</span><span>${on ? '착용 중' : cur ? `비교: +${cur.enc} ${equipDef(cur.key).name}` : '같은 부위 비어 있음'}</span><span class="${lvOk ? '' : 'down'}">착용 Lv ${d.lv}</span>${allowed ? '' : '<span class="down">기사 전용</span>'}</div>
+      <div class="dline">${lines}</div>
+      <div class="dline">${encLine}</div></div>
+    <div class="dact">
+      ${on ? (d.slot === 'weapon' ? '' : '<button type="button" class="sub" id="btnUnequip">해제</button>') : `<button type="button" id="btnEquip" ${lvOk && allowed ? '' : 'disabled'}>착용</button>`}
+      ${scroll ? `<button type="button" id="btnEnc" ${(!have || sel.enc >= 10) ? 'disabled' : ''}>강화 ${sel.enc < 10 ? ch + '%' : ''}</button>` : ''}
+      ${on ? '' : `<button type="button" class="sub" id="btnSell">판매 ${Math.round(sellPrice(sel))} G</button>`}
+    </div>`;
+  gradeFrame(det.querySelector('canvas'), d.grade, d.icon, sel.enc);
+  const be = $('btnEquip'); if (be) be.onclick = () => equip(sel.uid);
+  const bu = $('btnUnequip'); if (bu) bu.onclick = () => unequip(on);
+  const bs = $('btnSell'); if (bs) bs.onclick = () => sell(sel.uid);
+  const bn = $('btnEnc'); if (bn) bn.onclick = () => enchantItem(sel);
 }
 $('spBadge').addEventListener('click', () => { if ($('inv').classList.contains('hidden')) toggleInv(); invTab('stat'); });
-$('wIcon').addEventListener('click', () => { selUid = selUid === P.weapon.uid ? null : P.weapon.uid; renderInv(); });
-$('aIcon').addEventListener('click', () => { selUid = selUid === P.armor.uid ? null : P.armor.uid; renderInv(); });
 function equip(uid) {
-  const i = P.bag.findIndex(e => e.uid === uid); if (i < 0) return;
-  const e = P.bag[i], d = equipDef(e.key), slot = d.slot;
-  if (d.lv && P.lv < d.lv) { log(`${d.name}은(는) Lv ${d.lv}부터 착용할 수 있습니다.`, 'bad'); return; }
-  const before = statVal(P[slot]);
-  P.bag[i] = P[slot]; P[slot] = e; selUid = null;
+  const i = P.bag.findIndex(e => e.uid === uid); if (i < 0) return false;
+  const e = P.bag[i], d = equipDef(e.key), slot = slotFor(e);
+  if (d.lv && P.lv < d.lv) { log(`${d.name}은(는) Lv ${d.lv}부터 착용할 수 있습니다.`, 'bad'); return false; }
+  if (!slotAllowed(slot)) { log(`${ITEM_LABEL[d.slot]}은(는) 기사만 착용할 수 있습니다.`, 'bad'); return false; }
+  const before = statVal(P.eq[slot]), old = P.eq[slot];
+  P.bag.splice(i, 1); if (old) P.bag.push(old);
+  P.eq[slot] = e; selUid = e.uid; selCons = null;
+  applyStats();
   const diff = statVal(e) - before;
-  sfx('block', { gain: 0.4 }); log(`+${e.enc} ${d.name}을(를) 착용했습니다. (${slot === 'weapon' ? '공격력' : '방어력'} ${diff >= 0 ? '+' : ''}${diff.toFixed(1)})`, 'sys');
+  sfx('block', { gain: 0.4 }); log(`+${e.enc} ${d.name} 착용 (${statText(e)})`, 'sys');
   renderInv(); save();
+  return true;
+}
+function unequip(slot) {
+  if (slot === 'weapon' || !P.eq[slot]) return false;
+  if (P.bag.length >= BAG_MAX) { log('가방이 가득 차 해제할 수 없습니다.', 'bad'); return false; }
+  P.bag.push(P.eq[slot]); P.eq[slot] = null; applyStats();
+  sfx('block', { gain: 0.3 }); renderInv(); save();
+  return true;
 }
 function sell(uid) {
   const i = P.bag.findIndex(e => e.uid === uid); if (i < 0) return;
@@ -1885,29 +2103,33 @@ function encToast(text, color) {
   clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 1100);
 }
 function enchantItem(e) {
-  const slot = equipDef(e.key).slot, key = slot === 'weapon' ? 'scroll_weapon' : 'scroll_armor';
+  const d = equipDef(e.key), kind = SLOT_KIND[d.slot];
+  if (kind === 'acc') return false;
+  const key = kind === 'weapon' ? 'scroll_weapon' : 'scroll_armor';
   if (!(P.inv[key] > 0) || e.enc >= 10) return false;
   P.inv[key]--;
-  const ch = encChance(slot, e.enc), from = e.enc;
-  const name = equipDef(e.key).name, word = slot === 'weapon' ? '공격력' : '방어력';
+  const ch = encChance(kind, e.enc), from = e.enc;
+  const name = d.name, word = kind === 'weapon' ? '공격력' : '방어력';
   const before = statAt(e, from);
-  let ok = Math.random() * 100 < ch;
+  const ok = Math.random() * 100 < ch;
   if (ok) {
     e.enc++;
-    if (slot === 'weapon' && equippedOf(e)) questEvent('enc', e.enc);
+    if (kind === 'weapon' && equippedOf(e)) questEvent('enc', e.enc);
     sfx('enchant_ok');
     const col = e.enc >= 9 ? '200,120,255' : e.enc >= 7 ? '120,180,255' : '255,220,120';
     vfx.push({ k: 'beam', x: P.x, y: P.y, t: 0, life: 0.9, col });
     log(`+${e.enc} ${name} 강화 성공 (${ch}%) — ${word} ${before.toFixed(1)} → ${statAt(e, e.enc).toFixed(1)}`, 'sys');
     encToast(`+${e.enc} 강화 성공!`, e.enc >= 9 ? '#d79aff' : e.enc >= 7 ? '#9ac8ff' : '#ffd65a');
-    if (e.enc >= 7) banner(`+${e.enc} ${name}`, e.enc >= 9 ? '눈부신 빛이 감돈다' : '무기가 빛을 머금는다');
+    if (e.enc >= 7) banner(`+${e.enc} ${name}`, e.enc >= 9 ? '눈부신 빛이 감돈다' : '장비가 빛을 머금는다');
   } else {
     sfx('enchant_fail'); e.enc = 0; shake = 4;
     log(`${name} 강화 실패 (${ch}%) — +${from} → +0`, 'bad');
     encToast(`강화 실패 · +${from} → +0`, '#ff8a7a');
   }
+  if (equippedOf(e)) applyStats();
+  selUid = e.uid; selCons = null;
   renderInv(); save();
-  const icon = equippedOf(e) ? (slot === 'weapon' ? $('wIcon') : $('aIcon')) : null;
+  const icon = document.querySelector(equippedOf(e) ? `.dslot[data-slot="${equippedSlotOf(e)}"]` : '#detail canvas');
   if (icon) { icon.classList.remove('flash-ok', 'flash-bad'); void icon.offsetWidth; icon.classList.add(ok ? 'flash-ok' : 'flash-bad'); }
   return ok;
 }
@@ -1932,11 +2154,11 @@ function renderStats() {
     b.onclick = () => addStat(k);
     row.append(b); box.append(row);
   }
-  const atk = (c => (c.atk[0] + c.atk[1]) / 2 + P.lv * 1.6 + statAtk(P) + statVal(P.weapon))(P.c);
+  const q = EQS(), atk = (P.c.atk[0] + P.c.atk[1]) / 2 + P.lv * 1.6 + statAtk(P) + q.atk;
   $('statSum').innerHTML = `<div class="row"><span>평균 공격력</span><span>${atk.toFixed(1)}</span></div>
-    <div class="row"><span>방어력</span><span>${(P.c.def + statVal(P.armor)).toFixed(1)}</span></div>
+    <div class="row"><span>방어력</span><span>${(P.c.def + q.def).toFixed(1)}</span></div>
     <div class="row"><span>공격 속도</span><span>${(aspd()).toFixed(2)}회/초</span></div>
-    <div class="row"><span>치명타</span><span>${((0.12 + bonus('dex') * 0.004) * 100).toFixed(1)}%</span></div>
+    <div class="row"><span>치명타</span><span>${((0.12 + bonus('dex') * 0.004 + q.crit) * 100).toFixed(1)}%</span></div>
     <div class="row"><span>스킬 피해</span><span>+${(bonus('int') * 2).toFixed(0)}%</span></div>
     <div class="row"><span>다음 레벨</span><span>${P.xp} / ${xpNeed(P.lv)} 경험치</span></div>`;
 }
@@ -1953,12 +2175,11 @@ function infoTables() {
   d += `</table><div class="note">장비는 내 클래스용으로만 떨어지며 무기 55% · 갑옷 45%입니다. 던전 몬스터는 레벨 +${DUNGEON_BONUS.lv}, 체력 ×${DUNGEON_BONUS.hp}, 경험치 ×${DUNGEON_BONUS.xp}입니다.</div>`;
   $('dropTable').innerHTML = d;
 }
-$('encW').addEventListener('click', () => enchant('w'));
-$('encA').addEventListener('click', () => enchant('a'));
 const toggleInv = () => { $('inv').classList.toggle('hidden'); renderInv(); uiPauseCheck(); };
 function invTab(tab) {
   if (tab === 'stat') renderStats();
-  if (tab === 'use') renderLoot();
+  if (tab === 'log') renderLoot();
+  $('inv').classList.toggle('notab-eq', tab !== 'eq');
   document.querySelectorAll('#invTabs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tab === tab)));
   document.querySelectorAll('#inv .tabpane').forEach(p => p.classList.toggle('hidden', p.dataset.pane !== tab));
 }
@@ -2078,12 +2299,12 @@ $('mmIn').addEventListener('click', () => { OPT.mmZoom = Math.min(4, OPT.mmZoom 
 $('mmOut').addEventListener('click', () => { OPT.mmZoom = Math.max(1, OPT.mmZoom - 1); saveOpt(); });
 function save() {
   if (!P || !running) return;
-  const d = { v: 1, cls: P.cls, lv: P.lv, xp: P.xp, st: P.st, sp: P.sp, hp: P.hp, mp: P.mp, gold: P.gold, inv: P.inv, weapon: P.weapon, armor: P.armor, bag: P.bag,
+  const d = { v: 1, cls: P.cls, lv: P.lv, xp: P.xp, st: P.st, sp: P.sp, hp: P.hp, mp: P.mp, gold: P.gold, inv: P.inv, eq: P.eq, weapon: P.weapon, armor: P.armor, bag: P.bag,
     autoSell: !!P.autoSell, map: MAP.id, x: P.dead ? null : P.x, y: P.dead ? null : P.y, state: { bossDead: STATE.bossDead, kills: STATE.kills, quest: STATE.quest || 0, qn: STATE.qn || 0 }, t: Date.now() };
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(d)); } catch (e) { /* 저장소 사용 불가 */ }
 }
 function loadSave() { try { const d = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); return d && d.v === 1 && CLASSES[d.cls] ? d : null; } catch (e) { return null; } }
-function applyStats() { P.maxhp = Math.round(P.c.hp * (1 + (P.lv - 1) * 0.12) + bonus('con') * 10); P.maxmp = Math.round(P.c.mp * (1 + (P.lv - 1) * 0.1) + bonus('int') * 6); }
+function applyStats() { const q = EQS(); P.maxhp = Math.round(P.c.hp * (1 + (P.lv - 1) * 0.12) + bonus('con') * 10 + q.hp); P.maxmp = Math.round(P.c.mp * (1 + (P.lv - 1) * 0.1) + bonus('int') * 6 + q.mp); P.hp = Math.min(P.hp, P.maxhp); P.mp = Math.min(P.mp, P.maxmp); }
 setInterval(save, 5000);
 window.addEventListener('beforeunload', save);
 document.addEventListener('visibilitychange', () => {
@@ -2180,12 +2401,13 @@ function startGame(cls, sv) {
   ['status', 'mini', 'bar', 'xp', 'log', 'quest'].forEach(id => $(id).classList.remove('hidden'));
   P = newPlayer(cls);
   if (sv) {
-    Object.assign(P, { lv: sv.lv, xp: sv.xp, gold: sv.gold, inv: sv.inv, weapon: sv.weapon, armor: sv.armor, bag: sv.bag || [], autoSell: sv.autoSell });
+    Object.assign(P, { lv: sv.lv, xp: sv.xp, gold: sv.gold, inv: sv.inv, bag: sv.bag || [], autoSell: sv.autoSell });
+    P.eq = sv.eq || { weapon: sv.weapon, armor: sv.armor };   // 예전 저장(무기·갑옷 2칸) 호환
     // 예전 저장(능력치 없음): 기본 능력치 + 레벨만큼 포인트 지급
     P.st = sv.st || Object.assign({}, BASE_STATS[cls]);
     P.sp = sv.st ? (sv.sp || 0) : (sv.lv - 1) * SP_PER_LV;
     applyStats(); P.hp = Math.min(P.maxhp, sv.hp || P.maxhp); P.mp = Math.min(P.maxmp, sv.mp || P.maxmp);
-    UID = 1 + Math.max(0, P.weapon.uid, P.armor.uid, ...P.bag.map(e => e.uid));
+    UID = 1 + Math.max(0, ...Object.values(P.eq).filter(Boolean).map(e => e.uid), ...P.bag.map(e => e.uid));
     Object.assign(STATE, sv.state || {});
   } else { STATE.bossDead = false; STATE.kills = 0; STATE.quest = 0; STATE.qn = 0; }
   $('pname').textContent = CLASSES[cls].label;
@@ -2238,7 +2460,7 @@ function simulate(seconds, step = 1 / 20) {
 // 시험용 손잡이
 window.__game = {
   combat: COMBAT, get P() { return P; }, get mobs() { return mobs; }, get map() { return MAP; }, get fxs() { return fxs; }, get drops() { return drops; }, STATE,
-  addStat, xpNeed, SKILL_LV, DUNGEON_MIN, gainXp, OPT, renderOpt, enchantItem, panelOpen, get uiPaused() { return uiPaused; }, LOOT, simulate, renderOnce, start: startGame, save, loadSave, openShop, buy, SHOP, QUESTS, inTown, enterMap, useSkill, enchant, drink, nearestMob, setAuto, equip, makeEquip, equipDef, DROP_TABLE, setPaused: v => { paused = v; },
+  addStat, xpNeed, SKILL_LV, DUNGEON_MIN, gainXp, OPT, renderOpt, enchantItem, panelOpen, get uiPaused() { return uiPaused; }, LOOT, simulate, unequip, renderInv, statVal, slotFor, slotAllowed, EQS, SLOTS, GEAR, renderOnce, start: startGame, save, loadSave, openShop, buy, SHOP, QUESTS, inTown, enterMap, useSkill, enchant, drink, nearestMob, setAuto, equip, makeEquip, equipDef, DROP_TABLE, setPaused: v => { paused = v; },
 };
 
 resize();
