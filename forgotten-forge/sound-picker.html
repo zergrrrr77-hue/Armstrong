@@ -82,7 +82,7 @@ textarea#pickJson { width: 100%; height: 90px; background: var(--panel); color: 
 
   <section class="sect" aria-labelledby="bgmH">
     <h2 id="bgmH">배경음악</h2>
-    <p>재생 버튼으로 듣고, [이 곡으로]를 눌러 장면별로 하나씩 고르세요. 모두 합성으로 만든 곡이라 끝없이 반복됩니다.</p>
+    <p>재생 버튼으로 듣고, [이 곡으로]를 눌러 장면별로 하나씩 고르세요. ★ 표시는 실제 악기 녹음 음원으로 만든 새 곡이고, 나머지는 예전 합성곡입니다. 모두 끝없이 반복됩니다.</p>
     <div id="bgm"></div>
   </section>
 
@@ -110,6 +110,9 @@ textarea#pickJson { width: 100%; height: 90px; background: var(--panel); color: 
 <script src="lineage-assets/audio/sfx.js"></script>
 <script>
 const LA = window.LineageAudio;
+// 실제 악기 녹음 음원으로 렌더링한 곡(FluidR3 GM 사운드폰트, CC-BY 3.0)
+LA.addTrack({ id: 'field_orch', kind: 'field', name: '방랑의 들판 · 실제 악기', desc: '★ 새 데모 · 라단조 84bpm · 하프 · 플루트 · 호른 · 현악 · 합창 · 팀파니 (녹음된 오케스트라 음원)', src: 'lineage-assets/audio/bgm/field_orch.mp3', vol: 1 });
+const ORDER = ['field_orch']; LA.TRACKS.sort((a, b) => (ORDER.includes(b.id) ? 1 : 0) - (ORDER.includes(a.id) ? 1 : 0));
 const $ = id => document.getElementById(id);
 const SCENES = [['field', '필드'], ['town', '마을'], ['dungeon', '던전'], ['boss', '보스전']];
 const state = { bgm: { ...LA.DEFAULT_PICKS.bgm }, sfx: {} };
