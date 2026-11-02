@@ -80,10 +80,12 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 #quest .qh { display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: none; border: 0; padding: 0; font: inherit; font-size: 10px; letter-spacing: .1em; color: var(--gold); text-align: left; }
 #quest.fold .qt, #quest.fold .qp { display: none; }
 #quest.fold { width: auto; }
-#opt { z-index: 25; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(340px, calc(100vw - 20px)); max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); overflow-y: auto; background: var(--panel); border: 1px solid var(--gold); border-radius: 3px; padding: 14px; display: grid; gap: 12px; box-shadow: 0 10px 40px #000; }
+#opt { z-index: 25; left: 50%; top: max(8px, env(safe-area-inset-top, 0px)); transform: translateX(-50%); width: min(340px, calc(100vw - 20px)); max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); overflow-y: auto; background: var(--panel); border: 1px solid var(--gold); border-radius: 3px; padding: 14px; display: grid; gap: 12px; box-shadow: 0 10px 40px #000; }
 #opt h3 { margin: 0; font-family: var(--display); display: flex; justify-content: space-between; }
 #opt h3 button { background: none; border: 0; color: var(--muted); cursor: pointer; }
 .orow { display: grid; gap: 6px; font-size: 13px; }
+.osec { display: grid; gap: 12px; }
+#optTabs button { min-height: 34px; font-size: 13px; }
 .orow > span { color: var(--gold); font-size: 12px; }
 .seg { display: flex; gap: 4px; flex-wrap: wrap; }
 .seg button { flex: 1; min-height: 32px; background: #16120e; border: 1px solid var(--line); color: var(--muted); font-size: 12px; border-radius: 2px; cursor: pointer; }
@@ -414,6 +416,12 @@ details.info th { color: var(--gold); font-weight: 500; }
   .ghead { padding: 6px 10px; }
   .gctl { padding: 6px 10px; }
   .gctl .pull { min-height: 38px; }
+  #opt { padding: 8px 12px; gap: 8px; }
+  #opt h3 { font-size: 15px; }
+  .osec { gap: 7px; }
+  .osec .note { font-size: 10px; line-height: 1.35; }
+  .orow { gap: 3px; font-size: 12px; }
+  .seg button { min-height: 28px; }
   #atkBtn { width: 64px; height: 64px; bottom: max(70px, calc(env(safe-area-inset-bottom, 0px) + 66px)); }
   .orb { width: 56px; height: 56px; }
   #quest { top: calc(max(8px, env(safe-area-inset-top, 0px)) + 62px); }
@@ -468,6 +476,7 @@ details.info th { color: var(--gold); font-weight: 500; }
     <p>기사·요정·마법사 중 하나를 골라 마을 밖 숲과 늪에서 사냥하며 장비를 모으고 강해진 뒤, 남동쪽 끝의 지하 계단으로 내려가 던전 깊은 곳의 보스 <b>몰락한 왕</b>을 쓰러뜨리세요. 강화 주문서로 장비를 +10까지 강화할 수 있지만, 안전 강화 구간을 넘으면 실패할 때 강화 수치가 사라집니다.</p>
     <div class="classes" id="classes"></div>
     <div class="cont"><button class="start hidden" id="continue" type="button"></button><button class="start" id="start" disabled>클래스를 고르세요</button></div>
+    <label class="chk" style="justify-self:start"><input type="checkbox" id="devTitle"> 개발자 모드로 시작 (드롭·강화·뽑기 확률 상향, 시험용)</label>
     <div class="warn hidden" id="newWarn">새로 시작하면 저장된 진행이 지워집니다.</div>
     <div class="keys">
       <div><kbd>클릭</kbd>이동 · 몬스터 클릭 공격</div>
@@ -505,17 +514,26 @@ details.info th { color: var(--gold); font-weight: 500; }
   <div class="mbtn"><button id="btnAuto" type="button" aria-pressed="false" title="자동사냥 (H)" aria-label="자동사냥"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/><path d="M9 15l3-7 3 7M10 13h4"/></svg><span>자동</span></button><button id="btnInv" type="button" title="가방 (I)" aria-label="가방"><svg viewBox="0 0 24 24"><path d="M5 9h14l-1.2 11H6.2z"/><path d="M9 9V7a3 3 0 0 1 6 0v2"/></svg><span>가방</span></button><button id="btnGacha" type="button" title="뽑기 (G)" aria-label="뽑기"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17l-5.6 2.9 1.1-6.3L2.9 9.2l6.3-.9z"/></svg><span>뽑기</span></button><button id="btnSnd" type="button" aria-pressed="true" title="소리 켜기/끄기 (M)" aria-label="소리"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span>소리</span></button><button id="btnOpt" type="button" title="설정" aria-label="설정"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg><span>설정</span></button></div></div>
 <div class="hud hidden" id="opt">
   <h3>설정 <button type="button" id="optClose" aria-label="설정 닫기">✕</button></h3>
-  <div class="orow"><span>가방·상점을 열 때</span><div class="seg" data-opt="invMode"><button type="button" data-v="pause">일시정지</button><button type="button" data-v="continue">계속 진행 (받는 피해 50% 감소)</button></div></div>
+  <div class="tabs" id="optTabs"><button type="button" data-ot="auto" aria-pressed="true">자동</button><button type="button" data-ot="view" aria-pressed="false">화면</button><button type="button" data-ot="sound" aria-pressed="false">사운드</button><button type="button" data-ot="dev" aria-pressed="false">개발자</button></div>
+  <div class="osec" data-sec="auto">
   <div class="orow"><span>자동 체력 물약 <b id="vPotHp"></b></span><input type="range" id="potHp" min="10" max="80" step="5"></div>
   <div class="orow"><span>자동 마나 물약 <b id="vPotMp"></b></span><input type="range" id="potMp" min="5" max="60" step="5"></div>
   <div class="orow"><span>자동 아이템 줍기</span><div class="seg" data-opt="loot"><button type="button" data-v="all">전부</button><button type="button" data-v="uncommon">고급 이상 장비 + 소모품</button><button type="button" data-v="off">끄기</button></div></div>
   <div class="orow"><span>자동 전투 대상 우선순위</span><div class="seg" data-opt="prio"><button type="button" data-v="near">가까운 적</button><button type="button" data-v="weak">체력 낮은 적</button><button type="button" data-v="strong">레벨 높은 적</button></div></div>
-  <div class="orow"><span>아이템을 볼 때 비교창</span><div class="seg" data-opt="cmpAuto"><button type="button" data-v="on">자동으로 띄우기</button><button type="button" data-v="off">버튼으로만</button></div></div>
   <div class="note">자동 물약은 자동 전투를 켜지 않아도 작동합니다. 마나가 스킬 비용보다 적으면 스킬을 쓰지 않습니다.</div>
+  </div>
+  <div class="osec hidden" data-sec="view">
+  <div class="orow"><span>가방·상점을 열 때</span><div class="seg" data-opt="invMode"><button type="button" data-v="pause">일시정지</button><button type="button" data-v="continue">계속 진행 (받는 피해 50% 감소)</button></div></div>
+  <div class="orow"><span>아이템을 볼 때 비교창</span><div class="seg" data-opt="cmpAuto"><button type="button" data-v="on">자동으로 띄우기</button><button type="button" data-v="off">버튼으로만</button></div></div>
+  </div>
+  <div class="osec hidden" data-sec="sound">
   <div class="orow"><span>사운드</span><div id="volRows"></div></div>
+  </div>
+  <div class="osec hidden" data-sec="dev">
   <div class="orow"><span>개발자 모드 (F2)</span><div class="seg" data-opt="dev"><button type="button" data-v="off">끄기</button><button type="button" data-v="on">켜기</button></div>
     <div class="note">드롭 100% · 높은 등급 · 강화 100% · 뽑기 확률 대폭 상향 · 패시브 30%. 시험용입니다.</div>
     <div class="devrow" id="devRow"><button type="button" data-dev="gold">골드 +1,000,000</button><button type="button" data-dev="lv">레벨 +1</button><button type="button" data-dev="wb">월드보스 즉시 출현</button><button type="button" data-dev="wp">웨이포인트 모두 열기</button><button type="button" data-dev="god">무적 켜기/끄기</button><button type="button" data-dev="items">주문서·물약 99개</button></div></div>
+</div>
 </div>
 <div class="hud hidden" id="devBadge">DEV</div>
 <button class="hud hidden" id="wpBtn" type="button">◈ 웨이포인트 (F)</button>
@@ -3047,7 +3065,9 @@ function renderOpt() {
   $('potHp').value = OPT.potHp; $('potMp').value = OPT.potMp;
   $('vPotHp').textContent = `체력 ${OPT.potHp}% 이하`; $('vPotMp').textContent = `마나 ${OPT.potMp}% 이하`;
   OPT.vol = Object.assign({ master: 90, bgm: 38, sfx: 100, mon: 70, amb: 50 }, OPT.vol || {}); OPT.mute = OPT.mute || {};
-  renderVol(); $('devRow').style.display = OPT.dev === 'on' ? '' : 'none';
+  renderVol(); $('devRow').style.opacity = OPT.dev === 'on' ? '1' : '.35'; $('devRow').style.pointerEvents = OPT.dev === 'on' ? '' : 'none';
+  document.querySelectorAll('#optTabs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.ot === optTab)));
+  document.querySelectorAll('#opt .osec').forEach(x => x.classList.toggle('hidden', x.dataset.sec !== optTab));
 }
 document.querySelectorAll('#opt .seg').forEach(seg => seg.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { OPT[seg.dataset.opt] = b.dataset.v; saveOpt(); renderOpt(); uiPauseCheck(); if (seg.dataset.opt === 'dev') devChanged(); })));
 $('potHp').addEventListener('input', e => { OPT.potHp = +e.target.value; saveOpt(); renderOpt(); });
@@ -3055,6 +3075,8 @@ $('potMp').addEventListener('input', e => { OPT.potMp = +e.target.value; saveOpt
 const panelOpen = () => ['inv', 'shop', 'opt', 'gacha', 'wpMenu'].some(id => !$(id).classList.contains('hidden'));
 let uiPaused = false;
 function uiPauseCheck() { uiPaused = running && panelOpen() && OPT.invMode === 'pause'; }
+let optTab = 'auto';
+document.querySelectorAll('#optTabs button').forEach(b => b.addEventListener('click', () => { optTab = b.dataset.ot; renderOpt(); }));
 function toggleOpt() { $('opt').classList.toggle('hidden'); renderOpt(); uiPauseCheck(); }
 $('btnOpt').addEventListener('click', toggleOpt);
 $('optClose').addEventListener('click', toggleOpt);
@@ -3216,6 +3238,8 @@ function titleScreen() {
     }, 100);
   }
   $('start').addEventListener('click', () => { if (chosen) startGame(chosen); });
+  $('devTitle').checked = OPT.dev === 'on';
+  $('devTitle').addEventListener('change', e => { OPT.dev = e.target.checked ? 'on' : 'off'; saveOpt(); });
   const sv = loadSave();
   if (sv) {
     const c = $('continue'); c.classList.remove('hidden');
@@ -3257,6 +3281,7 @@ function startGame(cls, sv) {
   log(sv ? '저장된 진행을 불러왔습니다.' : '마을 외곽에 도착했습니다. 목표 창을 따라가 보세요.', 'sys');
   log('1~4 스킬 · Q/E 물약 · H 자동사냥 · I 가방과 강화', 'sys');
   running = true; STATE.started = performance.now();
+  devChanged();
 }
 
 
@@ -3349,7 +3374,8 @@ function renderVol() {
 // ── 개발자 모드
 function devChanged() {
   $('devBadge').classList.toggle('hidden', !(DEV() && running));
-  $('devRow').style.display = DEV() ? '' : 'none';
+  $('devRow').style.opacity = DEV() ? '1' : '.35'; $('devRow').style.pointerEvents = DEV() ? '' : 'none';
+  if ($('devTitle')) $('devTitle').checked = DEV();
   if (running) { infoTables(); if (!$('gacha').classList.contains('hidden')) renderGacha(); }
 }
 document.querySelectorAll('#devRow button').forEach(b => b.addEventListener('click', () => {

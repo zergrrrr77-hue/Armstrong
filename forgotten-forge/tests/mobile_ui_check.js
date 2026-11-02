@@ -35,7 +35,7 @@ let fail = 0;
     await p.waitForTimeout(200);
     res.atk = atkVis && await p.evaluate(() => !!__game.P.target);
     res.overflow = await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.documentElement.scrollHeight <= innerHeight + 1);
-    const ok = (vp.width < vp.height || (res.opt.top > 0 && res.shop.top > 0)) && res.gacha.top > 0 && res.inv.top > 0 && res.atk && res.overflow && !errs.length; if (!ok) fail++; console.log((ok ? '  ✓ ' : '  ✗ ') + vp.width + 'x' + vp.height + ' 창 스크롤·공격 버튼·넘침 ' + JSON.stringify(res));
+    const ok = (vp.width < vp.height || ((res.opt.top > 0 || res.opt.max === 0) && (res.shop.top > 0 || res.shop.max === 0))) && res.gacha.top > 0 && res.inv.top > 0 && res.atk && res.overflow && !errs.length; if (!ok) fail++; console.log((ok ? '  ✓ ' : '  ✗ ') + vp.width + 'x' + vp.height + ' 창 스크롤·공격 버튼·넘침 ' + JSON.stringify(res));
     await ctx.close();
   }
   await b.close();
