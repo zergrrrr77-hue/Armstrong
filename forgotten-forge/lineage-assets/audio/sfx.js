@@ -776,8 +776,34 @@
     ev.sort((a, b) => a.bar - b.bar || a.beat - b.beat);
     return ev;
   }
+  // 음원 파일 곡(예: 직접 만든 Suno 곡): { id, kind, name, desc, src: 'lineage-assets/audio/bgm/xxx.mp3', vol }
+  const decoded = new WeakMap();
+  function loadBuffer(ctx, src) {
+    let m = decoded.get(ctx); if (!m) { m = {}; decoded.set(ctx, m); }
+    if (!m[src]) m[src] = fetch(src).then(r => { if (!r.ok) throw new Error('곡 파일을 불러오지 못했습니다: ' + src); return r.arrayBuffer(); }).then(b => ctx.decodeAudioData(b));
+    return m[src];
+  }
+  function startFileTrack(ctx, out, S) {
+    const bus = ctx.createGain(); bus.gain.value = 0; bus.connect(out);
+    let src = null, alive = true;
+    loadBuffer(ctx, S.src).then(buf => {
+      if (!alive) return;
+      src = ctx.createBufferSource(); src.buffer = buf; src.loop = true; src.connect(bus);
+      const n = ctx.currentTime; src.start(n + 0.05);
+      bus.gain.setValueAtTime(0, n); bus.gain.linearRampToValueAtTime(S.vol || 1, n + 2);
+    }).catch(e => console.warn(e.message));
+    const stop = () => {
+      alive = false;
+      const n = ctx.currentTime; bus.gain.cancelScheduledValues(n); bus.gain.setValueAtTime(bus.gain.value, n); bus.gain.linearRampToValueAtTime(0, n + 1.6);
+      setTimeout(() => { try { src && src.stop(); } catch (e) { /* 이미 정지 */ } bus.disconnect(); }, 2000);
+    };
+    stop.tick = () => {};
+    return stop;
+  }
+  function addTrack(t) { const i = TRACKS.findIndex(x => x.id === t.id); if (i >= 0) TRACKS[i] = t; else TRACKS.push(t); return t; }
   function startTrack(ctx, out, id) {
     const S = TRACKS.find(t => t.id === id) || TRACKS[0];
+    if (S.src) return startFileTrack(ctx, out, S);
     const ev = compose(S), beat = 60 / S.bpm, bar = beat * S.meter, L = S.prog.length, loopLen = bar * L;
     const bus = ctx.createGain(); bus.gain.value = 0; bus.connect(out);
     bus.gain.setValueAtTime(0, ctx.currentTime); bus.gain.linearRampToValueAtTime(S.vol, ctx.currentTime + 2.5);
@@ -903,5 +929,5 @@
   }
   function renderTrack(ctx, id, out) { return startTrack(ctx, out || ctx.destination, id); }
 
-  root.LineageAudio = { create, renderTo, renderTrack, SOUNDS, AMBIENCES, ACTOR_SFX, TRACKS, VARIANT_SETS, GROUPS, DEFAULT_PICKS, compose, names: Object.keys(R) };
+  root.LineageAudio = { create, renderTo, renderTrack, addTrack, SOUNDS, AMBIENCES, ACTOR_SFX, TRACKS, VARIANT_SETS, GROUPS, DEFAULT_PICKS, compose, names: Object.keys(R) };
 })(typeof window !== 'undefined' ? window : globalThis);
