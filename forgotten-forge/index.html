@@ -1,4 +1,5 @@
 <title>잊혀진 대장간</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +15,23 @@
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; }
-body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 14px; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+html, body { overscroll-behavior: none; touch-action: manipulation; }
+/* 글자만 보여 주는 HUD(로그·배너·DEV 표시)는 터치를 가로채지 않음 → 그 아래 조이스틱·게임 화면이 받음 */
+#log, #log *, #banner, #banner *, #devBadge { pointer-events: none !important; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 14px; overflow: hidden; user-select: none; -webkit-user-select: none; }
+/* 터치 스크롤: 게임 화면·조이스틱만 막고, 창 안은 위아래로 밀 수 있게 */
+#game, #joyZone { touch-action: none; }
+#opt, #shop, #gacha .gbody, #wpMenu, #inv .wbody, #inv .doll, #eqgrid, #inv .wpad { touch-action: pan-y; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: #b08a4a rgba(0, 0, 0, .35); }
+:is(#opt, #shop, #gacha .gbody, #wpMenu, #inv .wbody, #inv .doll, #eqgrid, #inv .wpad)::-webkit-scrollbar { width: 7px; }
+:is(#opt, #shop, #gacha .gbody, #wpMenu, #inv .wbody, #inv .doll, #eqgrid, #inv .wpad)::-webkit-scrollbar-track { background: rgba(0, 0, 0, .35); border-radius: 4px; }
+:is(#opt, #shop, #gacha .gbody, #wpMenu, #inv .wbody, #inv .doll, #eqgrid, #inv .wpad)::-webkit-scrollbar-thumb { background: #b08a4a; border-radius: 4px; }
+/* 아래에 더 있으면 끝에 안내 띠 */
+.more::after { content: '▼ 아래로 밀면 더 있어요'; position: sticky; bottom: 0; display: block; grid-column: 1 / -1; margin-top: -26px; padding: 14px 0 4px; text-align: center; font-size: 11px; color: #f0cf7a; background: linear-gradient(rgba(18, 15, 13, 0), rgba(18, 15, 13, .96) 55%); pointer-events: none; z-index: 2; }
+/* 휴대폰 공격 버튼 */
+#atkBtn { right: max(14px, env(safe-area-inset-right, 0px)); bottom: max(84px, calc(env(safe-area-inset-bottom, 0px) + 80px)); width: 74px; height: 74px; border-radius: 50%; border: 1.5px solid rgba(255, 220, 160, .45); background: radial-gradient(circle at 50% 38%, rgba(255, 200, 140, .26), rgba(120, 50, 20, .18) 62%, rgba(0, 0, 0, .25)); color: #fff1d8; font-weight: 700; font-size: 13px; display: grid; place-items: center; gap: 0; line-height: 1.1; text-shadow: 0 1px 3px #000; touch-action: none; z-index: 9; }
+#atkBtn svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+#atkBtn.on { transform: scale(.92); background: radial-gradient(circle, rgba(255, 200, 120, .5), rgba(255, 140, 40, .12) 70%); }
+
 #game { position: fixed; inset: 0; display: block; width: 100%; height: 100%; image-rendering: pixelated; cursor: crosshair; }
 .hidden { display: none !important; }
 button { font: inherit; color: inherit; }
@@ -63,7 +80,7 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 #quest .qh { display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: none; border: 0; padding: 0; font: inherit; font-size: 10px; letter-spacing: .1em; color: var(--gold); text-align: left; }
 #quest.fold .qt, #quest.fold .qp { display: none; }
 #quest.fold { width: auto; }
-#opt { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(340px, calc(100vw - 20px)); max-height: calc(100vh - 40px); overflow-y: auto; background: var(--panel); border: 1px solid var(--gold); border-radius: 3px; padding: 14px; display: grid; gap: 12px; box-shadow: 0 10px 40px #000; }
+#opt { z-index: 25; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(340px, calc(100vw - 20px)); max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); overflow-y: auto; background: var(--panel); border: 1px solid var(--gold); border-radius: 3px; padding: 14px; display: grid; gap: 12px; box-shadow: 0 10px 40px #000; }
 #opt h3 { margin: 0; font-family: var(--display); display: flex; justify-content: space-between; }
 #opt h3 button { background: none; border: 0; color: var(--muted); cursor: pointer; }
 .orow { display: grid; gap: 6px; font-size: 13px; }
@@ -227,7 +244,7 @@ button.hud, .hud button { pointer-events: auto; }
 .gbody { display: block; min-height: 0; overflow-y: auto; padding: 10px 14px; }
 .gres { margin-bottom: 10px; }
 .gres { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; min-height: 10px; }
-.gcard { width: 84px; height: 110px; border-radius: 6px; perspective: 600px; position: relative; }
+.gcard { flex: none; width: 84px; height: 110px; border-radius: 6px; perspective: 600px; position: relative; }
 .gcard .in { position: absolute; inset: 0; transition: transform .45s ease; transform-style: preserve-3d; }
 .gcard.open .in { transform: rotateY(180deg); }
 .gcard .fr, .gcard .bk { position: absolute; inset: 0; border-radius: 6px; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
@@ -376,6 +393,28 @@ details.info th { color: var(--gold); font-weight: 500; }
 #over b { font-family: var(--display); font-size: 28px; }
 
 @media (max-height: 520px) {
+  .mbtn { gap: 3px; }
+  .mbtn button { width: 38px; height: 38px; border-radius: 7px; padding: 0; }
+  .mbtn button span { display: none; }
+  .mbtn button svg { width: 20px; height: 20px; }
+  #log { font-size: 11px; line-height: 1.35; width: min(300px, 40vw); bottom: max(70px, calc(env(safe-area-inset-bottom, 0px) + 66px)); opacity: .9; }
+  #log div:nth-last-child(n+4) { display: none; }
+  #inv { height: calc(100dvh - 12px); }
+  .whead { padding: 6px 10px; gap: 8px; }
+  .whead > b { font-size: 15px; }
+  .whead .tabs button { padding: 4px 0; }
+  .wclose { width: 30px; height: 30px; }
+  .detail2 { min-height: 64px; padding: 6px 10px; gap: 8px; }
+  .detail2 .dempty { font-size: 11px; }
+  .dact button { min-height: 34px; min-width: 64px; }
+  #shop, #wpMenu { max-height: calc(100dvh - 12px); }
+  .shead { padding: 6px 12px; grid-template-columns: 64px 1fr auto; }
+  .shead canvas { width: 64px; height: 70px; }
+  #gacha { height: calc(100dvh - 12px); }
+  .ghead { padding: 6px 10px; }
+  .gctl { padding: 6px 10px; }
+  .gctl .pull { min-height: 38px; }
+  #atkBtn { width: 64px; height: 64px; bottom: max(70px, calc(env(safe-area-inset-bottom, 0px) + 66px)); }
   .orb { width: 56px; height: 56px; }
   #quest { top: calc(max(8px, env(safe-area-inset-top, 0px)) + 62px); }
   #mini canvas { width: 84px; height: 84px; }
@@ -386,6 +425,9 @@ details.info th { color: var(--gold); font-weight: 500; }
   #target, #target.boss { top: auto; bottom: max(80px, calc(env(safe-area-inset-bottom, 0px) + 76px)); width: min(420px, calc(100vw - 20px)); }
 }
 @media (max-width: 720px) {
+  #bar { width: max-content; max-width: calc(100vw - 16px); flex-wrap: wrap; justify-content: center; gap: 4px; padding: 4px; }
+  #bar .slot { width: 44px; height: 44px; }
+  #atkBtn { bottom: max(132px, calc(env(safe-area-inset-bottom, 0px) + 128px)); }
   .orb { width: 64px; height: 64px; }
   .orbtxt b { font-size: 13px; }
   #quest { top: calc(max(8px, env(safe-area-inset-top, 0px)) + 74px); width: 170px; font-size: 11px; }
@@ -487,6 +529,7 @@ details.info th { color: var(--gold); font-weight: 500; }
 </div>
 <div id="gFlash"></div>
 <div id="joyZone" class="hidden" aria-hidden="true"><div id="joyBase"><div id="joyKnob"></div></div></div>
+<button class="hud hidden" id="atkBtn" type="button" aria-label="가까운 적 공격"><svg viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6M16 16l4 4M19 21l2-2"/></svg>공격</button>
 <div class="hud hidden" id="bar"></div>
 <div class="hud hidden" id="xp"><i></i></div>
 <div class="hud hidden" id="log"></div>
@@ -3186,6 +3229,7 @@ function startGame(cls, sv) {
   $('title').classList.add('hidden');
   ['status', 'mini', 'bar', 'xp', 'log', 'quest'].forEach(id => $(id).classList.remove('hidden'));
   $('joyZone').classList.toggle('hidden', !IS_TOUCH); if (IS_TOUCH) joyRest();
+  $('atkBtn').classList.toggle('hidden', !IS_TOUCH);
   P = newPlayer(cls);
   if (sv) {
     Object.assign(P, { lv: sv.lv, xp: sv.xp, gold: sv.gold, inv: sv.inv, bag: sv.bag || [], autoSell: sv.autoSell, wbs: sv.wbs || {}, morph: sv.morph && META.monsters[sv.morph] ? sv.morph : null,
@@ -3557,6 +3601,22 @@ $('gPull11').addEventListener('click', () => pullGacha(11));
 $('gClose').addEventListener('click', toggleGacha);
 $('btnGacha').addEventListener('click', toggleGacha);
 
+// ── 휴대폰: 창 안 스크롤 안내(아래에 더 있으면 끝에 띠), 공격 버튼
+const SCROLLERS = '#opt, #shop, #gacha .gbody, #wpMenu, #inv .wbody, #inv .doll, #eqgrid, #inv .wpad';
+function updScrollHints() { document.querySelectorAll(SCROLLERS).forEach(el => { if (el.offsetParent || el.getClientRects().length) el.classList.toggle('more', el.scrollHeight - el.scrollTop - el.clientHeight > 8); }); }
+setInterval(updScrollHints, 400);
+document.addEventListener('scroll', updScrollHints, true);
+(function setupAtk() {
+  const b = $('atkBtn');
+  const hit = e => {
+    e.preventDefault(); if (!running || paused || !P || P.dead) return; audio();
+    b.classList.add('on'); setTimeout(() => b.classList.remove('on'), 120);
+    const cur = P.target && !P.target.dead && dist(P.target, P) < 9 ? P.target : null;
+    const m = cur || pickTarget(9) || nearestMob(9);
+    if (m) { P.target = m; P.goal = null; P.talk = false; P.autoHold = 2; } else log('주변에 적이 없습니다.', 'bad');
+  };
+  b.addEventListener('pointerdown', hit);
+})();
 // ───────────────────────── 루프 ─────────────────────────
 function loop(ts) {
   const dt = Math.min(0.05, (ts - last) / 1000 || 0); last = ts;
