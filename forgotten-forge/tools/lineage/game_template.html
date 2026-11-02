@@ -627,16 +627,19 @@ function makeDungeon() {
 // ───────────────────────── 상태 ─────────────────────────
 let MAP = null, P = null, mobs = [], drops = [], projs = [], fxs = [], texts = [], blocked = null, propSprites = [];
 const keys = {};
+let CHUNKS = new Map();
 const COMBAT = { kb: 0, stop: 0, slash: 0, mobShots: 0 };   // 시험·디버그용 카운터
 let vfx = [], hitStop = 0, shake = 0, cam = { x: 0, y: 0 }, W = 0, H = 0, DPR = 1, ZOOM = 2, running = false, paused = false, last = 0, now = 0;
 const cvs = $('game'), ctx = cvs.getContext('2d');
 
 function resize() {
-  DPR = Math.min(2, window.devicePixelRatio || 1);
   W = window.innerWidth; H = window.innerHeight;
-  cvs.width = Math.floor(W * DPR); cvs.height = Math.floor(H * DPR);
   ZOOM = W < 720 ? 1.5 : (W < 1400 ? 2 : 2.5);
+  // 도트 그래픽: 캔버스를 '게임 픽셀' 해상도로 그리고 CSS(pixelated)로 확대 → 고해상도 휴대폰에서도 채울 픽셀이 적음
+  DPR = 1 / ZOOM;
+  cvs.width = Math.ceil(W * DPR); cvs.height = Math.ceil(H * DPR);
   ctx.imageSmoothingEnabled = false;
+  CHUNKS = new Map();
 }
 window.addEventListener('resize', resize);
 
@@ -767,6 +770,9 @@ function animLen(e, a) { const s = META[e.group][e.sheet]; return (s.anims[a] ||
 function enterMap(id, at) {
   MAP = id === 'field' ? makeField() : makeDungeon();
   buildBlocked();
+  CHUNKS = new Map();
+  MAP.water = [];
+  for (let i = 0; i < MAP.N; i++) for (let j = 0; j < MAP.N; j++) if (MAP.g[i][j][0] === 'water') MAP.water.push([i, j, MAP.g[i][j][1]]);
   mobs = MAP.spawns.map(newMob);
   if (id === 'dungeon' && STATE.bossDead) mobs = mobs.filter(m => m.type !== 'boss');
   drops = []; projs = []; fxs = [];
@@ -1371,6 +1377,25 @@ function itemIcon(id) {
   return { im: img(META.item_atlas.sheet), sx: (it.index % cols) * 32, sy: Math.floor(it.index / cols) * 32 };
 }
 
+function groundChunk(ci, cj, tim, rows) {
+  const key = ci * 1000 + cj;
+  let ch = CHUNKS.get(key);
+  if (ch) return ch;
+  const CH = 8, N = MAP.N;
+  const i0 = ci * CH, j0 = cj * CH;
+  // 덩어리의 화면 범위: x는 (i-j)*32, y는 (i+j)*16
+  const ox = (i0 - (j0 + CH)) * TW / 2 - TW / 2, oy = (i0 + j0) * TH / 2;
+  const cv = document.createElement('canvas'); cv.width = CH * TW + TW; cv.height = CH * TH + TH;
+  const c = cv.getContext('2d'); c.imageSmoothingEnabled = false;
+  for (let i = i0; i < Math.min(N, i0 + CH); i++) for (let j = j0; j < Math.min(N, j0 + CH); j++) {
+    const [k, v] = MAP.g[i][j];
+    const s = toScr(i, j);
+    c.drawImage(tim, (k === 'water' ? v % 4 : v) * TW, rows.indexOf(k) * TH, TW, TH, s.x - TW / 2 - ox, s.y - oy, TW, TH);
+  }
+  ch = { cv, x: ox, y: oy };
+  CHUNKS.set(key, ch);
+  return ch;
+}
 function render() {
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   ctx.fillStyle = '#060508'; ctx.fillRect(0, 0, W, H);
@@ -1386,13 +1411,18 @@ function render() {
   const c0 = toTile(cam.x - vw, cam.y - vh), c1 = toTile(cam.x + vw, cam.y + vh), c2 = toTile(cam.x + vw, cam.y - vh), c3 = toTile(cam.x - vw, cam.y + vh);
   const i0 = Math.max(0, Math.floor(Math.min(c0.x, c1.x, c2.x, c3.x))), i1 = Math.min(MAP.N - 1, Math.ceil(Math.max(c0.x, c1.x, c2.x, c3.x)));
   const j0 = Math.max(0, Math.floor(Math.min(c0.y, c1.y, c2.y, c3.y))), j1 = Math.min(MAP.N - 1, Math.ceil(Math.max(c0.y, c1.y, c2.y, c3.y)));
+  // 8×8 타일 덩어리를 미리 그려 둔 캐시로 지면을 그림(휴대폰에서 drawImage 수백 회 → 수십 회)
   const waterF = Math.floor(now * 4) % 4;
-  for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) {
-    const [k, v] = MAP.g[i][j];
+  const CH = 8;
+  for (let ci = Math.floor(i0 / CH); ci <= Math.floor(i1 / CH); ci++) for (let cj = Math.floor(j0 / CH); cj <= Math.floor(j1 / CH); cj++) {
+    const ch = groundChunk(ci, cj, tim, rows);
+    ctx.drawImage(ch.cv, ch.x, ch.y);
+  }
+  // 움직이는 물만 매 프레임 덮어 그림
+  for (const [i, j, v] of (MAP.water || [])) {
+    if (i < i0 || i > i1 || j < j0 || j > j1) continue;
     const s = toScr(i, j);
-    if (Math.abs(s.x - cam.x) > vw || Math.abs(s.y - cam.y) > vh) continue;
-    const r = rows.indexOf(k);
-    ctx.drawImage(tim, (k === 'water' ? (v + waterF) % 4 : v) * TW, r * TH, TW, TH, s.x - TW / 2, s.y, TW, TH);
+    ctx.drawImage(tim, ((v + waterF) % 4) * TW, rows.indexOf('water') * TH, TW, TH, s.x - TW / 2, s.y, TW, TH);
   }
   // 바닥 이펙트(under)
   for (const e of fxs) { const s = toScr(e.x, e.y); drawFx(e, 'under', s.x, s.y); }
@@ -2192,6 +2222,7 @@ function loop(ts) {
 }
 
 // 밸런스 측정용: 화면을 그리지 않고 게임 시간을 빠르게 진행(시험 전용)
+function renderOnce() { render(); updateHud(); drawMinimap(); }
 function simulate(seconds, step = 1 / 20) {
   const n = Math.round(seconds / step);
   for (let i = 0; i < n; i++) {
@@ -2207,7 +2238,7 @@ function simulate(seconds, step = 1 / 20) {
 // 시험용 손잡이
 window.__game = {
   combat: COMBAT, get P() { return P; }, get mobs() { return mobs; }, get map() { return MAP; }, get fxs() { return fxs; }, get drops() { return drops; }, STATE,
-  addStat, xpNeed, SKILL_LV, DUNGEON_MIN, gainXp, OPT, renderOpt, enchantItem, panelOpen, get uiPaused() { return uiPaused; }, LOOT, simulate, start: startGame, save, loadSave, openShop, buy, SHOP, QUESTS, inTown, enterMap, useSkill, enchant, drink, nearestMob, setAuto, equip, makeEquip, equipDef, DROP_TABLE, setPaused: v => { paused = v; },
+  addStat, xpNeed, SKILL_LV, DUNGEON_MIN, gainXp, OPT, renderOpt, enchantItem, panelOpen, get uiPaused() { return uiPaused; }, LOOT, simulate, renderOnce, start: startGame, save, loadSave, openShop, buy, SHOP, QUESTS, inTown, enterMap, useSkill, enchant, drink, nearestMob, setAuto, equip, makeEquip, equipDef, DROP_TABLE, setPaused: v => { paused = v; },
 };
 
 resize();
