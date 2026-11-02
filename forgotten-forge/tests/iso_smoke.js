@@ -30,6 +30,18 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
     const p1 = await page.evaluate(() => ({ x: __game.P.x, y: __game.P.y }));
     check(Math.hypot(p1.x - p0.x, p1.y - p0.y) > 0.5, '키보드로 이동', fails);
 
+    // 4단계: Lv 1에서 스킬 잠김·던전 입장 제한 → 레벨업 시 포인트·해금
+    const lock = await page.evaluate(() => { const G = __game, P = G.P; P.mp = P.maxmp; G.useSkill(3); return !P.casting; });
+    check(lock, 'Lv 1에서 4번 스킬 잠김', fails);
+    if (cls === 'knight') {
+      await page.evaluate(() => { const P = __game.P; P.x = 51.5; P.y = 46.6; });
+      await page.waitForTimeout(500);
+      const gate = await page.evaluate(() => __game.map.id === 'field');
+      check(gate, '던전 입장 레벨 제한(Lv 5)', fails);
+      await page.evaluate(() => { const P = __game.P; P.x = 13.5; P.y = 13.5; });
+    }
+    const lv = await page.evaluate(() => { const G = __game, P = G.P; const hp0 = P.maxhp; while (P.lv < 8) G.gainXp(G.xpNeed(P.lv)); const sp = P.sp; G.addStat('con'); return { lv: P.lv, sp, hpUp: P.maxhp > hp0, sp2: P.sp }; });
+    check(lv.lv === 8 && lv.sp === 14 && lv.sp2 === 13 && lv.hpUp, `레벨업 → 능력치 포인트 ${lv.sp}점, 체력 투자`, fails);
     await page.evaluate(() => { const P = __game.P; P.maxhp = 99999; P.hp = 99999; });
     // 늑대 옆으로 옮겨 기본 공격
     await page.evaluate(() => { const m = __game.mobs.find(m => m.type === 'wolf'); __game.P.x = m.x - 1; __game.P.y = m.y; __game.P.target = m; m.state = 'idle'; });
@@ -156,6 +168,17 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
       const dead = await page.evaluate(() => __game.STATE.bossDead);
       check(dead, '보스 처치', fails);
       await page.screenshot({ path: `${OUT}/g5_victory.png` });
+    }
+    if (cls === 'mage') {
+      // 예전 저장 데이터(능력치 없음) 호환
+      await page.reload();   // 떠날 때 자동 저장되므로, 시작 화면(저장 꺼짐)에서 고친 뒤 다시 불러옴
+      await page.waitForFunction(() => document.querySelectorAll('.cls').length === 3, null, { timeout: 20000 });
+      await page.evaluate(() => { const d = JSON.parse(localStorage.getItem('ff_lineage_save_v1')); delete d.st; delete d.sp; d.lv = 5; localStorage.setItem('ff_lineage_save_v1', JSON.stringify(d)); });
+      await page.reload();
+      await page.waitForFunction(() => document.querySelectorAll('.cls').length === 3, null, { timeout: 20000 });
+      await page.click('#continue'); await page.waitForTimeout(400);
+      const compat = await page.evaluate(() => __game.P.lv === 5 && __game.P.sp === 8 && !!__game.P.st);
+      check(compat, '예전 저장 불러오기: 레벨만큼 포인트 지급', fails);
     }
     // 저장 → 새로고침 → 이어하기
     const lv0 = await page.evaluate(() => { const P = __game.P; P.lv = 6; P.gold = 4321; __game.save(); return P.lv; });
