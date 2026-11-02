@@ -89,6 +89,32 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
     await page.keyboard.press('KeyI');
     check(tables, '드롭률·강화 확률 표 표시', fails);
 
+    if (cls === 'knight') {
+      // 3단계: 설정(가방 일시정지), 목표 창 접기, 미니맵 확대, 장비 상세·강화 연출, 자동 물약 기준
+      await page.keyboard.press('KeyI'); await page.waitForTimeout(150);
+      const pz = await page.evaluate(() => __game.uiPaused);
+      await page.keyboard.press('KeyI');
+      check(pz === true, '가방을 열면 일시정지(기본 설정)', fails);
+      await page.click('#qToggle'); const fold = await page.evaluate(() => document.getElementById('quest').classList.contains('fold')); await page.click('#qToggle');
+      check(fold, '목표 창 접기', fails);
+      await page.click('#mmIn'); const z = await page.evaluate(() => __game.OPT.mmZoom); await page.click('#mmOut');
+      check(z === 2, '미니맵 확대/축소', fails);
+      await page.keyboard.press('KeyI');
+      await page.locator('#invTabs button', { hasText: '장비' }).click();
+      await page.click('#wIcon'); await page.waitForTimeout(100);
+      const det = await page.evaluate(() => { const t = document.getElementById('detail').textContent; return ['등급', '공격력', '강화', '착용', '다음 강화', '필요 재료'].every(k => t.includes(k)); });
+      check(det, '장비 상세: 등급·능력치·강화·착용·다음 강화·재료', fails);
+      await page.evaluate(() => { __game.P.inv.scroll_weapon = 2; });
+      await page.click('#btnEnc'); await page.waitForTimeout(100);
+      const toast = await page.evaluate(() => document.getElementById('encToast').textContent);
+      check(/강화/.test(toast), '강화 결과 알림: ' + toast, fails);
+      await (await page.$('#inv')).screenshot({ path: `${OUT}/g9_detail.png` });
+      await page.keyboard.press('KeyI');
+      const pot = await page.evaluate(() => { const G = __game, P = G.P; G.OPT.potHp = 60; P.hp = P.maxhp * 0.5; return P.inv.pot_red; });
+      await page.waitForTimeout(600);
+      const pot2 = await page.evaluate(() => { const P = __game.P; __game.OPT.potHp = 40; return P.inv.pot_red; });
+      check(pot2 < pot, '자동 물약 기준 설정(60%) 반영', fails);
+    }
     // 상점: 마을 노점 옆에서 열고 물약 구매
     const shop = await page.evaluate(() => { const G = __game, P = G.P; const st = G.map.props.find(p => p.name === 'stall'); P.x = st.x + 1.2; P.y = st.y + 0.6; P.gold = 1000; return true; });
     await page.waitForTimeout(300);

@@ -54,6 +54,34 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .orbtxt b { font-family: var(--display); font-size: 15px; }
 .orbtxt .num { font-size: 11px; font-variant-numeric: tabular-nums; display: flex; gap: 8px; }
 .orbtxt .hpt { color: #ff9a8a; } .orbtxt .mpt { color: #9ab8ff; }
+.sbar { width: 112px; height: 7px; background: #0c0a09; border: 1px solid #000; border-radius: 2px; overflow: hidden; }
+.sbar i { display: block; height: 100%; }
+#shp i { background: linear-gradient(#ef5a50, #b8262a); } #smp i { background: linear-gradient(#6a9af6, #2f62c8); }
+#buffs { display: flex; gap: 3px; flex-wrap: wrap; max-width: 150px; }
+#buffs span { font-size: 10px; padding: 0 4px; border-radius: 2px; background: rgba(42,32,22,.9); border: 1px solid var(--line-hi); color: #f0d79a; line-height: 16px; }
+#buffs span.debuff { color: #ffb0a0; border-color: #8a3a2a; }
+#quest .qh { display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: none; border: 0; padding: 0; font: inherit; font-size: 10px; letter-spacing: .1em; color: var(--gold); text-align: left; }
+#quest.fold .qt, #quest.fold .qp { display: none; }
+#quest.fold { width: auto; }
+#opt { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(340px, calc(100vw - 20px)); max-height: calc(100vh - 40px); overflow-y: auto; background: var(--panel); border: 1px solid var(--gold); border-radius: 3px; padding: 14px; display: grid; gap: 12px; box-shadow: 0 10px 40px #000; }
+#opt h3 { margin: 0; font-family: var(--display); display: flex; justify-content: space-between; }
+#opt h3 button { background: none; border: 0; color: var(--muted); cursor: pointer; }
+.orow { display: grid; gap: 6px; font-size: 13px; }
+.orow > span { color: var(--gold); font-size: 12px; }
+.seg { display: flex; gap: 4px; flex-wrap: wrap; }
+.seg button { flex: 1; min-height: 32px; background: #16120e; border: 1px solid var(--line); color: var(--muted); font-size: 12px; border-radius: 2px; cursor: pointer; }
+.seg button[aria-pressed="true"] { color: #fbe7b8; border-color: var(--gold); background: #2a1e10; }
+.orow input[type=range] { accent-color: var(--gold); width: 100%; }
+.eq canvas { cursor: pointer; }
+.eq canvas.sel { outline: 2px solid #fff; outline-offset: -1px; }
+.detail .row { display: flex; justify-content: space-between; gap: 8px; }
+.detail .row span:first-child { color: var(--muted); }
+.flash-ok { animation: fok .7s ease-out; } .flash-bad { animation: fbad .7s ease-out; }
+@keyframes fok { 0% { filter: brightness(3) drop-shadow(0 0 6px #ffd65a); } 100% { filter: none; } }
+@keyframes fbad { 0%, 40% { filter: grayscale(1) brightness(.5) drop-shadow(0 0 6px #ff3a2a); transform: translateX(-2px); } 20% { transform: translateX(2px); } 100% { filter: none; transform: none; } }
+#encToast { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); font-family: var(--display); font-size: 26px; font-weight: 800; pointer-events: none; text-shadow: 0 2px 10px #000; opacity: 0; transition: opacity .2s; white-space: nowrap; }
+#encToast.show { opacity: 1; }
+#inv { position: fixed; }
 #quest { left: max(8px, env(safe-area-inset-left, 0px)); top: calc(max(8px, env(safe-area-inset-top, 0px)) + 96px); width: 220px; background: rgba(14, 12, 10, .78); border: 1px solid var(--line); border-left: 2px solid var(--gold); border-radius: 2px; padding: 6px 9px; font-size: 12px; display: grid; gap: 2px; }
 #quest .qh { font-size: 10px; letter-spacing: .1em; color: var(--gold); }
 #quest .qt { color: var(--fg); line-height: 1.4; }
@@ -96,7 +124,8 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .slot canvas { width: 100%; height: 100%; image-rendering: pixelated; display: block; }
 .slot .k { position: absolute; left: 3px; top: 1px; font-size: 11px; font-weight: 700; color: #fbe7b8; text-shadow: 0 1px 0 #000, 0 0 3px #000; }
 .slot .n { position: absolute; right: 3px; bottom: 1px; font-size: 11px; color: #fff; text-shadow: 0 1px 0 #000, 0 0 3px #000; font-variant-numeric: tabular-nums; }
-.slot .cd { position: absolute; inset: 0; background: rgba(0, 0, 0, .68); transform-origin: bottom; }
+.slot .cd { position: absolute; inset: 0; background: conic-gradient(rgba(0, 0, 0, .72) calc(var(--p, 0) * 1%), transparent 0); }
+.slot.ready { box-shadow: 0 0 0 1px #f0cf7a inset; }
 .slot .cdt { position: absolute; inset: 0; display: grid; place-items: center; font-size: 15px; font-weight: 700; color: #fff; text-shadow: 0 1px 2px #000; }
 .slot.nomp { filter: grayscale(.8) brightness(.6); }
 .sep { width: 1px; background: var(--line); margin: 2px 2px; }
@@ -104,9 +133,14 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 #mini { right: max(10px, env(safe-area-inset-right, 0px)); top: max(10px, env(safe-area-inset-top, 0px)); background: var(--panel); border: 1px solid var(--line); border-radius: 3px; padding: 6px; display: grid; gap: 4px; }
 #mini canvas { width: 150px; height: 150px; display: block; image-rendering: pixelated; }
 #mini .zone { font-family: var(--display); font-size: 14px; text-align: center; color: #f0e2c4; }
-#mini .gold { font-size: 12px; text-align: center; color: var(--gold); font-variant-numeric: tabular-nums; }
+#mini .gold { display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 14px; font-weight: 700; color: #ffd76a; font-variant-numeric: tabular-nums; text-shadow: 0 1px 0 #000; }
+#mini .gold canvas { width: 16px; height: 16px; image-rendering: pixelated; }
+.mmwrap { position: relative; }
+.mmz { position: absolute; right: 2px; top: 2px; display: grid; gap: 2px; }
+.mmz button { width: 22px; height: 22px; padding: 0; font-size: 14px; line-height: 1; background: rgba(20,16,12,.85); border: 1px solid var(--line-hi); color: var(--fg); border-radius: 2px; cursor: pointer; }
 .mbtn { display: flex; gap: 4px; justify-content: center; }
-.mbtn button { font-size: 11px; background: #1c1712; border: 1px solid var(--line); border-radius: 2px; padding: 2px 6px; cursor: pointer; color: var(--muted); }
+.mbtn { flex-wrap: wrap; }
+.mbtn button { font-size: 11px; background: #1c1712; border: 1px solid var(--line); border-radius: 2px; padding: 3px 6px; min-height: 26px; cursor: pointer; color: var(--muted); }
 .mbtn button[aria-pressed="true"] { color: #fbe7b8; border-color: var(--gold); }
 
 #log { left: max(10px, env(safe-area-inset-left, 0px)); bottom: max(84px, calc(env(safe-area-inset-bottom, 0px) + 80px)); width: min(360px, 60vw); font-size: 12px; line-height: 1.5; color: #e2d6c0; text-shadow: 0 1px 0 #000, 0 0 4px #000; pointer-events: none; }
@@ -161,6 +195,13 @@ details.info th { color: var(--gold); font-weight: 500; }
 #over .box { background: var(--panel); border: 1px solid var(--gold); border-radius: 3px; padding: 24px 28px; display: grid; gap: 12px; text-align: center; max-width: 380px; margin: 16px; }
 #over b { font-family: var(--display); font-size: 28px; }
 
+@media (max-height: 520px) {
+  .orb { width: 56px; height: 56px; }
+  #quest { top: calc(max(8px, env(safe-area-inset-top, 0px)) + 62px); }
+  #mini canvas { width: 84px; height: 84px; }
+  #mini .zone { display: none; }
+  .slot { width: 42px; height: 42px; }
+}
 @media (max-width: 960px) {
   #target, #target.boss { top: auto; bottom: max(80px, calc(env(safe-area-inset-bottom, 0px) + 76px)); width: min(420px, calc(100vw - 20px)); }
 }
@@ -169,8 +210,12 @@ details.info th { color: var(--gold); font-weight: 500; }
   .orbtxt b { font-size: 13px; }
   #quest { top: calc(max(8px, env(safe-area-inset-top, 0px)) + 74px); width: 170px; font-size: 11px; }
   #inv { left: 8px; right: 8px; width: auto; top: auto; bottom: max(84px, calc(env(safe-area-inset-bottom, 0px) + 80px)); max-height: 58vh; }
-  #mini canvas { width: 96px; height: 96px; }
-  .slot { width: 44px; height: 44px; }
+  #mini canvas { width: 104px; height: 104px; }
+  .slot { width: 50px; height: 50px; }
+  .mbtn button { min-height: 32px; font-size: 12px; padding: 4px 7px; }
+  .sbar { width: 84px; }
+  .orbtxt .num { flex-direction: column; gap: 0; font-size: 10px; }
+  .orbtxt { max-width: 96px; }
   #log { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .cls { transition: none; } }
@@ -199,30 +244,40 @@ details.info th { color: var(--gold); font-weight: 500; }
 
 <div class="hud hidden" id="status">
   <div class="orb"><canvas id="orb" width="168" height="168"></canvas><span class="lvb" id="plv">1</span></div>
-  <div class="orbtxt"><b id="pname">기사</b><div class="num"><span class="hpt" id="hpt"></span><span class="mpt" id="mpt"></span></div><div id="buffs"></div></div>
+  <div class="orbtxt"><b id="pname">기사</b><div class="sbar" id="shp"><i></i></div><div class="sbar" id="smp"><i></i></div><div class="num"><span class="hpt" id="hpt"></span><span class="mpt" id="mpt"></span></div><div id="buffs"></div></div>
 </div>
-<div class="hud hidden" id="quest"><span class="qh">목표</span><span class="qt" id="qt"></span><span class="qp" id="qp"></span></div>
+<div class="hud hidden" id="quest"><button class="qh" id="qToggle" type="button" aria-expanded="true"><span>목표</span><span id="qArrow">▾</span></button><span class="qt" id="qt"></span><span class="qp" id="qp"></span></div>
 <button class="hud hidden" id="shopBtn" type="button">상점 열기 (F)</button>
 <div class="hud hidden" id="shop"><h3>잡화 상점 <button type="button" id="shopClose" aria-label="상점 닫기">✕</button></h3><div id="shopList"></div>
   <div class="act"><button type="button" id="sellCommon">일반 등급 장비 모두 판매</button></div><div class="note" id="shopGold"></div></div>
 <div class="hud hidden" id="target"><b></b><div class="bar"><i></i><span></span></div></div>
-<div class="hud hidden" id="mini"><div class="zone" id="zone">마을 외곽</div><canvas id="minimap" width="150" height="150"></canvas><div class="gold" id="gold">0 골드</div>
-  <div class="mbtn"><button id="btnAuto" type="button" aria-pressed="false">자동 H</button><button id="btnInv" type="button">가방 I</button><button id="btnSnd" type="button" aria-pressed="true">소리 M</button></div></div>
+<div class="hud hidden" id="mini"><div class="zone" id="zone">마을 외곽</div><div class="mmwrap"><canvas id="minimap" width="150" height="150"></canvas><div class="mmz"><button id="mmIn" type="button" aria-label="미니맵 확대">+</button><button id="mmOut" type="button" aria-label="미니맵 축소">−</button></div></div>
+  <div class="gold"><canvas id="goldIcon" width="32" height="32"></canvas><span id="gold">0</span></div>
+  <div class="mbtn"><button id="btnAuto" type="button" aria-pressed="false">자동 H</button><button id="btnInv" type="button">가방 I</button><button id="btnSnd" type="button" aria-pressed="true">소리 M</button><button id="btnOpt" type="button" aria-label="설정">설정</button></div></div>
+<div class="hud hidden" id="opt">
+  <h3>설정 <button type="button" id="optClose" aria-label="설정 닫기">✕</button></h3>
+  <div class="orow"><span>가방·상점을 열 때</span><div class="seg" data-opt="invMode"><button type="button" data-v="pause">일시정지</button><button type="button" data-v="continue">계속 진행 (받는 피해 50% 감소)</button></div></div>
+  <div class="orow"><span>자동 체력 물약 <b id="vPotHp"></b></span><input type="range" id="potHp" min="10" max="80" step="5"></div>
+  <div class="orow"><span>자동 마나 물약 <b id="vPotMp"></b></span><input type="range" id="potMp" min="5" max="60" step="5"></div>
+  <div class="orow"><span>자동 아이템 줍기</span><div class="seg" data-opt="loot"><button type="button" data-v="all">전부</button><button type="button" data-v="uncommon">고급 이상 장비 + 소모품</button><button type="button" data-v="off">끄기</button></div></div>
+  <div class="orow"><span>자동 전투 대상 우선순위</span><div class="seg" data-opt="prio"><button type="button" data-v="near">가까운 적</button><button type="button" data-v="weak">체력 낮은 적</button><button type="button" data-v="strong">레벨 높은 적</button></div></div>
+  <div class="note">자동 물약은 자동 전투를 켜지 않아도 작동합니다. 마나가 스킬 비용보다 적으면 스킬을 쓰지 않습니다.</div>
+</div>
 <div class="hud hidden" id="bar"></div>
 <div class="hud hidden" id="xp"><i></i></div>
 <div class="hud hidden" id="log"></div>
 <div class="hud hidden" id="banner"><b></b><span></span></div>
 <div class="hud hidden" id="inv">
-  <h3>가방 <button type="button" id="invClose" aria-label="가방 닫기">✕</button></h3>
+  <h3>가방 <button type="button" id="invClose" aria-label="가방 닫기">✕</button></h3><div id="encToast"></div>
   <div class="tabs" id="invTabs"><button type="button" data-tab="eq" aria-pressed="true">장비</button><button type="button" data-tab="use" aria-pressed="false">소모품</button><button type="button" data-tab="prob" aria-pressed="false">확률표</button></div>
   <div class="tabpane" data-pane="eq">
     <div class="sect">착용 중</div>
     <div class="eq"><canvas id="wIcon" width="36" height="36"></canvas><div><b id="wName">무기</b><small id="wInfo"></small></div></div>
     <div class="eq"><canvas id="aIcon" width="36" height="36"></canvas><div><b id="aName">갑옷</b><small id="aInfo"></small></div></div>
     <div class="act"><button type="button" id="encW">무기 강화</button><button type="button" id="encA">갑옷 강화</button></div>
+    <div class="detail hidden" id="detail"></div>
     <div class="sect">장비 <span id="bagCount"></span></div>
     <div class="eqgrid" id="eqgrid"></div>
-    <div class="detail hidden" id="detail"></div>
     <label class="chk"><input type="checkbox" id="autoSell"> 일반 등급 장비는 주울 때 자동 판매</label>
   </div>
   <div class="tabpane hidden" data-pane="use">
@@ -655,7 +710,7 @@ function damage(target, amount, src, opts = {}) {
   if (target.dead) return 0;
   let dmg = amount;
   if (target.kind === 'player') {
-    dmg = Math.max(1, dmg - (target.c.def + equipDef(target.armor.key).def + target.armor.enc * ENCHANT.armor.def)) * (target.buffs.guard > 0 ? (1 - BUFFS.guard.def) : 1);
+    dmg = Math.max(1, dmg - (target.c.def + equipDef(target.armor.key).def + target.armor.enc * ENCHANT.armor.def)) * (target.buffs.guard > 0 ? (1 - BUFFS.guard.def) : 1) * (panelOpen() ? 0.5 : 1);
   } else {
     dmg = Math.max(1, dmg - target.d.def);
   }
@@ -909,18 +964,33 @@ function setAuto(v) {
   if (!v) { P.target = null; P.goal = null; }
 }
 const SKILL_RANGE = sk => sk.type === 'aoe' ? sk.r + (sk.ahead || 0) - 0.4 : sk.type === 'line' ? sk.len - 0.5 : sk.type === 'volley' ? 6.5 : 0;
+function autoPotion(dt) {
+  P.potT = (P.potT || 0) - dt;
+  if (P.dead || P.potT > 0) return;
+  if (P.hp < P.maxhp * OPT.potHp / 100 && P.inv.pot_red > 0) { drink('pot_red'); P.potT = 0.8; }
+  else if (P.mp < P.maxmp * OPT.potMp / 100 && P.inv.pot_blue > 0) { drink('pot_blue'); P.potT = 0.8; }
+}
+function pickTarget(range) {
+  const list = mobs.filter(m => !m.dead && dist(m, P) < range);
+  if (!list.length) return null;
+  if (OPT.prio === 'weak') return list.sort((a, b) => a.hp / a.maxhp - b.hp / b.maxhp || dist(a, P) - dist(b, P))[0];
+  if (OPT.prio === 'strong') return list.sort((a, b) => b.lv - a.lv || dist(a, P) - dist(b, P))[0];
+  return list.sort((a, b) => dist(a, P) - dist(b, P))[0];
+}
+function lootOk(d) {
+  if (OPT.loot === 'off') return false;
+  if (OPT.loot === 'uncommon' && d.equip && equipDef(d.equip.key).grade === 'common') return false;
+  return true;
+}
 function autoHunt(dt) {
   P.autoT -= dt;
-  // 물약
-  if (P.hp < P.maxhp * 0.4 && P.inv.pot_red > 0 && P.autoT <= 0) { drink('pot_red'); P.autoT = 0.6; }
-  if (P.mp < P.maxmp * 0.25 && P.inv.pot_blue > 0 && P.autoT <= 0) { drink('pot_blue'); P.autoT = 0.6; }
   if (P.autoHold > 0) { P.autoHold -= dt; return; }
   // 대상 고르기
   if (!P.target || P.target.dead) {
     P.target = null;
-    const m = nearestMob(14) || (inTown(P) || !drops.length ? nearestMob(999) : null);   // 주변이 비면(마을 등) 가장 가까운 사냥터로
+    const m = pickTarget(14) || (inTown(P) || !drops.length ? nearestMob(999) : null);   // 주변이 비면(마을 등) 가장 가까운 사냥터로
     const near = nearestMob(6);
-    const loot = drops.filter(d => !d.taken && !d.skip && dist(d, P) < 8).sort((a, b) => dist(a, P) - dist(b, P))[0];
+    const loot = drops.filter(d => !d.taken && !d.skip && lootOk(d) && dist(d, P) < 8).sort((a, b) => dist(a, P) - dist(b, P))[0];
     if (loot && !near) { P.goal = { x: loot.x, y: loot.y }; return; }
     if (m) { P.target = m; P.goal = null; }
     else if (!P.goal) { const r = rng(Math.floor(now * 10)); P.goal = { x: clamp(P.x + (r() - 0.5) * 10, 2, MAP.N - 2), y: clamp(P.y + (r() - 0.5) * 10, 2, MAP.N - 2) }; }
@@ -949,6 +1019,7 @@ function updatePlayer(dt) {
   if (P.dead) { tickAnim(P, dt); return; }
   P.regenT += dt;
   if (P.regenT > 1) { P.regenT = 0; const k = inTown(P) ? 6 : 1; P.hp = Math.min(P.maxhp, P.hp + P.maxhp * 0.008 * k); P.mp = Math.min(P.maxmp, P.mp + P.maxmp * 0.02 * k); }
+  autoPotion(dt);
   if (P.auto) autoHunt(dt);
   const busy = P.casting || P.anim === 'attack';
   // 키보드 이동
@@ -992,7 +1063,7 @@ function updatePlayer(dt) {
     }
   }
   // 줍기
-  for (const d of drops) if (!d.taken && !d.skip && dist(d, P) < 0.8) { pickup(d); if (!d.taken) d.skip = true; }
+  for (const d of drops) if (!d.taken && !d.skip && (lootOk(d) || d.manual) && dist(d, P) < 0.8) { pickup(d); if (!d.taken) d.skip = true; }
   drops = drops.filter(d => !d.taken);
 }
 function pickup(d) {
@@ -1239,16 +1310,26 @@ function render() {
       if (e === P.target && !e.dead) { ctx.strokeStyle = 'rgba(255,90,60,.8)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(s.x, s.y, e.d.boss ? 26 : 16, e.d.boss ? 11 : 7, 0, 0, Math.PI * 2); ctx.stroke(); }
       drawSprite(e, s.x, s.y);
       ctx.globalAlpha = 1;
-      if (e.kind === 'mob' && !e.dead && e.hp < e.maxhp && !e.d.boss) {
-        ctx.fillStyle = '#000'; ctx.fillRect(s.x - 12, s.y - (e.type === 'ooze' ? 30 : 56), 24, 3);
-        ctx.fillStyle = '#c43a2a'; ctx.fillRect(s.x - 12, s.y - (e.type === 'ooze' ? 30 : 56), 24 * e.hp / e.maxhp, 3);
+      if (e.kind === 'mob' && !e.dead && !e.d.boss && (e.hp < e.maxhp || e === P.target)) {
+        const hy = s.y - (e.type === 'ooze' ? 30 : e.type === 'goblin' ? 46 : 58);
+        ctx.fillStyle = '#000'; ctx.fillRect(s.x - 14, hy - 1, 28, 5);
+        ctx.fillStyle = '#3a0c0c'; ctx.fillRect(s.x - 13, hy, 26, 3);
+        ctx.fillStyle = e.hp / e.maxhp < 0.3 ? '#ff7a3a' : '#d83a2a'; ctx.fillRect(s.x - 13, hy, 26 * e.hp / e.maxhp, 3);
+        if (e === P.target) {
+          const lg = e.lv - P.lv;
+          ctx.font = '700 7px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center';
+          ctx.fillStyle = '#000'; ctx.fillText(`Lv${e.lv} ${e.d.name}`, s.x + 0.5, hy - 2.5);
+          ctx.fillStyle = lg >= 3 ? '#ff7a6a' : lg >= 1 ? '#ffd27a' : '#e8dcc6'; ctx.fillText(`Lv${e.lv} ${e.d.name}`, s.x, hy - 3);
+        }
       }
       if (e.buffs && e.buffs.stun > 0) { ctx.fillStyle = '#ffe07a'; for (let k = 0; k < 3; k++) { const a = now * 5 + k * 2.1; ctx.fillRect(s.x + Math.cos(a) * 8, s.y - 58 + Math.sin(a) * 3, 2, 2); } }
     } else if (o.kind === 'drop') {
       const d = o.e, s = toScr(d.x, d.y), ic = itemIcon(d.id);
       const bob = Math.sin(d.t * 3) * 1.5;
       shadow(s.x, s.y, 7);
+      if (!lootOk(d) && !d.manual) ctx.globalAlpha = 0.55;
       if (ic) ctx.drawImage(ic.im, ic.sx, ic.sy, 32, 32, Math.round(s.x - 10), Math.round(s.y - 22 + bob), 20, 20);
+      ctx.globalAlpha = 1;
     } else if (o.kind === 'proj') {
       const p = o.e, s = toScr(p.x, p.y), a = toScr(Math.cos(p.ang || 0), Math.sin(p.ang || 0));
       const l = Math.hypot(a.x, a.y) || 1, ux = a.x / l, uy = a.y / l;
@@ -1378,11 +1459,13 @@ function drawMinimapBase() {
   for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if (blocked[i * N + j]) c.fillRect(i, j, 1, 1);
 }
 function drawMinimap() {
-  const N = MAP.N, S = 150 / N;
+  const N = MAP.N, z = OPT.mmZoom || 1, S = 150 / N * z;
   mctx.setTransform(1, 0, 0, 1, 0, 0);
   mctx.clearRect(0, 0, 150, 150);
-  // 마름모로 기울여 게임 화면과 같은 방향으로
-  mctx.setTransform(S * 0.707, S * 0.354, -S * 0.707, S * 0.354, 75, 75 - N * S * 0.354);
+  // 마름모로 기울여 게임 화면과 같은 방향으로. 확대하면 플레이어를 가운데에
+  const cx = z > 1 ? P.x : N / 2, cy = z > 1 ? P.y : N / 2;
+  const a = S * 0.707, b = S * 0.354;
+  mctx.setTransform(a, b, -a, b, 75 - (a * cx - a * cy), 75 - (b * cx + b * cy));
   mctx.imageSmoothingEnabled = false;
   mctx.drawImage(mmBase, 0, 0);
   for (const m of mobs) if (!m.dead) { mctx.fillStyle = m.d.boss ? '#ff5a2a' : '#c43a2a'; mctx.fillRect(m.x - 0.6, m.y - 0.6, m.d.boss ? 2.4 : 1.2, m.d.boss ? 2.4 : 1.2); }
@@ -1439,7 +1522,7 @@ function buildBar() {
     const sk = SKILLS[id];
     const b = document.createElement('button'); b.className = 'slot'; b.type = 'button'; b.title = `${sk.name} (MP ${sk.mp}, ${sk.cd}초)`;
     const cv = document.createElement('canvas'); cv.width = 52; cv.height = 52; b.append(cv); skillThumb(cv, sk.fx);
-    b.insertAdjacentHTML('beforeend', `<span class="k">${i + 1}</span><span class="n">${sk.mp || ''}</span><div class="cd" style="transform:scaleY(0)"></div><div class="cdt"></div>`);
+    b.insertAdjacentHTML('beforeend', `<span class="k">${i + 1}</span><span class="n">${sk.mp || ''}</span><div class="cd"></div><div class="cdt"></div>`);
     b.addEventListener('click', () => useSkill(i));
     bar.append(b); slotEls.push({ b, id });
   });
@@ -1489,6 +1572,7 @@ function drawOrb() {
 }
 function updateHud() {
   drawOrb();
+  $('shp').querySelector('i').style.width = (100 * P.hp / P.maxhp) + '%'; $('smp').querySelector('i').style.width = (100 * P.mp / P.maxmp) + '%';
   $('hpt').textContent = `HP ${Math.ceil(P.hp)}/${P.maxhp}`;
   $('mpt').textContent = `MP ${Math.floor(P.mp)}/${P.maxmp}`;
   $('plv').textContent = P.lv;
@@ -1499,10 +1583,12 @@ function updateHud() {
   renderQuest();
   $('xp').querySelector('i').style.width = (100 * P.xp / xpNeed(P.lv)) + '%';
   $('gold').textContent = `${P.gold.toLocaleString()} 골드`;
-  $('buffs').innerHTML = Object.entries(P.buffs).filter(([k]) => BUFFS[k]).map(([k, t]) => `<span>${BUFFS[k].name} ${Math.ceil(t)}</span>`).join('');
+  const bh = Object.entries(P.buffs).filter(([k]) => BUFFS[k]).map(([k, t]) => `<span class="${k === 'slow' || k === 'stun' ? 'debuff' : ''}">${BUFFS[k].name} ${Math.ceil(t)}s</span>`).join('');
+  if ($('buffs').innerHTML !== bh) $('buffs').innerHTML = bh;
   for (const s of slotEls) {
     const sk = SKILLS[s.id], cd = P.cds[s.id] || 0;
-    s.b.querySelector('.cd').style.transform = `scaleY(${cd / sk.cd})`;
+    s.b.querySelector('.cd').style.setProperty('--p', (100 * cd / sk.cd).toFixed(1));
+    s.b.classList.toggle('ready', cd <= 0 && P.mp >= sk.mp);
     s.b.querySelector('.cdt').textContent = cd > 0 ? Math.ceil(cd) : '';
     s.b.classList.toggle('nomp', P.mp < sk.mp);
   }
@@ -1546,6 +1632,9 @@ function gradeFrame(canvas, grade, iconId, enc, encIconId) {
 const statText = (e) => { const d = equipDef(e.key); return d.slot === 'weapon' ? `공격력 ${d.atk + e.enc * ENCHANT.weapon.atk}` : `방어력 ${d.def + e.enc * ENCHANT.armor.def}`; };
 const statVal = (e) => { const d = equipDef(e.key); return d.slot === 'weapon' ? d.atk + e.enc * ENCHANT.weapon.atk : d.def + e.enc * ENCHANT.armor.def; };
 const sellPrice = (e) => { const d = equipDef(e.key); return [20, 60, 180, 500, 1500][GRADES.indexOf(d.grade)] * (1 + e.enc * 0.5); };
+function equippedOf(e) { return e === P.weapon || e === P.armor; }
+function findEquip(uid) { return P.weapon.uid === uid ? P.weapon : P.armor.uid === uid ? P.armor : P.bag.find(e => e.uid === uid); }
+function statAt(e, enc) { const d = equipDef(e.key); return d.slot === 'weapon' ? d.atk + enc * ENCHANT.weapon.atk : d.def + enc * ENCHANT.armor.def; }
 function renderInv() {
   if (!P) return;
   const w = equipDef(P.weapon.key), a = equipDef(P.armor.key);
@@ -1555,11 +1644,12 @@ function renderInv() {
   $('aInfo').textContent = `${statText(P.armor)} · 다음 강화 ${P.armor.enc >= 10 ? '최대' : encChance('armor', P.armor.enc) + '%'} · 주문서 ${P.inv.scroll_armor || 0}장`;
   gradeFrame($('wIcon'), w.grade, w.icon, P.weapon.enc);
   gradeFrame($('aIcon'), a.grade, a.icon, 0);
+  $('wIcon').classList.toggle('sel', selUid === P.weapon.uid); $('aIcon').classList.toggle('sel', selUid === P.armor.uid);
   $('encW').disabled = !(P.inv.scroll_weapon > 0) || P.weapon.enc >= 10;
   $('encA').disabled = !(P.inv.scroll_armor > 0) || P.armor.enc >= 10;
   $('autoSell').checked = !!P.autoSell;
-  $('encW').textContent = `무기 강화 ${P.weapon.enc >= 10 ? '' : encChance('weapon', P.weapon.enc) + '%'}`;
-  $('encA').textContent = `갑옷 강화 ${P.armor.enc >= 10 ? '' : encChance('armor', P.armor.enc) + '%'}`;
+  $('encW').textContent = `무기 강화 ${P.weapon.enc >= 10 ? '최대' : encChance('weapon', P.weapon.enc) + '%'}`;
+  $('encA').textContent = `갑옷 강화 ${P.armor.enc >= 10 ? '최대' : encChance('armor', P.armor.enc) + '%'}`;
   // 장비 목록
   $('bagCount').textContent = `${P.bag.length}/30`;
   const eg = $('eqgrid'); eg.innerHTML = '';
@@ -1568,21 +1658,34 @@ function renderInv() {
     const b = document.createElement('button'); b.type = 'button'; b.title = d.name; b.setAttribute('aria-pressed', String(e.uid === selUid));
     const cv = document.createElement('canvas'); cv.width = 36; cv.height = 36; b.append(cv); gradeFrame(cv, d.grade, d.icon, e.enc);
     if (e.enc) b.insertAdjacentHTML('beforeend', `<span>+${e.enc}</span>`);
+    if (d.lv && P.lv < d.lv) cv.style.filter = 'grayscale(.8) brightness(.7)';
     b.addEventListener('click', () => { selUid = selUid === e.uid ? null : e.uid; renderInv(); });
     eg.append(b);
   }
   if (!P.bag.length) eg.innerHTML = '<div class="note" style="grid-column:1/-1">몬스터가 떨어뜨린 장비가 여기에 모입니다.</div>';
-  const sel = P.bag.find(e => e.uid === selUid);
+  // 선택한 장비 상세(착용 중 장비도 선택 가능)
+  const sel = selUid != null ? findEquip(selUid) : null;
   const det = $('detail');
   if (sel) {
-    const d = equipDef(sel.key), cur = d.slot === 'weapon' ? P.weapon : P.armor;
-    const diff = statVal(sel) - statVal(cur);
+    const d = equipDef(sel.key), slot = d.slot, on = equippedOf(sel), cur = P[slot];
+    const word = slot === 'weapon' ? '공격력' : '방어력';
+    const scroll = slot === 'weapon' ? 'scroll_weapon' : 'scroll_armor', have = P.inv[scroll] || 0;
+    const now = statAt(sel, sel.enc), next = sel.enc < 10 ? statAt(sel, sel.enc + 1) : null;
+    const diff = now - statVal(cur);
+    const reqLv = d.lv || 1;
+    const ch = sel.enc < 10 ? encChance(slot, sel.enc) : 0;
     det.classList.remove('hidden');
-    det.innerHTML = `<b class="g-${d.grade}">+${sel.enc} ${d.name}</b><div>${GRADE_LABEL[d.grade]} ${d.slot === 'weapon' ? '무기' : '갑옷'} · ${statText(sel)} <span class="${diff >= 0 ? 'up' : 'down'}">(${diff >= 0 ? '+' : ''}${diff.toFixed(1)})</span></div>
-      <div class="cmp">착용 중: +${cur.enc} ${equipDef(cur.key).name}</div>
-      <div class="act"><button type="button" id="btnEquip">착용</button><button type="button" id="btnSell">판매 ${Math.round(sellPrice(sel))} 골드</button></div>`;
-    $('btnEquip').onclick = () => equip(sel.uid);
-    $('btnSell').onclick = () => sell(sel.uid);
+    det.innerHTML = `<b class="g-${d.grade}">+${sel.enc} ${d.name}</b>
+      <div class="row"><span>등급</span><span class="g-${d.grade}">${GRADE_LABEL[d.grade]} ${slot === 'weapon' ? '무기' : '갑옷'}</span></div>
+      <div class="row"><span>${word}</span><span>${now.toFixed(1)}${on ? '' : ` <span class="${diff > 0 ? 'up' : diff < 0 ? 'down' : ''}">(${diff >= 0 ? '+' : ''}${diff.toFixed(1)})</span>`}</span></div>
+      <div class="row"><span>강화</span><span>+${sel.enc} / +10</span></div>
+      <div class="row"><span>착용</span><span>${on ? '착용 중' : `미착용 · 비교 대상: +${cur.enc} ${equipDef(cur.key).name}`}</span></div>
+      <div class="row"><span>착용 레벨</span><span class="${P.lv < reqLv ? 'down' : ''}">Lv ${reqLv}</span></div>
+      ${next != null ? `<div class="row"><span>다음 강화</span><span>${word} ${now.toFixed(1)} → <span class="up">${next.toFixed(1)}</span> · 성공 ${ch}%${sel.enc >= ENCHANT[slot].safe ? ' · 실패 시 +0' : ' · 안전'}</span></div>
+      <div class="row"><span>필요 재료</span><span class="${have ? '' : 'down'}">${META.items[scroll].name} 1장 (보유 ${have})</span></div>` : '<div class="row"><span>다음 강화</span><span>최대 강화</span></div>'}
+      <div class="act">${on ? '' : `<button type="button" id="btnEquip" ${P.lv < reqLv ? 'disabled' : ''}>착용</button>`}<button type="button" id="btnEnc" ${(!have || sel.enc >= 10) ? 'disabled' : ''}>강화 ${next != null ? ch + '%' : ''}</button>${on ? '' : `<button type="button" id="btnSell">판매 ${Math.round(sellPrice(sel))} G</button>`}</div>`;
+    if (!on) { $('btnEquip').onclick = () => equip(sel.uid); $('btnSell').onclick = () => sell(sel.uid); }
+    $('btnEnc').onclick = () => enchantItem(sel);
   } else det.classList.add('hidden');
   // 소모품
   const g = $('invgrid'); g.innerHTML = '';
@@ -1594,31 +1697,57 @@ function renderInv() {
     g.append(dd);
   }
 }
+$('wIcon').addEventListener('click', () => { selUid = selUid === P.weapon.uid ? null : P.weapon.uid; renderInv(); });
+$('aIcon').addEventListener('click', () => { selUid = selUid === P.armor.uid ? null : P.armor.uid; renderInv(); });
 function equip(uid) {
   const i = P.bag.findIndex(e => e.uid === uid); if (i < 0) return;
-  const e = P.bag[i], slot = equipDef(e.key).slot;
+  const e = P.bag[i], d = equipDef(e.key), slot = d.slot;
+  if (d.lv && P.lv < d.lv) { log(`${d.name}은(는) Lv ${d.lv}부터 착용할 수 있습니다.`, 'bad'); return; }
+  const before = statVal(P[slot]);
   P.bag[i] = P[slot]; P[slot] = e; selUid = null;
-  sfx('block', { gain: 0.4 }); log(`+${e.enc} ${equipDef(e.key).name}을(를) 착용했습니다.`, 'sys');
-  renderInv();
+  const diff = statVal(e) - before;
+  sfx('block', { gain: 0.4 }); log(`+${e.enc} ${d.name}을(를) 착용했습니다. (${slot === 'weapon' ? '공격력' : '방어력'} ${diff >= 0 ? '+' : ''}${diff.toFixed(1)})`, 'sys');
+  renderInv(); save();
 }
 function sell(uid) {
   const i = P.bag.findIndex(e => e.uid === uid); if (i < 0) return;
   const price = Math.round(sellPrice(P.bag[i]));
   log(`${equipDef(P.bag[i].key).name}을(를) ${price} 골드에 팔았습니다.`);
   P.bag.splice(i, 1); P.gold += price; selUid = null; sfx('arrow_hit', { gain: 0.3 });
-  renderInv();
-}
-function enchant(kind) {
-  const slot = kind === 'w' ? 'weapon' : 'armor', key = kind === 'w' ? 'scroll_weapon' : 'scroll_armor';
-  const e = P[slot];
-  if (!(P.inv[key] > 0) || e.enc >= 10) return;
-  P.inv[key]--;
-  const ch = encChance(slot, e.enc);
-  const name = equipDef(e.key).name;
-  if (Math.random() * 100 < ch) { e.enc++; if (slot === 'weapon') questEvent('enc', e.enc); sfx('enchant_ok'); log(`+${e.enc} ${name} — 강화 성공 (${ch}%)`, 'sys'); if (slot === 'weapon' && e.enc >= 7) banner(`+${e.enc} ${name}`, '무기가 빛을 머금는다'); }
-  else { sfx('enchant_fail'); log(`${name} 강화 실패 (${ch}%) — +0이 되었습니다.`, 'bad'); e.enc = 0; shake = 4; }
   renderInv(); save();
 }
+function encToast(text, color) {
+  const t = $('encToast'); t.textContent = text; t.style.color = color; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 1100);
+}
+function enchantItem(e) {
+  const slot = equipDef(e.key).slot, key = slot === 'weapon' ? 'scroll_weapon' : 'scroll_armor';
+  if (!(P.inv[key] > 0) || e.enc >= 10) return false;
+  P.inv[key]--;
+  const ch = encChance(slot, e.enc), from = e.enc;
+  const name = equipDef(e.key).name, word = slot === 'weapon' ? '공격력' : '방어력';
+  const before = statAt(e, from);
+  let ok = Math.random() * 100 < ch;
+  if (ok) {
+    e.enc++;
+    if (slot === 'weapon' && equippedOf(e)) questEvent('enc', e.enc);
+    sfx('enchant_ok');
+    const col = e.enc >= 9 ? '200,120,255' : e.enc >= 7 ? '120,180,255' : '255,220,120';
+    vfx.push({ k: 'beam', x: P.x, y: P.y, t: 0, life: 0.9, col });
+    log(`+${e.enc} ${name} 강화 성공 (${ch}%) — ${word} ${before.toFixed(1)} → ${statAt(e, e.enc).toFixed(1)}`, 'sys');
+    encToast(`+${e.enc} 강화 성공!`, e.enc >= 9 ? '#d79aff' : e.enc >= 7 ? '#9ac8ff' : '#ffd65a');
+    if (e.enc >= 7) banner(`+${e.enc} ${name}`, e.enc >= 9 ? '눈부신 빛이 감돈다' : '무기가 빛을 머금는다');
+  } else {
+    sfx('enchant_fail'); e.enc = 0; shake = 4;
+    log(`${name} 강화 실패 (${ch}%) — +${from} → +0`, 'bad');
+    encToast(`강화 실패 · +${from} → +0`, '#ff8a7a');
+  }
+  renderInv(); save();
+  const icon = equippedOf(e) ? (slot === 'weapon' ? $('wIcon') : $('aIcon')) : null;
+  if (icon) { icon.classList.remove('flash-ok', 'flash-bad'); void icon.offsetWidth; icon.classList.add(ok ? 'flash-ok' : 'flash-bad'); }
+  return ok;
+}
+function enchant(kind) { return enchantItem(kind === 'w' ? P.weapon : P.armor); }
 function infoTables() {
   const rows = slot => { let h = ''; for (let lv = 0; lv < 10; lv++) { const ch = encChance(slot, lv), safe = lv < ENCHANT[slot].safe; h += `<tr><td>+${lv} → +${lv + 1}</td><td class="${safe ? 'ok' : 'risk'}">${ch}%</td><td>${safe ? '안전' : '+0 초기화'}</td></tr>`; } return h; };
   $('encTable').innerHTML = `<table class="tbl"><tr><th>무기</th><th>성공</th><th>실패 시</th></tr>${rows('weapon')}</table>
@@ -1634,7 +1763,7 @@ function infoTables() {
 }
 $('encW').addEventListener('click', () => enchant('w'));
 $('encA').addEventListener('click', () => enchant('a'));
-const toggleInv = () => { $('inv').classList.toggle('hidden'); renderInv(); };
+const toggleInv = () => { $('inv').classList.toggle('hidden'); renderInv(); uiPauseCheck(); };
 function invTab(tab) {
   document.querySelectorAll('#invTabs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tab === tab)));
   document.querySelectorAll('#inv .tabpane').forEach(p => p.classList.toggle('hidden', p.dataset.pane !== tab));
@@ -1674,9 +1803,9 @@ function buy(it, n) {
   sfx('arrow_hit', { gain: 0.3 }); log(`${META.items[it.id].name} ${n}개를 샀습니다.`);
   renderShop(); renderInv(); save();
 }
-function openShop() { if ($('shopBtn').classList.contains('hidden')) return; $('shop').classList.remove('hidden'); $('shopBtn').classList.add('hidden'); renderShop(); }
+function openShop() { if ($('shopBtn').classList.contains('hidden')) return; $('shop').classList.remove('hidden'); $('shopBtn').classList.add('hidden'); renderShop(); uiPauseCheck(); }
 $('shopBtn').addEventListener('click', openShop);
-$('shopClose').addEventListener('click', () => $('shop').classList.add('hidden'));
+$('shopClose').addEventListener('click', () => { $('shop').classList.add('hidden'); uiPauseCheck(); });
 $('sellCommon').addEventListener('click', () => {
   let sum = 0;
   P.bag = P.bag.filter(e => { if (equipDef(e.key).grade === 'common') { sum += sellPrice(e); return false; } return true; });
@@ -1724,6 +1853,27 @@ function drawQuestArrow() {
 
 // ───────────────────────── 저장 ─────────────────────────
 const SAVE_KEY = 'ff_lineage_save_v1';
+const OPT_KEY = 'ff_lineage_opt_v1';
+const OPT = Object.assign({ invMode: 'pause', potHp: 40, potMp: 25, loot: 'all', prio: 'near', qFold: false, mmZoom: 1 }, (() => { try { return JSON.parse(localStorage.getItem(OPT_KEY) || '{}'); } catch (e) { return {}; } })());
+function saveOpt() { try { localStorage.setItem(OPT_KEY, JSON.stringify(OPT)); } catch (e) { /* 저장 불가 */ } }
+function renderOpt() {
+  document.querySelectorAll('#opt .seg').forEach(seg => seg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(OPT[seg.dataset.opt] === b.dataset.v))));
+  $('potHp').value = OPT.potHp; $('potMp').value = OPT.potMp;
+  $('vPotHp').textContent = `체력 ${OPT.potHp}% 이하`; $('vPotMp').textContent = `마나 ${OPT.potMp}% 이하`;
+}
+document.querySelectorAll('#opt .seg').forEach(seg => seg.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { OPT[seg.dataset.opt] = b.dataset.v; saveOpt(); renderOpt(); uiPauseCheck(); })));
+$('potHp').addEventListener('input', e => { OPT.potHp = +e.target.value; saveOpt(); renderOpt(); });
+$('potMp').addEventListener('input', e => { OPT.potMp = +e.target.value; saveOpt(); renderOpt(); });
+const panelOpen = () => !$('inv').classList.contains('hidden') || !$('shop').classList.contains('hidden') || !$('opt').classList.contains('hidden');
+let uiPaused = false;
+function uiPauseCheck() { uiPaused = running && panelOpen() && OPT.invMode === 'pause'; }
+function toggleOpt() { $('opt').classList.toggle('hidden'); renderOpt(); uiPauseCheck(); }
+$('btnOpt').addEventListener('click', toggleOpt);
+$('optClose').addEventListener('click', toggleOpt);
+function setQFold(v) { OPT.qFold = v; saveOpt(); $('quest').classList.toggle('fold', v); $('qArrow').textContent = v ? '▸' : '▾'; $('qToggle').setAttribute('aria-expanded', String(!v)); }
+$('qToggle').addEventListener('click', () => setQFold(!OPT.qFold));
+$('mmIn').addEventListener('click', () => { OPT.mmZoom = Math.min(4, OPT.mmZoom + 1); saveOpt(); });
+$('mmOut').addEventListener('click', () => { OPT.mmZoom = Math.max(1, OPT.mmZoom - 1); saveOpt(); });
 function save() {
   if (!P || !running) return;
   const d = { v: 1, cls: P.cls, lv: P.lv, xp: P.xp, hp: P.hp, mp: P.mp, gold: P.gold, inv: P.inv, weapon: P.weapon, armor: P.armor, bag: P.bag,
@@ -1752,7 +1902,7 @@ window.addEventListener('keydown', e => {
   if (e.code === 'KeyM') toggleSound();
   if (e.code === 'KeyH') setAuto(!P.auto);
   if (e.code === 'KeyF') openShop();
-  if (e.code === 'Escape') { $('shop').classList.add('hidden'); $('inv').classList.add('hidden'); }
+  if (e.code === 'Escape') { $('shop').classList.add('hidden'); $('inv').classList.add('hidden'); $('opt').classList.add('hidden'); uiPauseCheck(); }
   if (e.code === 'Space') { const m = nearestMob(8); if (m) { P.target = m; P.goal = null; } e.preventDefault(); }
   if (e.code.startsWith('Arrow')) e.preventDefault();
 });
@@ -1770,6 +1920,8 @@ cvs.addEventListener('pointerdown', e => {
   }
   if (best) { P.target = best; P.goal = null; return; }
   const t = toTile(sx, sy);
+  const dclick = drops.find(d => !d.taken && Math.hypot(d.x - t.x, d.y - t.y) < 0.8);
+  if (dclick) { dclick.manual = true; dclick.skip = false; P.target = null; P.goal = { x: dclick.x, y: dclick.y }; P.autoHold = 3; return; }
   P.target = null; P.goal = { x: t.x, y: t.y }; P.autoHold = 3;
 });
 
@@ -1838,7 +1990,7 @@ function startGame(cls, sv) {
   running = true;
   if (sv && sv.map === 'dungeon') enterMap('dungeon', sv.x != null ? { x: sv.x, y: sv.y } : null);
   else enterMap('field', sv && sv.x != null ? { x: sv.x, y: sv.y } : null);
-  renderInv(); infoTables();
+  renderInv(); infoTables(); renderOpt(); setQFold(OPT.qFold || (W < 720 && !sv ? false : OPT.qFold)); iconTo($('goldIcon'), 'gold');
   log(sv ? '저장된 진행을 불러왔습니다.' : '마을 외곽에 도착했습니다. 목표 창을 따라가 보세요.', 'sys');
   log('1~4 스킬 · Q/E 물약 · H 자동사냥 · I 가방과 강화', 'sys');
   running = true; STATE.started = performance.now();
@@ -1847,7 +1999,8 @@ function startGame(cls, sv) {
 // ───────────────────────── 루프 ─────────────────────────
 function loop(ts) {
   const dt = Math.min(0.05, (ts - last) / 1000 || 0); last = ts;
-  if (running && !paused && hitStop > 0) { hitStop -= dt; updateVfx(dt * 0.5); }
+  if (running && !paused && uiPaused) { updateHud(); }
+  else if (running && !paused && hitStop > 0) { hitStop -= dt; updateVfx(dt * 0.5); }
   else if (running && !paused) {
     now += dt;
     shake *= Math.pow(0.0015, dt);
@@ -1866,7 +2019,7 @@ function loop(ts) {
 // 시험용 손잡이
 window.__game = {
   combat: COMBAT, get P() { return P; }, get mobs() { return mobs; }, get map() { return MAP; }, get fxs() { return fxs; }, get drops() { return drops; }, STATE,
-  start: startGame, save, loadSave, openShop, buy, SHOP, QUESTS, inTown, enterMap, useSkill, enchant, drink, nearestMob, setAuto, equip, makeEquip, equipDef, DROP_TABLE, setPaused: v => { paused = v; },
+  OPT, renderOpt, enchantItem, panelOpen, get uiPaused() { return uiPaused; }, start: startGame, save, loadSave, openShop, buy, SHOP, QUESTS, inTown, enterMap, useSkill, enchant, drink, nearestMob, setAuto, equip, makeEquip, equipDef, DROP_TABLE, setPaused: v => { paused = v; },
 };
 
 resize();
