@@ -24,6 +24,7 @@ import humanoid as Hm    # noqa: E402
 import monsters as Mo    # noqa: E402
 import field as F        # noqa: E402
 import items as I        # noqa: E402
+import worlds            # noqa: E402,F401  월드보스·상점 신전·화로의 신 등록
 
 OUT = os.path.normpath(os.path.join(HERE, '..', '..', 'lineage-assets'))
 DIRS = ['S', 'SE', 'E', 'NE', 'N', 'NW', 'W', 'SW']      # yaw = 45° × 번호
@@ -44,6 +45,8 @@ def anims_for(ent):
     if ent['kind'] == 'class':
         extra = {'blade': Hm.SKILLS, 'bow': Hm.ELF_SKILLS, 'staff': Hm.MAGE_SKILLS}.get(ent['src']['weapon'], [])
         return Hm.ANIMS + extra
+    if ent['src'].get('anims'):
+        return ent['src']['anims']
     if ent['src']['name'] == 'boss':
         return Hm.ANIMS + Mo.BOSS_SKILLS
     return Hm.ANIMS
@@ -175,7 +178,8 @@ def main():
                                skills=[a for a, _ in anims if a.startswith('skill_')])
         # 미리보기 GIF (남동 방향 또는 첫 방향의 걷기·공격)
         dsel = 1 if 1 in dirs else dirs[0]
-        seq = [frames[(nm, dsel, 'walk', f, 0)] for f in range(NA['walk'])] + [frames[(nm, dsel, 'attack', f, 0)] for f in range(NA['attack'])]
+        an_n = dict(anims)
+        seq = [frames[(nm, dsel, 'walk', f, 0)] for f in range(an_n['walk'])] + [frames[(nm, dsel, 'attack', f, 0)] for f in range(an_n['attack'])]
         gif(seq, os.path.join('preview', f'{nm}.gif'), 110)
 
     # 강화 쇼케이스

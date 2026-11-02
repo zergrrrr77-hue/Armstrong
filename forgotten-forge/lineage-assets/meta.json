@@ -594,6 +594,112 @@
     ]
    },
    "skills": []
+  },
+  "wb_warlord": {
+   "label": "피의 군주 그롬마르",
+   "sheet": "monsters/wb_warlord.png",
+   "fw": 216,
+   "fh": 192,
+   "ax": 108,
+   "ay": 150,
+   "cols": 37,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     4
+    ],
+    "walk": [
+     4,
+     6
+    ],
+    "attack": [
+     10,
+     8
+    ],
+    "hurt": [
+     18,
+     2
+    ],
+    "death": [
+     20,
+     5
+    ],
+    "skill_darkslash": [
+     25,
+     6
+    ],
+    "skill_hellfire": [
+     31,
+     6
+    ]
+   },
+   "skills": [
+    "skill_darkslash",
+    "skill_hellfire"
+   ]
+  },
+  "wb_lich": {
+   "label": "심연의 리치 군주 벨카르",
+   "sheet": "monsters/wb_lich.png",
+   "fw": 216,
+   "fh": 192,
+   "ax": 108,
+   "ay": 150,
+   "cols": 37,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     4
+    ],
+    "walk": [
+     4,
+     6
+    ],
+    "attack": [
+     10,
+     8
+    ],
+    "hurt": [
+     18,
+     2
+    ],
+    "death": [
+     20,
+     5
+    ],
+    "skill_darkslash": [
+     25,
+     6
+    ],
+    "skill_hellfire": [
+     31,
+     6
+    ]
+   },
+   "skills": [
+    "skill_darkslash",
+    "skill_hellfire"
+   ]
   }
  },
  "props": {
@@ -1066,6 +1172,26 @@
    "ax": 14,
    "ay": 15,
    "frames": 1
+  },
+  "shrine": {
+   "label": "천상의 화로 신전(상점)",
+   "group": "마을 생활",
+   "sheet": "field/props/shrine.png",
+   "fw": 202,
+   "fh": 270,
+   "ax": 101,
+   "ay": 215,
+   "frames": 1
+  },
+  "deity": {
+   "label": "화로의 신 헤스카르(상점 NPC)",
+   "group": "마을 생활",
+   "sheet": "field/props/deity.png",
+   "fw": 106,
+   "fh": 121,
+   "ax": 53,
+   "ay": 141,
+   "frames": 6
   }
  },
  "tiles": {

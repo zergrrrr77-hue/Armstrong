@@ -165,8 +165,8 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
       check(r6.gold === r5 + 33 && r6.loot.includes('33 골드') && r6.loot.includes('바람의 활'), '골드·장비 획득 기록', fails);
       check(r6.banner.includes('바람의 활'), '영웅 장비 획득 알림', fails);
     }
-    // 상점: 마을 노점 옆에서 열고 물약 구매
-    const shop = await page.evaluate(() => { const G = __game, P = G.P; const st = G.map.props.find(p => p.name === 'stall'); P.x = st.x + 1.2; P.y = st.y + 0.6; P.gold = 1000; return true; });
+    // 상점: 화로의 신(신전 앞) 옆에서 열고 물약 구매
+    const shop = await page.evaluate(() => { const G = __game, P = G.P; const n = G.map.npcs[0]; P.x = n.x + 1.2; P.y = n.y + 1.0; P.gold = 1000; return true; });
     await page.waitForTimeout(300);
     await page.keyboard.press('KeyF'); await page.waitForTimeout(200);
     const bought = await page.evaluate(() => { const G = __game, P = G.P; const n = P.inv.pot_red; const vis = !document.getElementById('shop').classList.contains('hidden'); G.buy(G.SHOP[0], 10); return vis && P.inv.pot_red === n + 10 && P.gold === 750; });
