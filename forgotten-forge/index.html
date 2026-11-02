@@ -424,8 +424,22 @@ function dirVec(d) {
 // ───────────────────────── 오디오 ─────────────────────────
 let AU = null, soundOn = true;
 function audio() {
-  if (!AU && window.LineageAudio) { try { AU = LineageAudio.create(); } catch (e) { AU = null; } }
+  if (!AU && window.LineageAudio) { try { AU = LineageAudio.create(); AU.setPick && AU.setPick(SOUND_PICKS); } catch (e) { AU = null; } }
   return AU;
+}
+// 고른 소리(청취 페이지에서 선택). bgm: 장면별 곡, sfx: 효과음·묶음별 변형 A/B/C
+const SOUND_PICKS = { bgm: { field: 'field_a', town: 'town_a', dungeon: 'dungeon_a', boss: 'boss_a' }, sfx: {} };
+// 장면에 맞는 배경음악: 마을 · 필드 · 던전 · 보스전(왕이 추격 중)
+function musicKind() {
+  if (!MAP) return 'field';
+  if (MAP.id === 'dungeon') return mobs.some(m => m.type === 'boss' && !m.dead && m.state === 'chase') ? 'boss' : 'dungeon';
+  return inTown(P) ? 'town' : 'field';
+}
+let musicT = 0, musicNow = null;
+function updateMusic(dt) {
+  if (!AU || !soundOn) return;
+  if ((musicT -= dt) > 0) return; musicT = 0.5;
+  const k = musicKind(); if (k !== musicNow) { musicNow = k; AU.music(k); }
 }
 function sfx(name, o) { if (!soundOn) return; const a = audio(); if (a && name) { try { a.play(name, o); } catch (e) { /* 없는 소리 */ } } }
 function panFor(e) { const s = toScr(e.x - P.x, e.y - P.y); return clamp(s.x / 400, -0.8, 0.8); }
@@ -988,7 +1002,7 @@ function killMob(m) {
     const chest = MAP.props.find(p => p.name === 'chest');
     if (chest) chest.name = 'chest_open';
     setTimeout(() => { banner('몰락한 왕을 쓰러뜨렸다', '던전 깊은 곳의 저주가 풀렸다'); sfx('level_up'); showOver('승리', `처치한 몬스터 ${STATE.kills}마리 · Lv ${P.lv} · +${P.wEnc} ${equipDef(P.weapon.key).name}<br>보물상자가 열렸습니다. 계속 사냥하거나 강화를 이어갈 수 있습니다.`); }, 2600);
-    if (AU && soundOn) AU.music(true);
+    musicNow = null;
   }
 }
 function gainXp(n) {
@@ -2191,7 +2205,7 @@ function toggleSound() {
   soundOn = !soundOn;
   $('btnSnd').setAttribute('aria-pressed', String(soundOn));
   const a = audio();
-  if (a) { if (soundOn) { a.setVolume({ master: 0.9 }); a.music(true); a.ambience(MAP ? MAP.amb : null); } else { a.music(false); a.ambience(null); } }
+  if (a) { if (soundOn) { a.setVolume({ master: 0.9 }); musicNow = null; a.music(musicKind()); a.ambience(MAP ? MAP.amb : null); } else { a.music(false); a.ambience(null); } }
 }
 $('btnSnd').addEventListener('click', toggleSound);
 $('btnAuto').addEventListener('click', () => { if (P) setAuto(!P.auto); });
@@ -2413,7 +2427,8 @@ function startGame(cls, sv) {
   $('pname').textContent = CLASSES[cls].label;
   buildBar();
   const a = audio();
-  if (a && soundOn) { a.music(true); a.setVolume({ music: 0.38, amb: 0.5 }); }
+  if (a && soundOn) { a.setVolume({ music: 0.38, amb: 0.5 }); }
+  musicNow = null;
   running = true;
   if (sv && sv.map === 'dungeon') enterMap('dungeon', sv.x != null ? { x: sv.x, y: sv.y } : null);
   else enterMap('field', sv && sv.x != null ? { x: sv.x, y: sv.y } : null);
@@ -2438,6 +2453,7 @@ function loop(ts) {
     updateVfx(dt);
     updateHud();
     drawMinimap();
+    updateMusic(dt);
   }
   render();
   requestAnimationFrame(loop);
@@ -2460,7 +2476,7 @@ function simulate(seconds, step = 1 / 20) {
 // 시험용 손잡이
 window.__game = {
   combat: COMBAT, get P() { return P; }, get mobs() { return mobs; }, get map() { return MAP; }, get fxs() { return fxs; }, get drops() { return drops; }, STATE,
-  addStat, xpNeed, SKILL_LV, DUNGEON_MIN, gainXp, OPT, renderOpt, enchantItem, panelOpen, get uiPaused() { return uiPaused; }, LOOT, simulate, unequip, renderInv, statVal, slotFor, slotAllowed, EQS, SLOTS, GEAR, renderOnce, start: startGame, save, loadSave, openShop, buy, SHOP, QUESTS, inTown, enterMap, useSkill, enchant, drink, nearestMob, setAuto, equip, makeEquip, equipDef, DROP_TABLE, setPaused: v => { paused = v; },
+  addStat, xpNeed, SKILL_LV, DUNGEON_MIN, gainXp, OPT, renderOpt, enchantItem, panelOpen, get uiPaused() { return uiPaused; }, LOOT, simulate, musicKind, SOUND_PICKS, audio, unequip, renderInv, statVal, slotFor, slotAllowed, EQS, SLOTS, GEAR, renderOnce, start: startGame, save, loadSave, openShop, buy, SHOP, QUESTS, inTown, enterMap, useSkill, enchant, drink, nearestMob, setAuto, equip, makeEquip, equipDef, DROP_TABLE, setPaused: v => { paused = v; },
 };
 
 resize();

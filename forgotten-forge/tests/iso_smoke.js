@@ -29,6 +29,9 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
     await page.keyboard.down('KeyD'); await page.waitForTimeout(700); await page.keyboard.up('KeyD');
     const p1 = await page.evaluate(() => ({ x: __game.P.x, y: __game.P.y }));
     check(Math.hypot(p1.x - p0.x, p1.y - p0.y) > 0.5, '키보드로 이동', fails);
+    await page.waitForTimeout(700);
+    const tm = await page.evaluate(() => ({ k: __game.musicKind(), t: __game.audio() && __game.audio().track }));
+    check(tm.t && tm.t.startsWith(tm.k + '_'), '장면별 배경음악: ' + JSON.stringify(tm), fails);
 
     // 4단계: Lv 1에서 스킬 잠김·던전 입장 제한 → 레벨업 시 포인트·해금
     const lock = await page.evaluate(() => { const G = __game, P = G.P; P.mp = P.maxmp; G.useSkill(3); return !P.casting; });
@@ -195,6 +198,8 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
       await page.waitForTimeout(750);
       await page.screenshot({ path: `${OUT}/g4_boss_skill.png` });
       const bossFx = await page.evaluate(() => (__game.STATE.bossSkills || 0) > 0);
+      const bm = await page.evaluate(() => ({ k: __game.musicKind(), t: __game.audio() && __game.audio().track }));
+      check(bm.k === 'boss' && /^boss_/.test(bm.t || ''), '보스전 배경음악 전환: ' + JSON.stringify(bm), fails);
       check(bossFx, '보스 스킬 사용', fails);
       await page.waitForTimeout(1500);
       // 보스 처치

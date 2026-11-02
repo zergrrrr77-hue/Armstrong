@@ -1,0 +1,200 @@
+<title>대장간 소리 고르기</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* 레이아웃: 대장간 작업대 위의 악보철 — 위쪽 배경음악(장면별 카드), 아래쪽 효과음(가로 3칸 A/B/C 표), 바닥에 저장 상태 막대 */
+:root {
+  --bg: #15110d; --panel: #1f1912; --panel-hi: #2a2117; --line: #3a2f23;
+  --fg: #ece2cf; --muted: #a39580; --gold: #d9a441; --gold-soft: #3b2c14; --ember: #e0703a; --ok: #8ccf7e;
+  --display: "Nanum Myeongjo", "Batang", serif; --body: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--fg); }
+body { font-family: var(--body); font-size: 15px; line-height: 1.55; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 120px; }
+.wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 36px; }
+header { display: grid; gap: 10px; }
+.eyebrow { font-size: 12px; letter-spacing: .14em; color: var(--gold); }
+h1 { font-family: var(--display); font-size: clamp(28px, 6vw, 42px); margin: 0; font-weight: 800; text-wrap: balance; }
+h2 { font-family: var(--display); font-size: 22px; margin: 0; font-weight: 700; }
+h3 { font-size: 13px; margin: 0; color: var(--gold); letter-spacing: .08em; font-weight: 700; }
+.lead { color: var(--muted); max-width: 62ch; margin: 0; }
+.tools { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.tools input[type=range] { accent-color: var(--gold); width: 140px; }
+button { font-family: inherit; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.sect { display: grid; gap: 16px; }
+.sect > p { margin: 0; color: var(--muted); font-size: 13px; }
+.scene { display: grid; gap: 10px; }
+#bgm { display: grid; gap: 22px; }
+.tracks { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+.track { display: grid; grid-template-columns: 44px 1fr; gap: 4px 12px; align-items: start; padding: 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); cursor: pointer; text-align: left; color: var(--fg); }
+.track .play { grid-row: 1 / 3; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--panel-hi); color: var(--fg); font-size: 15px; cursor: pointer; }
+.track .play[aria-pressed="true"] { background: var(--ember); border-color: var(--ember); color: #1a0f08; }
+.track b { font-size: 16px; }
+.track small { color: var(--muted); font-size: 12px; min-width: 0; }
+.track .pick { grid-column: 2; justify-self: start; margin-top: 6px; padding: 5px 12px; border-radius: 3px; border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; }
+.track.on { border-color: var(--gold); background: linear-gradient(var(--gold-soft), var(--panel)); }
+.track.on .pick { border-color: var(--gold); color: var(--gold); font-weight: 700; }
+.grid { display: grid; gap: 6px; }
+.row { display: grid; grid-template-columns: minmax(120px, 190px) repeat(3, 1fr); gap: 6px; align-items: stretch; }
+.row .lab { display: grid; align-content: center; padding: 6px 4px; font-weight: 500; font-size: 14px; }
+.row .lab small { color: var(--muted); font-weight: 400; font-size: 11px; }
+.var { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; align-items: center; padding: 9px 10px; min-height: 52px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--fg); cursor: pointer; text-align: left; font-size: 13px; }
+.var .k { font-family: var(--display); font-weight: 800; color: var(--muted); font-size: 16px; grid-row: 1 / 3; width: 22px; text-align: center; }
+.var span { min-width: 0; }
+.var em { font-style: normal; font-size: 11px; color: var(--muted); }
+.var:hover { background: var(--panel-hi); }
+.var.on { border-color: var(--gold); background: linear-gradient(var(--gold-soft), var(--panel)); }
+.var.on .k { color: var(--gold); }
+.var.playing { box-shadow: inset 0 0 0 1px var(--ember); }
+.colhead { display: grid; grid-template-columns: minmax(120px, 190px) repeat(3, 1fr); gap: 6px; font-size: 11px; color: var(--muted); letter-spacing: .06em; padding: 0 2px; }
+.bar { position: fixed; left: 0; right: 0; bottom: 0; background: #0e0b08; border-top: 1px solid var(--line); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-top: 12px; padding-bottom: max(12px, env(safe-area-inset-bottom, 0px)); z-index: 5; }
+.bar .in { max-width: 980px; margin: 0 auto; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.bar .count { font-variant-numeric: tabular-nums; font-weight: 700; }
+.bar .st { color: var(--muted); font-size: 13px; flex: 1; min-width: 200px; }
+.bar .st.ok { color: var(--ok); }
+.bar button { padding: 9px 14px; border-radius: 3px; border: 1px solid var(--line); background: var(--panel-hi); color: var(--fg); cursor: pointer; font-size: 13px; }
+.bar button.main { border-color: var(--gold); background: var(--gold); color: #1a1207; font-weight: 700; }
+textarea#pickJson { width: 100%; height: 90px; background: var(--panel); color: var(--fg); border: 1px solid var(--line); border-radius: 3px; font-size: 12px; }
+@media (max-width: 640px) {
+  .row, .colhead { grid-template-columns: 1fr 1fr 1fr; }
+  .row .lab { grid-column: 1 / -1; padding-bottom: 0; }
+  .colhead span:first-child { display: none; }
+  .var { grid-template-columns: 1fr; text-align: center; padding: 8px 6px; }
+  .var .k { grid-row: auto; width: auto; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">잊혀진 대장간 · 사운드 개편</div>
+    <h1>소리 고르기</h1>
+    <p class="lead">배경음악은 장면마다 한 곡, 효과음은 줄마다 A·B·C 중 하나를 고르세요. 누르면 바로 들리고, 고른 것은 자동으로 저장됩니다. 다 고르면 대화창에 "골랐어"라고 말해 주시면 게임에 적용합니다.</p>
+    <div class="tools">
+      <label for="vol">음량</label><input type="range" id="vol" min="0" max="1" step="0.05" value="0.8">
+      <button type="button" id="stopAll" class="pick">■ 모두 정지</button>
+    </div>
+  </header>
+
+  <section class="sect" aria-labelledby="bgmH">
+    <h2 id="bgmH">배경음악</h2>
+    <p>재생 버튼으로 듣고, [이 곡으로]를 눌러 장면별로 하나씩 고르세요. 모두 합성으로 만든 곡이라 끝없이 반복됩니다.</p>
+    <div id="bgm"></div>
+  </section>
+
+  <section class="sect" aria-labelledby="sfxH">
+    <h2 id="sfxH">효과음</h2>
+    <p>칸을 누르면 그 소리가 재생되고 선택됩니다. 몬스터·스킬 묶음은 공격·피격·사망 등 여러 소리를 이어서 들려줍니다.</p>
+    <div class="colhead"><span>소리</span><span>A</span><span>B</span><span>C</span></div>
+    <div class="grid" id="sfx"></div>
+  </section>
+
+  <section class="sect" id="manual" hidden>
+    <h3>저장이 되지 않는 화면입니다</h3>
+    <p>아래 내용을 복사해 대화창에 붙여 주세요.</p>
+    <textarea id="pickJson" readonly></textarea>
+  </section>
+</div>
+
+<div class="bar"><div class="in">
+  <span class="count" id="count">0 / 0</span>
+  <span class="st" id="status">불러오는 중…</span>
+  <button type="button" id="copyBtn">선택 내용 복사</button>
+  <button type="button" class="main" id="resetBtn">기본값(A)으로</button>
+</div></div>
+
+<script src="lineage-assets/audio/sfx.js"></script>
+<script>
+const LA = window.LineageAudio;
+const $ = id => document.getElementById(id);
+const SCENES = [['field', '필드'], ['town', '마을'], ['dungeon', '던전'], ['boss', '보스전']];
+const state = { bgm: { ...LA.DEFAULT_PICKS.bgm }, sfx: {} };
+for (const s of LA.VARIANT_SETS) state.sfx[s.id] = 'A';
+let AU = null, touched = new Set(), db = null, docRef = null, saveT = null, writing = false;
+const engine = () => { if (!AU) { AU = LA.create(); AU.setVolume({ music: 0.8, sfx: 1 }); AU.setVolume({ master: +$('vol').value }); } return AU; };
+
+function renderBgm() {
+  const box = $('bgm'); box.innerHTML = '';
+  for (const [k, label] of SCENES) {
+    const sc = document.createElement('div'); sc.className = 'scene';
+    sc.innerHTML = `<h3>${label}</h3><div class="tracks"></div>`;
+    const wrap = sc.querySelector('.tracks');
+    for (const t of LA.TRACKS.filter(t => t.kind === k)) {
+      const on = state.bgm[k] === t.id, playing = AU && AU.track === t.id;
+      const el = document.createElement('div'); el.className = 'track' + (on ? ' on' : '');
+      el.innerHTML = `<button type="button" class="play" aria-pressed="${playing}" aria-label="${t.name} ${playing ? '정지' : '재생'}">${playing ? '■' : '▶'}</button><b>${t.name}</b><small>${t.desc}</small><button type="button" class="pick">${on ? '✓ 선택됨' : '이 곡으로'}</button>`;
+      el.querySelector('.play').onclick = (e) => { e.stopPropagation(); const a = engine(); a.playTrack(a.track === t.id ? null : t.id); renderBgm(); };
+      el.querySelector('.pick').onclick = (e) => { e.stopPropagation(); state.bgm[k] = t.id; touched.add('bgm_' + k); const a = engine(); if (a.track !== t.id) a.playTrack(t.id); changed(); };
+      wrap.append(el);
+    }
+    box.append(sc);
+  }
+}
+function renderSfx() {
+  const box = $('sfx'); box.innerHTML = '';
+  for (const s of LA.VARIANT_SETS) {
+    const row = document.createElement('div'); row.className = 'row';
+    row.innerHTML = `<div class="lab">${s.label}<small>${s.kind === 'group' ? s.sample.length + '개 소리 묶음' : '효과음'}</small></div>`;
+    ['A', 'B', 'C'].forEach((v, i) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'var' + (state.sfx[s.id] === v ? ' on' : '');
+      b.innerHTML = `<span class="k">${v}</span><span>${s.names[i]}</span>${state.sfx[s.id] === v ? '<em>선택됨</em>' : '<em>눌러서 듣기</em>'}`;
+      b.setAttribute('aria-pressed', String(state.sfx[s.id] === v));
+      b.onclick = () => {
+        const a = engine(); let d = 0;
+        for (const n of s.sample) { const len = a.play(n, { variant: v, delay: d }); d += Math.min(1.6, (len || 0.5) + 0.25); }
+        state.sfx[s.id] = v; touched.add(s.id); changed();
+        const el = box.children[LA.VARIANT_SETS.indexOf(s)].children[i + 1]; el.classList.add('playing'); setTimeout(() => el.classList.remove('playing'), d * 1000);
+      };
+      row.append(b);
+    });
+    box.append(row);
+  }
+}
+function payload() { return { bgm: state.bgm, sfx: state.sfx }; }
+function renderCount() {
+  const total = SCENES.length + LA.VARIANT_SETS.length;
+  $('count').textContent = `들어 본 항목 ${Math.min(touched.size, total)} / ${total}`;
+  $('pickJson').value = JSON.stringify(payload());
+}
+function setStatus(t, ok) { const s = $('status'); s.textContent = t; s.classList.toggle('ok', !!ok); }
+function changed() {
+  renderBgm(); renderSfx(); renderCount();
+  if (!docRef) { setStatus('이 화면에서는 자동 저장이 되지 않습니다. [선택 내용 복사]로 대화창에 붙여 주세요.'); return; }
+  setStatus('저장하는 중…'); clearTimeout(saveT);
+  saveT = setTimeout(async () => {
+    if (writing) { changed(); return; }
+    writing = true;
+    try { await docRef.set({ ...payload(), heard: [...touched], updatedAt: new Date().toISOString() }); setStatus('저장됨 · 다 고르면 대화창에 "골랐어"라고 말해 주세요', true); }
+    catch (e) { setStatus('저장하지 못했습니다(' + (e.code || e.message) + '). [선택 내용 복사]로 대화창에 붙여 주세요.'); $('manual').hidden = false; }
+    finally { writing = false; }
+  }, 500);
+}
+$('vol').oninput = () => { if (AU) AU.setVolume({ master: +$('vol').value }); };
+$('stopAll').onclick = () => { if (AU) AU.playTrack(null); renderBgm(); };
+$('resetBtn').onclick = () => { state.bgm = { ...LA.DEFAULT_PICKS.bgm }; for (const s of LA.VARIANT_SETS) state.sfx[s.id] = 'A'; changed(); };
+$('copyBtn').onclick = async () => {
+  const txt = JSON.stringify(payload());
+  try { await navigator.clipboard.writeText(txt); setStatus('복사했습니다. 대화창에 붙여 주세요.', true); }
+  catch (e) { $('manual').hidden = false; const ta = $('pickJson'); ta.value = txt; ta.focus(); ta.select(); setStatus('아래 상자의 내용을 직접 복사해 주세요.'); }
+};
+
+renderBgm(); renderSfx(); renderCount();
+// 저장소: 공유 문서 picks/main 하나에 선택을 기록(Claude가 읽어 게임에 적용)
+(async () => {
+  const timer = setTimeout(() => { if (!docRef) { setStatus('저장소에 연결하지 못했습니다. [선택 내용 복사]로 대화창에 붙여 주세요.'); $('manual').hidden = false; } }, 10000);
+  try { db = window.claude && window.claude.use ? await window.claude.use('db') : null; } catch (e) { db = null; }
+  if (!db) { clearTimeout(timer); setStatus('이 화면에서는 자동 저장이 되지 않습니다. [선택 내용 복사]로 대화창에 붙여 주세요.'); $('manual').hidden = false; return; }
+  docRef = db.doc('picks/main');
+  try {
+    const snap = await docRef.get(); clearTimeout(timer);
+    const d = snap && (snap.data ? snap.data() : snap);
+    if (d && d.bgm) { Object.assign(state.bgm, d.bgm); Object.assign(state.sfx, d.sfx || {}); (d.heard || []).forEach(h => touched.add(h)); setStatus('지난번 선택을 불러왔습니다', true); }
+    else setStatus('아직 고른 것이 없습니다. 아무 칸이나 눌러 들어 보세요.');
+    renderBgm(); renderSfx(); renderCount();
+  } catch (e) { clearTimeout(timer); setStatus('불러오지 못했습니다(' + (e.code || e.message) + '). 고르면 새로 저장합니다.'); }
+})();
+</script>
