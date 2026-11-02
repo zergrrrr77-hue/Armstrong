@@ -30,6 +30,7 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
     const p1 = await page.evaluate(() => ({ x: __game.P.x, y: __game.P.y }));
     check(Math.hypot(p1.x - p0.x, p1.y - p0.y) > 0.5, '키보드로 이동', fails);
 
+    await page.evaluate(() => { const P = __game.P; P.maxhp = 99999; P.hp = 99999; });
     // 늑대 옆으로 옮겨 기본 공격
     await page.evaluate(() => { const m = __game.mobs.find(m => m.type === 'wolf'); __game.P.x = m.x - 1; __game.P.y = m.y; __game.P.target = m; m.state = 'idle'; });
     await page.waitForTimeout(3500);
@@ -37,6 +38,21 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
     check(hit, '기본 공격으로 피해', fails);
     if (cls === 'knight') await page.screenshot({ path: `${OUT}/g1_field.png` });
 
+    if (cls === 'knight') {
+      // 2단계: 넉백·히트스톱·검격 잔상 / 몬스터 몰림 방지 / 원거리 몬스터
+      const fx = await page.evaluate(() => { const G = __game, P = G.P; const m = G.mobs.find(x => x.type === 'goblin' && !x.dead); P.x = m.x - 1; P.y = m.y; m.hp = 9999; m.maxhp = 9999; P.target = m; return true; });
+      await page.waitForTimeout(2500);
+      const c1 = await page.evaluate(() => __game.combat);
+      check(c1.kb > 0 && c1.stop > 0 && c1.slash > 0, `넉백 ${c1.kb} · 히트스톱 ${c1.stop} · 검격 잔상 ${c1.slash}`, fails);
+      const sep = await page.evaluate(() => { const G = __game, P = G.P; P.target = null; const ws = G.mobs.filter(x => x.type === 'wolf' && !x.dead).slice(0, 4); ws.forEach((w, i) => { w.x = P.x + 2 + i * 0.05; w.y = P.y + 0.02 * i; w.state = 'chase'; }); return ws.length; });
+      await page.waitForTimeout(3000);
+      const minD = await page.evaluate(() => { const ws = __game.mobs.filter(x => x.type === 'wolf' && !x.dead && Math.hypot(x.x - __game.P.x, x.y - __game.P.y) < 5); let m = 99; for (let i = 0; i < ws.length; i++) for (let j = i + 1; j < ws.length; j++) m = Math.min(m, Math.hypot(ws[i].x - ws[j].x, ws[i].y - ws[j].y)); return m; });
+      check(minD > 0.45, `몬스터가 한곳에 겹치지 않음 (최소 간격 ${minD.toFixed(2)})`, fails);
+      await page.evaluate(() => { const G = __game, P = G.P; const a = G.mobs.find(x => x.type === 'skeleton_archer' && !x.dead); P.x = a.x - 4.5; P.y = a.y; a.state = 'chase'; a.atkCd = 0; G.combat.mobShots = 0; });
+      await page.waitForTimeout(3500);
+      const shots = await page.evaluate(() => __game.combat.mobShots);
+      check(shots > 0, `해골 궁수 원거리 공격 ${shots}발`, fails);
+    }
     // 스킬 4종 (MP·재사용 대기 무시하고 하나씩)
     for (let i = 0; i < 4; i++) {
       await page.evaluate((i) => { const P = __game.P; P.mp = P.maxmp; P.hp = P.maxhp; P.cds = {}; const m = __game.nearestMob(20); if (m) { P.x = m.x - 1.2; P.y = m.y; } __game.useSkill(i); }, i);

@@ -390,6 +390,8 @@
     orc: { swing: 'swing_heavy', hit: 'hit_blunt', attack: 'orc_attack', hurt: 'orc_hurt', death: 'orc_death' },
     skeleton: { swing: 'swing_sword', hit: 'hit_sword', attack: 'skeleton_attack', hurt: 'skeleton_hurt', death: 'skeleton_death' },
     wolf: { hit: 'hit_flesh', attack: 'wolf_attack', hurt: 'wolf_hurt', death: 'wolf_death' },
+    goblin: { swing: 'swing_sword', hit: 'hit_flesh', attack: 'orc_hurt', hurt: 'orc_hurt', death: 'orc_death' },
+    skeleton_archer: { swing: 'bow_release', hit: 'arrow_hit', attack: 'skeleton_attack', hurt: 'skeleton_hurt', death: 'skeleton_death' },
     spider: { hit: 'hit_flesh', attack: 'spider_attack', hurt: 'spider_hurt', death: 'spider_death' },
     ooze: { hit: 'hit_flesh', attack: 'ooze_attack', hurt: 'ooze_hurt', death: 'ooze_death' },
     boss: { swing: 'swing_heavy', hit: 'critical', attack: 'boss_attack', hurt: 'boss_hurt', death: 'boss_death', skills: SKILL_CUES },

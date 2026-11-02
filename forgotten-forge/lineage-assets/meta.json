@@ -510,6 +510,90 @@
     "skill_darkslash",
     "skill_hellfire"
    ]
+  },
+  "goblin": {
+   "label": "고블린",
+   "sheet": "monsters/goblin.png",
+   "fw": 96,
+   "fh": 88,
+   "ax": 48,
+   "ay": 66,
+   "cols": 31,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ],
+    "attack": [
+     14,
+     8
+    ],
+    "hurt": [
+     22,
+     3
+    ],
+    "death": [
+     25,
+     6
+    ]
+   },
+   "skills": []
+  },
+  "skeleton_archer": {
+   "label": "해골 궁수",
+   "sheet": "monsters/skeleton_archer.png",
+   "fw": 96,
+   "fh": 88,
+   "ax": 48,
+   "ay": 66,
+   "cols": 31,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ],
+    "attack": [
+     14,
+     8
+    ],
+    "hurt": [
+     22,
+     3
+    ],
+    "death": [
+     25,
+     6
+    ]
+   },
+   "skills": []
   }
  },
  "props": {

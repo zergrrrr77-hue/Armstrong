@@ -144,7 +144,7 @@ def _orc():
 
 # 해골 병사 ────────────────────────────────────────────────
 
-def _skeleton():
+def _skeleton(archer=False):
     m = dict(C)
     bone = Mat(['#3e3829', '#6a614b', '#958a6e', '#bdb294', '#dcd3b6'])
     m.update({
@@ -155,6 +155,7 @@ def _skeleton():
         'rust': Mat(['#2a1a12', '#46291b', '#674029', '#8a5a38', '#a97448'], metal=True, hi='#d4a070'),
         'rag': Mat(['#151613', '#22241f', '#30332c', '#3f433a', '#4f5448']),
         'oldwood': Mat(['#1e1812', '#30281e', '#463a2c', '#5c4d3a', '#736048']),
+        'fletch': Mat(['#3a0c0c', '#5a1414', '#7a1e1e', '#9a2a26', '#b83a32']),
     })
     parts = dict(skin='bone', eyes=None, torso='bone', pelvis='bone', legs='bone', shin='bone',
                  boots='bone', arms='bone', farm='bone', hands='bone')
@@ -188,9 +189,49 @@ def _skeleton():
         it.append(Item(S.inter(rag, S.halfspace(V(0, 0, -1), -(r.hip[2] - 7.5 * s))), 'rag'))
         it.append(Item(S.inter(S.ellipsoid(H + HR @ V(0, -0.3 * s, 1.4 * s), V(4.5 * s, 4.9 * s, 4.4 * s), HR),
                                S.halfspace(-HR @ V(0, 0, 1), -np.dot(HR @ V(0, 0, 1), H) - 1.6 * s)), 'iron'))
-        it += Hm.sword(r, m, 17, width=1.4, guard='rust', grip='oldwood', blade='rust', pommel='rust')
-        it += Hm.round_shield(r, 'oldwood', 'rust', 'rust', 5.2)
+        if archer:
+            it += Hm.hood(r, 'rag', peak=True)
+            it += Hm.quiver(r, 'oldwood', 'fletch')
+            it += Hm.bow(r, 'oldwood', 'string', draw=p.draw)
+        else:
+            it += Hm.sword(r, m, 17, width=1.4, guard='rust', grip='oldwood', blade='rust', pommel='rust')
+            it += Hm.round_shield(r, 'oldwood', 'rust', 'rust', 5.2)
+    if archer:
+        return humanoid_monster('skeleton_archer', '해골 궁수', m, parts, opts, build, 'bow', gear, (96, 88, 48, 66))
     return humanoid_monster('skeleton', '해골 병사', m, parts, opts, build, 'sword', gear, (96, 88, 48, 66))
+
+
+# 고블린 ───────────────────────────────────────────────
+
+def _goblin():
+    m = dict(C)
+    m.update({
+        'skin': Mat(['#2a3010', '#46501c', '#64722a', '#84943a', '#a4b44e']),
+        'eyes': Mat(['#5a4a04', '#8a7208', '#c0a018', '#f0d040', '#fff090'], emit=True),
+        'cloth': Mat(['#2a1a10', '#43271a', '#5e3825', '#784a31', '#925d3e']),
+        'rust': Mat(['#2a1a12', '#46291b', '#674029', '#8a5a38', '#a97448'], metal=True, hi='#d4a070'),
+        'tooth': Mat(['#5e5442', '#857a62', '#ab9f84', '#cbc0a3', '#e3dabf']),
+    })
+    parts = dict(skin='skin', hair=None, eyes='eyes', torso='cloth', pelvis='cloth', legs='skin', shin='skin',
+                 boots='leather', arms='skin', farm='skin', hands='skin')
+    opts = dict(limb=0.95, chest=(5.6, 3.8, 4.8), belly=(4.4, 4.8), hair=False, head_r=5.2)
+    build = dict(scale=0.8, sh_w=6.0, neck=3.0, uarm=9.0, farm=8.5)
+
+    def gear(r, p, it):
+        s = r.s
+        H, HR = r.head, r.head_rot
+        for sx in (-1, 1):   # 크고 뾰족한 귀
+            b = H + HR @ V(sx * 4.4 * s, -0.4 * s, 0.8 * s)
+            it.append(Item(S.capsule(b, b + HR @ V(sx * 5.4 * s, -1.6 * s, 1.8 * s), 1.4 * s, 0.2 * s), 'skin'))
+        it.append(Item(S.capsule(H + HR @ V(0, 4.0 * s, 0.4 * s), H + HR @ V(0, 7.0 * s, -0.6 * s), 1.2 * s, 0.3 * s), 'skin'))  # 코
+        for sx in (-1, 1):
+            t0 = H + HR @ V(sx * 1.5 * s, 4.2 * s, -2.4 * s)
+            it.append(Item(S.capsule(t0, t0 + HR @ V(0, 0.3 * s, 1.3 * s), 0.5 * s, 0.15 * s), 'tooth'))
+        it += Hm.skirt(r, 'cloth', 5.0, 6.0, 7.0)
+        it.append(Item(S.box(r.chest + r.fwd * 3.8 * s, V(0.8 * s, 0.4 * s, 6.0 * s), r.rot @ S.ry(-30), 0.3), 'leather'))
+        it += Hm.sword(r, m, 11, width=2.4, guard='rust', grip='leather', blade='rust', pommel='rust')
+        it += Hm.round_shield(r, 'wood', 'rust', 'rust', 3.8)
+    return humanoid_monster('goblin', '고블린', m, parts, opts, build, 'sword', gear, (96, 88, 48, 66), lean=8)
 
 
 # 몰락한 왕 (보스) ─────────────────────────────────────────
@@ -481,4 +522,4 @@ def _ooze():
     return dict(name='ooze', label='늪 점액', mats=m, build=make, frame=(96, 88, 48, 62))
 
 
-MONSTERS = [_orc(), _skeleton(), _wolf(), _spider(), _ooze(), _boss()]
+MONSTERS = [_orc(), _skeleton(), _wolf(), _spider(), _ooze(), _boss(), _goblin(), _skeleton(archer=True)]

@@ -326,9 +326,22 @@ const MONSTERS = {
   ooze:     { name: '늪 점액', hp: 140, atk: [7, 11], def: 2, speed: 1.4, range: 1.1, aggro: 4, xp: 20, cd: 1.6 },
   orc:      { name: '오크 전사', hp: 220, atk: [14, 20], def: 3, speed: 2.3, range: 1.3, aggro: 6, xp: 45, cd: 1.6 },
   skeleton: { name: '해골 병사', hp: 170, atk: [12, 17], def: 4, speed: 2.2, range: 1.25, aggro: 6, xp: 38, cd: 1.5 },
+  goblin:   { name: '고블린', hp: 80, atk: [7, 11], def: 1, speed: 2.6, range: 1.15, aggro: 5.5, xp: 16, cd: 1.3 },
+  skeleton_archer: { name: '해골 궁수', hp: 110, atk: [10, 14], def: 2, speed: 2.0, range: 5.5, aggro: 7, xp: 30, cd: 2.0, ranged: true },
   boss:     { name: '몰락한 왕', hp: 3200, atk: [26, 36], def: 6, speed: 2.0, range: 1.9, aggro: 9, xp: 1200, cd: 1.9, boss: true },
 };
-const MLV = { wolf: 2, ooze: 2, spider: 3, skeleton: 5, orc: 6, boss: 12 };
+const MLV = { goblin: 1, wolf: 2, ooze: 2, spider: 3, skeleton_archer: 4, skeleton: 5, orc: 6, boss: 12 };
+// 몬스터별 행동 패턴: leash = 추적 한계(집에서 거리), combo = 연속 공격 수, keep = 원거리 유지 거리, hurtRes = 피격 경직 확률
+const AI = {
+  goblin:   { leash: 12, combo: 1, hurtRes: 0.6, sep: 0.75 },
+  wolf:     { leash: 16, combo: 2, comboGap: 0.35, hurtRes: 0.4, sep: 0.8, dash: 1.35 },
+  spider:   { leash: 12, combo: 1, hurtRes: 0.4, sep: 0.85 },
+  ooze:     { leash: 9, combo: 1, hurtRes: 0.25, sep: 0.9 },
+  skeleton: { leash: 13, combo: 1, hurtRes: 0.25, sep: 0.8, heavy: 1.35 },
+  skeleton_archer: { leash: 14, combo: 1, hurtRes: 0.45, sep: 0.9, keep: [3.2, 5.2] },
+  orc:      { leash: 13, combo: 1, hurtRes: 0.15, sep: 0.95 },
+  boss:     { leash: 18, combo: 1, hurtRes: 0.0, sep: 1.4 },
+};
 const DUNGEON_BONUS = { lv: 2, hp: 1.4, atk: 1.3, xp: 1.5 };
 const DUNGEON_REC = 7;
 const TOWN = { i0: 5, i1: 19, j0: 5, j1: 22 };
@@ -405,6 +418,8 @@ const EQUIP = {
 const START_EQUIP = { blade: ['b_long', 'p_chain'], bow: ['w_hunt', 'l_leather'], staff: ['s_novice', 'r_novice'] };
 // 몬스터별 드롭: equip = 장비 드롭 확률, odds = 등급 확률(%), n = 떨어뜨리는 장비 수
 const DROP_TABLE = {
+  goblin:   { equip: 0.06, odds: [75, 22, 3, 0, 0], gold: [6, 15], red: 0.30, blue: 0.15, sw: 0.03, sa: 0.04 },
+  skeleton_archer: { equip: 0.10, odds: [45, 40, 13, 2, 0], gold: [18, 34], red: 0.28, blue: 0.24, sw: 0.08, sa: 0.07 },
   wolf:     { equip: 0.06, odds: [70, 25, 5, 0, 0], gold: [8, 18], red: 0.28, blue: 0.15, sw: 0.03, sa: 0.04 },
   spider:   { equip: 0.07, odds: [65, 28, 7, 0, 0], gold: [10, 22], red: 0.28, blue: 0.18, sw: 0.04, sa: 0.04 },
   ooze:     { equip: 0.06, odds: [70, 25, 5, 0, 0], gold: [8, 20], red: 0.30, blue: 0.20, sw: 0.03, sa: 0.05 },
@@ -489,6 +504,8 @@ function makeField() {
   for (let k = 0; k < 40; k++) { const i = Math.floor(R() * N), j = Math.floor(R() * N); if (!busy(i, j) && !props.some(p => Math.abs(p.x - i - 0.5) < 1.5 && Math.abs(p.y - j - 0.5) < 1.5)) put(R() < 0.5 ? 'rock_small' : R() < 0.5 ? 'rock_big' : 'bush', i, j); }
   // 몬스터 무리
   const zone = (type, ci, cj, n, r) => { for (let k = 0; k < n; k++) spawns.push({ type, x: ci + rnd(-r, r), y: cj + rnd(-r, r), home: { x: ci, y: cj } }); };
+  zone('goblin', 24, 20, 5, 3); zone('goblin', 22, 30, 4, 3);
+  zone('skeleton_archer', 47, 7, 3, 2);
   zone('wolf', 30, 14, 4, 4); zone('wolf', 30, 34, 4, 4); zone('wolf', 52, 30, 3, 3);
   zone('ooze', 17, 46, 6, 6); zone('spider', 24, 52, 3, 3);
   zone('skeleton', 44, 10, 5, 4); zone('spider', 52, 20, 3, 3);
@@ -521,6 +538,7 @@ function makeDungeon() {
   const zone = (type, ci, cj, n, r) => { for (let k = 0; k < n; k++) spawns.push({ type, x: ci + rnd(-r, r), y: cj + rnd(-r, r), home: { x: ci, y: cj } }); };
   zone('skeleton', 10, 12, 4, 3); zone('spider', 18, 8, 3, 3); zone('skeleton', 16, 22, 4, 3); zone('orc', 8, 24, 3, 2);
   zone('spider', 22, 14, 3, 2); zone('skeleton', 24, 20, 3, 2);
+  zone('skeleton_archer', 14, 16, 2, 2); zone('skeleton_archer', 26, 12, 2, 2);
   spawns.push({ type: 'boss', x: 27.5, y: 26, home: { x: 27.5, y: 26 }, noRespawn: true });
   return { id: 'dungeon', name: '몰락한 왕의 지하 묘소', N, g, props, spawns, lamps, start: { x: 4.5, y: 7.5 }, exit: { x: 3.5, y: 5.5, to: 'field' },
     amb: 'dungeon', dark: 0.78, step: () => 'step_stone' };
@@ -529,7 +547,8 @@ function makeDungeon() {
 // ───────────────────────── 상태 ─────────────────────────
 let MAP = null, P = null, mobs = [], drops = [], projs = [], fxs = [], texts = [], blocked = null, propSprites = [];
 const keys = {};
-let shake = 0, cam = { x: 0, y: 0 }, W = 0, H = 0, DPR = 1, ZOOM = 2, running = false, paused = false, last = 0, now = 0;
+const COMBAT = { kb: 0, stop: 0, slash: 0, mobShots: 0 };   // 시험·디버그용 카운터
+let vfx = [], hitStop = 0, shake = 0, cam = { x: 0, y: 0 }, W = 0, H = 0, DPR = 1, ZOOM = 2, running = false, paused = false, last = 0, now = 0;
 const cvs = $('game'), ctx = cvs.getContext('2d');
 
 function resize() {
@@ -645,11 +664,26 @@ function damage(target, amount, src, opts = {}) {
   dmg = Math.round(dmg);
   target.hp -= dmg;
   target.hitFlash = 0.12;
-  texts.push({ x: target.x, y: target.y, z: 40, t: 0, s: String(dmg), c: target.kind === 'player' ? '#ff7a6a' : crit ? '#ffd65a' : '#ffffff', big: crit });
+  // 숫자가 겹치지 않도록 같은 대상의 최근 숫자 수만큼 위로 쌓고 좌우로 엇갈림
+  const stack = texts.filter(t => t.who === target && t.t < 0.45).length;
+  texts.push({ who: target, x: target.x, y: target.y, z: 40 + stack * 9, ox: (stack % 2 ? 7 : -7) * (stack ? 1 : 0), t: 0, s: String(dmg), c: target.kind === 'player' ? '#ff7a6a' : crit ? '#ffd65a' : '#ffffff', big: crit });
+  if (texts.length > 48) texts.splice(0, texts.length - 48);
+  if (src && src.kind === 'player' && target.kind === 'mob') {
+    hitStop = Math.max(hitStop, crit ? 0.085 : 0.045); COMBAT.stop++;
+    vfx.push({ k: 'spark', x: target.x, y: target.y, t: 0, life: 0.18, crit });
+    if (crit) vfx.push({ k: 'crit', x: target.x, y: target.y, t: 0, life: 0.32 });
+    // 넉백: 보스·스턴 제외, 체급에 따라 거리 차등
+    if (!target.d.boss && !opts.noKb) {
+      const kb = (opts.kb != null ? opts.kb : 0.32) * (target.type === 'orc' ? 0.45 : target.type === 'ooze' ? 0.7 : 1) * (crit ? 1.5 : 1);
+      const dx = target.x - src.x, dy = target.y - src.y, l = Math.hypot(dx, dy) || 1;
+      target.kbx = dx / l * kb * 8; target.kby = dy / l * kb * 8; COMBAT.kb++;
+    }
+  }
   if (target.kind === 'mob') {
     if (crit) sfxAt(target, 'critical', 0.8);
     if (target.state !== 'chase' && target.state !== 'attack') target.state = 'chase';
-    if (target.hp > 0 && !target.casting && target.anim !== 'attack' && Math.random() < 0.35) { setAnim(target, 'hurt', true); const m = LineageAudio.ACTOR_SFX[target.type] || {}; if (m.hurt && Math.random() < 0.5) sfxAt(target, m.hurt, 0.8); }
+    const ai = AI[target.type] || {};
+    if (target.hp > 0 && !target.casting && (target.anim !== 'attack' || crit) && (target.hurtCd || 0) <= 0 && Math.random() < (ai.hurtRes != null ? ai.hurtRes : 0.35) + (crit ? 0.3 : 0)) { target.hurtCd = 0.7; setAnim(target, 'hurt', true); const m = LineageAudio.ACTOR_SFX[target.type] || {}; if (m.hurt && Math.random() < 0.5) sfxAt(target, m.hurt, 0.8); }
     if (opts.stun) target.buffs.stun = opts.stun;
     if (opts.slow) target.buffs.slow = opts.slow;
     if (opts.push) { const dx = target.x - src.x, dy = target.y - src.y, l = Math.hypot(dx, dy) || 1; moveEnt(target, dx / l * opts.push, dy / l * opts.push); }
@@ -659,12 +693,13 @@ function damage(target, amount, src, opts = {}) {
     sfx('hit_flesh', { gain: 0.5 });
     shake = Math.max(shake, src && src.d && src.d.boss ? 6 : 1.5);
     if (target.hp <= 0) playerDie();
-    else if (!target.casting && target.anim !== 'attack' && Math.random() < 0.3) setAnim(target, 'hurt', true);
+    else if (!target.casting && target.anim !== 'attack' && (target.hurtCd || 0) <= 0 && dmg >= target.maxhp * 0.04) { target.hurtCd = 0.8; setAnim(target, 'hurt', true); }
   }
   return dmg;
 }
 function killMob(m) {
-  m.dead = true; m.hp = 0; m.deadT = 0; setAnim(m, 'death', true);
+  m.dead = true; m.hp = 0; m.deadT = 0; setAnim(m, 'death', true); m.kbx = m.kby = 0;
+  vfx.push({ k: 'death', x: m.x, y: m.y, t: 0, life: 0.9, big: !!m.d.boss, delay: 0.35 });
   const s = LineageAudio.ACTOR_SFX[m.type] || {};
   sfxAt(m, s.death || 'hit_blunt');
   const gap = P.lv - m.lv;
@@ -724,17 +759,24 @@ function nearestMob(maxD, from = P) {
 function mobsIn(cx, cy, r) { return mobs.filter(m => !m.dead && Math.hypot(m.x - cx, m.y - cy) <= r + (m.d.boss ? 0.6 : 0.2)); }
 
 // 기본 공격
+const aspd = () => P.c.aspd * (1 + (P.st ? P.st.dex : 0) * 0.012);
 function playerAttack(t) {
   P.dir = dirOf(t.x - P.x, t.y - P.y);
   setAnim(P, 'attack', true);
-  P.atkCd = 1 / P.c.aspd;
+  P.atkCd = 1 / aspd();
+  // 동작 길이(8프레임)를 공격 간격 안에 맞춤: 빨라지면 동작도 빨라짐
+  P.rate = Math.max(1, (animLen(P, 'attack') / FPS) * aspd() * 1.05);
   P.attackTarget = t;
   P.attackHit = false;
 }
 function onPlayerFrame(prevF, f) {
   if (P.anim === 'attack') {
     const m = LineageAudio.ACTOR_SFX[P.cls] || {};
-    if (P.c.attack === 'melee' && prevF < 3 && f >= 3) sfx(m.swing);
+    if (P.c.attack === 'melee' && prevF < 3 && f >= 3) {
+      sfx(m.swing);
+      // 검격 잔상: 휘두르는 순간 바라보는 쪽에 초승달 궤적
+      vfx.push({ k: 'slash', x: P.x, y: P.y, dir: P.dir, t: 0, life: 0.2, enc: P.weapon.enc }); COMBAT.slash++;
+    }
     if (P.c.attack === 'bolt' && prevF < 1 && f >= 1) sfx('magic_cast', { gain: 0.5 });
     const fireF = P.c.attack === 'arrow' ? 6 : HIT;
     if (!P.attackHit && prevF < fireF && f >= fireF) {
@@ -847,7 +889,7 @@ const FPS = 10;   // 스프라이트 재생 속도
 function tickAnim(e, dt, onFrame) {
   const n = animLen(e, e.anim);
   const prev = e.f;
-  e.t += dt * FPS * (e.anim === 'walk' ? 1.15 : 1) * (e.buffs && e.buffs.slow > 0 ? 0.6 : 1);
+  e.t += dt * FPS * (e.anim === 'walk' ? 1.15 : 1) * (e.anim === 'attack' && e.rate ? e.rate : 1) * (e.buffs && e.buffs.slow > 0 ? 0.6 : 1);
   const f = Math.floor(e.t);
   if (f >= n) {
     if (e.anim === 'death') { e.t = n - 0.001; e.f = n - 1; return; }
@@ -903,7 +945,7 @@ function autoHunt(dt) {
 function updatePlayer(dt) {
   for (const k of Object.keys(P.buffs)) { P.buffs[k] -= dt; if (P.buffs[k] <= 0) delete P.buffs[k]; }
   for (const k of Object.keys(P.cds)) P.cds[k] = Math.max(0, P.cds[k] - dt);
-  P.atkCd -= dt; P.hitFlash = Math.max(0, P.hitFlash - dt);
+  P.atkCd -= dt; P.hurtCd = (P.hurtCd || 0) - dt; P.hitFlash = Math.max(0, P.hitFlash - dt);
   if (P.dead) { tickAnim(P, dt); return; }
   P.regenT += dt;
   if (P.regenT > 1) { P.regenT = 0; const k = inTown(P) ? 6 : 1; P.hp = Math.min(P.maxhp, P.hp + P.maxhp * 0.008 * k); P.mp = Math.min(P.maxmp, P.mp + P.maxmp * 0.02 * k); }
@@ -983,7 +1025,14 @@ function updateMob(m, dt) {
     if (m.deadT > 25 && !m.spawn.noRespawn) Object.assign(m, newMob(m.spawn), { x: m.spawn.x, y: m.spawn.y });
     return;
   }
-  m.atkCd -= dt;
+  m.atkCd -= dt; m.hurtCd = (m.hurtCd || 0) - dt;
+  // 넉백 이동(감속)
+  if (m.kbx || m.kby) {
+    moveEnt(m, m.kbx * dt, m.kby * dt);
+    const k = Math.pow(0.0005, dt); m.kbx *= k; m.kby *= k;
+    if (Math.abs(m.kbx) + Math.abs(m.kby) < 0.05) m.kbx = m.kby = 0;
+  }
+  const ai = AI[m.type] || {};
   const stunned = m.buffs.stun > 0;
   const d = P.dead ? 99 : dist(m, P);
   const reach = m.d.range + (m.d.boss ? 0.3 : 0);
@@ -1001,35 +1050,61 @@ function updateMob(m, dt) {
       if (d > m.d.aggro * 2.2 || Math.hypot(m.x - m.home.x, m.y - m.home.y) > 16) { m.state = 'idle'; m.goal = { x: m.home.x, y: m.home.y }; }
       else if (m.d.boss && m.skillCd.skill_hellfire <= 0 && d < 3.2) { bossCast(m, 'skill_hellfire'); }
       else if (m.d.boss && m.skillCd.skill_darkslash <= 0 && d >= 1.6 && d < 6.5) { bossCast(m, 'skill_darkslash'); }
+      else if (ai.keep && d < ai.keep[0]) {
+        // 원거리: 너무 가까우면 뒤로 물러남
+        const l = d || 1; m.goal = { x: m.x - (P.x - m.x) / l * 2, y: m.y - (P.y - m.y) / l * 2 }; m.retreat = true;
+      }
       else if (d <= reach) {
+        m.retreat = false;
         if (m.atkCd <= 0) {
           m.dir = dirOf(P.x - m.x, P.y - m.y);
           setAnim(m, 'attack', true);
-          m.atkCd = m.d.cd * (m.phase ? 0.7 : 1); m.attackHit = false;
+          m.comboLeft = (m.comboLeft > 0 ? m.comboLeft : (ai.combo || 1)) - 1;
+          m.atkCd = m.comboLeft > 0 ? (ai.comboGap || 0.4) : m.d.cd * (m.phase ? 0.7 : 1);
+          m.attackHit = false;
           const s = LineageAudio.ACTOR_SFX[m.type] || {};
           if (s.attack && Math.random() < 0.4) sfxAt(m, s.attack, 0.7);
         }
         m.goal = null;
-      } else m.goal = { x: P.x, y: P.y };
+      } else {
+        // 둘러싸기: 몬스터마다 플레이어 주변의 다른 각도 자리로 다가감
+        if (m.slot == null) m.slot = Math.random() * Math.PI * 2;
+        const want = ai.keep ? (ai.keep[0] + ai.keep[1]) / 2 : reach * 0.8;
+        m.goal = d > want + 2.5 ? { x: P.x, y: P.y } : { x: P.x + Math.cos(m.slot) * want, y: P.y + Math.sin(m.slot) * want };
+      }
     }
+  }
+  // 밀어내기(공격 중에도): 가까운 몬스터에게서 떨어져 한곳에 뭉치지 않게
+  {
+    let sx2 = 0, sy2 = 0;
+    for (const o of mobs) {
+      if (o === m || o.dead) continue;
+      const ox = m.x - o.x, oy = m.y - o.y, od = Math.hypot(ox, oy), lim = Math.max(ai.sep || 0.8, (AI[o.type] || {}).sep || 0.8);
+      if (od < lim) { const k = od > 0.001 ? 1 / od : 0; sx2 += (od > 0.001 ? ox * k : Math.cos(m.slot || 1)) * (lim - od); sy2 += (od > 0.001 ? oy * k : Math.sin(m.slot || 1)) * (lim - od); }
+    }
+    if (sx2 || sy2) moveEnt(m, clamp(sx2 * dt * 6, -0.15, 0.15), clamp(sy2 * dt * 6, -0.15, 0.15));
   }
   if (m.goal && !busy && !stunned) {
     const gd = dist(m.goal, m);
     if (gd < 0.2) { m.goal = null; setAnim(m, 'idle'); }
     else {
-      const sp = m.d.speed * (m.state === 'chase' ? 1 : 0.5) * (m.buffs.slow > 0 ? 0.5 : 1) * dt;
+      const sp = m.d.speed * (m.state === 'chase' ? (ai.dash || 1) : 0.5) * (m.buffs.slow > 0 ? 0.5 : 1) * (m.retreat ? 0.8 : 1) * dt;
+
       const mx0 = m.x, my0 = m.y;
       let went = steer(m, (m.goal.x - m.x) / gd, (m.goal.y - m.y) / gd, sp);
       if (inTown(m)) { m.x = mx0; m.y = my0; went = null; }
-      if (went) { m.dir = dirOf(went.x, went.y); setAnim(m, 'walk'); } else { m.goal = null; setAnim(m, 'idle'); }
+      if (went) { m.dir = m.retreat ? dirOf(P.x - m.x, P.y - m.y) : dirOf(went.x, went.y); setAnim(m, 'walk'); } else { m.goal = null; setAnim(m, 'idle'); }
     }
   } else if (!busy && m.anim === 'walk') setAnim(m, 'idle');
   tickAnim(m, dt, (prev, f) => {
-    if (m.anim === 'attack' && !m.attackHit && prev < HIT && f >= HIT) {
+    const hitF = m.d.ranged ? 6 : HIT;
+    if (m.anim === 'attack' && !m.attackHit && prev < hitF && f >= hitF) {
       m.attackHit = true;
       const s = LineageAudio.ACTOR_SFX[m.type] || {};
       if (s.swing) sfxAt(m, s.swing, 0.6);
-      if (!P.dead && dist(m, P) <= reach + 0.7) { damage(P, atkRoll(m), m); if (s.hit) sfxAt(m, s.hit, 0.6); }
+      if (m.d.ranged) COMBAT.mobShots++;
+      if (m.d.ranged) projs.push({ from: 'mob', src: m, kind: 'arrow', x: m.x, y: m.y, z: 30, tx: P, speed: 9, dmg: atkRoll(m), hitSfx: 'arrow_hit' });
+      else if (!P.dead && dist(m, P) <= reach + 0.7) { damage(P, atkRoll(m) * (ai.heavy || 1), m); if (s.hit) sfxAt(m, s.hit, 0.6); }
     }
     if (m.casting) skillFrame(m, prev, f);
   });
@@ -1042,7 +1117,7 @@ function updateProjs(dt) {
       const dx = p.tx.x - p.x, dy = p.tx.y - p.y, d = Math.hypot(dx, dy);
       const st = p.speed * dt;
       p.ang = Math.atan2(dy, dx);
-      if (d <= st + 0.2) { damage(p.tx, p.dmg, P); sfxAt(p.tx, p.hitSfx || 'arrow_hit', 0.7); p.done = true; continue; }
+      if (d <= st + 0.2) { damage(p.tx, p.dmg, p.from === 'mob' ? p.src : P); sfxAt(p.tx, p.hitSfx || 'arrow_hit', 0.7); p.done = true; continue; }
       p.x += dx / d * st; p.y += dy / d * st;
     } else {
       p.x += p.vx * p.speed * dt; p.y += p.vy * p.speed * dt; p.life -= dt;
@@ -1178,14 +1253,15 @@ function render() {
       const p = o.e, s = toScr(p.x, p.y), a = toScr(Math.cos(p.ang || 0), Math.sin(p.ang || 0));
       const l = Math.hypot(a.x, a.y) || 1, ux = a.x / l, uy = a.y / l;
       ctx.save(); ctx.globalCompositeOperation = 'lighter';
-      ctx.strokeStyle = p.kind === 'arrow' ? 'rgba(160,240,110,.95)' : 'rgba(130,180,255,.95)';
+      ctx.strokeStyle = p.from === 'mob' ? 'rgba(255,120,90,.95)' : p.kind === 'arrow' ? 'rgba(160,240,110,.95)' : 'rgba(130,180,255,.95)';
       ctx.lineWidth = p.kind === 'arrow' ? 1.5 : 2.5;
       ctx.beginPath(); ctx.moveTo(s.x - ux * 14, s.y - p.z - uy * 14); ctx.lineTo(s.x + ux * 4, s.y - p.z + uy * 4); ctx.stroke();
-      ctx.fillStyle = p.kind === 'arrow' ? '#eaffc0' : '#e6f0ff'; ctx.fillRect(s.x + ux * 3 - 1, s.y - p.z + uy * 3 - 1, 3, 3);
+      ctx.fillStyle = p.from === 'mob' ? '#ffd0b0' : p.kind === 'arrow' ? '#eaffc0' : '#e6f0ff'; ctx.fillRect(s.x + ux * 3 - 1, s.y - p.z + uy * 3 - 1, 3, 3);
       ctx.restore();
     }
   }
   drawQuestArrow();
+  drawVfx();
   // 앞 이펙트(over, solid)
   for (const e of fxs) { const s = toScr(e.x, e.y); drawFx(e, 'over', s.x, s.y); drawFx(e, 'solid', s.x, s.y); }
   // 피해 숫자
@@ -1194,8 +1270,9 @@ function render() {
     const s = toScr(t.x, t.y);
     ctx.globalAlpha = clamp(1.4 - t.t * 1.3, 0, 1);
     ctx.font = `700 ${t.big ? 12 : 9}px "Noto Sans KR", sans-serif`;
-    ctx.fillStyle = '#000'; ctx.fillText(t.s, s.x + 1, s.y - t.z - t.t * 24 + 1);
-    ctx.fillStyle = t.c; ctx.fillText(t.s, s.x, s.y - t.z - t.t * 24);
+    const tx = s.x + (t.ox || 0);
+    ctx.fillStyle = '#000'; ctx.fillText(t.s, tx + 1, s.y - t.z - t.t * 24 + 1);
+    ctx.fillStyle = t.c; ctx.fillText(t.s, tx, s.y - t.z - t.t * 24);
   }
   ctx.globalAlpha = 1;
   // 어둠(던전) / 비네트
@@ -1235,6 +1312,58 @@ function drawDark() {
     ctx.fillStyle = g; ctx.fillRect(c.x / DPR - rr, c.y / DPR - rr, rr * 2, rr * 2);
   }
   ctx.restore();
+}
+
+function drawVfx() {
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  for (const v of vfx) {
+    const u = v.t / v.life; if (u < 0) continue;
+    const s = toScr(v.x, v.y);
+    if (v.k === 'slash') {
+      // 바라보는 방향 앞의 초승달(바닥 평면 타원 위 호)
+      const dv = dirVec(v.dir), a = toScr(dv.x, dv.y), ang = Math.atan2(a.y * 2, a.x);
+      const col = v.enc >= 9 ? '200,120,255' : v.enc >= 7 ? '150,200,255' : '255,250,235';
+      ctx.lineCap = 'round';
+      for (let k = 0; k < 3; k++) {
+        ctx.strokeStyle = `rgba(${col},${(0.85 - k * 0.25) * (1 - u)})`;
+        ctx.lineWidth = 3.2 - k;
+        ctx.beginPath(); ctx.ellipse(s.x, s.y - 20, 20 + k * 2, 11 + k, 0, ang - 1.2 + u * 0.6, ang + 1.1 + u * 0.6); ctx.stroke();
+      }
+    } else if (v.k === 'spark') {
+      ctx.fillStyle = v.crit ? `rgba(255,220,120,${1 - u})` : `rgba(255,255,255,${1 - u})`;
+      for (let k = 0; k < 6; k++) { const aa = k * 1.05 + v.x * 3; const r = 4 + u * 12; ctx.fillRect(s.x + Math.cos(aa) * r - 1, s.y - 24 + Math.sin(aa) * r * 0.7 - 1, 2, 2); }
+    } else if (v.k === 'crit') {
+      // 치명타: 별 모양 섬광 + 고리
+      ctx.strokeStyle = `rgba(255,210,90,${1 - u})`; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(s.x, s.y - 24, 6 + u * 22, 4 + u * 12, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = `rgba(255,240,180,${1 - u})`;
+      for (let k = 0; k < 4; k++) { const aa = k * Math.PI / 2 + 0.4; ctx.beginPath(); ctx.moveTo(s.x, s.y - 24); ctx.lineTo(s.x + Math.cos(aa - 0.15) * 22 * (1 - u * 0.4), s.y - 24 + Math.sin(aa - 0.15) * 14); ctx.lineTo(s.x + Math.cos(aa + 0.15) * 22 * (1 - u * 0.4), s.y - 24 + Math.sin(aa + 0.15) * 14); ctx.fill(); }
+    } else if (v.k === 'death') {
+      // 사망: 흩어지는 먼지와 위로 오르는 흰 입자
+      for (let k = 0; k < (v.big ? 22 : 10); k++) {
+        const aa = k * 2.4 + v.x, r = (v.big ? 30 : 14) * u;
+        ctx.fillStyle = `rgba(200,190,170,${0.5 * (1 - u)})`;
+        ctx.fillRect(s.x + Math.cos(aa) * r, s.y - 4 + Math.sin(aa) * r * 0.45, 2, 2);
+        ctx.fillStyle = `rgba(230,240,255,${0.8 * (1 - u)})`;
+        ctx.fillRect(s.x + Math.cos(aa) * 6, s.y - 20 - u * (20 + k * 2), 1.5, 1.5);
+      }
+    } else if (v.k === 'gold') {
+      ctx.fillStyle = `rgba(255,215,90,${1 - u})`;
+      for (let k = 0; k < 5; k++) { const aa = k * 1.26; ctx.fillRect(s.x + Math.cos(aa) * u * 10, s.y - 14 - u * 14 + Math.sin(aa) * u * 4, 2, 2); }
+    } else if (v.k === 'lvup') {
+      ctx.strokeStyle = `rgba(255,214,90,${1 - u})`; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(s.x, s.y, 10 + u * 30, 5 + u * 15, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = `rgba(255,240,170,${0.5 * (1 - u)})`; ctx.fillRect(s.x - 8, s.y - 70 * u - 10, 16, 70 * u);
+    } else if (v.k === 'beam') {
+      ctx.fillStyle = `rgba(${v.col},${0.35 * (1 - u)})`; ctx.fillRect(s.x - 3, s.y - 46, 6, 40);
+      ctx.fillStyle = `rgba(${v.col},${0.7 * (1 - u)})`; ctx.fillRect(s.x - 1, s.y - 46, 2, 40);
+    }
+  }
+  ctx.restore();
+}
+function updateVfx(dt) {
+  for (const v of vfx) v.t += dt;
+  vfx = vfx.filter(v => v.t < v.life);
 }
 
 // ───────────────────────── 미니맵 ─────────────────────────
@@ -1718,13 +1847,15 @@ function startGame(cls, sv) {
 // ───────────────────────── 루프 ─────────────────────────
 function loop(ts) {
   const dt = Math.min(0.05, (ts - last) / 1000 || 0); last = ts;
-  if (running && !paused) {
+  if (running && !paused && hitStop > 0) { hitStop -= dt; updateVfx(dt * 0.5); }
+  else if (running && !paused) {
     now += dt;
     shake *= Math.pow(0.0015, dt);
     updatePlayer(dt);
     for (const m of mobs) updateMob(m, dt);
     updateProjs(dt);
     updateFx(dt);
+    updateVfx(dt);
     updateHud();
     drawMinimap();
   }
@@ -1734,7 +1865,7 @@ function loop(ts) {
 
 // 시험용 손잡이
 window.__game = {
-  get P() { return P; }, get mobs() { return mobs; }, get map() { return MAP; }, get fxs() { return fxs; }, get drops() { return drops; }, STATE,
+  combat: COMBAT, get P() { return P; }, get mobs() { return mobs; }, get map() { return MAP; }, get fxs() { return fxs; }, get drops() { return drops; }, STATE,
   start: startGame, save, loadSave, openShop, buy, SHOP, QUESTS, inTown, enterMap, useSkill, enchant, drink, nearestMob, setAuto, equip, makeEquip, equipDef, DROP_TABLE, setPaused: v => { paused = v; },
 };
 
