@@ -1,0 +1,209 @@
+<title>대장간 소리 주문서</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* 레이아웃: 대장간 작업 지시서 — 위에 진행 막대와 방법, 아래에 분류별 주문 줄(파일 이름 · 길이 · 프롬프트 · 복사 · 완료) */
+:root {
+  --bg: #15110d; --panel: #1f1912; --line: #3a2f23; --fg: #ece2cf; --muted: #a39580; --gold: #d9a441; --gold-soft: #33260f; --ok: #8ccf7e;
+  --display: "Nanum Myeongjo", "Batang", serif; --body: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--fg); }
+body { font-family: var(--body); font-size: 15px; line-height: 1.55; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 64px; }
+.wrap { max-width: 1000px; margin: 0 auto; display: grid; gap: 32px; }
+header { display: grid; gap: 10px; }
+.eyebrow { font-size: 12px; letter-spacing: .14em; color: var(--gold); }
+h1 { font-family: var(--display); font-size: clamp(28px, 6vw, 40px); margin: 0; font-weight: 800; text-wrap: balance; }
+h2 { font-family: var(--display); font-size: 21px; margin: 0; font-weight: 700; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+h2 small { font-family: var(--body); font-size: 13px; color: var(--muted); font-weight: 400; }
+p { margin: 0; }
+.lead { color: var(--muted); max-width: 64ch; }
+.progress { display: grid; gap: 6px; }
+.track { height: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.fill { height: 100%; background: var(--gold); width: 0; transition: width .2s; }
+.ptext { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.how { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.how > div { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; }
+.how b { color: var(--gold); font-size: 14px; }
+.how ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14px; }
+.how .note { font-size: 12px; color: var(--muted); }
+.sect { display: grid; gap: 10px; }
+.filter { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter button { padding: 6px 12px; border-radius: 14px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); font: inherit; font-size: 13px; cursor: pointer; }
+.filter button[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
+.row { display: grid; grid-template-columns: 28px minmax(150px, 210px) 1fr auto; gap: 6px 12px; align-items: start; padding: 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); }
+.row.done { opacity: .55; }
+.row input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--ok); margin-top: 2px; }
+.meta { display: grid; gap: 2px; min-width: 0; }
+.fname { font-family: var(--mono); font-size: 13px; color: var(--fg); word-break: break-all; }
+.desc { font-size: 13px; color: var(--muted); }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+.tag { font-size: 11px; padding: 1px 7px; border-radius: 3px; border: 1px solid var(--line); color: var(--muted); font-variant-numeric: tabular-nums; }
+.tag.first { border-color: var(--gold); color: var(--gold); background: var(--gold-soft); }
+.prompt { font-family: var(--mono); font-size: 13px; line-height: 1.5; min-width: 0; padding: 8px 10px; background: var(--bg); border: 1px solid var(--line); border-radius: 3px; user-select: all; }
+.copy { padding: 8px 12px; border-radius: 3px; border: 1px solid var(--gold); background: transparent; color: var(--gold); font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.copy.ok { border-color: var(--ok); color: var(--ok); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+@media (max-width: 640px) {
+  .row { grid-template-columns: 28px 1fr; }
+  .prompt, .copy { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">잊혀진 대장간 · 사운드 제작</div>
+    <h1>소리 주문서</h1>
+    <p class="lead">게임에 들어갈 소리 59개의 목록입니다. 줄마다 프롬프트를 복사해 생성하고, 표에 적힌 파일 이름으로 저장해 대화창에 올려 주세요. 노란 <b>먼저</b> 표시 25개만 있어도 게임 분위기가 크게 바뀝니다.</p>
+    <div class="progress"><div class="track"><div class="fill" id="fill"></div></div><span class="ptext" id="ptext"></span></div>
+  </header>
+
+  <section class="how" aria-label="만드는 방법">
+    <div>
+      <b>효과음 · ElevenLabs</b>
+      <ol>
+        <li>elevenlabs.io에서 Sound Effects 메뉴를 엽니다.</li>
+        <li>프롬프트를 붙여 넣고, Duration을 표의 길이로 직접 맞춥니다.</li>
+        <li>Prompt influence는 높게(약 70%) 둡니다.</li>
+        <li>여러 결과 중 가장 좋은 것을 받아 파일 이름을 바꿉니다.</li>
+      </ol>
+      <p class="note">무료 플랜은 크레딧이 적으니 <b>먼저</b> 표시부터 만드세요. 마음에 드는 후보가 둘이면 <span class="fname">hit_sword_2.mp3</span>처럼 번호를 붙여 함께 주시면 게임에서 번갈아 재생합니다.</p>
+    </div>
+    <div>
+      <b>배경음악 · Suno</b>
+      <ol>
+        <li>Create에서 Custom 모드를 켭니다.</li>
+        <li>Instrumental(연주곡)을 켭니다.</li>
+        <li>프롬프트를 Style of Music 칸에 붙여 넣습니다.</li>
+        <li>두 결과 중 하나를 골라 Download → MP3로 받습니다.</li>
+      </ol>
+      <p class="note">필드 곡은 보내 주실 Suno 곡을 쓰면 만들지 않아도 됩니다. 반복 이음새와 음량은 제가 맞춥니다.</p>
+    </div>
+  </section>
+
+  <div class="filter" id="filter" role="group" aria-label="보기"></div>
+  <div id="list" class="wrap" style="gap:28px"></div>
+</div>
+
+<script>
+// [파일 이름, 설명, 길이(초), 먼저 만들기, 프롬프트]
+const GROUPS = [
+  { id: 'bgm', title: '배경음악', tool: 'Suno · Style of Music', items: [
+    ['bgm_field.mp3', '필드 — 보내 주실 곡이 있으면 생략', '2~4분', 1, 'Dark medieval fantasy MMORPG field exploration theme, orchestral strings, solo cello, french horn, wooden flute, soft harp, D minor, 84 bpm, melancholic yet adventurous, nostalgic 2000s Korean MMORPG feel, instrumental, no vocals'],
+    ['bgm_town.mp3', '마을 · 안전 지대', '2~4분', 1, 'Cozy medieval fantasy village theme for an MMORPG town, lute, recorder, light hand drum and tambourine, distant blacksmith anvil, warm and peaceful, G major, 96 bpm, instrumental, no vocals'],
+    ['bgm_dungeon.mp3', '던전', '2~4분', 1, 'Ominous fantasy dungeon catacomb music, low drones, distant male choir, slow deep drums, sparse eerie bells, C phrygian, 60 bpm, dark and tense, minimal melody, instrumental, no vocals'],
+    ['bgm_boss.mp3', '보스전 · 몰락한 왕', '2~3분', 1, 'Epic dark fantasy boss battle against a fallen undead king, full orchestra, pounding war drums and taiko, choir chanting, aggressive brass, fast string ostinato, D minor, 140 bpm, intense, instrumental, no vocals'],
+  ] },
+  { id: 'combat', title: '전투', tool: 'ElevenLabs · Sound Effects', items: [
+    ['swing_sword.mp3', '칼 휘두름', '0.5', 1, 'Fast swoosh of a longsword cutting through the air, clean sharp whoosh, close, no impact'],
+    ['swing_heavy.mp3', '무거운 휘두름(보스·오크)', '0.8', 0, 'Heavy two-handed greatsword swung through the air, deep powerful whoosh, no impact'],
+    ['hit_sword.mp3', '칼 적중', '0.6', 1, 'Steel sword striking chainmail armor, sharp metallic clang with a short ring, fantasy combat impact'],
+    ['hit_blunt.mp3', '둔기 적중', '0.6', 0, 'Heavy wooden club smashing into a body, dull thick thud with a bone crunch'],
+    ['hit_flesh.mp3', '살 타격·물기', '0.5', 1, 'Blade slicing into a creature, short wet slash impact, game combat'],
+    ['bow_release.mp3', '활 시위', '0.6', 1, 'Wooden longbow string release, sharp twang followed by an arrow whoosh flying away'],
+    ['arrow_hit.mp3', '화살 꽂힘', '0.5', 1, 'Arrow hitting a creature, sharp thunk impact, short'],
+    ['magic_cast.mp3', '마법 시전', '1.2', 1, 'Fantasy mage casting a spell, rising magical shimmer with crackling arcane energy'],
+    ['magic_hit.mp3', '마법 폭발', '1.0', 1, 'Arcane magic missile exploding, bright magical burst with a sparkling tail'],
+    ['critical.mp3', '치명타', '1.0', 1, 'Critical hit in a fantasy game, powerful heavy sword impact with metallic ring and deep bass boom'],
+    ['block.mp3', '막기', '0.5', 0, 'Sword blocked by a steel shield, loud metallic clang, short'],
+  ] },
+  { id: 'system', title: '알림', tool: 'ElevenLabs · Sound Effects', items: [
+    ['level_up.mp3', '레벨 업', '2.0', 1, 'Fantasy RPG level up jingle, short triumphant orchestral fanfare with sparkling chimes'],
+    ['enchant_ok.mp3', '강화 성공', '1.5', 1, 'Magical item enchantment success, bright crystal chime with a glowing shimmer'],
+    ['enchant_fail.mp3', '강화 실패', '1.5', 1, 'Magical enchantment failing, glass shattering followed by a fading dark magic hiss'],
+  ] },
+  { id: 'monster', title: '몬스터 목소리', tool: 'ElevenLabs · Sound Effects', items: [
+    ['orc_attack.mp3', '오크·고블린 공격 함성', '1.0', 0, 'Large orc warrior battle roar, aggressive guttural shout'],
+    ['orc_hurt.mp3', '오크 피격', '0.5', 1, 'Orc grunting in pain after being hit, short deep guttural grunt'],
+    ['orc_death.mp3', '오크 사망', '1.5', 1, 'Orc dying, long deep guttural death groan fading out'],
+    ['skeleton_attack.mp3', '해골 공격', '0.8', 0, 'Undead skeleton attacking, rattling bones and a dry raspy hiss'],
+    ['skeleton_hurt.mp3', '해골 피격', '0.5', 1, 'Skeleton being hit, bones cracking and clattering, short'],
+    ['skeleton_death.mp3', '해골 무너짐', '1.5', 1, 'Skeleton collapsing, pile of bones falling apart and clattering on a stone floor'],
+    ['wolf_attack.mp3', '늑대 으르렁', '0.8', 0, 'Large dire wolf snarling and snapping its jaws, aggressive growl'],
+    ['wolf_hurt.mp3', '늑대 깨갱', '0.5', 1, 'Wolf yelping in pain, short sharp whimper'],
+    ['wolf_death.mp3', '늑대 사망', '1.2', 1, 'Dire wolf dying, weak whine fading out'],
+    ['wolf_howl.mp3', '늑대 울부짖음', '3.0', 0, 'Lone dire wolf howling at night, long eerie howl, distant forest'],
+    ['spider_attack.mp3', '거미 공격', '0.8', 0, 'Giant spider attacking, fast clicking mandibles and a hiss'],
+    ['spider_hurt.mp3', '거미 피격', '0.5', 0, 'Giant spider screeching in pain, short high insect shriek'],
+    ['spider_death.mp3', '거미 사망', '1.2', 0, 'Giant spider dying, screech then legs twitching and clicking'],
+    ['ooze_attack.mp3', '점액 공격', '0.8', 0, 'Slime monster lunging, wet squelch and gooey splash'],
+    ['ooze_hurt.mp3', '점액 피격', '0.5', 0, 'Slime monster being hit, bubbling squishy splat, short'],
+    ['ooze_death.mp3', '점액 녹아내림', '1.5', 0, 'Slime monster dissolving, bubbling wet melting goo'],
+    ['boss_attack.mp3', '몰락한 왕 포효', '1.5', 1, 'Undead fallen king roaring, deep demonic distorted voice, powerful and menacing'],
+    ['boss_hurt.mp3', '몰락한 왕 피격', '0.8', 0, 'Undead demonic king grunting in pain, deep distorted growl with armor clank'],
+    ['boss_death.mp3', '몰락한 왕 최후', '3.0', 1, 'Undead demonic king dying, long deep anguished scream echoing and fading into darkness'],
+  ] },
+  { id: 'skill', title: '스킬', tool: 'ElevenLabs · Sound Effects', items: [
+    ['skill_spin.mp3', '기사 · 회전 베기', '1.0', 0, 'Warrior spinning sword attack, several fast whooshing slashes in a circle with a metallic ring'],
+    ['skill_slam_charge.mp3', '기사 · 대지 강타 모으기', '0.8', 0, 'Warrior charging power, rising energy hum and armor creak'],
+    ['skill_slam.mp3', '기사 · 대지 강타', '1.5', 0, 'Sword slammed into the ground, massive earth shattering impact with rocks crumbling'],
+    ['skill_guard.mp3', '기사 · 수호 결계', '1.5', 0, 'Holy protective barrier activating, warm resonant shield hum with shimmering light'],
+    ['skill_bless.mp3', '기사 · 성스러운 축복', '2.0', 0, 'Holy blessing spell, angelic choir with a soft church bell shimmer'],
+    ['elf_charge.mp3', '요정 · 바람 모으기', '0.8', 0, 'Wind gathering around an archer, swirling air rising in pitch'],
+    ['elf_wind_shot.mp3', '요정 · 바람 화살', '1.0', 0, 'Magical wind arrow shot, bowstring release followed by a long piercing wind whoosh'],
+    ['elf_volley.mp3', '요정 · 도약 연사', '1.0', 0, 'Archer leaping and firing three arrows rapidly, quick bowstring twangs'],
+    ['elf_whirl.mp3', '요정 · 잎 회오리', '1.2', 0, 'Whirlwind of leaves, swirling gusts of wind with rustling leaves'],
+    ['elf_fairy.mp3', '요정 · 요정의 축복', '2.0', 0, 'Fairy blessing magic, tinkling bells and sparkling fairy dust with a gentle harp'],
+    ['mage_charge.mp3', '마법사 · 마력 모으기', '0.8', 0, 'Mage gathering magical energy, rising electric magical hum'],
+    ['mage_bolt.mp3', '마법사 · 마력 화살', '1.0', 0, 'Magic bolt fired and exploding, zap followed by an arcane burst'],
+    ['mage_ice.mp3', '마법사 · 얼음 결정', '1.2', 0, 'Ice spikes erupting from the ground, crystals cracking and shattering'],
+    ['mage_meteor_fall.mp3', '마법사 · 운석 낙하', '1.0', 0, 'Flaming meteor falling from the sky, rising roaring whoosh of fire'],
+    ['mage_meteor_hit.mp3', '마법사 · 운석 충돌', '1.5', 0, 'Meteor crashing into the ground, huge fiery explosion with debris'],
+    ['mage_pillar.mp3', '마법사 · 마나 기둥', '2.0', 0, 'Pillar of mana erupting upward, rising magical energy with an ethereal choir'],
+    ['boss_darkslash.mp3', '몰락한 왕 · 암흑 베기', '1.2', 0, 'Dark magic sword slash, heavy whoosh with demonic distorted energy'],
+    ['boss_hellfire_charge.mp3', '몰락한 왕 · 지옥불 포효', '1.5', 0, 'Demon king summoning hellfire, deep roar with rising rumbling flames'],
+    ['boss_hellfire.mp3', '몰락한 왕 · 지옥불 폭발', '2.0', 0, 'Hellfire explosion, massive roaring fire blast and crackling flames'],
+  ] },
+  { id: 'step', title: '발소리', tool: 'ElevenLabs · 4초로 길게 받으면 제가 한 걸음씩 자릅니다', items: [
+    ['step_grass.mp3', '풀밭', '4.0', 1, 'Armored footsteps walking on grass, steady pace, close'],
+    ['step_stone.mp3', '돌길·던전', '4.0', 1, 'Armored boots walking on a stone floor, steady pace, slight echo'],
+    ['step_swamp.mp3', '늪', '4.0', 0, 'Footsteps walking through shallow swamp water and mud, squelching'],
+  ] },
+];
+const KEY = 'sound-order-done-v1';
+let done = {}; try { done = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { done = {}; }
+let view = 'all';
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) { /* 저장 불가 */ } };
+const all = GROUPS.flatMap(g => g.items);
+function progress() {
+  const n = all.filter(i => done[i[0]]).length, f = all.filter(i => i[3]), nf = f.filter(i => done[i[0]]).length;
+  document.getElementById('fill').style.width = (n / all.length * 100) + '%';
+  document.getElementById('ptext').textContent = `완료 ${n} / ${all.length} · 먼저 만들 것 ${nf} / ${f.length}`;
+}
+function render() {
+  const fb = document.getElementById('filter'); fb.innerHTML = '';
+  [['all', '전체 59'], ['first', '먼저 만들 것 25'], ['todo', '아직 안 한 것']].forEach(([id, label]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.setAttribute('aria-pressed', String(view === id)); b.onclick = () => { view = id; render(); }; fb.append(b);
+  });
+  const list = document.getElementById('list'); list.innerHTML = '';
+  for (const g of GROUPS) {
+    const items = g.items.filter(i => view === 'all' || (view === 'first' && i[3]) || (view === 'todo' && !done[i[0]]));
+    if (!items.length) continue;
+    const sec = document.createElement('section'); sec.className = 'sect';
+    sec.innerHTML = `<h2>${g.title} <small>${g.tool}</small></h2>`;
+    for (const [file, desc, dur, first, prompt] of items) {
+      const row = document.createElement('div'); row.className = 'row' + (done[file] ? ' done' : '');
+      const id = 'c_' + file.replace(/\W/g, '_');
+      row.innerHTML = `<input type="checkbox" id="${id}" ${done[file] ? 'checked' : ''} aria-label="${file} 완료">
+        <label class="meta" for="${id}"><span class="fname">${file}</span><span class="desc">${desc}</span>
+          <span class="tags"><span class="tag">${g.id === 'bgm' ? dur : dur + '초'}</span>${first ? '<span class="tag first">먼저</span>' : ''}</span></label>
+        <div class="prompt">${prompt}</div>
+        <button type="button" class="copy">복사</button>`;
+      row.querySelector('input').onchange = (e) => { done[file] = e.target.checked; save(); row.classList.toggle('done', e.target.checked); progress(); if (view === 'todo') render(); };
+      const btn = row.querySelector('.copy');
+      btn.onclick = async () => {
+        try { await navigator.clipboard.writeText(prompt); btn.textContent = '복사됨'; btn.classList.add('ok'); setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('ok'); }, 1400); }
+        catch (e) { const r = document.createRange(); r.selectNodeContents(row.querySelector('.prompt')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = '선택됨 · 복사하세요'; }
+      };
+      sec.append(row);
+    }
+    list.append(sec);
+  }
+  progress();
+}
+render();
+</script>
