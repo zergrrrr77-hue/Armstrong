@@ -413,7 +413,7 @@ const AI = {
   orc:      { leash: 13, combo: 1, hurtRes: 0.15, sep: 0.95 },
   boss:     { leash: 18, combo: 1, hurtRes: 0.0, sep: 1.4 },
 };
-const DUNGEON_BONUS = { lv: 2, hp: 1.4, atk: 1.3, xp: 1.5 };
+const DUNGEON_BONUS = { lv: 2, hp: 1.4, atk: 1.3, xp: 1.3 };
 const DUNGEON_REC = 7;
 const TOWN = { i0: 5, i1: 19, j0: 5, j1: 22 };
 const inTown = e => MAP && MAP.id === 'field' && e.x >= TOWN.i0 && e.x <= TOWN.i1 + 1 && e.y >= TOWN.j0 && e.y <= TOWN.j1 + 1;
@@ -498,13 +498,13 @@ const START_EQUIP = { blade: ['b_long', 'p_chain'], bow: ['w_hunt', 'l_leather']
 // 몬스터별 드롭: equip = 장비 드롭 확률, odds = 등급 확률(%), n = 떨어뜨리는 장비 수
 const DROP_TABLE = {
   // 고블린: 잔돈을 자주 / 늑대: 체력약 / 거미: 마나약 / 점액: 물약·보석 / 해골 궁수·병사: 주문서 / 오크: 골드·장비 / 보스: 확정
-  goblin:   { equip: 0.06, odds: [75, 22, 3, 0, 0], gold: [8, 18], goldP: 0.95, red: 0.30, blue: 0.15, sw: 0.03, sa: 0.04, gem: 0.01 },
-  skeleton_archer: { equip: 0.10, odds: [45, 40, 13, 2, 0], gold: [18, 34], red: 0.26, blue: 0.26, sw: 0.10, sa: 0.08, gem: 0.02 },
-  wolf:     { equip: 0.06, odds: [70, 25, 5, 0, 0], gold: [8, 18], red: 0.36, blue: 0.12, sw: 0.03, sa: 0.04, gem: 0.01 },
-  spider:   { equip: 0.07, odds: [65, 28, 7, 0, 0], gold: [10, 22], red: 0.24, blue: 0.30, sw: 0.04, sa: 0.04, gem: 0.02 },
-  ooze:     { equip: 0.06, odds: [70, 25, 5, 0, 0], gold: [8, 20], red: 0.32, blue: 0.26, sw: 0.03, sa: 0.05, gem: 0.04 },
-  orc:      { equip: 0.13, odds: [45, 38, 15, 2, 0], gold: [30, 55], red: 0.30, blue: 0.18, sw: 0.10, sa: 0.07, gem: 0.03 },
-  skeleton: { equip: 0.12, odds: [40, 40, 17, 3, 0], gold: [20, 40], red: 0.28, blue: 0.22, sw: 0.12, sa: 0.10, gem: 0.02 },
+  goblin:   { equip: 0.06, odds: [75, 22, 3, 0, 0], gold: [6, 14], goldP: 0.95, red: 0.18, blue: 0.09, sw: 0.03, sa: 0.04, gem: 0.01 },
+  skeleton_archer: { equip: 0.10, odds: [45, 40, 13, 2, 0], gold: [14, 26], red: 0.16, blue: 0.16, sw: 0.10, sa: 0.08, gem: 0.02 },
+  wolf:     { equip: 0.06, odds: [70, 25, 5, 0, 0], gold: [6, 14], red: 0.22, blue: 0.07, sw: 0.03, sa: 0.04, gem: 0.01 },
+  spider:   { equip: 0.07, odds: [65, 28, 7, 0, 0], gold: [8, 16], red: 0.14, blue: 0.18, sw: 0.04, sa: 0.04, gem: 0.02 },
+  ooze:     { equip: 0.06, odds: [70, 25, 5, 0, 0], gold: [6, 15], red: 0.19, blue: 0.16, sw: 0.03, sa: 0.05, gem: 0.04 },
+  orc:      { equip: 0.13, odds: [45, 38, 15, 2, 0], gold: [22, 41], red: 0.18, blue: 0.11, sw: 0.10, sa: 0.07, gem: 0.03 },
+  skeleton: { equip: 0.12, odds: [40, 40, 17, 3, 0], gold: [15, 30], red: 0.17, blue: 0.13, sw: 0.12, sa: 0.10, gem: 0.02 },
   boss:     { equip: 1.00, odds: [0, 0, 50, 40, 10], gold: [800, 1200], red: 1, blue: 1, sw: 1, sa: 1, gem: 1, n: 2 },
 };
 // 강화: safe = 이 수치까지는 100%. 그 이상은 단계별 성공 확률, 실패하면 +0
@@ -664,6 +664,54 @@ function moveEnt(e, dx, dy) {
   // 축별로 미끄러지듯 이동
   if (free(e.x + dx, e.y)) e.x += dx;
   if (free(e.x, e.y + dy)) e.y += dy;
+}
+// 길찾기(A*, 8방향 격자). 먼 목표는 경로를 따라가고, 가까우면 직선 + 비켜가기
+function lineFree(ax, ay, bx, by) {
+  const n = Math.ceil(Math.hypot(bx - ax, by - ay) * 3);
+  for (let k = 1; k <= n; k++) { const u = k / n; if (!free(ax + (bx - ax) * u, ay + (by - ay) * u)) return false; }
+  return true;
+}
+function findPath(sx, sy, tx, ty, maxNodes = 4000) {
+  const N = MAP.N, si = Math.floor(sx), sj = Math.floor(sy);
+  let ti = Math.floor(tx), tj = Math.floor(ty);
+  if (blocked[ti * N + tj]) {   // 목표 칸이 막혀 있으면 가장 가까운 빈 칸
+    let best = null, bd = 99;
+    for (let di = -2; di <= 2; di++) for (let dj = -2; dj <= 2; dj++) { const i = ti + di, j = tj + dj; if (i >= 0 && j >= 0 && i < N && j < N && !blocked[i * N + j] && Math.hypot(di, dj) < bd) { bd = Math.hypot(di, dj); best = [i, j]; } }
+    if (!best) return null; [ti, tj] = best;
+  }
+  const key = (i, j) => i * N + j, goal = key(ti, tj);
+  const g = new Map([[key(si, sj), 0]]), came = new Map(), open = [[Math.hypot(ti - si, tj - sj), si, sj]], closed = new Set();
+  let it = 0;
+  while (open.length && it++ < maxNodes) {
+    let bi = 0; for (let k = 1; k < open.length; k++) if (open[k][0] < open[bi][0]) bi = k;
+    const [, i, j] = open.splice(bi, 1)[0], kk = key(i, j);
+    if (kk === goal) {
+      const path = []; let c = kk;
+      while (c !== key(si, sj)) { path.push({ x: Math.floor(c / N) + 0.5, y: c % N + 0.5 }); c = came.get(c); }
+      return path.reverse();
+    }
+    if (closed.has(kk)) continue; closed.add(kk);
+    for (let di = -1; di <= 1; di++) for (let dj = -1; dj <= 1; dj++) {
+      if (!di && !dj) continue;
+      const ni = i + di, nj = j + dj; if (ni < 0 || nj < 0 || ni >= N || nj >= N || blocked[ni * N + nj]) continue;
+      if (di && dj && (blocked[(i + di) * N + j] || blocked[i * N + j + dj])) continue;   // 모서리 끼임 방지
+      const nk = key(ni, nj), ng = g.get(kk) + (di && dj ? 1.414 : 1);
+      if (ng < (g.has(nk) ? g.get(nk) : 1e9)) { g.set(nk, ng); came.set(nk, kk); open.push([ng + Math.hypot(ti - ni, tj - nj), ni, nj]); }
+    }
+  }
+  return null;
+}
+function pathDir(e, tx, ty) {
+  // 직선으로 갈 수 있으면 직선, 아니면 0.5초마다 경로를 다시 계산해 다음 지점으로
+  if (Math.hypot(tx - e.x, ty - e.y) < 1.2 || lineFree(e.x, e.y, tx, ty)) { e.path = null; const d = Math.hypot(tx - e.x, ty - e.y) || 1; return { x: (tx - e.x) / d, y: (ty - e.y) / d }; }
+  e.pathT = (e.pathT || 0) - 1;
+  if (!e.path || e.pathT <= 0 || Math.hypot((e.pathTo || {}).x - tx, (e.pathTo || {}).y - ty) > 1.5) { e.path = findPath(e.x, e.y, tx, ty); e.pathTo = { x: tx, y: ty }; e.pathT = 10; }
+  if (!e.path || !e.path.length) { const d = Math.hypot(tx - e.x, ty - e.y) || 1; return { x: (tx - e.x) / d, y: (ty - e.y) / d }; }
+  // 지점에 도착해야 다음으로(모서리를 미리 자르지 않음). 끝에서 두 번째부터는 직선이 완전히 비면 건너뜀
+  while (e.path.length > 1 && Math.hypot(e.path[0].x - e.x, e.path[0].y - e.y) < 0.35) e.path.shift();
+  const w = e.path[0], d = Math.hypot(w.x - e.x, w.y - e.y) || 1;
+  if (d < 0.3 && e.path.length) e.path.shift();
+  return { x: (w.x - e.x) / d, y: (w.y - e.y) / d };
 }
 function steer(e, vx, vy, sp) {
   // 막히면 ±45°, ±90°, ±135° 방향을 차례로 시도해 장애물을 돌아감(직전에 고른 쪽을 유지)
@@ -838,7 +886,8 @@ function gainXp(n) {
     checkQuest(); save();
   }
 }
-const xpNeed = lv => Math.round(35 * Math.pow(lv, 1.5) + (lv > 6 ? 25 * Math.pow(lv - 6, 2.1) : 0));
+// 초반(Lv 1~5) 약 5분, 중반(Lv 6~10) 완만하게 증가, 후반은 가파르게
+const xpNeed = lv => Math.round(100 * Math.pow(lv, 1.5) + (lv > 6 ? 120 * Math.pow(lv - 6, 2.2) : 0));
 function playerDie() {
   P.dead = true; P.hp = 0; setAnim(P, 'death', true); P.goal = null; P.target = null; P.casting = null;
   log('쓰러졌습니다…', 'bad');
@@ -1032,7 +1081,7 @@ function autoHunt(dt) {
   if (!P.target || P.target.dead) {
     P.target = null;
     const m = pickTarget(14) || (inTown(P) || !drops.length ? nearestMob(999) : null);   // 주변이 비면(마을 등) 가장 가까운 사냥터로
-    const near = nearestMob(6);
+    const near = nearestMob(P.c.attack === 'melee' ? 6 : 3.5);
     const loot = drops.filter(d => !d.taken && !d.skip && lootOk(d) && dist(d, P) < 8).sort((a, b) => dist(a, P) - dist(b, P))[0];
     if (loot && !near) { P.goal = { x: loot.x, y: loot.y }; return; }
     if (m) { P.target = m; P.goal = null; }
@@ -1081,17 +1130,17 @@ function updatePlayer(dt) {
   } else if (P.target && !P.target.dead) {
     const d = dist(P.target, P);
     const reach = P.c.range + (P.target.d.boss ? 0.6 : 0);
-    if (d > reach) mv = { x: (P.target.x - P.x) / d, y: (P.target.y - P.y) / d };
+    if (d > reach) mv = pathDir(P, P.target.x, P.target.y);
     else if (!busy && P.atkCd <= 0) playerAttack(P.target);
   } else if (P.goal) {
     const d = dist(P.goal, P);
-    if (d < 0.15) P.goal = null; else mv = { x: (P.goal.x - P.x) / d, y: (P.goal.y - P.y) / d };
+    if (d < 0.15) P.goal = null; else mv = pathDir(P, P.goal.x, P.goal.y);
   }
   if (mv && !busy) {
     const sp = P.c.speed * stat(P, 'speed') * dt;
     const went = steer(P, mv.x, mv.y, sp);
-    if (went) { P.dir = dirOf(went.x, went.y); setAnim(P, 'walk'); }
-    else { if (P.goal) P.goal = null; if (P.auto && P.target) P.target = null; setAnim(P, 'idle'); }
+    if (went) { P.stuck = 0; P.dir = dirOf(went.x, went.y); setAnim(P, 'walk'); }
+    else { P.stuck = (P.stuck || 0) + dt; if (P.stuck > 0.6) { P.path = null; if (P.goal) P.goal = null; if (P.auto && P.target) P.target = null; P.stuck = 0; } setAnim(P, 'idle'); }
   } else if (!busy && P.anim === 'walk') setAnim(P, 'idle');
   tickAnim(P, dt, onPlayerFrame);
   // 출구
@@ -1229,7 +1278,8 @@ function updateMob(m, dt) {
       const sp = m.d.speed * (m.state === 'chase' ? (ai.dash || 1) : 0.5) * (m.buffs.slow > 0 ? 0.5 : 1) * (m.retreat ? 0.8 : 1) * dt;
 
       const mx0 = m.x, my0 = m.y;
-      let went = steer(m, (m.goal.x - m.x) / gd, (m.goal.y - m.y) / gd, sp);
+      const md = gd > 2.5 ? pathDir(m, m.goal.x, m.goal.y) : { x: (m.goal.x - m.x) / gd, y: (m.goal.y - m.y) / gd };
+      let went = steer(m, md.x, md.y, sp);
       if (inTown(m)) { m.x = mx0; m.y = my0; went = null; }
       if (went) { m.dir = m.retreat ? dirOf(P.x - m.x, P.y - m.y) : dirOf(went.x, went.y); setAnim(m, 'walk'); } else { m.goal = null; setAnim(m, 'idle'); }
     }
@@ -2141,10 +2191,23 @@ function loop(ts) {
   requestAnimationFrame(loop);
 }
 
+// 밸런스 측정용: 화면을 그리지 않고 게임 시간을 빠르게 진행(시험 전용)
+function simulate(seconds, step = 1 / 20) {
+  const n = Math.round(seconds / step);
+  for (let i = 0; i < n; i++) {
+    if (paused) { $('over').classList.add('hidden'); paused = false; const f = $('overB').onclick; if (f) f(); }
+    now += step;
+    updatePlayer(step);
+    for (const m of mobs) updateMob(m, step);
+    updateProjs(step);
+    updateFx(step);
+    updateVfx(step);
+  }
+}
 // 시험용 손잡이
 window.__game = {
   combat: COMBAT, get P() { return P; }, get mobs() { return mobs; }, get map() { return MAP; }, get fxs() { return fxs; }, get drops() { return drops; }, STATE,
-  addStat, xpNeed, SKILL_LV, DUNGEON_MIN, gainXp, OPT, renderOpt, enchantItem, panelOpen, get uiPaused() { return uiPaused; }, LOOT, start: startGame, save, loadSave, openShop, buy, SHOP, QUESTS, inTown, enterMap, useSkill, enchant, drink, nearestMob, setAuto, equip, makeEquip, equipDef, DROP_TABLE, setPaused: v => { paused = v; },
+  addStat, xpNeed, SKILL_LV, DUNGEON_MIN, gainXp, OPT, renderOpt, enchantItem, panelOpen, get uiPaused() { return uiPaused; }, LOOT, simulate, start: startGame, save, loadSave, openShop, buy, SHOP, QUESTS, inTown, enterMap, useSkill, enchant, drink, nearestMob, setAuto, equip, makeEquip, equipDef, DROP_TABLE, setPaused: v => { paused = v; },
 };
 
 resize();
