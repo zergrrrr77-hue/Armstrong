@@ -127,6 +127,14 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
       const pot2 = await page.evaluate(() => { const P = __game.P; __game.OPT.potHp = 40; return P.inv.pot_red; });
       check(pot2 < pot, '자동 물약 기준 설정(60%) 반영', fails);
     }
+    if (cls === 'elf') {
+      // 5단계: 골드 획득 연출·기록, 희귀 장비 알림, 등급 빛기둥(드롭 정보에 등급 기록)
+      const r5 = await page.evaluate(() => { const G = __game, P = G.P; const g0 = P.gold; G.drops.push({ id: 'gold', n: 33, x: P.x, y: P.y, t: 0 }); G.drops.push({ id: 'bow', equip: G.makeEquip('w_wind'), n: 1, x: P.x, y: P.y, t: 0, grade: 'heroic' }); return g0; });
+      await page.waitForTimeout(400);
+      const r6 = await page.evaluate(() => ({ gold: __game.P.gold, loot: __game.LOOT.map(l => l.text).join('|'), banner: document.querySelector('#banner b').textContent }));
+      check(r6.gold === r5 + 33 && r6.loot.includes('33 골드') && r6.loot.includes('바람의 활'), '골드·장비 획득 기록', fails);
+      check(r6.banner.includes('바람의 활'), '영웅 장비 획득 알림', fails);
+    }
     // 상점: 마을 노점 옆에서 열고 물약 구매
     const shop = await page.evaluate(() => { const G = __game, P = G.P; const st = G.map.props.find(p => p.name === 'stall'); P.x = st.x + 1.2; P.y = st.y + 0.6; P.gold = 1000; return true; });
     await page.waitForTimeout(300);

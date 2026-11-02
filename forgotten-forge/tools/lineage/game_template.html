@@ -105,6 +105,7 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .tbl td.ok { color: #8ae07a; } .tbl td.risk { color: #ffb07a; }
 .chk { display: flex; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); }
 .chk input { accent-color: var(--gold); }
+.loot { display: grid; gap: 2px; font-size: 11px; max-height: 160px; overflow-y: auto; font-variant-numeric: tabular-nums; }
 .cont { justify-self: start; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .cont .start.alt { background: #1c1712; border-color: var(--line-hi); color: var(--fg); font-weight: 500; font-size: 14px; }
 .warn { font-size: 12px; color: #ffb07a; }
@@ -257,7 +258,7 @@ details.info th { color: var(--gold); font-weight: 500; }
 <div class="hud hidden" id="quest"><button class="qh" id="qToggle" type="button" aria-expanded="true"><span>목표</span><span id="qArrow">▾</span></button><span class="qt" id="qt"></span><span class="qp" id="qp"></span></div>
 <button class="hud hidden" id="shopBtn" type="button">상점 열기 (F)</button>
 <div class="hud hidden" id="shop"><h3>잡화 상점 <button type="button" id="shopClose" aria-label="상점 닫기">✕</button></h3><div id="shopList"></div>
-  <div class="act"><button type="button" id="sellCommon">일반 등급 장비 모두 판매</button></div><div class="note" id="shopGold"></div></div>
+  <div class="act"><button type="button" id="sellCommon">일반 등급 장비 모두 판매</button><button type="button" id="sellGem">루비 판매</button></div><div class="note" id="shopGold"></div></div>
 <div class="hud hidden" id="target"><b></b><div class="bar"><i></i><span></span></div></div>
 <div class="hud hidden" id="mini"><div class="zone" id="zone">마을 외곽</div><div class="mmwrap"><canvas id="minimap" width="150" height="150"></canvas><div class="mmz"><button id="mmIn" type="button" aria-label="미니맵 확대">+</button><button id="mmOut" type="button" aria-label="미니맵 축소">−</button></div></div>
   <div class="gold"><canvas id="goldIcon" width="32" height="32"></canvas><span id="gold">0</span></div>
@@ -290,7 +291,9 @@ details.info th { color: var(--gold); font-weight: 500; }
   </div>
   <div class="tabpane hidden" data-pane="use">
     <div class="invgrid" id="invgrid"></div>
-    <div class="note">물약은 Q/E 또는 스킬바 오른쪽 칸으로 마십니다. 마을 상점에서 물약과 주문서를 살 수 있습니다.</div>
+    <div class="note">물약은 Q/E 또는 스킬바 오른쪽 칸으로 마십니다. 마을 상점에서 물약과 주문서를 사고, 루비는 팔 수 있습니다.</div>
+    <div class="sect">최근 획득</div>
+    <div class="loot" id="lootList"></div>
   </div>
   <div class="tabpane hidden" data-pane="stat">
     <div class="sect">남은 포인트 <b id="spLeft">0</b> · 레벨마다 2점</div>
@@ -494,14 +497,15 @@ const DUNGEON_MIN = 5;                       // 던전 입장 최소 레벨
 const START_EQUIP = { blade: ['b_long', 'p_chain'], bow: ['w_hunt', 'l_leather'], staff: ['s_novice', 'r_novice'] };
 // 몬스터별 드롭: equip = 장비 드롭 확률, odds = 등급 확률(%), n = 떨어뜨리는 장비 수
 const DROP_TABLE = {
-  goblin:   { equip: 0.06, odds: [75, 22, 3, 0, 0], gold: [6, 15], red: 0.30, blue: 0.15, sw: 0.03, sa: 0.04 },
-  skeleton_archer: { equip: 0.10, odds: [45, 40, 13, 2, 0], gold: [18, 34], red: 0.28, blue: 0.24, sw: 0.08, sa: 0.07 },
-  wolf:     { equip: 0.06, odds: [70, 25, 5, 0, 0], gold: [8, 18], red: 0.28, blue: 0.15, sw: 0.03, sa: 0.04 },
-  spider:   { equip: 0.07, odds: [65, 28, 7, 0, 0], gold: [10, 22], red: 0.28, blue: 0.18, sw: 0.04, sa: 0.04 },
-  ooze:     { equip: 0.06, odds: [70, 25, 5, 0, 0], gold: [8, 20], red: 0.30, blue: 0.20, sw: 0.03, sa: 0.05 },
-  orc:      { equip: 0.12, odds: [45, 38, 15, 2, 0], gold: [25, 45], red: 0.32, blue: 0.20, sw: 0.10, sa: 0.07 },
-  skeleton: { equip: 0.12, odds: [40, 40, 17, 3, 0], gold: [20, 40], red: 0.30, blue: 0.22, sw: 0.10, sa: 0.08 },
-  boss:     { equip: 1.00, odds: [0, 0, 50, 40, 10], gold: [800, 1200], red: 1, blue: 1, sw: 1, sa: 1, n: 2 },
+  // 고블린: 잔돈을 자주 / 늑대: 체력약 / 거미: 마나약 / 점액: 물약·보석 / 해골 궁수·병사: 주문서 / 오크: 골드·장비 / 보스: 확정
+  goblin:   { equip: 0.06, odds: [75, 22, 3, 0, 0], gold: [8, 18], goldP: 0.95, red: 0.30, blue: 0.15, sw: 0.03, sa: 0.04, gem: 0.01 },
+  skeleton_archer: { equip: 0.10, odds: [45, 40, 13, 2, 0], gold: [18, 34], red: 0.26, blue: 0.26, sw: 0.10, sa: 0.08, gem: 0.02 },
+  wolf:     { equip: 0.06, odds: [70, 25, 5, 0, 0], gold: [8, 18], red: 0.36, blue: 0.12, sw: 0.03, sa: 0.04, gem: 0.01 },
+  spider:   { equip: 0.07, odds: [65, 28, 7, 0, 0], gold: [10, 22], red: 0.24, blue: 0.30, sw: 0.04, sa: 0.04, gem: 0.02 },
+  ooze:     { equip: 0.06, odds: [70, 25, 5, 0, 0], gold: [8, 20], red: 0.32, blue: 0.26, sw: 0.03, sa: 0.05, gem: 0.04 },
+  orc:      { equip: 0.13, odds: [45, 38, 15, 2, 0], gold: [30, 55], red: 0.30, blue: 0.18, sw: 0.10, sa: 0.07, gem: 0.03 },
+  skeleton: { equip: 0.12, odds: [40, 40, 17, 3, 0], gold: [20, 40], red: 0.28, blue: 0.22, sw: 0.12, sa: 0.10, gem: 0.02 },
+  boss:     { equip: 1.00, odds: [0, 0, 50, 40, 10], gold: [800, 1200], red: 1, blue: 1, sw: 1, sa: 1, gem: 1, n: 2 },
 };
 // 강화: safe = 이 수치까지는 100%. 그 이상은 단계별 성공 확률, 실패하면 +0
 const ENCHANT = {
@@ -789,10 +793,10 @@ function killMob(m) {
   // 아이템 드롭 (DROP_TABLE 기준)
   const T = DROP_TABLE[m.type];
   const roll = (id, p, n = 1) => { if (Math.random() < p) drops.push({ id, n, x: m.x + rnd(-0.7, 0.7), y: m.y + rnd(-0.7, 0.7), t: 0 }); };
-  roll('gold', m.d.boss ? 1 : 0.85, irnd(T.gold[0], T.gold[1]));
+  roll('gold', m.d.boss ? 1 : (T.goldP || 0.85), irnd(T.gold[0], T.gold[1]));
   roll('pot_red', T.red, m.d.boss ? 5 : 1); roll('pot_blue', T.blue, m.d.boss ? 4 : 1);
   roll('scroll_weapon', T.sw, m.d.boss ? 4 : 1); roll('scroll_armor', T.sa, m.d.boss ? 3 : 1);
-  roll('gem_ruby', m.d.boss ? 1 : 0.02);
+  roll('gem_ruby', T.gem != null ? T.gem : 0.02, m.d.boss ? 3 : 1);
   for (let k = 0; k < (T.n || 1); k++) {
     if (Math.random() >= T.equip) continue;
     const g = rollGrade(T.odds);
@@ -800,7 +804,9 @@ function killMob(m) {
     const slot = Math.random() < 0.55 ? 'weapon' : 'armor';
     const pool = base[slot].filter(x => x.grade === g);
     const pick = pool.length ? pool[irnd(0, pool.length - 1)] : base[slot][0];
-    drops.push({ id: pick.icon, equip: makeEquip(pick.key), n: 1, x: m.x + rnd(-0.7, 0.7), y: m.y + rnd(-0.7, 0.7), t: 0 });
+    drops.push({ id: pick.icon, equip: makeEquip(pick.key), n: 1, x: m.x + rnd(-0.7, 0.7), y: m.y + rnd(-0.7, 0.7), t: 0, grade: g });
+    if (g === 'rare') { log(`[희귀] ${pick.name}이(가) 떨어졌습니다!`, 'sys'); sfx('enchant_ok', { gain: 0.35 }); }
+    if (g === 'heroic' || g === 'legend') { banner(`${GRADE_LABEL[g]} 아이템!`, `${pick.name}이(가) 떨어졌습니다`); sfx('level_up', { gain: 0.6 }); }
   }
   if (m.d.boss) {
     STATE.bossDead = true; save();
@@ -1107,6 +1113,17 @@ function updatePlayer(dt) {
   for (const d of drops) if (!d.taken && !d.skip && (lootOk(d) || d.manual) && dist(d, P) < 0.8) { pickup(d); if (!d.taken) d.skip = true; }
   drops = drops.filter(d => !d.taken);
 }
+const GRADE_RGB = { common: '200,195,185', uncommon: '110,210,100', rare: '90,160,255', heroic: '190,120,255', legend: '255,170,60', gold: '255,215,90' };
+const LOOT = [];
+function lootLog(text, grade) {
+  LOOT.unshift({ text, grade, t: new Date() });
+  if (LOOT.length > 20) LOOT.pop();
+  if (!$('inv').classList.contains('hidden')) renderLoot();
+}
+function renderLoot() {
+  const box = $('lootList'); if (!box) return;
+  box.innerHTML = LOOT.length ? LOOT.map(l => `<div class="${l.grade === 'gold' ? 'g-legend' : 'g-' + l.grade}">${l.t.toTimeString().slice(0, 5)} · ${l.text}</div>`).join('') : '<div class="note">아직 얻은 아이템이 없습니다.</div>';
+}
 function pickup(d) {
   d.taken = true;
   if (d.equip) {
@@ -1116,13 +1133,22 @@ function pickup(d) {
     P.bag.push(d.equip);
     const def = equipDef(d.equip.key);
     log(`[${GRADE_LABEL[def.grade]}] ${def.name}을(를) 얻었습니다.`, def.grade === 'common' ? '' : 'sys');
-    if (def.grade === 'heroic' || def.grade === 'legend') { banner(def.name, GRADE_LABEL[def.grade] + ' 장비 획득'); sfx('enchant_ok', { gain: 0.6 }); } else sfx('block', { gain: 0.3 });
+    lootLog(`[${GRADE_LABEL[def.grade]}] ${def.name}`, def.grade);
+    if (def.grade !== 'common' && def.grade !== 'uncommon') { banner(def.name, GRADE_LABEL[def.grade] + ' 장비 획득'); sfx('enchant_ok', { gain: 0.6 }); vfx.push({ k: 'beam', x: P.x, y: P.y, t: 0, life: 0.8, col: GRADE_RGB[def.grade] }); } else sfx('block', { gain: 0.3 });
+    if (def.lv > P.lv) log(`${def.name}은(는) Lv ${def.lv}부터 착용할 수 있습니다.`);
     renderInv(); return;
   }
-  if (d.id === 'gold') { P.gold += d.n; sfx('arrow_hit', { gain: 0.25 }); log(`${d.n} 골드를 주웠습니다.`); return; }
+  if (d.id === 'gold') {
+    P.gold += d.n; sfx('arrow_hit', { gain: 0.25 });
+    vfx.push({ k: 'gold', x: d.x, y: d.y, t: 0, life: 0.5 });
+    texts.push({ who: d, x: P.x, y: P.y, z: 52, t: 0, s: `+${d.n} G`, c: '#ffd65a' });
+    lootLog(`${d.n} 골드`, 'gold');
+    return;
+  }
   P.inv[d.id] = (P.inv[d.id] || 0) + d.n;
   const it = META.items[d.id];
   log(`${it ? it.name : d.id}${d.n > 1 ? ' ×' + d.n : ''}을(를) 얻었습니다.`, d.id.startsWith('scroll') || d.id === 'gem_ruby' ? 'sys' : '');
+  lootLog(`${it ? it.name : d.id}${d.n > 1 ? ' ×' + d.n : ''}`, d.id.startsWith('scroll') || d.id === 'gem_ruby' ? 'rare' : 'common');
   sfx('block', { gain: 0.25 });
   renderInv();
 }
@@ -1367,6 +1393,19 @@ function render() {
     } else if (o.kind === 'drop') {
       const d = o.e, s = toScr(d.x, d.y), ic = itemIcon(d.id);
       const bob = Math.sin(d.t * 3) * 1.5;
+      const gr = d.equip ? equipDef(d.equip.key).grade : d.id === 'gold' ? 'gold' : (d.id.startsWith('scroll') || d.id === 'gem_ruby') ? 'rare' : null;
+      if (gr && gr !== 'common') {
+        const col = GRADE_RGB[gr], big = gr === 'heroic' || gr === 'legend';
+        const hgt = gr === 'gold' ? 10 : big ? 64 : gr === 'rare' ? 46 : 30;
+        ctx.save(); ctx.globalCompositeOperation = 'lighter';
+        const pulse = 0.65 + 0.35 * Math.sin(now * 4 + d.x);
+        const gg = ctx.createLinearGradient(0, s.y - hgt, 0, s.y);
+        gg.addColorStop(0, `rgba(${col},0)`); gg.addColorStop(1, `rgba(${col},${0.45 * pulse})`);
+        ctx.fillStyle = gg; ctx.fillRect(s.x - (big ? 5 : 3), s.y - hgt, big ? 10 : 6, hgt);
+        ctx.fillStyle = `rgba(${col},${0.35 * pulse})`; ctx.beginPath(); ctx.ellipse(s.x, s.y, big ? 12 : 8, big ? 5 : 3.5, 0, 0, Math.PI * 2); ctx.fill();
+        if (big) for (let k = 0; k < 4; k++) { const a = now * 2 + k * 1.57; ctx.fillStyle = `rgba(255,255,255,${0.6 * pulse})`; ctx.fillRect(s.x + Math.cos(a) * 9, s.y - 20 - ((now * 20 + k * 15) % 40), 1.5, 1.5); }
+        ctx.restore();
+      }
       shadow(s.x, s.y, 7);
       if (!lootOk(d) && !d.manual) ctx.globalAlpha = 0.55;
       if (ic) ctx.drawImage(ic.im, ic.sx, ic.sy, 32, 32, Math.round(s.x - 10), Math.round(s.y - 22 + bob), 20, 20);
@@ -1839,6 +1878,7 @@ $('encA').addEventListener('click', () => enchant('a'));
 const toggleInv = () => { $('inv').classList.toggle('hidden'); renderInv(); uiPauseCheck(); };
 function invTab(tab) {
   if (tab === 'stat') renderStats();
+  if (tab === 'use') renderLoot();
   document.querySelectorAll('#invTabs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tab === tab)));
   document.querySelectorAll('#inv .tabpane').forEach(p => p.classList.toggle('hidden', p.dataset.pane !== tab));
 }
@@ -1870,6 +1910,8 @@ function renderShop() {
   $('sellCommon').disabled = !commons.length;
   $('sellCommon').textContent = commons.length ? `일반 등급 장비 ${commons.length}개 판매 (+${Math.round(commons.reduce((a, e) => a + sellPrice(e), 0))} 골드)` : '팔 일반 장비 없음';
   $('shopGold').textContent = `보유 ${P.gold.toLocaleString()} 골드`;
+  const gems = P.inv.gem_ruby || 0;
+  $('sellGem').disabled = !gems; $('sellGem').textContent = gems ? `루비 ${gems}개 판매 (+${gems * GEM_PRICE} 골드)` : '팔 루비 없음';
 }
 function buy(it, n) {
   if (P.gold < it.price * n) return;
@@ -1880,6 +1922,12 @@ function buy(it, n) {
 function openShop() { if ($('shopBtn').classList.contains('hidden')) return; $('shop').classList.remove('hidden'); $('shopBtn').classList.add('hidden'); renderShop(); uiPauseCheck(); }
 $('shopBtn').addEventListener('click', openShop);
 $('shopClose').addEventListener('click', () => { $('shop').classList.add('hidden'); uiPauseCheck(); });
+const GEM_PRICE = 150;
+$('sellGem').addEventListener('click', () => {
+  const n = P.inv.gem_ruby || 0; if (!n) return;
+  P.inv.gem_ruby = 0; P.gold += n * GEM_PRICE; log(`루비 ${n}개를 ${n * GEM_PRICE} 골드에 팔았습니다.`, 'sys'); sfx('enchant_ok', { gain: 0.3 });
+  renderShop(); renderInv(); save();
+});
 $('sellCommon').addEventListener('click', () => {
   let sum = 0;
   P.bag = P.bag.filter(e => { if (equipDef(e.key).grade === 'common') { sum += sellPrice(e); return false; } return true; });
@@ -2096,7 +2144,7 @@ function loop(ts) {
 // 시험용 손잡이
 window.__game = {
   combat: COMBAT, get P() { return P; }, get mobs() { return mobs; }, get map() { return MAP; }, get fxs() { return fxs; }, get drops() { return drops; }, STATE,
-  addStat, xpNeed, SKILL_LV, DUNGEON_MIN, gainXp, OPT, renderOpt, enchantItem, panelOpen, get uiPaused() { return uiPaused; }, start: startGame, save, loadSave, openShop, buy, SHOP, QUESTS, inTown, enterMap, useSkill, enchant, drink, nearestMob, setAuto, equip, makeEquip, equipDef, DROP_TABLE, setPaused: v => { paused = v; },
+  addStat, xpNeed, SKILL_LV, DUNGEON_MIN, gainXp, OPT, renderOpt, enchantItem, panelOpen, get uiPaused() { return uiPaused; }, LOOT, start: startGame, save, loadSave, openShop, buy, SHOP, QUESTS, inTown, enterMap, useSkill, enchant, drink, nearestMob, setAuto, equip, makeEquip, equipDef, DROP_TABLE, setPaused: v => { paused = v; },
 };
 
 resize();
