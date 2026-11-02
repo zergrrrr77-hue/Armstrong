@@ -428,7 +428,12 @@ function audio() {
   return AU;
 }
 // 고른 소리(청취 페이지에서 선택). bgm: 장면별 곡, sfx: 효과음·묶음별 변형 A/B/C
-const SOUND_PICKS = { bgm: { field: 'field_a', town: 'town_a', dungeon: 'dungeon_a', boss: 'boss_a' }, sfx: {} };
+const SOUND_PICKS = {
+  bgm: { field: 'field_a', town: 'town_b', dungeon: 'dungeon_a', boss: 'boss_a' },
+  sfx: { swing_sword: 'B', swing_heavy: 'C', hit_sword: 'C', hit_blunt: 'B', hit_flesh: 'C', bow_release: 'C', arrow_hit: 'B', magic_cast: 'B', magic_hit: 'B', critical: 'C', block: 'C',
+    level_up: 'B', enchant_ok: 'A', enchant_fail: 'B', mon_orc: 'B', mon_skeleton: 'B', mon_wolf: 'B', mon_spider: 'B', mon_ooze: 'C', mon_boss: 'B',
+    pack_knight: 'C', pack_elf: 'B', pack_mage: 'C', pack_boss: 'C', steps: 'C' },
+};
 // 장면에 맞는 배경음악: 마을 · 필드 · 던전 · 보스전(왕이 추격 중)
 function musicKind() {
   if (!MAP) return 'field';
