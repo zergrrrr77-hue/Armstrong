@@ -1192,6 +1192,16 @@
    "ax": 53,
    "ay": 141,
    "frames": 6
+  },
+  "waypoint": {
+   "label": "웨이포인트(룬 비석)",
+   "group": "마을 생활",
+   "sheet": "field/props/waypoint.png",
+   "fw": 38,
+   "fh": 76,
+   "ax": 19,
+   "ay": 66,
+   "frames": 4
   }
  },
  "tiles": {

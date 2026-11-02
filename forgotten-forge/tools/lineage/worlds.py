@@ -349,3 +349,36 @@ def p_deity(f):
         a = ph + k * 1.57
         it.append(Item(S.sphere(oc + V(math.cos(a) * 4.0 * s, math.sin(a) * 4.0 * s, math.sin(a * 2) * 1.0 * s), 0.6 * s), 'holy'))
     return it
+
+
+# ───────────────────────── 웨이포인트: 룬 비석 + 떠 있는 수정 + 빛 고리 ─────────────────────────
+
+F.PM.update({
+    'runestone': Mat(['#1e1f26', '#30323c', '#474a56', '#626674', '#7e8292'], tex=lambda P, n: 0.4 * S.vnoise(P * 0.5, 91)),
+    'rune': Mat(['#0a3a6a', '#1460a8', '#2a90e0', '#6ac4ff', '#c8f0ff'], emit=True),
+    'wcrystal': Mat(['#0c2a5a', '#1a4c96', '#3478d0', '#70b0ff', '#d0ecff'], gloss=0.9),
+})
+
+
+@F.prop('waypoint', '웨이포인트(룬 비석)', (80, 120, 40, 96), frames=4, yaw=0, scale=1.4, group='마을 생활')
+def p_waypoint(f):
+    ph = f * math.pi / 2
+    it = [Item(S.cylinder(V(0, 0, 1.6), 13, 1.6, None, 0.5), 'runestone'),
+          Item(S.sub(S.cylinder(V(0, 0, 3.4), 11.5, 0.4), S.cylinder(V(0, 0, 3.4), 10.3, 1.0)), 'rune')]
+    # 바닥 룬 점 8개(돌아가며 밝아짐)
+    for k in range(8):
+        a = k * math.pi / 4
+        it.append(Item(S.sphere(V(math.cos(a) * 10.9, math.sin(a) * 10.9, 3.6), 0.9 if (k + f) % 4 == 0 else 0.55), 'rune'))
+    # 기울어진 비석 두 개 + 가운데 높은 비석
+    for sx in (-1, 1):
+        it.append(Item(S.box(V(sx * 7, 2, 10), V(2.2, 1.6, 8), S.ry(sx * 8), 0.6), 'runestone'))
+        it.append(Item(S.box(V(sx * 7, 0.3, 11), V(0.5, 0.3, 4.5), S.ry(sx * 8), 0.1), 'rune'))
+    it.append(Item(S.box(V(0, 3, 17), V(3.0, 2.2, 15), None, 0.8), 'runestone'))
+    it.append(Item(S.cone(V(0, 3, 32), V(0, 3, 37), 3.2), 'runestone'))
+    for z in (8, 14, 20, 26):
+        it.append(Item(S.box(V(0, 0.75, z), V(1.6, 0.3, 0.5), None, 0.1), 'rune'))
+    # 떠서 도는 수정
+    cz = 44 + 1.6 * math.sin(ph)
+    it.append(Item(S.ellipsoid(V(0, 3, cz), V(2.6, 2.6, 4.4), S.rz(f * 22)), 'wcrystal'))
+    it.append(Item(S.torus(V(0, 3, cz), S.rx(70) @ S.rz(f * 30), 5.0, 0.35), 'rune'))
+    return it

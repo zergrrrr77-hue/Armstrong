@@ -156,10 +156,108 @@ button.hud, .hud button { pointer-events: auto; }
 .mmwrap { position: relative; }
 .mmz { position: absolute; right: 2px; top: 2px; display: grid; gap: 2px; }
 .mmz button { width: 22px; height: 22px; padding: 0; font-size: 14px; line-height: 1; background: rgba(20,16,12,.85); border: 1px solid var(--line-hi); color: var(--fg); border-radius: 2px; cursor: pointer; }
-.mbtn { display: flex; gap: 4px; justify-content: center; }
-.mbtn { flex-wrap: wrap; }
-.mbtn button { font-size: 11px; background: #1c1712; border: 1px solid var(--line); border-radius: 2px; padding: 3px 6px; min-height: 26px; cursor: pointer; color: var(--muted); }
-.mbtn button[aria-pressed="true"] { color: #fbe7b8; border-color: var(--gold); }
+/* 맵 창 왼쪽 위 아이콘 메뉴(세로) */
+#mini { overflow: visible; }
+.mbtn { position: absolute; right: calc(100% + 6px); top: 0; display: grid; gap: 5px; }
+.mbtn button { width: 46px; height: 46px; padding: 3px 0 0; display: grid; justify-items: center; align-content: center; gap: 1px; font-size: 10px; line-height: 1; background: radial-gradient(circle at 50% 30%, #2c2318, #120e0b 75%); border: 1px solid var(--line-hi); border-radius: 8px; cursor: pointer; color: #d8c8a8; box-shadow: 0 2px 6px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.06); }
+.mbtn button svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.mbtn button:hover { border-color: var(--gold); color: #fbe7b8; }
+.mbtn button[aria-pressed="true"] { color: #fff3c8; border-color: #f0cf7a; box-shadow: 0 0 10px rgba(255, 190, 80, .55), inset 0 0 8px rgba(255, 190, 80, .25); }
+#btnSnd[aria-pressed="false"] { color: #7a6c5c; }
+#btnSnd[aria-pressed="false"] svg path:last-child { opacity: .15; }
+#btnGacha { color: #ffd27a; }
+#devBadge { right: max(10px, env(safe-area-inset-right, 0px)); bottom: max(76px, calc(env(safe-area-inset-bottom, 0px) + 72px)); background: #7a1010; color: #fff; font-weight: 700; font-size: 11px; padding: 2px 8px; border-radius: 10px; letter-spacing: .1em; border: 1px solid #ff6a5a; pointer-events: none; }
+/* 특수 옵션(패시브) 아이템: 테두리 광채 */
+@keyframes pxglow { 0%, 100% { box-shadow: 0 0 4px 1px rgba(200, 120, 255, .55), inset 0 0 0 1px #d090ff; } 50% { box-shadow: 0 0 12px 4px rgba(255, 210, 120, .75), inset 0 0 0 1px #ffe2a0; } }
+.cell.px, .dslot.px, .pxglow { animation: pxglow 1.6s ease-in-out infinite; border-color: #d090ff; }
+/* 사운드 설정 */
+.vrow { display: grid; grid-template-columns: 74px 1fr 34px 44px; gap: 6px; align-items: center; font-size: 12px; }
+.vrow b { font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+.vrow button { min-height: 28px; font-size: 11px; background: #16120e; border: 1px solid var(--line); color: var(--muted); border-radius: 2px; cursor: pointer; }
+.vrow button[aria-pressed="true"] { color: #fbe7b8; border-color: var(--gold); }
+.vrow input { accent-color: var(--gold); width: 100%; }
+.devrow { display: flex; gap: 4px; flex-wrap: wrap; }
+.devrow button { flex: 1 1 45%; min-height: 30px; font-size: 11px; background: #2a0e0e; border: 1px solid #8a2a2a; color: #ffd0c0; border-radius: 2px; cursor: pointer; }
+/* 비교창 */
+#cmp { left: 50%; top: max(10px, env(safe-area-inset-top, 0px)); transform: translateX(-50%); width: min(540px, calc(100vw - 20px)); background: rgba(18, 14, 10, .97); border: 1px solid var(--gold); border-radius: 6px; padding: 10px 12px; z-index: 28; box-shadow: 0 10px 40px #000; display: grid; gap: 8px; }
+#cmp, #cmp * { pointer-events: none; }
+#cmp #cmpClose { pointer-events: auto; }
+#cmp.docked { position: absolute; left: auto; right: 14px; top: auto; bottom: 106px; transform: none; width: min(500px, calc(100% - 28px)); box-shadow: 0 6px 30px #000; }
+@media (max-width: 720px) { #cmp.docked { right: 8px; left: 8px; width: auto; bottom: 120px; } }
+#cmp .ch { display: flex; justify-content: space-between; align-items: center; font-family: var(--display); color: #f3e5c8; }
+#cmp .ch button { background: none; border: 0; color: var(--muted); font-size: 16px; cursor: pointer; }
+.cmpg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ccard { background: #0e0c0a; border: 1px solid var(--line); border-radius: 4px; padding: 8px; display: grid; gap: 4px; font-size: 12px; min-width: 0; }
+.ccard .cht { display: grid; grid-template-columns: 40px 1fr; gap: 6px; align-items: center; }
+.ccard canvas { width: 40px; height: 40px; image-rendering: pixelated; }
+.ccard .cn { font-weight: 700; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ccard .cs { display: flex; justify-content: space-between; gap: 6px; font-variant-numeric: tabular-nums; }
+.ccard .cs span:first-child { color: var(--muted); }
+.ccard .up { color: #8ae07a; } .ccard .down { color: #ff8a7a; }
+.ccard.empty { color: var(--muted); place-content: center; text-align: center; }
+#cmp .ctot { text-align: center; font-size: 13px; }
+/* 강화 연출 */
+#encFx { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(5, 4, 3, .55); z-index: 5; pointer-events: none; }
+#encFx canvas { width: 260px; height: 200px; image-rendering: pixelated; }
+#encFx b { position: absolute; top: calc(50% + 92px); font-family: var(--display); font-size: 24px; text-shadow: 0 2px 10px #000; }
+/* 웨이포인트 메뉴 */
+#wpMenu { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(380px, calc(100vw - 20px)); max-height: calc(100vh - 30px); overflow-y: auto; background: var(--panel); border: 1px solid #6ac4ff; border-radius: 6px; padding: 12px; display: grid; gap: 8px; z-index: 25; box-shadow: 0 0 30px rgba(80, 160, 255, .2), 0 10px 40px #000; }
+#wpMenu h3 { margin: 0; font-family: var(--display); display: flex; justify-content: space-between; color: #c8ecff; }
+#wpMenu h3 button { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 16px; }
+.wprow { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; background: #0e0c0a; border: 1px solid var(--line); border-radius: 4px; padding: 7px 9px; font-size: 13px; }
+.wprow small { display: block; color: var(--muted); font-size: 11px; }
+.wprow button { min-width: 64px; min-height: 34px; background: linear-gradient(#14385a, #0c2238); border: 1px solid #6ac4ff; color: #e0f4ff; border-radius: 3px; cursor: pointer; font-weight: 700; }
+.wprow button:disabled { opacity: .35; cursor: default; }
+.wprow.off { opacity: .5; }
+#wpBtn { left: 50%; transform: translateX(-50%); bottom: max(150px, calc(env(safe-area-inset-bottom, 0px) + 146px)); background: linear-gradient(#14385a, #0c2238); border: 1px solid #6ac4ff; color: #e0f4ff; padding: 10px 20px; border-radius: 20px; font-weight: 700; cursor: pointer; box-shadow: 0 0 18px rgba(80, 160, 255, .45); z-index: 12; }
+/* 뽑기 */
+#gacha { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(760px, calc(100vw - 16px)); height: min(640px, calc(100vh - 16px)); background: linear-gradient(#1a1410, #0e0b08); border: 1px solid var(--gold); border-radius: 8px; z-index: 26; display: grid; grid-template-rows: auto auto auto 1fr; overflow: hidden; box-shadow: 0 0 0 1px #000, 0 0 50px rgba(255, 170, 60, .2), 0 20px 60px #000; }
+.ghead { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); background: radial-gradient(ellipse at 20% 0%, rgba(255, 190, 90, .25), transparent 60%), #17110c; flex-wrap: wrap; }
+.ghead b { font-family: var(--display); font-size: 19px; color: #ffe2a0; }
+.ghead .tabs { flex: 1; min-width: 160px; max-width: 260px; }
+.grates { display: flex; flex-wrap: wrap; gap: 4px 10px; padding: 8px 14px 0; font-size: 11px; font-variant-numeric: tabular-nums; }
+.grates span b { font-weight: 700; }
+.gctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 14px; border-bottom: 1px solid var(--line); }
+.gctl .pull { min-height: 44px; padding: 0 16px; background: linear-gradient(#6a4a16, #3a280c); border: 1px solid #f0cf7a; color: #fff1c8; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 13px; }
+.gctl .pull small { display: block; font-weight: 500; font-size: 10px; color: #f0d79a; }
+.gctl .pull:disabled { opacity: .4; cursor: default; }
+.gctl .ginfo { font-size: 11px; color: var(--muted); line-height: 1.5; margin-left: auto; text-align: right; }
+.gctl .ginfo button { background: #2a1e10; border: 1px solid var(--line-hi); color: #f0dca8; border-radius: 2px; font-size: 11px; padding: 2px 6px; cursor: pointer; }
+.gctl .ginfo button:disabled { opacity: .4; }
+.gbody { display: block; min-height: 0; overflow-y: auto; padding: 10px 14px; }
+.gres { margin-bottom: 10px; }
+.gres { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; min-height: 10px; }
+.gcard { width: 84px; height: 110px; border-radius: 6px; perspective: 600px; position: relative; }
+.gcard .in { position: absolute; inset: 0; transition: transform .45s ease; transform-style: preserve-3d; }
+.gcard.open .in { transform: rotateY(180deg); }
+.gcard .fr, .gcard .bk { position: absolute; inset: 0; border-radius: 6px; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.gcard .bk { background: repeating-linear-gradient(45deg, #2a1e10 0 6px, #22180d 6px 12px); border: 1px solid var(--gold); }
+.gcard .fr { transform: rotateY(180deg); background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--gc) 30%, #120e0a), #0c0a08 75%); border: 2px solid var(--gc); display: grid; grid-template-rows: 1fr auto auto; justify-items: center; padding: 4px 2px; box-shadow: 0 0 14px color-mix(in srgb, var(--gc) 60%, transparent); }
+.gcard canvas { width: 64px; height: 64px; image-rendering: pixelated; }
+.gcard .gn { font-size: 10px; text-align: center; line-height: 1.2; color: #f3e5c8; }
+.gcard .gg { font-size: 10px; font-weight: 700; color: var(--gc); }
+.gcard .nw { position: absolute; left: 3px; top: 2px; font-size: 9px; font-weight: 700; color: #fff; background: #c8402a; border-radius: 6px; padding: 0 4px; }
+.gcard.hi .fr { animation: gshine 1.2s ease-in-out infinite; }
+@keyframes gshine { 50% { box-shadow: 0 0 28px 6px var(--gc); } }
+#gFlash { position: fixed; inset: 0; pointer-events: none; z-index: 40; opacity: 0; transition: opacity .6s; }
+.gcoll { display: grid; grid-template-columns: repeat(auto-fill, minmax(98px, 1fr)); gap: 6px; align-content: start; }
+.gitem { position: relative; background: #0c0a08; border: 1px solid var(--gc); border-radius: 5px; padding: 4px; display: grid; justify-items: center; gap: 2px; font-size: 10px; cursor: pointer; color: #e8dcc6; }
+.gitem canvas { width: 56px; height: 56px; image-rendering: pixelated; }
+.gitem.no { filter: grayscale(1) brightness(.4); cursor: default; }
+.gitem.on { box-shadow: 0 0 0 2px #fff, 0 0 12px var(--gc); }
+.gitem .st { color: #ffd65a; letter-spacing: -1px; }
+.gitem .eqb { font-size: 10px; color: #8ae07a; }
+.gsel { font-size: 12px; color: var(--fg); background: #0e0c0a; border: 1px solid var(--line); border-radius: 4px; padding: 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.gsel button { min-height: 32px; padding: 0 12px; background: linear-gradient(#5a3e14, #3a280c); border: 1px solid var(--gold); color: #fbe7b8; border-radius: 3px; cursor: pointer; font-weight: 700; }
+@media (max-width: 720px) {
+  .mbtn { gap: 3px; }
+  .mbtn button { width: 36px; height: 36px; border-radius: 7px; padding: 0; }
+  .mbtn button span { display: none; }
+  .mbtn button svg { width: 19px; height: 19px; }
+  .gcard { width: 60px; height: 84px; } .gcard canvas { width: 46px; height: 46px; }
+  .gcoll { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+  .vrow { grid-template-columns: 64px 1fr 30px 40px; }
+}
 
 /* 투명 플로팅 조이스틱: 화면 왼쪽 아래를 누른 자리에 나타남 */
 #joyZone { position: fixed; left: 0; bottom: 0; width: 46vw; height: 60vh; z-index: 8; touch-action: none; }
@@ -307,10 +405,10 @@ details.info th { color: var(--gold); font-weight: 500; }
   #mini { padding: 4px; gap: 3px; }
   #mini .zone { font-size: 11px; }
   #mini .gold { font-size: 12px; }
-  #mini .mbtn { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+  #mini .mbtn { display: grid; gap: 3px; }
   #quest { width: 150px; }
   .slot { width: 50px; height: 50px; }
-  .mbtn button { min-height: 30px; font-size: 11px; padding: 3px 5px; }
+
   .sbar { width: 84px; }
   .orbtxt .num { flex-direction: column; gap: 0; font-size: 10px; }
   .orbtxt { max-width: 96px; }
@@ -336,7 +434,9 @@ details.info th { color: var(--gold); font-weight: 500; }
       <div><kbd>1</kbd>~<kbd>4</kbd>스킬</div>
       <div><kbd>Q</kbd>체력 물약 · <kbd>E</kbd>마나 물약</div>
       <div><kbd>H</kbd>자동사냥 · <kbd>I</kbd>가방·강화 · <kbd>M</kbd>소리</div>
-      <div><kbd>F</kbd>상점(화로의 신) · <kbd>5</kbd>~<kbd>8</kbd>월드보스 스킬</div>
+      <div><kbd>F</kbd>상점·웨이포인트 · <kbd>5</kbd>~<kbd>8</kbd>월드보스 스킬</div>
+      <div><kbd>G</kbd>뽑기(펫·변신) · <kbd>F2</kbd>개발자 모드</div>
+      <div><span style="color:#ff6a5a">▼</span> 선공 몬스터(먼저 공격) · <span style="color:#8ae07a">●</span> 후공 몬스터</div>
       <div><kbd>휴대폰</kbd>왼쪽 아래를 누르고 끌면 투명 조이스틱</div>
     </div>
   </div>
@@ -354,13 +454,13 @@ details.info th { color: var(--gold); font-weight: 500; }
     <button type="button" id="shopClose" class="wclose" aria-label="상점 닫기">✕</button></div>
   <div class="tabs" id="shopTabs"><button type="button" data-st="buy" aria-pressed="true">구매</button><button type="button" data-st="sell" aria-pressed="false">판매</button></div>
   <div id="shopList"></div>
-  <div class="act hidden" id="shopSell"><button type="button" id="sellCommon">일반 등급 장비 모두 판매</button><button type="button" id="sellUncommon">고급 등급 장비 모두 판매</button><button type="button" id="sellGem">루비 판매</button></div>
+  <div class="act hidden" id="shopSell"><button type="button" id="sellCommon">일반 등급 장비 모두 판매</button><button type="button" id="sellUncommon">고급 등급 장비 모두 판매</button><button type="button" id="sellLoot">전리품 모두 판매</button><button type="button" id="sellGem">루비 판매</button></div>
   <div class="note" id="shopGold"></div></div>
 <div class="hud hidden" id="target"><b></b><div class="bar"><i></i><span></span></div></div>
 <div class="hud hidden" id="mini"><div class="zone" id="zone">마을 외곽</div><div class="mmwrap"><canvas id="minimap" width="150" height="150"></canvas><div class="mmz"><button id="mmIn" type="button" aria-label="미니맵 확대">+</button><button id="mmOut" type="button" aria-label="미니맵 축소">−</button></div></div>
   <div class="gold"><canvas id="goldIcon" width="32" height="32"></canvas><span id="gold">0</span></div>
   <div class="wbt" id="wbTimer"></div>
-  <div class="mbtn"><button id="btnAuto" type="button" aria-pressed="false">자동 H</button><button id="btnInv" type="button">가방 I</button><button id="btnSnd" type="button" aria-pressed="true">소리 M</button><button id="btnOpt" type="button" aria-label="설정">설정</button></div></div>
+  <div class="mbtn"><button id="btnAuto" type="button" aria-pressed="false" title="자동사냥 (H)" aria-label="자동사냥"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/><path d="M9 15l3-7 3 7M10 13h4"/></svg><span>자동</span></button><button id="btnInv" type="button" title="가방 (I)" aria-label="가방"><svg viewBox="0 0 24 24"><path d="M5 9h14l-1.2 11H6.2z"/><path d="M9 9V7a3 3 0 0 1 6 0v2"/></svg><span>가방</span></button><button id="btnGacha" type="button" title="뽑기 (G)" aria-label="뽑기"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17l-5.6 2.9 1.1-6.3L2.9 9.2l6.3-.9z"/></svg><span>뽑기</span></button><button id="btnSnd" type="button" aria-pressed="true" title="소리 켜기/끄기 (M)" aria-label="소리"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span>소리</span></button><button id="btnOpt" type="button" title="설정" aria-label="설정"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg><span>설정</span></button></div></div>
 <div class="hud hidden" id="opt">
   <h3>설정 <button type="button" id="optClose" aria-label="설정 닫기">✕</button></h3>
   <div class="orow"><span>가방·상점을 열 때</span><div class="seg" data-opt="invMode"><button type="button" data-v="pause">일시정지</button><button type="button" data-v="continue">계속 진행 (받는 피해 50% 감소)</button></div></div>
@@ -368,8 +468,24 @@ details.info th { color: var(--gold); font-weight: 500; }
   <div class="orow"><span>자동 마나 물약 <b id="vPotMp"></b></span><input type="range" id="potMp" min="5" max="60" step="5"></div>
   <div class="orow"><span>자동 아이템 줍기</span><div class="seg" data-opt="loot"><button type="button" data-v="all">전부</button><button type="button" data-v="uncommon">고급 이상 장비 + 소모품</button><button type="button" data-v="off">끄기</button></div></div>
   <div class="orow"><span>자동 전투 대상 우선순위</span><div class="seg" data-opt="prio"><button type="button" data-v="near">가까운 적</button><button type="button" data-v="weak">체력 낮은 적</button><button type="button" data-v="strong">레벨 높은 적</button></div></div>
+  <div class="orow"><span>아이템을 볼 때 비교창</span><div class="seg" data-opt="cmpAuto"><button type="button" data-v="on">자동으로 띄우기</button><button type="button" data-v="off">버튼으로만</button></div></div>
   <div class="note">자동 물약은 자동 전투를 켜지 않아도 작동합니다. 마나가 스킬 비용보다 적으면 스킬을 쓰지 않습니다.</div>
+  <div class="orow"><span>사운드</span><div id="volRows"></div></div>
+  <div class="orow"><span>개발자 모드 (F2)</span><div class="seg" data-opt="dev"><button type="button" data-v="off">끄기</button><button type="button" data-v="on">켜기</button></div>
+    <div class="note">드롭 100% · 높은 등급 · 강화 100% · 뽑기 확률 대폭 상향 · 패시브 30%. 시험용입니다.</div>
+    <div class="devrow" id="devRow"><button type="button" data-dev="gold">골드 +1,000,000</button><button type="button" data-dev="lv">레벨 +1</button><button type="button" data-dev="wb">월드보스 즉시 출현</button><button type="button" data-dev="wp">웨이포인트 모두 열기</button><button type="button" data-dev="god">무적 켜기/끄기</button><button type="button" data-dev="items">주문서·물약 99개</button></div></div>
 </div>
+<div class="hud hidden" id="devBadge">DEV</div>
+<button class="hud hidden" id="wpBtn" type="button">◈ 웨이포인트 (F)</button>
+<div class="hud hidden" id="wpMenu" role="dialog" aria-label="웨이포인트"><h3><span id="wpTitle">웨이포인트</span><button type="button" id="wpClose" aria-label="닫기">✕</button></h3><div class="note" id="wpNote"></div><div id="wpList"></div></div>
+<div class="hud hidden" id="cmp" role="dialog" aria-label="아이템 비교"><div class="ch"><span>아이템 비교</span><button type="button" id="cmpClose" aria-label="비교창 닫기">✕</button></div><div class="cmpg" id="cmpGrid"></div><div class="ctot" id="cmpTot"></div></div>
+<div class="hud hidden" id="gacha" role="dialog" aria-label="뽑기">
+  <div class="ghead"><b>신의 축복 뽑기</b><div class="tabs" id="gTabs"><button type="button" data-g="pet" aria-pressed="true">펫</button><button type="button" data-g="morph" aria-pressed="false">변신 인형</button></div><span class="wgold" id="gGold"></span><button type="button" id="gClose" class="wclose" aria-label="뽑기 닫기">✕</button></div>
+  <div class="grates" id="gRates"></div>
+  <div class="gctl"><button type="button" class="pull" id="gPull1">1회 뽑기<small>10,000 골드</small></button><button type="button" class="pull" id="gPull11">11회 뽑기<small>100,000 골드 · 희귀 이상 1회 확정</small></button><div class="ginfo" id="gInfo"></div></div>
+  <div class="gbody"><div class="gres" id="gRes"></div><div><div class="gsel" id="gSel"></div><div class="sect" style="margin:8px 0 6px">도감 · 보유</div><div class="gcoll" id="gColl"></div></div></div>
+</div>
+<div id="gFlash"></div>
 <div id="joyZone" class="hidden" aria-hidden="true"><div id="joyBase"><div id="joyKnob"></div></div></div>
 <div class="hud hidden" id="bar"></div>
 <div class="hud hidden" id="xp"><i></i></div>
@@ -383,6 +499,7 @@ details.info th { color: var(--gold); font-weight: 500; }
     <button type="button" id="invClose" class="wclose" aria-label="가방 닫기">✕</button>
   </div>
   <div id="encToast"></div>
+  <div id="encFx" class="hidden"><canvas id="encCv" width="260" height="200"></canvas><b id="encFxT"></b></div>
   <div class="tabpane wbody" data-pane="eq">
     <div class="doll">
       <canvas id="dollCv" width="160" height="200"></canvas>
@@ -483,13 +600,35 @@ function updateMusic(dt) {
   if ((musicT -= dt) > 0) return; musicT = 0.5;
   const k = musicKind(); if (k !== musicNow) { musicNow = k; AU.music(k); }
 }
-function sfx(name, o) { if (!soundOn) return; const a = audio(); if (a && name) { try { a.play(name, o); } catch (e) { /* 없는 소리 */ } } }
+// 같은 소리는 0.09초 안에 다시 내지 않고, 몬스터 목소리는 1초에 최대 3번(겹쳐서 끝없이 이어지는 현상 방지)
+const SFX_LAST = {}, VOICE_T = [];
+const isVoice = n => /_(attack|hurt|death|howl)$/.test(n || '');
+let SFX_STAT = { played: 0, dropped: 0 };
+function sfx(name, o = {}, cat = 'fx') {
+  if (!soundOn || !name) return;
+  const V = OPT.vol || {}, M = OPT.mute || {};
+  if (M[cat]) return;
+  const t = performance.now();
+  if (t - (SFX_LAST[name] || -1e9) < 90) { SFX_STAT.dropped++; return; }
+  if (cat === 'mon' && isVoice(name)) {
+    while (VOICE_T.length && t - VOICE_T[0] > 1000) VOICE_T.shift();
+    if (VOICE_T.length >= 3) { SFX_STAT.dropped++; return; }
+    VOICE_T.push(t);
+  }
+  SFX_LAST[name] = t;
+  const a = audio(); if (!a) return;
+  const g = (o.gain == null ? 1 : o.gain) * ((cat === 'mon' ? V.mon : V.sfx) ?? 100) / 100;
+  if (g <= 0.001) return;
+  try { a.play(name, Object.assign({}, o, { gain: g })); SFX_STAT.played++; } catch (e) { /* 없는 소리 */ }
+}
 function panFor(e) { const s = toScr(e.x - P.x, e.y - P.y); return clamp(s.x / 400, -0.8, 0.8); }
 function sfxAt(e, name, gain = 1) {
   const d = dist(e, P);
   if (d > 14) return;
-  sfx(name, { pan: panFor(e), gain: gain * clamp(1.2 - d / 14, 0.15, 1) });
+  sfx(name, { pan: panFor(e), gain: gain * clamp(1.2 - d / 14, 0.15, 1) }, e && e.kind === 'mob' ? 'mon' : 'fx');
 }
+// 몬스터 목소리(함성·피격): 몬스터마다 2.5초에 한 번만
+function mobVoice(m, name, gain) { if (!name || (m.voiceT || 0) > now) return; m.voiceT = now + 2.5; sfxAt(m, name, gain); }
 
 // ───────────────────────── 데이터 ─────────────────────────
 const CLASSES = {
@@ -557,12 +696,16 @@ const AI = {
   wb_lich:    { leash: 16, combo: 2, comboGap: 0.5, hurtRes: 0.0, sep: 2.2 },
 };
 const DUNGEON_BONUS = { lv: 2, hp: 1.4, atk: 1.3, xp: 1.3 };
+// 리젠: 25초 → 60초(2.4배 느리게). 대신 일반 몬스터 경험치 ×1.4, 체력 ×1.3, 공격력 ×1.2. 선공 몬스터는 경험치 +15%
+const RESPAWN_T = 60;
+const MOB_TUNE = { hp: 1.3, atk: 1.2, xp: 1.4, aggrXp: 1.15 };
 const DUNGEON_REC = 7;
 const TOWN = { i0: 5, i1: 19, j0: 5, j1: 22 };
 const inTown = e => MAP && MAP.id === 'field' && e.x >= TOWN.i0 && e.x <= TOWN.i1 + 1 && e.y >= TOWN.j0 && e.y <= TOWN.j1 + 1;
 const SHOP = [
   { id: 'pot_red', price: 25, desc: '최대 HP의 32% 회복' }, { id: 'pot_blue', price: 35, desc: '최대 MP의 40% 회복' },
-  { id: 'scroll_return', price: 60, desc: '어디서든 마을 광장으로 귀환' },
+  { id: 'scroll_return', price: 60, desc: '어디서든 마을 광장으로 즉시 귀환' },
+  { id: 'scroll_teleport', price: 150, desc: '찾아 둔 웨이포인트 중 원하는 곳으로 이동' },
   { id: 'scroll_weapon', price: 450, desc: '무기 강화 +1 시도' }, { id: 'scroll_armor', price: 320, desc: '방어구 강화 +1 시도' },
 ];
 // 상점 NPC(화로의 신)의 인사말
@@ -756,7 +899,9 @@ const ENCHANT = {
   weapon: { safe: 6, chance: { 6: 50, 7: 40, 8: 30, 9: 20 }, atk: 2.4 },
   armor: { safe: 4, chance: { 4: 60, 5: 50, 6: 40, 7: 30, 8: 25, 9: 20 }, def: 1.5 },
 };
-const encChance = (slot, lv) => lv < ENCHANT[slot].safe ? 100 : (ENCHANT[slot].chance[lv] || 0);
+const encChance = (slot, lv) => DEV() ? 100 : lv < ENCHANT[slot].safe ? 100 : (ENCHANT[slot].chance[lv] || 0);
+const DEV = () => typeof OPT !== 'undefined' && OPT.dev === 'on';
+const DEV_ODDS = [10, 20, 30, 25, 15];
 const equipDef = key => { if (GEAR[key]) return Object.assign({ lv: GRADE_LV[GEAR[key].grade] }, GEAR[key]); for (const base of Object.values(EQUIP)) for (const slot of ['weapon', 'armor']) { const d = base[slot].find(x => x.key === key); if (d) return Object.assign({ slot, lv: GRADE_LV[d.grade] }, d); } return null; };
 let UID = 1;
 // o.bias: 수치 편향(1 = 균등), o.px: 패시브, o.mid: 모든 수치를 중간값으로(시작 장비)
@@ -779,7 +924,7 @@ const BLOCK = { oak: 0.7, pine: 0.6, dead_tree: 0.5, rock_big: 0.9, rock_small: 
   house: 1.3, well: 0.6, fence: 0.5, barrel: 0.3, crate: 0.35, signpost: 0.2, tent: 0.9, campfire: 0.45, grave: 0.3, cross_grave: 0.3,
   pillar: 0.5, crystal: 0.5, dungeon_wall: 0.75, portcullis: 0.0, chain_pillar: 0.55, chest: 0.4, chest_open: 0.4, altar: 0.8,
   sarcophagus: 0.9, cage: 0.6, stall: 1.0, anvil: 0.35, forge: 0.9, cart: 0.8, lamp_post: 0.2, haybale: 0.45, notice_board: 0.3,
-  grindstone: 0.35, firewood: 0.45, planter: 0.4, banner_pole: 0.2, trough: 0.5, bone_pile: 0.6, torch: 0.2, wall_torch: 0.2, shrine: 2.0 };
+  grindstone: 0.35, firewood: 0.45, planter: 0.4, banner_pole: 0.2, trough: 0.5, bone_pile: 0.6, torch: 0.2, wall_torch: 0.2, shrine: 2.0, waypoint: 0.4 };
 // 소품을 타일 중심 기준으로 정렬할 때 쓰는 화면 기준점 보정은 meta(ax, ay)가 담당
 
 function makeField() {
@@ -826,6 +971,7 @@ function makeField() {
   for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3 + 0.4; put('pillar', Math.floor(WBF.x + Math.cos(a) * 5.4), Math.floor(WBF.y + Math.sin(a) * 5.4)); }
   put('bone_pile', Math.floor(WBF.x) + 2, Math.floor(WBF.y) - 2); put('bones', Math.floor(WBF.x) - 2, Math.floor(WBF.y) + 1);
   put('torch', Math.floor(WBF.x) - 3, Math.floor(WBF.y) - 3, 1); put('torch', Math.floor(WBF.x) + 3, Math.floor(WBF.y) + 3, 2);
+  for (const w of WAYPOINTS.field) put('waypoint', Math.floor(w.x), Math.floor(w.y));
   // 숲: 길·광장·늪·제단을 피해 나무 흩뿌리기
   const busy = (i, j) => { const t = g[i][j][0]; return t !== 'grass' || (i < 22 && j < 24) || (i > 46 && j > 42) || Math.hypot(i + 0.5 - WBF.x, j + 0.5 - WBF.y) < 7; };
   for (let k = 0; k < 520; k++) {
@@ -840,7 +986,8 @@ function makeField() {
   }
   for (let k = 0; k < 40; k++) { const i = Math.floor(R() * N), j = Math.floor(R() * N); if (!busy(i, j) && !props.some(p => Math.abs(p.x - i - 0.5) < 1.5 && Math.abs(p.y - j - 0.5) < 1.5)) put(R() < 0.5 ? 'rock_small' : R() < 0.5 ? 'rock_big' : 'bush', i, j); }
   // 몬스터 무리
-  const zone = (type, ci, cj, n, r) => { for (let k = 0; k < n; k++) spawns.push({ type, x: ci + rnd(-r, r), y: cj + rnd(-r, r), home: { x: ci, y: cj } }); };
+  // 선공/후공을 출현 순서대로 번갈아 배정 → 맵 전체가 정확히 50:50
+  const zone = (type, ci, cj, n, r) => { for (let k = 0; k < n; k++) spawns.push({ type, x: ci + rnd(-r, r), y: cj + rnd(-r, r), home: { x: ci, y: cj }, aggr: spawns.length % 2 === 0 }); };
   zone('goblin', 24, 20, 5, 3); zone('goblin', 22, 30, 4, 3);
   zone('skeleton_archer', 47, 7, 3, 2);
   zone('wolf', 30, 14, 4, 4); zone('wolf', 30, 34, 4, 4); zone('wolf', 52, 30, 3, 3);
@@ -873,12 +1020,13 @@ function makeDungeon() {
   put('torch', 9, 10, 0); put('torch', 17, 17, 2); put('torch', 12, 26, 1);
   lamps.push({ x: 9.5, y: 10.5, r: 130 }, { x: 17.5, y: 17.5, r: 130 }, { x: 12.5, y: 26.5, r: 130 });
   put('stairs', 3, 5);
-  const zone = (type, ci, cj, n, r) => { for (let k = 0; k < n; k++) spawns.push({ type, x: ci + rnd(-r, r), y: cj + rnd(-r, r), home: { x: ci, y: cj } }); };
+  const zone = (type, ci, cj, n, r) => { for (let k = 0; k < n; k++) spawns.push({ type, x: ci + rnd(-r, r), y: cj + rnd(-r, r), home: { x: ci, y: cj }, aggr: spawns.length % 2 === 0 }); };
   // 월드보스 납골당(남서): 횃불·해골 더미
   const WBD = WORLD_BOSS.dungeon;
   put('torch', Math.floor(WBD.x) - 4, Math.floor(WBD.y) + 1, 1); put('torch', Math.floor(WBD.x) + 4, Math.floor(WBD.y) + 1, 3);
   put('bone_pile', Math.floor(WBD.x) - 2, Math.floor(WBD.y) + 3); put('sarcophagus', Math.floor(WBD.x) + 3, Math.floor(WBD.y) + 3);
   lamps.push({ x: WBD.x - 3.5, y: WBD.y + 1.5, r: 150 }, { x: WBD.x + 4.5, y: WBD.y + 1.5, r: 150 }, { x: WBD.x, y: WBD.y, r: 120 });
+  for (const w of WAYPOINTS.dungeon) put('waypoint', Math.floor(w.x), Math.floor(w.y));
   zone('skeleton', 10, 12, 4, 3); zone('spider', 18, 8, 3, 3); zone('skeleton', 16, 22, 4, 3); zone('orc', 8, 19, 3, 2);
   zone('spider', 22, 14, 3, 2); zone('skeleton', 24, 20, 3, 2);
   zone('skeleton_archer', 14, 16, 2, 2); zone('skeleton_archer', 26, 12, 2, 2);
@@ -1032,6 +1180,7 @@ function newPlayer(cls) {
     cds: {}, casting: null, gold: 0, inv: { pot_red: 6, pot_blue: 4, scroll_weapon: 2, scroll_armor: 2 }, stepT: 0, hitFlash: 0, dead: false, regenT: 0,
     st: Object.assign({}, BASE_STATS[cls]), sp: 0,
     eq: { weapon: makeEquip(START_EQUIP[c.base][0], 0, { mid: true }), armor: makeEquip(START_EQUIP[c.base][1], 0, { mid: true }) }, bag: [], wbs: {}, morph: null, px: {},
+    coll: { pet: {}, morph: {} }, pet: null, gacha: { pet: { pity: 0, mile: 0 }, morph: { pity: 0, mile: 0 } },
     get weapon() { return this.eq.weapon; }, set weapon(v) { this.eq.weapon = v; },
     get armor() { return this.eq.armor || { uid: -1, key: START_EQUIP[c.base][1], enc: 0, none: true }; }, set armor(v) { this.eq.armor = v; }, auto: false, autoHold: 0, autoT: 0,
     get wEnc() { return this.weapon.enc; }, get aEnc() { return this.armor.enc; } };
@@ -1039,8 +1188,10 @@ function newPlayer(cls) {
 function newMob(s) {
   const base = MONSTERS[s.type];
   const dun = MAP && MAP.id === 'dungeon' && !base.boss;
-  const d = dun ? Object.assign({}, base, { hp: Math.round(base.hp * DUNGEON_BONUS.hp), atk: base.atk.map(v => v * DUNGEON_BONUS.atk), xp: Math.round(base.xp * DUNGEON_BONUS.xp) }) : base;
-  return { kind: 'mob', type: s.type, d, lv: MLV[s.type] + (dun ? DUNGEON_BONUS.lv : 0), group: 'monsters', sheet: s.type, x: s.x, y: s.y, home: s.home, spawn: s, dir: irnd(0, 7), anim: 'idle', t: rnd(0, 1), f: 0,
+  const aggr = base.boss ? true : s.aggr !== false;
+  const hk = base.boss ? 1 : MOB_TUNE.hp * (dun ? DUNGEON_BONUS.hp : 1), ak = base.boss ? 1 : MOB_TUNE.atk * (dun ? DUNGEON_BONUS.atk : 1), xk = base.boss ? 1 : MOB_TUNE.xp * (dun ? DUNGEON_BONUS.xp : 1) * (aggr ? MOB_TUNE.aggrXp : 1);
+  const d = base.boss ? base : Object.assign({}, base, { hp: Math.round(base.hp * hk), atk: base.atk.map(v => v * ak), xp: Math.round(base.xp * xk) });
+  return { kind: 'mob', type: s.type, d, aggr, lv: MLV[s.type] + (dun ? DUNGEON_BONUS.lv : 0), group: 'monsters', sheet: s.type, x: s.x, y: s.y, home: s.home, spawn: s, dir: irnd(0, 7), anim: 'idle', t: rnd(0, 1), f: 0,
     hp: d.hp, maxhp: d.hp, state: 'idle', atkCd: rnd(0, 1), wanderT: rnd(1, 4), goal: null, buffs: {}, dead: false, deadT: 0, hitFlash: 0,
     skillCd: { skill_darkslash: 4, skill_hellfire: 7, rain: 6 }, casting: null, phase: 0 };
 }
@@ -1071,7 +1222,7 @@ const pxv = k => (P && P.px && P.px[k]) || 0;
 const pxRoll = k => pxv(k) > 0 && Math.random() * 100 < pxv(k);
 function statAtk(e) { const m = MAIN_STAT[e.cls]; let v = bonus(m) * 1.0; for (const k of ['str', 'dex', 'int']) if (k !== m) v += bonus(k) * 0.4 * (k === 'str' ? 1 : 0); return v; }
 function atkRoll(e) {
-  if (e.kind === 'player') { const [a, b] = e.c.atk; return (rnd(a, b) + e.lv * 1.6 + statAtk(e) + EQS().atk) * stat(e, 'atk') * (e.morph ? 1.08 : 1); }
+  if (e.kind === 'player') { const [a, b] = e.c.atk; return (rnd(a, b) + e.lv * 1.6 + statAtk(e) + EQS().atk) * stat(e, 'atk') * (1 + collBonus('atk')); }
   return rnd(e.d.atk[0], e.d.atk[1]);
 }
 function setAnim(e, a, force) {
@@ -1098,6 +1249,8 @@ function enterMap(id, at) {
   P.x = sp.x; P.y = sp.y;
   P.goal = null; P.target = null; P.path = null; P.talk = false;
   wbT = 0; updateWorldBoss(0, true);
+  if (PET) { PET.x = P.x - 0.8; PET.y = P.y - 0.8; }
+  $('wpMenu').classList.add('hidden');
   if (wbd) img(META.monsters[wbd.type].sheet);   // 월드보스 시트는 그 맵에 들어갈 때 미리 불러 둠
   $('zone').textContent = MAP.name;
   banner(MAP.name, id === 'dungeon' ? (P.lv < DUNGEON_REC ? `권장 레벨 ${DUNGEON_REC} · 현재 Lv ${P.lv} — 위험합니다` : '깊은 곳에서 무언가가 깨어난다') : '사냥을 시작하세요');
@@ -1112,6 +1265,7 @@ const STATE = { bossDead: false, kills: 0, started: 0, wbKill: {} };
 function damage(target, amount, src, opts = {}) {
   if (target.dead) return 0;
   let dmg = amount;
+  if (target.kind === 'player' && target.god) return 0;
   if (target.kind === 'player') {
     dmg = Math.max(1, dmg - (target.c.def + EQS().def)) * (target.buffs.guard > 0 ? (1 - BUFFS.guard.def) : 1) * (panelOpen() ? 0.5 : 1);
     if (target.hp < target.maxhp * 0.3 && pxv('bulwark')) dmg *= 1 - pxv('bulwark') / 100;
@@ -1130,7 +1284,8 @@ function damage(target, amount, src, opts = {}) {
   }
   // 숫자가 겹치지 않도록 같은 대상의 최근 숫자 수만큼 위로 쌓고 좌우로 엇갈림
   const stack = texts.filter(t => t.who === target && t.t < 0.45).length;
-  texts.push({ who: target, x: target.x, y: target.y, z: 40 + stack * 9, ox: (stack % 2 ? 7 : -7) * (stack ? 1 : 0), t: 0, s: String(dmg), c: target.kind === 'player' ? '#ff7a6a' : crit ? '#ffd65a' : '#ffffff', big: crit });
+  const tk = target.kind === 'player' ? 'hurt' : crit ? 'crit' : 'deal';
+  texts.push({ who: target, x: target.x, y: target.y, z: 40 + stack * 9 + (tk === 'crit' ? 8 : 0), ox: (stack % 2 ? 7 : -7) * (stack ? 1 : 0), t: 0, s: tk === 'hurt' ? '-' + dmg : String(dmg), c: tk === 'hurt' ? '#ff5a4a' : crit ? '#ffd65a' : '#ffffff', big: crit, tk, life: tk === 'crit' ? 1.35 : 1.0, rot: tk === 'crit' ? rnd(-0.12, 0.12) : 0 });
   if (texts.length > 48) texts.splice(0, texts.length - 48);
   if (src && src.kind === 'player' && target.kind === 'mob') {
     hitStop = Math.max(hitStop, crit ? 0.085 : 0.045); COMBAT.stop++;
@@ -1145,9 +1300,12 @@ function damage(target, amount, src, opts = {}) {
   }
   if (target.kind === 'mob') {
     if (crit) sfxAt(target, 'critical', 0.8);
-    if (target.state !== 'chase' && target.state !== 'attack') target.state = 'chase';
+    if (target.state !== 'chase' && target.state !== 'attack') {
+      target.state = 'chase';
+      if (!target.aggr) for (const o of mobs) if (o !== target && !o.dead && !o.aggr && o.type === target.type && o.state === 'idle' && Math.hypot(o.x - target.x, o.y - target.y) < 4) o.state = 'chase';
+    }
     const ai = AI[target.type] || {};
-    if (target.hp > 0 && !target.casting && (target.anim !== 'attack' || crit) && (target.hurtCd || 0) <= 0 && Math.random() < (ai.hurtRes != null ? ai.hurtRes : 0.35) + (crit ? 0.3 : 0)) { target.hurtCd = 0.7; setAnim(target, 'hurt', true); const m = LineageAudio.ACTOR_SFX[target.type] || {}; if (m.hurt && Math.random() < 0.5) sfxAt(target, m.hurt, 0.8); }
+    if (target.hp > 0 && !target.casting && (target.anim !== 'attack' || crit) && (target.hurtCd || 0) <= 0 && Math.random() < (ai.hurtRes != null ? ai.hurtRes : 0.35) + (crit ? 0.3 : 0)) { target.hurtCd = 0.7; setAnim(target, 'hurt', true); const m = LineageAudio.ACTOR_SFX[target.type] || {}; if (m.hurt && Math.random() < 0.5) mobVoice(target, m.hurt, 0.8); }
     if (opts.stun) target.buffs.stun = opts.stun;
     if (opts.slow) target.buffs.slow = opts.slow;
     if (opts.push) { const dx = target.x - src.x, dy = target.y - src.y, l = Math.hypot(dx, dy) || 1; moveEnt(target, dx / l * opts.push, dy / l * opts.push); }
@@ -1174,14 +1332,16 @@ function killMob(m) {
   // 아이템 드롭 (DROP_TABLE 기준)
   if (m.d.wb) { wbDrops(m); return; }
   const T = DROP_TABLE[m.type];
-  const roll = (id, p, n = 1) => { if (Math.random() < p) drops.push({ id, n, x: m.x + rnd(-0.7, 0.7), y: m.y + rnd(-0.7, 0.7), t: 0 }); };
+  const roll = (id, p, n = 1) => { if (Math.random() < (DEV() ? Math.min(1, p * 3) : p)) drops.push({ id, n, x: m.x + rnd(-0.7, 0.7), y: m.y + rnd(-0.7, 0.7), t: 0 }); };
   roll('gold', m.d.boss ? 1 : (T.goldP || 0.85), irnd(T.gold[0], T.gold[1]));
   roll('pot_red', T.red, m.d.boss ? 5 : 1); roll('pot_blue', T.blue, m.d.boss ? 4 : 1);
   roll('scroll_weapon', T.sw, m.d.boss ? 4 : 1); roll('scroll_armor', T.sa, m.d.boss ? 3 : 1);
   roll('gem_ruby', T.gem != null ? T.gem : 0.02, m.d.boss ? 3 : 1);
+  roll('loot_' + m.type, DEV() ? 1 : m.d.boss ? 1 : LOOT_P);
+  roll('scroll_return', DEV() ? 0.3 : 0.03); roll('scroll_teleport', DEV() ? 0.2 : 0.015);
   for (let k = 0; k < (T.n || 1); k++) {
-    if (Math.random() >= T.equip) continue;
-    dropEquip(m, rollGrade(T.odds), m.d.boss ? 2 : 1, m.d.boss ? PX_SRC.boss : PX_SRC.mob);
+    if (!DEV() && Math.random() >= T.equip) continue;
+    dropEquip(m, rollGrade(DEV() ? DEV_ODDS : T.odds), m.d.boss ? 2 : 1, m.d.boss ? PX_SRC.boss : PX_SRC.mob);
   }
   if (m.type === 'boss') {
     STATE.bossDead = true; save();
@@ -1200,7 +1360,7 @@ function dropEquip(m, g, bias, pxk) {
   let pick;
   if (part === 'weapon' || part === 'armor') { const pool = base[part].filter(x => x.grade === g); pick = pool.length ? pool[irnd(0, pool.length - 1)] : base[part][0]; }
   else pick = GEAR[`${part}_${GRADES.indexOf(g)}`];
-  const px = Math.random() < PX_BASE * (PX_GRADE[g] || 1) * pxk ? rollPassive() : null;
+  const px = Math.random() < (DEV() ? 0.3 : PX_BASE * (PX_GRADE[g] || 1) * pxk) ? rollPassive() : null;
   const e = makeEquip(pick.key, 0, { bias, px });
   drops.push({ id: pick.icon, equip: e, n: 1, x: m.x + rnd(-0.9, 0.9), y: m.y + rnd(-0.9, 0.9), t: 0, grade: g });
   if (px) { banner('특수 패시브 장비!', `${pick.name} · ${PASSIVES[px.id].name}`); sfx('level_up', { gain: 0.7 }); }
@@ -1216,7 +1376,8 @@ function wbDrops(m) {
   drops.push(Object.assign({ id: 'gold', n: irnd(WB_DROP.gold[0], WB_DROP.gold[1]) }, at()));
   for (const [id, n] of [['pot_red', 8], ['pot_blue', 6], ['scroll_weapon', 3], ['scroll_armor', 3], ['gem_ruby', 2]]) drops.push(Object.assign({ id, n }, at()));
   const got = [];
-  if (Math.random() < WB_DROP.unique) {
+  drops.push(Object.assign({ id: 'loot_' + m.type, n: 1 }, at()));
+  if (Math.random() < (DEV() ? 1 : WB_DROP.unique)) {
     const u = UNIQUE[MAP.id][P.c.base];
     const e = makeEquip(u.key, 0, { bias: 2, px: rollPassive(u.px) });
     drops.push(Object.assign({ id: u.icon, equip: e, n: 1, grade: 'unique' }, at()));
@@ -1226,7 +1387,7 @@ function wbDrops(m) {
   const book = W.books[irnd(0, W.books.length - 1)];
   drops.push(Object.assign({ id: 'book_' + book, n: 1 }, at()));
   got.push(itemName('book_' + book));
-  if (Math.random() < WB_DROP.doll) { drops.push(Object.assign({ id: 'doll_' + m.type, n: 1 }, at())); got.push(itemName('doll_' + m.type)); }
+  if (Math.random() < (DEV() ? 0.5 : WB_DROP.doll)) { drops.push(Object.assign({ id: 'doll_' + m.type, n: 1 }, at())); got.push(itemName('doll_' + m.type)); }
   for (let k = 0; k < WB_DROP.n; k++) if (Math.random() < WB_DROP.equip) dropEquip(m, rollGrade(WB_DROP.odds), 3, PX_SRC.wb);
   setTimeout(() => banner(`${m.d.name} 처치!`, got.join(' · ')), 900);
   log(`월드보스 ${m.d.name} 처치! 다음 출현: ${new Date(wbSlot() + WB_HOURS * 3600e3).toTimeString().slice(0, 5)}`, 'sys');
@@ -1584,7 +1745,7 @@ function updatePlayer(dt) {
     if (d < 0.15) P.goal = null; else mv = pathDir(P, P.goal.x, P.goal.y);
   }
   if (mv && !busy) {
-    const sp = P.c.speed * stat(P, 'speed') * (1 + EQS().spd) * dt * mag;
+    const sp = P.c.speed * stat(P, 'speed') * (1 + EQS().spd + collBonus('spd')) * dt * mag;
     const went = steer(P, mv.x, mv.y, sp);
     if (went) { P.stuck = 0; P.dir = dirOf(went.x, went.y); setAnim(P, 'walk'); }
     else {
@@ -1649,6 +1810,7 @@ function pickup(d) {
     renderInv(); return;
   }
   if (d.id === 'gold') {
+    d.n = Math.round(d.n * (1 + collBonus('gold')));
     P.gold += d.n; sfx('arrow_hit', { gain: 0.25 });
     vfx.push({ k: 'gold', x: d.x, y: d.y, t: 0, life: 0.5 });
     texts.push({ who: d, x: P.x, y: P.y, z: 52, t: 0, s: `+${d.n} G`, c: '#ffd65a' });
@@ -1656,9 +1818,9 @@ function pickup(d) {
     return;
   }
   P.inv[d.id] = (P.inv[d.id] || 0) + d.n;
-  const it = META.items[d.id];
-  log(`${it ? it.name : d.id}${d.n > 1 ? ' ×' + d.n : ''}을(를) 얻었습니다.`, d.id.startsWith('scroll') || d.id === 'gem_ruby' ? 'sys' : '');
-  lootLog(`${it ? it.name : d.id}${d.n > 1 ? ' ×' + d.n : ''}`, d.id.startsWith('scroll') || d.id === 'gem_ruby' ? 'rare' : 'common');
+  const special = d.id.startsWith('scroll') || d.id === 'gem_ruby' || !!XITEMS[d.id];
+  log(`${itemName(d.id)}${d.n > 1 ? ' ×' + d.n : ''}을(를) 얻었습니다.`, special ? 'sys' : '');
+  lootLog(`${itemName(d.id)}${d.n > 1 ? ' ×' + d.n : ''}`, XITEMS[d.id] && XITEMS[d.id].grade ? XITEMS[d.id].grade : special ? 'rare' : 'common');
   sfx('block', { gain: 0.25 });
   renderInv();
 }
@@ -1670,7 +1832,7 @@ function updateMob(m, dt) {
   if (m.dead) {
     tickAnim(m, dt);
     m.deadT += dt;
-    if (m.deadT > 25 && !m.spawn.noRespawn) Object.assign(m, newMob(m.spawn), { x: m.spawn.x, y: m.spawn.y });
+    if (m.deadT > RESPAWN_T && !m.spawn.noRespawn) Object.assign(m, newMob(m.spawn), { x: m.spawn.x, y: m.spawn.y });
     return;
   }
   m.atkCd -= dt; m.hurtCd = (m.hurtCd || 0) - dt;
@@ -1687,15 +1849,15 @@ function updateMob(m, dt) {
   const busy = m.casting || m.anim === 'attack' || m.anim === 'hurt';
   if (!stunned && !busy) {
     if (m.state === 'idle') {
-      if (d < m.d.aggro) { m.state = 'chase'; const s = LineageAudio.ACTOR_SFX[m.type] || {}; if (s.attack && Math.random() < 0.5) sfxAt(m, s.attack, 0.7); }
+      if (m.aggr && d < m.d.aggro && !inTown(P) && (m.calmT || 0) <= now && !P.dead) { m.state = 'chase'; const s = LineageAudio.ACTOR_SFX[m.type] || {}; if (s.attack && Math.random() < 0.5) mobVoice(m, s.attack, 0.7); }
       else {
         m.wanderT -= dt;
         if (m.wanderT <= 0) { m.wanderT = rnd(2, 5); m.goal = Math.random() < 0.6 ? { x: m.home.x + rnd(-3, 3), y: m.home.y + rnd(-3, 3) } : null; }
       }
     }
-    if (m.state === 'chase' && inTown(P)) { m.state = 'idle'; m.goal = { x: m.home.x, y: m.home.y }; }
+    if (m.state === 'chase' && (inTown(P) || P.dead)) { m.state = 'idle'; m.calmT = now + 4; m.goal = { x: m.home.x, y: m.home.y }; }
     if (m.state === 'chase') {
-      if (d > m.d.aggro * 2.2 || Math.hypot(m.x - m.home.x, m.y - m.home.y) > 16) { m.state = 'idle'; m.goal = { x: m.home.x, y: m.home.y }; }
+      if (d > m.d.aggro * 2.2 || Math.hypot(m.x - m.home.x, m.y - m.home.y) > 16) { m.state = 'idle'; m.calmT = now + 4; m.goal = { x: m.home.x, y: m.home.y }; }
       else if (m.d.wb && (m.skillCd.rain || 0) <= 0 && d < 9) { wbRain(m); }
       else if (m.d.boss && m.skillCd.skill_hellfire <= 0 && d < 3.2 * (m.d.wb ? 1.4 : 1)) { bossCast(m, 'skill_hellfire'); }
       else if (m.d.boss && m.skillCd.skill_darkslash <= 0 && d >= 1.6 && d < 6.5 * (m.d.wb ? 1.3 : 1)) { bossCast(m, 'skill_darkslash'); }
@@ -1712,7 +1874,7 @@ function updateMob(m, dt) {
           m.atkCd = m.comboLeft > 0 ? (ai.comboGap || 0.4) : m.d.cd * (m.phase ? 0.7 : 1);
           m.attackHit = false;
           const s = LineageAudio.ACTOR_SFX[m.type] || {};
-          if (s.attack && Math.random() < 0.4) sfxAt(m, s.attack, 0.7);
+          if (s.attack && Math.random() < 0.4) mobVoice(m, s.attack, 0.7);
         }
         m.goal = null;
       } else {
@@ -1791,7 +1953,7 @@ function updateFx(dt) {
   }
   fxs = fxs.filter(e => !e.done);
   for (const t of texts) t.t += dt;
-  texts = texts.filter(t => t.t < 1.1);
+  texts = texts.filter(t => t.t < (t.life || 1.1));
   for (const d of drops) d.t += dt;
 }
 
@@ -1800,10 +1962,11 @@ const MORPH_SCALE = 0.62;   // 변신: 월드보스 시트(1.5배 해상도)를 
 function drawSprite(e, sx, sy) {
   let s = META[e.group][e.sheet], k = 1, f = e.f, anim = e.anim;
   if (e === P && P.morph && META.monsters[P.morph]) {
-    s = META.monsters[P.morph]; k = MORPH_SCALE;
+    s = META.monsters[P.morph]; k = morphK(P.morph);
     if (!s.anims[anim]) anim = anim.startsWith('skill_') ? 'skill_hellfire' : 'idle';
     f = Math.floor(e.f * s.anims[anim][1] / Math.max(1, animLen(e, e.anim)));
   } else if (e.d && e.d.draw) k = e.d.draw;
+  else if (e.scale) k = e.scale;
   const [start, n] = s.anims[anim] || s.anims.idle;
   f = Math.min(f, n - 1);
   const im = img(s.sheet);
@@ -1847,7 +2010,9 @@ function drawIconAt(c, id, x, y, size) {
   }
   const ic = itemIcon(xi ? xi.icon : id); if (!ic) return false;
   if (!ic.im.complete || !ic.im.naturalWidth) return false;
+  if (xi && xi.hue) { c.save(); c.filter = xi.hue; }
   c.drawImage(ic.im, ic.sx, ic.sy, 32, 32, x, y, size, size);
+  if (xi && xi.hue) c.restore();
   if (xi && xi.skill) { c.save(); c.globalCompositeOperation = 'lighter'; c.fillStyle = 'rgba(255,90,40,.28)'; c.fillRect(x + size * 0.15, y + size * 0.15, size * 0.7, size * 0.7); c.restore(); }
   return true;
 }
@@ -1939,6 +2104,8 @@ function render() {
   for (const d of drops) list.push({ d: d.x + d.y - 0.3, kind: 'drop', e: d });
   for (const m of mobs) { if (m.dead && m.deadT > 3) continue; list.push({ d: m.x + m.y, kind: 'ent', e: m }); }
   list.push({ d: P.x + P.y, kind: 'ent', e: P });
+  if (PET && PET.sheet) list.push({ d: PET.x + PET.y, kind: 'ent', e: PET });
+  for (const w of (WAYPOINTS[MAP.id] || [])) if (STATE.wp && STATE.wp[w.id]) list.push({ d: w.x + w.y + 0.5, kind: 'wpglow', e: w });
   for (const n of MAP.npcs || []) list.push({ d: n.x + n.y, kind: 'npc', e: n });
   for (const p of projs) list.push({ d: p.x + p.y + 0.2, kind: 'proj', e: p });
   list.sort((a, b) => a.d - b.d);
@@ -1947,6 +2114,11 @@ function render() {
       const pm = META.props[o.p.name];
       const fr = pm.frames > 1 ? (Math.floor(now * 7) + o.p.frame) % pm.frames : 0;
       ctx.drawImage(img(pm.sheet), fr * pm.fw, 0, pm.fw, pm.fh, Math.round(o.s.x - pm.ax), Math.round(o.s.y + TH / 2 - pm.ay), pm.fw, pm.fh);
+    } else if (o.kind === 'wpglow') {
+      const s = toScr(o.e.x, o.e.y);
+      ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(s.x, s.y - 30, 0, s.x, s.y - 30, 40);
+      g.addColorStop(0, `rgba(90,170,255,${0.18 + 0.08 * Math.sin(now * 2.5)})`); g.addColorStop(1, 'rgba(90,170,255,0)'); ctx.fillStyle = g; ctx.fillRect(s.x - 40, s.y - 70, 80, 80); ctx.restore();
+      ctx.font = '700 7px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#000'; ctx.fillText(o.e.name, s.x + 0.5, s.y - 62.5); ctx.fillStyle = '#9ad8ff'; ctx.fillText(o.e.name, s.x, s.y - 63);
     } else if (o.kind === 'npc') {
       const n = o.e, pm = META.props.deity, s = toScr(n.x, n.y);
       if (pm) {
@@ -1961,7 +2133,8 @@ function render() {
       const e = o.e; const s = toScr(e.x, e.y);
       if (e.dead && e.deadT > 2) ctx.globalAlpha = Math.max(0, 1 - (e.deadT - 2));
       const wb = e.d && e.d.wb;
-      shadow(s.x, s.y, wb ? 44 : e.d && e.d.boss ? 22 : (e === P && P.morph ? 18 : 13));
+      shadow(s.x, s.y, wb ? 44 : e.d && e.d.boss ? 22 : e.kind === 'pet' ? 8 : (e === P && P.morph ? 18 : 13));
+      if (e.kind === 'pet') { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = e.col; ctx.globalAlpha = 0.5 + 0.3 * Math.sin(now * 3); ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(s.x, s.y, 11, 5, 0, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
       if (wb && !e.dead) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 60); g.addColorStop(0, e.type === 'wb_lich' ? 'rgba(120,60,255,.25)' : 'rgba(255,40,20,.25)'); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(s.x, s.y, 60, 30, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
       if (e === P.target && !e.dead) { const rr = wb ? 48 : e.d.boss ? 26 : 16; ctx.strokeStyle = 'rgba(255,90,60,.8)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(s.x, s.y, rr, rr * 0.45, 0, 0, Math.PI * 2); ctx.stroke(); }
       drawSprite(e, s.x, s.y);
@@ -1977,6 +2150,11 @@ function render() {
           ctx.fillStyle = '#000'; ctx.fillText(`Lv${e.lv} ${e.d.name}`, s.x + 0.5, hy - 2.5);
           ctx.fillStyle = lg >= 3 ? '#ff7a6a' : lg >= 1 ? '#ffd27a' : '#e8dcc6'; ctx.fillText(`Lv${e.lv} ${e.d.name}`, s.x, hy - 3);
         }
+      }
+      if (e.kind === 'mob' && !e.dead && !e.d.boss) {
+        const my = s.y - (e.type === 'ooze' ? 36 : e.type === 'goblin' ? 52 : 64);
+        if (e.aggr) { ctx.fillStyle = '#000'; ctx.beginPath(); ctx.moveTo(s.x - 4, my - 4); ctx.lineTo(s.x + 4, my - 4); ctx.lineTo(s.x, my + 2); ctx.fill(); ctx.fillStyle = e.state === 'chase' ? '#ff3a2a' : '#ff6a5a'; ctx.beginPath(); ctx.moveTo(s.x - 3, my - 3.4); ctx.lineTo(s.x + 3, my - 3.4); ctx.lineTo(s.x, my + 1); ctx.fill(); }
+        else { ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(s.x, my - 1, 2.6, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#8ae07a'; ctx.beginPath(); ctx.arc(s.x, my - 1, 1.8, 0, Math.PI * 2); ctx.fill(); }
       }
       if (e.buffs && e.buffs.stun > 0) { ctx.fillStyle = '#ffe07a'; for (let k = 0; k < 3; k++) { const a = now * 5 + k * 2.1; ctx.fillRect(s.x + Math.cos(a) * 8, s.y - 58 + Math.sin(a) * 3, 2, 2); } }
     } else if (o.kind === 'drop') {
@@ -1996,6 +2174,7 @@ function render() {
         ctx.restore();
       }
       shadow(s.x, s.y, 7);
+      if (d.equip && d.equip.px) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (let k = 0; k < 6; k++) { const a = now * 2.4 + k * 1.047; ctx.fillStyle = k % 2 ? 'rgba(255,220,130,.9)' : 'rgba(210,140,255,.9)'; ctx.fillRect(s.x + Math.cos(a) * 12 - 1, s.y - 12 + Math.sin(a) * 6 - 1, 2, 2); } ctx.strokeStyle = `rgba(220,150,255,${0.5 + 0.4 * Math.sin(now * 5)})`; ctx.strokeRect(Math.round(s.x - 11), Math.round(s.y - 23 + bob), 22, 22); ctx.restore(); }
       if (!lootOk(d) && !d.manual) ctx.globalAlpha = 0.55;
       drawIconAt(ctx, d.id, Math.round(s.x - 10), Math.round(s.y - 22 + bob), 20);
       ctx.globalAlpha = 1;
@@ -2015,16 +2194,7 @@ function render() {
   // 앞 이펙트(over, solid)
   for (const e of fxs) { const s = toScr(e.x, e.y); drawFx(e, 'over', s.x, s.y); drawFx(e, 'solid', s.x, s.y); }
   // 피해 숫자
-  ctx.textAlign = 'center';
-  for (const t of texts) {
-    const s = toScr(t.x, t.y);
-    ctx.globalAlpha = clamp(1.4 - t.t * 1.3, 0, 1);
-    ctx.font = `700 ${t.big ? 12 : 9}px "Noto Sans KR", sans-serif`;
-    const tx = s.x + (t.ox || 0);
-    ctx.fillStyle = '#000'; ctx.fillText(t.s, tx + 1, s.y - t.z - t.t * 24 + 1);
-    ctx.fillStyle = t.c; ctx.fillText(t.s, tx, s.y - t.z - t.t * 24);
-  }
-  ctx.globalAlpha = 1;
+  drawTexts();
   // 어둠(던전) / 비네트
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   if (MAP.dark) drawDark();
@@ -2032,6 +2202,50 @@ function render() {
   vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.6)');
   ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
 }
+// 피해 숫자: 튀어나오며 커졌다 줄어드는 팝 + 외곽선. 치명타는 2배 넘게 크고 금빛 그라데이션·빛살·'CRITICAL'
+function drawTexts() {
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.lineJoin = 'round';
+  for (const t of texts) {
+    const s = toScr(t.x, t.y), life = t.life || 1.1, u = t.t / life;
+    const tk = t.tk || (t.big ? 'info' : 'small');
+    const pop = t.t < 0.12 ? 1 + (tk === 'crit' ? 1.3 : 0.6) * (1 - t.t / 0.12) : 1 + (tk === 'crit' ? 0.08 * Math.sin(t.t * 18) * Math.max(0, 1 - t.t * 2) : 0);
+    const size = tk === 'crit' ? 21 : tk === 'hurt' ? 12 : tk === 'deal' ? 11 : t.big ? 12 : 9;
+    const rise = tk === 'crit' ? 18 * ease3(u) : tk === 'hurt' ? 20 * u : 26 * u;
+    const shx = tk === 'hurt' && t.t < 0.2 ? rnd(-1.5, 1.5) : 0;
+    const x = s.x + (t.ox || 0) + shx + (tk === 'deal' ? (t.ox || 0) * u * 0.6 : 0), y = s.y - t.z - rise;
+    ctx.save(); ctx.globalAlpha = clamp(1.5 - u * 1.5, 0, 1);
+    ctx.translate(x, y); ctx.rotate(t.rot || 0); ctx.scale(pop, pop);
+    ctx.font = `900 ${size}px "Noto Sans KR", sans-serif`;
+    if (tk === 'crit') {
+      // 뒤에 빛살
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      const rg = ctx.createRadialGradient(0, -size * 0.35, 0, 0, -size * 0.35, size * 1.6);
+      rg.addColorStop(0, `rgba(255,200,80,${0.55 * (1 - u)})`); rg.addColorStop(1, 'rgba(255,120,30,0)');
+      ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(0, -size * 0.35, size * 1.6, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = `rgba(255,236,170,${0.7 * (1 - u)})`;
+      for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4 + t.t * 2; ctx.beginPath(); ctx.moveTo(0, -size * 0.35); ctx.lineTo(Math.cos(a - 0.08) * size * 1.5, -size * 0.35 + Math.sin(a - 0.08) * size * 1.5); ctx.lineTo(Math.cos(a + 0.08) * size * 1.5, -size * 0.35 + Math.sin(a + 0.08) * size * 1.5); ctx.fill(); }
+      ctx.restore();
+      const gr = ctx.createLinearGradient(0, -size, 0, 0); gr.addColorStop(0, '#fff7c0'); gr.addColorStop(0.45, '#ffd040'); gr.addColorStop(1, '#ff6a10');
+      ctx.lineWidth = 3.2; ctx.strokeStyle = '#3a0c00'; ctx.strokeText(t.s, 0, 0);
+      ctx.fillStyle = gr; ctx.fillText(t.s, 0, 0);
+      ctx.font = '900 7px "Noto Sans KR", sans-serif'; ctx.lineWidth = 2; ctx.strokeStyle = '#3a0c00'; ctx.strokeText('CRITICAL!', 0, -size + 1); ctx.fillStyle = '#ffec9a'; ctx.fillText('CRITICAL!', 0, -size + 1);
+    } else if (tk === 'hurt') {
+      ctx.lineWidth = 2.6; ctx.strokeStyle = '#2a0000'; ctx.strokeText(t.s, 0, 0);
+      const gr = ctx.createLinearGradient(0, -size, 0, 0); gr.addColorStop(0, '#ffb0a0'); gr.addColorStop(1, '#e8241a');
+      ctx.fillStyle = gr; ctx.fillText(t.s, 0, 0);
+    } else if (tk === 'deal') {
+      ctx.lineWidth = 2.4; ctx.strokeStyle = '#000'; ctx.strokeText(t.s, 0, 0);
+      const gr = ctx.createLinearGradient(0, -size, 0, 0); gr.addColorStop(0, '#ffffff'); gr.addColorStop(1, '#d8dce8');
+      ctx.fillStyle = gr; ctx.fillText(t.s, 0, 0);
+    } else {
+      ctx.lineWidth = 2; ctx.strokeStyle = '#000'; ctx.strokeText(t.s, 0, 0);
+      ctx.fillStyle = t.c; ctx.fillText(t.s, 0, 0);
+    }
+    ctx.restore();
+  }
+  ctx.globalAlpha = 1;
+}
+const ease3 = u => 1 - Math.pow(1 - clamp(u, 0, 1), 3);
 const darkCvs = document.createElement('canvas'), dctx = darkCvs.getContext('2d');
 function drawDark() {
   if (darkCvs.width !== cvs.width || darkCvs.height !== cvs.height) { darkCvs.width = cvs.width; darkCvs.height = cvs.height; }
@@ -2139,7 +2353,8 @@ function drawMinimap() {
   mctx.setTransform(a, b, -a, b, 75 - (a * cx - a * cy), 75 - (b * cx + b * cy));
   mctx.imageSmoothingEnabled = false;
   mctx.drawImage(mmBase, 0, 0);
-  for (const m of mobs) if (!m.dead) { const z = m.d.wb ? 3.6 : m.d.boss ? 2.4 : 1.2; mctx.fillStyle = m.d.wb ? (Math.floor(now * 3) % 2 ? '#ff2a2a' : '#ffd040') : m.d.boss ? '#ff5a2a' : '#c43a2a'; mctx.fillRect(m.x - z / 2, m.y - z / 2, z, z); }
+  for (const m of mobs) if (!m.dead) { const z = m.d.wb ? 3.6 : m.d.boss ? 2.4 : 1.2; mctx.fillStyle = m.d.wb ? (Math.floor(now * 3) % 2 ? '#ff2a2a' : '#ffd040') : m.d.boss ? '#ff5a2a' : m.aggr ? '#e8302a' : '#c8b04a'; mctx.fillRect(m.x - z / 2, m.y - z / 2, z, z); }
+  for (const w of (WAYPOINTS[MAP.id] || [])) { mctx.fillStyle = STATE.wp && STATE.wp[w.id] ? '#6ac4ff' : '#3a5068'; mctx.fillRect(w.x - 1, w.y - 1, 2, 2); }
   for (const n of MAP.npcs || []) { mctx.fillStyle = '#ffd27a'; mctx.fillRect(n.x - 1.2, n.y - 1.2, 2.4, 2.4); }
   if (MAP.exit) { mctx.fillStyle = '#d4a64a'; mctx.fillRect(MAP.exit.x - 1, MAP.exit.y - 1, 2, 2); }
   mctx.fillStyle = '#fff'; mctx.fillRect(P.x - 0.9, P.y - 0.9, 1.8, 1.8);
@@ -2217,6 +2432,7 @@ function useItem(id) {
     if (MAP.id !== 'field') enterMap('field', MAP_TOWN); else { const s = safeSpot(MAP_TOWN.x, MAP_TOWN.y); P.x = s.x; P.y = s.y; P.goal = null; P.target = null; }
     log('귀환 주문서: 마을 광장으로 돌아왔습니다.', 'sys'); save(); return true;
   }
+  if (id === 'scroll_teleport') { openWp(nearWp(), true); return true; }
   const xi = XITEMS[id]; if (!xi) return false;
   if (xi.skill) {
     P.wbs = P.wbs || {}; const lv = P.wbs[xi.skill] || 0;
@@ -2226,9 +2442,8 @@ function useItem(id) {
     sfx('level_up', { gain: 0.7 }); save(); return true;
   }
   if (xi.morph) {
-    P.morph = P.morph === xi.morph ? null : xi.morph; applyStats(); img(META.monsters[xi.morph].sheet);
-    banner(P.morph ? '변신!' : '변신 해제', P.morph ? MONSTERS[xi.morph].name : ''); sfx('magic_cast', { gain: 0.7 }); vfx.push({ k: 'lvup', x: P.x, y: P.y, t: 0, life: 1.0 });
-    save(); return true;
+    P.inv[id]--; addColl('morph', xi.morph); setMorph(xi.morph); renderInv();
+    return true;
   }
   return false;
 }
@@ -2300,7 +2515,7 @@ function updateHud() {
   if (t) {
     tb.classList.remove('hidden'); tb.classList.toggle('boss', !!t.d.boss);
     const lg = t.lv - P.lv;
-    tb.querySelector('b').textContent = `Lv ${t.lv} ${t.d.name}` + (t.phase ? ' · 분노' : '');
+    tb.querySelector('b').textContent = `Lv ${t.lv} ${t.d.name}` + (t.d.boss ? '' : t.aggr ? ' · ▼선공' : ' · ●후공') + (t.phase ? ' · 분노' : '');
     tb.querySelector('b').style.color = t.d.boss ? '' : lg >= 3 ? '#ff7a6a' : lg >= 1 ? '#ffd27a' : '#e8dcc6';
     tb.querySelector('i').style.width = (100 * t.hp / t.maxhp) + '%';
     tb.querySelector('span').textContent = `${Math.max(0, Math.ceil(t.hp))} / ${t.maxhp}`;
@@ -2408,7 +2623,7 @@ function renderInv() {
     if (sd.id === 'armor') b.id = 'aIcon';
     const [col, row] = SLOT_POS[sd.id]; b.style[col === 'L' ? 'left' : 'right'] = '6px'; b.style.top = (row * rowH + 4) + 'px';
     const cv = document.createElement('canvas'); cv.width = 36; cv.height = 36; b.append(cv);
-    if (e) { const d = equipDef(e.key); gradeFrame(cv, d.grade, d.icon, e.enc); b.title = `${sd.label}: +${e.enc} ${d.name}`; if (e.enc) b.insertAdjacentHTML('beforeend', `<span class="en">+${e.enc}</span>`); }
+    if (e) { const d = equipDef(e.key); gradeFrame(cv, d.grade, d.icon, e.enc); b.title = `${sd.label}: +${e.enc} ${d.name}`; if (e.enc) b.insertAdjacentHTML('beforeend', `<span class="en">+${e.enc}</span>`); if (e.px) b.classList.add('px'); }
     else { b.classList.add('empty'); const ic = { helm: 'helm', amulet: 'amulet', weapon: P.c.weapon, armor: P.c.armor, shield: 'kite_shield', cloak: 'cloak', gloves: 'gauntlet', boots: 'boots', ring1: 'ring_ruby', ring2: 'ring_sapph', bracelet: 'bracelet' }[sd.id]; gradeFrame(cv, 'common', ic, 0); b.title = `${sd.label} (비어 있음)`; }
     if (!allowed) { b.classList.add('locked'); b.title = `${sd.label}: 기사 전용`; }
     b.insertAdjacentHTML('beforeend', `<span class="sl">${sd.label}</span>`);
@@ -2424,13 +2639,13 @@ function renderInv() {
     <span>HP</span><b>${P.maxhp}</b><span>MP</span><b>${P.maxmp}</b>
     <span>치명타</span><b>${((0.12 + bonus('dex') * 0.004 + q.crit) * 100).toFixed(1)}%</b><span>이동</span><b>+${(q.spd * 100).toFixed(0)}%</b>`;
   // 필터
-  const filters = [['all', '전체'], ['weapon', '무기'], ['armor', '방어구'], ['acc', '장신구'], ['use', '소모품']];
+  const filters = [['all', '전체'], ['weapon', '무기'], ['armor', '방어구'], ['acc', '장신구'], ['use', '소모품'], ['loot', '전리품']];
   const fb = $('bagFilter'); fb.innerHTML = '';
   for (const [id, label] of filters) { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = label; b.setAttribute('aria-pressed', String(bagFilter === id)); b.onclick = () => { bagFilter = id; renderInv(); }; fb.append(b); }
   // 창고 칸
-  const items = P.bag.filter(e => bagFilter === 'all' || (bagFilter !== 'use' && kindOf(e) === bagFilter))
+  const items = P.bag.filter(e => bagFilter === 'all' || (bagFilter !== 'use' && bagFilter !== 'loot' && kindOf(e) === bagFilter))
     .sort((a, b) => GRADES.indexOf(equipDef(b.key).grade) - GRADES.indexOf(equipDef(a.key).grade) || b.enc - a.enc);
-  const cons = (bagFilter === 'all' || bagFilter === 'use') ? Object.entries(P.inv).filter(([, n]) => n > 0) : [];
+  const cons = (bagFilter === 'all' || bagFilter === 'use' || bagFilter === 'loot') ? Object.entries(P.inv).filter(([id, n]) => n > 0 && (bagFilter === 'all' || (bagFilter === 'loot') === id.startsWith('loot_'))) : [];
   $('bagCount').textContent = `장비 ${P.bag.length} / ${BAG_MAX}`;
   const g = $('eqgrid'); g.innerHTML = '';
   for (const e of items) {
@@ -2444,7 +2659,7 @@ function renderInv() {
     if (slotAllowed(slotFor(e)) && P.lv >= d.lv && statVal(e) > statVal(tgt) + 0.01) b.insertAdjacentHTML('beforeend', '<span class="up">▲</span>');
     if (P.lv < d.lv || !slotAllowed(slotFor(e))) b.classList.add('nolv');
     if (selUid === e.uid) b.classList.add('sel');
-    b.addEventListener('click', () => { selCons = null; selUid = e.uid; renderInv(); });
+    b.addEventListener('click', () => { selCons = null; selUid = e.uid; renderInv(); if (OPT.cmpAuto !== 'off') showCompare(e); });
     b.addEventListener('dblclick', () => { equip(e.uid); });
     g.append(b);
   }
@@ -2468,7 +2683,9 @@ function renderDetail() {
     let use = { pot_red: '체력 회복(최대 HP의 32%)', pot_blue: '마나 회복(최대 MP의 40%)', scroll_weapon: '무기 강화에 사용', scroll_armor: '방어구(투구·갑옷·망토·장갑·장화·방패) 강화에 사용', scroll_return: '마을 광장으로 귀환', gem_ruby: `상점에서 ${GEM_PRICE} 골드에 판매` }[selCons] || '';
     let btn = selCons.startsWith('pot_') || selCons === 'scroll_return' ? '<button type="button" id="btnUse">사용</button>' : '';
     if (xi && xi.skill) { const lv = (P.wbs || {})[xi.skill] || 0, sk = SKILLS[xi.skill]; use = `${sk.desc} · MP ${sk.mp} · ${sk.cd}초 · ${lv ? `현재 Lv ${lv} → 읽으면 Lv ${Math.min(5, lv + 1)}(피해 +15%)` : '읽으면 새 스킬 칸(5~8번)에 추가'}`; btn = `<button type="button" id="btnUse" ${lv >= 5 ? 'disabled' : ''}>${lv ? '스킬 강화' : '배우기'}</button>`; }
-    if (xi && xi.morph) { use = `${MONSTERS[xi.morph].name}의 모습으로 변신(사라지지 않음). 변신 중 공격력 +8%, 최대 HP +8%`; btn = `<button type="button" id="btnUse">${P.morph === xi.morph ? '변신 해제' : '변신'}</button>`; }
+    if (xi && xi.morph) { use = `${MONSTERS[xi.morph].name}의 모습으로 변신. 사용하면 변신 도감(신화 등급)에 등록되고 바로 변신합니다. 중복이면 별 +1`; btn = `<button type="button" id="btnUse">도감 등록 · 변신</button>`; }
+    if (xi && xi.loot) { use = `${MONSTERS[xi.mob] ? MONSTERS[xi.mob].name : ''}의 고유 전리품 · 상점 판매가 ${xi.price} 골드`; btn = ''; }
+    if (selCons === 'scroll_teleport') { use = '찾아 둔 웨이포인트 중 원하는 곳으로 바로 이동'; btn = '<button type="button" id="btnUse">사용</button>'; }
     det.innerHTML = `<canvas width="32" height="32"></canvas><div class="dinfo"><b class="${xi ? 'g-' + xi.grade : ''}">${itemName(selCons)} × ${n}</b><div class="dline">${use}</div></div>
       <div class="dact">${btn}${selCons.startsWith('scroll_') && selCons !== 'scroll_return' ? '<span class="note">강화할 장비를 선택한 뒤 [강화]를 누르세요</span>' : ''}</div>`;
     iconTo(det.querySelector('canvas'), selCons);
@@ -2501,8 +2718,10 @@ function renderDetail() {
     <div class="dact">
       ${on ? (d.slot === 'weapon' ? '' : '<button type="button" class="sub" id="btnUnequip">해제</button>') : `<button type="button" id="btnEquip" ${lvOk && allowed ? '' : 'disabled'}>착용</button>`}
       ${scroll ? `<button type="button" id="btnEnc" ${(!have || sel.enc >= 10) ? 'disabled' : ''}>강화 ${sel.enc < 10 ? ch + '%' : ''}</button>` : ''}
-      ${on ? '' : `<button type="button" class="sub" id="btnSell">판매 ${Math.round(sellPrice(sel))} G</button>`}
+      ${on ? '' : `<button type="button" class="sub" id="btnSell">판매 ${Math.round(sellPrice(sel))} G</button><button type="button" class="sub" id="btnCmp">비교</button>`}
     </div>`;
+  const bc = $('btnCmp'); if (bc) bc.onclick = () => showCompare(sel);
+  if (sel.px) det.querySelector('canvas').classList.add('pxglow');
   gradeFrame(det.querySelector('canvas'), d.grade, d.icon, sel.enc);
   const be = $('btnEquip'); if (be) be.onclick = () => equip(sel.uid);
   const bu = $('btnUnequip'); if (bu) bu.onclick = () => unequip(on);
@@ -2555,22 +2774,22 @@ function enchantItem(e) {
   if (ok) {
     e.enc++;
     if (kind === 'weapon' && equippedOf(e)) questEvent('enc', e.enc);
-    sfx('enchant_ok');
     const col = e.enc >= 9 ? '200,120,255' : e.enc >= 7 ? '120,180,255' : '255,220,120';
-    vfx.push({ k: 'beam', x: P.x, y: P.y, t: 0, life: 0.9, col });
     log(`+${e.enc} ${name} 강화 성공 (${ch}%) — ${word} ${before.toFixed(1)} → ${statAt(e, e.enc).toFixed(1)}`, 'sys');
-    encToast(`+${e.enc} 강화 성공!`, e.enc >= 9 ? '#d79aff' : e.enc >= 7 ? '#9ac8ff' : '#ffd65a');
-    if (e.enc >= 7) banner(`+${e.enc} ${name}`, e.enc >= 9 ? '눈부신 빛이 감돈다' : '장비가 빛을 머금는다');
+    const lv = e.enc;
+    encAnim(d, true, `+${lv} 강화 성공!`, lv >= 9 ? '#d79aff' : lv >= 7 ? '#9ac8ff' : '#ffd65a', () => {
+      sfx('enchant_ok'); vfx.push({ k: 'beam', x: P.x, y: P.y, t: 0, life: 0.9, col });
+      if (lv >= 7) banner(`+${lv} ${name}`, lv >= 9 ? '눈부신 빛이 감돈다' : '장비가 빛을 머금는다');
+    });
   } else {
-    sfx('enchant_fail'); e.enc = 0; shake = 4;
+    e.enc = 0;
     log(`${name} 강화 실패 (${ch}%) — +${from} → +0`, 'bad');
-    encToast(`강화 실패 · +${from} → +0`, '#ff8a7a');
+    encAnim(d, false, `강화 실패 · +${from} → +0`, '#ff8a7a', () => { sfx('enchant_fail'); shake = 4; });
   }
   if (equippedOf(e)) applyStats();
   selUid = e.uid; selCons = null;
   renderInv(); save();
-  const icon = document.querySelector(equippedOf(e) ? `.dslot[data-slot="${equippedSlotOf(e)}"]` : '#detail canvas');
-  if (icon) { icon.classList.remove('flash-ok', 'flash-bad'); void icon.offsetWidth; icon.classList.add(ok ? 'flash-ok' : 'flash-bad'); }
+  setTimeout(() => { const icon = document.querySelector(equippedOf(e) ? `.dslot[data-slot="${equippedSlotOf(e)}"]` : '#detail canvas'); if (icon) { icon.classList.remove('flash-ok', 'flash-bad'); void icon.offsetWidth; icon.classList.add(ok ? 'flash-ok' : 'flash-bad'); } }, $('inv').classList.contains('hidden') ? 0 : 1000);
   return ok;
 }
 function enchant(kind) { return enchantItem(kind === 'w' ? P.weapon : P.armor); }
@@ -2635,7 +2854,7 @@ function toggleSound() {
   soundOn = !soundOn;
   $('btnSnd').setAttribute('aria-pressed', String(soundOn));
   const a = audio();
-  if (a) { if (soundOn) { a.setVolume({ master: 0.9 }); musicNow = null; a.music(musicKind()); a.ambience(MAP ? MAP.amb : null); } else { a.music(false); a.ambience(null); } }
+  if (a) { if (soundOn) { applyVolumes(); musicNow = null; a.music(musicKind()); a.ambience(MAP ? MAP.amb : null); } else { a.music(false); a.ambience(null); } }
 }
 $('btnSnd').addEventListener('click', toggleSound);
 $('btnAuto').addEventListener('click', () => { if (P) setAuto(!P.auto); });
@@ -2672,6 +2891,8 @@ function renderShop() {
   $('sellCommon').disabled = !commons.length;
   $('sellCommon').textContent = commons.length ? `일반 등급 장비 ${commons.length}개 판매 (+${Math.round(commons.reduce((a, e) => a + sellPrice(e), 0))} 골드)` : '팔 일반 장비 없음';
   $('shopGold').textContent = `보유 ${P.gold.toLocaleString()} 골드`;
+  const lootSum = Object.entries(P.inv).filter(([id, n]) => id.startsWith('loot_') && n > 0).reduce((a, [id, n]) => a + (XITEMS[id] ? XITEMS[id].price * n : 0), 0);
+  $('sellLoot').disabled = !lootSum; $('sellLoot').textContent = lootSum ? `전리품 모두 판매 (+${lootSum.toLocaleString()} G)` : '팔 전리품 없음';
   const gems = P.inv.gem_ruby || 0;
   $('sellGem').disabled = !gems; $('sellGem').textContent = gems ? `루비 ${gems}개 판매 (+${gems * GEM_PRICE} 골드)` : '팔 루비 없음';
 }
@@ -2719,6 +2940,10 @@ $('sellUncommon').addEventListener('click', () => {
   renderShop(); renderInv(); save();
 });
 const GEM_PRICE = 150;
+$('sellLoot').addEventListener('click', () => {
+  let sum = 0; for (const [id, n] of Object.entries(P.inv)) if (id.startsWith('loot_') && n > 0 && XITEMS[id]) { sum += XITEMS[id].price * n; P.inv[id] = 0; }
+  P.gold += sum; log(`전리품을 팔아 ${sum.toLocaleString()} 골드를 받았습니다.`, 'sys'); sfx('enchant_ok', { gain: 0.3 }); renderShop(); renderInv(); save();
+});
 $('sellGem').addEventListener('click', () => {
   const n = P.inv.gem_ruby || 0; if (!n) return;
   P.inv.gem_ruby = 0; P.gold += n * GEM_PRICE; log(`루비 ${n}개를 ${n * GEM_PRICE} 골드에 팔았습니다.`, 'sys'); sfx('enchant_ok', { gain: 0.3 });
@@ -2772,17 +2997,19 @@ function drawQuestArrow() {
 // ───────────────────────── 저장 ─────────────────────────
 const SAVE_KEY = 'ff_lineage_save_v1';
 const OPT_KEY = 'ff_lineage_opt_v1';
-const OPT = Object.assign({ invMode: 'pause', potHp: 40, potMp: 25, loot: 'all', prio: 'near', qFold: false, mmZoom: 1 }, (() => { try { return JSON.parse(localStorage.getItem(OPT_KEY) || '{}'); } catch (e) { return {}; } })());
+const OPT = Object.assign({ invMode: 'pause', potHp: 40, potMp: 25, loot: 'all', prio: 'near', qFold: false, mmZoom: 1, cmpAuto: 'on', dev: 'off', vol: { master: 90, bgm: 38, sfx: 100, mon: 70, amb: 50 }, mute: {} }, (() => { try { return JSON.parse(localStorage.getItem(OPT_KEY) || '{}'); } catch (e) { return {}; } })());
 function saveOpt() { try { localStorage.setItem(OPT_KEY, JSON.stringify(OPT)); } catch (e) { /* 저장 불가 */ } }
 function renderOpt() {
   document.querySelectorAll('#opt .seg').forEach(seg => seg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(OPT[seg.dataset.opt] === b.dataset.v))));
   $('potHp').value = OPT.potHp; $('potMp').value = OPT.potMp;
   $('vPotHp').textContent = `체력 ${OPT.potHp}% 이하`; $('vPotMp').textContent = `마나 ${OPT.potMp}% 이하`;
+  OPT.vol = Object.assign({ master: 90, bgm: 38, sfx: 100, mon: 70, amb: 50 }, OPT.vol || {}); OPT.mute = OPT.mute || {};
+  renderVol(); $('devRow').style.display = OPT.dev === 'on' ? '' : 'none';
 }
-document.querySelectorAll('#opt .seg').forEach(seg => seg.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { OPT[seg.dataset.opt] = b.dataset.v; saveOpt(); renderOpt(); uiPauseCheck(); })));
+document.querySelectorAll('#opt .seg').forEach(seg => seg.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { OPT[seg.dataset.opt] = b.dataset.v; saveOpt(); renderOpt(); uiPauseCheck(); if (seg.dataset.opt === 'dev') devChanged(); })));
 $('potHp').addEventListener('input', e => { OPT.potHp = +e.target.value; saveOpt(); renderOpt(); });
 $('potMp').addEventListener('input', e => { OPT.potMp = +e.target.value; saveOpt(); renderOpt(); });
-const panelOpen = () => !$('inv').classList.contains('hidden') || !$('shop').classList.contains('hidden') || !$('opt').classList.contains('hidden');
+const panelOpen = () => ['inv', 'shop', 'opt', 'gacha', 'wpMenu'].some(id => !$(id).classList.contains('hidden'));
 let uiPaused = false;
 function uiPauseCheck() { uiPaused = running && panelOpen() && OPT.invMode === 'pause'; }
 function toggleOpt() { $('opt').classList.toggle('hidden'); renderOpt(); uiPauseCheck(); }
@@ -2796,11 +3023,12 @@ function save() {
   if (!P || !running) return;
   const d = { v: 1, cls: P.cls, lv: P.lv, xp: P.xp, st: P.st, sp: P.sp, hp: P.hp, mp: P.mp, gold: P.gold, inv: P.inv, eq: P.eq, weapon: P.weapon, armor: P.armor, bag: P.bag,
     autoSell: !!P.autoSell, map: MAP.id, x: P.dead ? null : P.x, y: P.dead ? null : P.y, wbs: P.wbs || {}, morph: P.morph || null,
-    state: { bossDead: STATE.bossDead, kills: STATE.kills, quest: STATE.quest || 0, qn: STATE.qn || 0, wbKill: STATE.wbKill || {} }, t: Date.now() };
+    coll: P.coll, pet: P.pet || null, gacha: P.gacha,
+    state: { bossDead: STATE.bossDead, kills: STATE.kills, quest: STATE.quest || 0, qn: STATE.qn || 0, wbKill: STATE.wbKill || {}, wp: STATE.wp || {} }, t: Date.now() };
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(d)); } catch (e) { /* 저장소 사용 불가 */ }
 }
 function loadSave() { try { const d = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); return d && d.v === 1 && CLASSES[d.cls] ? d : null; } catch (e) { return null; } }
-function applyStats() { P.px = pxTotals(); const q = EQS(); P.maxhp = Math.round((P.c.hp * (1 + (P.lv - 1) * 0.12) + bonus('con') * 10 + q.hp) * (P.morph ? 1.08 : 1)); P.maxmp = Math.round(P.c.mp * (1 + (P.lv - 1) * 0.1) + bonus('int') * 6 + q.mp); P.hp = Math.min(P.hp, P.maxhp); P.mp = Math.min(P.mp, P.maxmp); }
+function applyStats() { P.px = pxTotals(); const q = EQS(); P.maxhp = Math.round((P.c.hp * (1 + (P.lv - 1) * 0.12) + bonus('con') * 10 + q.hp) * (1 + collBonus('hp'))); P.maxmp = Math.round(P.c.mp * (1 + (P.lv - 1) * 0.1) + bonus('int') * 6 + q.mp); P.hp = Math.min(P.hp, P.maxhp); P.mp = Math.min(P.mp, P.maxmp); }
 setInterval(save, 5000);
 window.addEventListener('beforeunload', save);
 document.addEventListener('visibilitychange', () => {
@@ -2824,8 +3052,10 @@ window.addEventListener('keydown', e => {
   if (e.code === 'KeyI') toggleInv();
   if (e.code === 'KeyM') toggleSound();
   if (e.code === 'KeyH') setAuto(!P.auto);
-  if (e.code === 'KeyF') { if ($('shop').classList.contains('hidden')) openShop(); else closeShop(); }
-  if (e.code === 'Escape') { $('shop').classList.add('hidden'); $('inv').classList.add('hidden'); $('opt').classList.add('hidden'); P.talk = false; uiPauseCheck(); }
+  if (e.code === 'KeyF') { if (!$('wpMenu').classList.contains('hidden')) closeWp(); else if (nearWp()) openWp(nearWp()); else if ($('shop').classList.contains('hidden')) openShop(); else closeShop(); }
+  if (e.code === 'KeyG') toggleGacha();
+  if (e.code === 'F2') { OPT.dev = OPT.dev === 'on' ? 'off' : 'on'; saveOpt(); renderOpt(); devChanged(); e.preventDefault(); }
+  if (e.code === 'Escape') { ['shop', 'inv', 'opt', 'gacha', 'wpMenu', 'cmp'].forEach(id => $(id).classList.add('hidden')); P.talk = false; uiPauseCheck(); }
   if (e.code === 'Space') { const m = nearestMob(8); if (m) { P.target = m; P.goal = null; } e.preventDefault(); }
   if (e.code.startsWith('Arrow')) e.preventDefault();
 });
@@ -2849,7 +3079,9 @@ function handleTap(cx, cy) {
   if (best) { P.target = best; P.goal = null; P.talk = false; return; }
   const t = toTile(sx, sy);
   const dclick = drops.find(d => !d.taken && Math.hypot(d.x - t.x, d.y - t.y) < 0.8);
-  if (dclick) { dclick.manual = true; dclick.skip = false; P.target = null; P.goal = { x: dclick.x, y: dclick.y }; P.autoHold = 3; return; }
+  if (dclick) { dclick.manual = true; dclick.skip = false; P.target = null; P.goal = { x: dclick.x, y: dclick.y }; P.autoHold = 3; if (dclick.equip) showCompare(dclick.equip, { auto: 5 }); return; }
+  // 웨이포인트 탭
+  for (const w of (WAYPOINTS[MAP.id] || [])) { const s = toScr(w.x, w.y); if (Math.abs(sx - s.x) < 18 && sy < s.y + 6 && sy > s.y - 70) { if (dist(P, w) < 2.2) openWp(w); else { P.target = null; P.goal = safeSpot(w.x + 1, w.y + 1); P.wpGo = w; P.autoHold = 6; } return; } }
   P.target = null; P.talk = false; P.goal = { x: t.x, y: t.y }; P.autoHold = 3;
 }
 cvs.addEventListener('pointerdown', e => handleTap(e.clientX, e.clientY));
@@ -2956,7 +3188,9 @@ function startGame(cls, sv) {
   $('joyZone').classList.toggle('hidden', !IS_TOUCH); if (IS_TOUCH) joyRest();
   P = newPlayer(cls);
   if (sv) {
-    Object.assign(P, { lv: sv.lv, xp: sv.xp, gold: sv.gold, inv: sv.inv, bag: sv.bag || [], autoSell: sv.autoSell, wbs: sv.wbs || {}, morph: sv.morph && META.monsters[sv.morph] ? sv.morph : null });
+    Object.assign(P, { lv: sv.lv, xp: sv.xp, gold: sv.gold, inv: sv.inv, bag: sv.bag || [], autoSell: sv.autoSell, wbs: sv.wbs || {}, morph: sv.morph && META.monsters[sv.morph] ? sv.morph : null,
+      coll: sv.coll || { pet: {}, morph: {} }, pet: sv.pet || null, gacha: sv.gacha || { pet: { pity: 0, mile: 0 }, morph: { pity: 0, mile: 0 } } });
+    if (P.morph && !(P.coll.morph || {})[P.morph]) P.coll.morph[P.morph] = 1;   // 예전 저장(인형 변신) 호환
     P.eq = sv.eq || { weapon: sv.weapon, armor: sv.armor };   // 예전 저장(무기·갑옷 2칸) 호환
     // 예전 저장(능력치 없음): 기본 능력치 + 레벨만큼 포인트 지급
     P.st = sv.st || Object.assign({}, BASE_STATS[cls]);
@@ -2964,12 +3198,13 @@ function startGame(cls, sv) {
     applyStats(); P.hp = Math.min(P.maxhp, sv.hp || P.maxhp); P.mp = Math.min(P.maxmp, sv.mp || P.maxmp);
     UID = 1 + Math.max(0, ...Object.values(P.eq).filter(Boolean).map(e => e.uid), ...P.bag.map(e => e.uid));
     Object.assign(STATE, sv.state || {});
-    STATE.wbKill = STATE.wbKill || {};
-  } else { STATE.bossDead = false; STATE.kills = 0; STATE.quest = 0; STATE.qn = 0; STATE.wbKill = {}; }
+    STATE.wbKill = STATE.wbKill || {}; STATE.wp = Object.assign({ wp_town: true }, STATE.wp || {});
+  } else { STATE.bossDead = false; STATE.kills = 0; STATE.quest = 0; STATE.qn = 0; STATE.wbKill = {}; STATE.wp = { wp_town: true }; }
+  PET = null; applyStats(); devChanged();
   $('pname').textContent = CLASSES[cls].label;
   buildBar();
   const a = audio();
-  if (a && soundOn) { a.setVolume({ music: 0.38, amb: 0.5 }); }
+  if (a && soundOn) applyVolumes();
   musicNow = null;
   running = true;
   if (sv && sv.map === 'dungeon') enterMap('dungeon', sv.x != null ? { x: sv.x, y: sv.y } : null);
@@ -2979,6 +3214,348 @@ function startGame(cls, sv) {
   log('1~4 스킬 · Q/E 물약 · H 자동사냥 · I 가방과 강화', 'sys');
   running = true; STATE.started = performance.now();
 }
+
+
+// ═════════════════════════ v0.7 시스템 ═════════════════════════
+// ── 몬스터 고유 전리품: 처치 시 30%(보스·월드보스 확정), 상점에서 판매
+const LOOT_P = 0.3;
+const LOOT_DEF = {
+  goblin: ['고블린의 녹슨 귀걸이', 'ring_ruby', 18, 'grayscale(.5) sepia(.6)'], wolf: ['다이어울프 송곳니', 'bone', 24, 'sepia(.3) brightness(1.1)'],
+  spider: ['거대 거미 독샘', 'pot_green', 30, 'hue-rotate(40deg) saturate(1.6)'], ooze: ['늪 점액 핵', 'gem_ruby', 26, 'hue-rotate(110deg) saturate(1.4)'],
+  skeleton: ['저주받은 두개골', 'bone', 40, 'grayscale(.4) hue-rotate(200deg)'], skeleton_archer: ['부러진 뼈 화살', 'arrows', 34, 'grayscale(.7)'],
+  orc: ['오크 전사의 엄니', 'bone', 55, 'sepia(.8) saturate(1.5)'], boss: ['몰락한 왕의 왕관 조각', 'gem_ruby', 800, 'hue-rotate(35deg) saturate(1.8) brightness(1.2)'],
+  wb_warlord: ['그롬마르의 피 묻은 뿔', 'bone', 2500, 'sepia(1) saturate(3) hue-rotate(-30deg)'], wb_lich: ['벨카르의 영혼 결정', 'gem_ruby', 2500, 'hue-rotate(200deg) saturate(1.6) brightness(1.2)'],
+};
+for (const [mob, [name, icon, price, hue]] of Object.entries(LOOT_DEF)) XITEMS['loot_' + mob] = { name, icon, price, hue, loot: true, mob, grade: mob.startsWith('wb_') || mob === 'boss' ? 'legend' : 'uncommon' };
+XITEMS.scroll_teleport = { name: '이동 포탈 스크롤', icon: 'scroll_teleport', grade: 'rare' };
+
+// ── 웨이포인트: 다가가면 활성화, 활성화된 곳끼리(마을 포함) 안전하게 이동
+const WAYPOINTS = {
+  field: [
+    { id: 'wp_town', name: '마을 광장', x: 11.5, y: 15.5, town: true }, { id: 'wp_forest', name: '동쪽 숲', x: 27.5, y: 11.5 },
+    { id: 'wp_grave', name: '북동 묘지', x: 39.5, y: 17.5 }, { id: 'wp_camp', name: '오크 야영지', x: 37.5, y: 25.5 },
+    { id: 'wp_swamp', name: '남서 늪지', x: 27.5, y: 42.5 }, { id: 'wp_altar', name: '피의 제단', x: 30.5, y: 47.5 },
+    { id: 'wp_gate', name: '지하 묘소 입구', x: 46.5, y: 44.5 },
+  ],
+  dungeon: [
+    { id: 'wp_d_entry', name: '묘소 입구', x: 6.5, y: 9.5 }, { id: 'wp_d_hall', name: '기둥 회랑', x: 15.5, y: 18.5 }, { id: 'wp_d_crypt', name: '남서 납골당 앞', x: 15.5, y: 27.5 },
+  ],
+};
+const wpById = id => { for (const [map, list] of Object.entries(WAYPOINTS)) { const w = list.find(x => x.id === id); if (w) return Object.assign({ map }, w); } return null; };
+let wpT = 0;
+function nearWp() { return (WAYPOINTS[MAP.id] || []).find(w => dist(P, w) < 2.2) || null; }
+function updateWaypoints(dt) {
+  if ((wpT -= dt) > 0 || !P) return; wpT = 0.25;
+  STATE.wp = STATE.wp || { wp_town: true };
+  for (const w of (WAYPOINTS[MAP.id] || [])) if (!STATE.wp[w.id] && dist(P, w) < 2.0) {
+    STATE.wp[w.id] = true; banner('웨이포인트 활성화', w.name); sfx('magic_cast', { gain: 0.6 }); vfx.push({ k: 'lvup', x: w.x, y: w.y, t: 0, life: 1.2 }); log(`웨이포인트 '${w.name}'을(를) 찾았습니다.`, 'sys'); save();
+  }
+  const nw = nearWp();
+  $('wpBtn').classList.toggle('hidden', !nw || !$('wpMenu').classList.contains('hidden') || !running);
+  if (P.wpGo && dist(P, P.wpGo) < 2.0) { const w = P.wpGo; P.wpGo = null; P.goal = null; openWp(w); }
+}
+let wpScroll = false;
+function openWp(from, scroll) {
+  if (!running || !P || P.dead) return;
+  wpScroll = !!scroll;
+  $('wpTitle').textContent = scroll ? '이동 포탈 스크롤' : `웨이포인트 · ${from ? from.name : ''}`;
+  $('wpNote').textContent = scroll ? '이동하면 스크롤 1장이 사라집니다.' : '활성화한 웨이포인트끼리 무료로 이동합니다. 비석에 다가가면 활성화됩니다.';
+  const box = $('wpList'); box.innerHTML = '';
+  for (const [map, list] of Object.entries(WAYPOINTS)) for (const w of list) {
+    const on = STATE.wp && STATE.wp[w.id], here = from && from.id === w.id, lvOk = map !== 'dungeon' || P.lv >= DUNGEON_MIN;
+    const row = document.createElement('div'); row.className = 'wprow' + (on ? '' : ' off');
+    row.innerHTML = `<div>${w.name}${w.town ? ' ⌂' : ''}<small>${map === 'field' ? '마을 외곽' : '지하 묘소'}${on ? '' : ' · 아직 찾지 못함'}${lvOk ? '' : ` · Lv ${DUNGEON_MIN}부터`}</small></div>`;
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = here ? '현재 위치' : '이동'; b.disabled = !on || here || !lvOk;
+    b.onclick = () => teleportTo(w.id); row.append(b); box.append(row);
+  }
+  $('wpMenu').classList.remove('hidden'); $('wpBtn').classList.add('hidden'); uiPauseCheck();
+}
+function closeWp() { $('wpMenu').classList.add('hidden'); uiPauseCheck(); }
+function teleportTo(id) {
+  const w = wpById(id); if (!w || !(STATE.wp || {})[id]) return false;
+  if (wpScroll) { if (!(P.inv.scroll_teleport > 0)) return false; P.inv.scroll_teleport--; }
+  closeWp(); sfx('magic_cast', { gain: 0.8 }); vfx.push({ k: 'lvup', x: P.x, y: P.y, t: 0, life: 1.0 });
+  const at = { x: w.x + 1.0, y: w.y + 1.0 };
+  if (MAP.id !== w.map) enterMap(w.map, at); else { const s = safeSpot(at.x, at.y); P.x = s.x; P.y = s.y; P.goal = null; P.target = null; P.path = null; if (PET) { PET.x = P.x - 0.6; PET.y = P.y - 0.6; } }
+  vfx.push({ k: 'lvup', x: P.x, y: P.y, t: 0, life: 1.0 }); log(`${w.name}(으)로 이동했습니다.`, 'sys'); save(); renderInv();
+  return true;
+}
+$('wpBtn').addEventListener('click', () => { const w = nearWp(); if (w) openWp(w); });
+$('wpClose').addEventListener('click', closeWp);
+
+// ── 사운드 상세 설정: 전체·배경음·효과음·몬스터·환경음(볼륨 + 켜기/끄기)
+const VOL_ROWS = [['master', '전체'], ['bgm', '배경음악'], ['sfx', '효과음'], ['mon', '몬스터 소리'], ['amb', '환경음']];
+function applyVolumes() {
+  const a = audio(); if (!a) return;
+  const V = OPT.vol, M = OPT.mute, v = (k) => M[k] ? 0 : V[k] / 100;
+  a.setVolume({ master: v('master') * 0.9 / 0.9, music: v('bgm'), amb: v('amb'), sfx: 1 });
+}
+function renderVol() {
+  const box = $('volRows'); if (!box) return; box.innerHTML = '';
+  for (const [k, label] of VOL_ROWS) {
+    const row = document.createElement('div'); row.className = 'vrow';
+    row.innerHTML = `<span>${label}</span><input type="range" min="0" max="100" step="5" value="${OPT.vol[k]}" aria-label="${label} 볼륨"><b>${OPT.vol[k]}</b>`;
+    const t = document.createElement('button'); t.type = 'button'; t.textContent = OPT.mute[k] ? '꺼짐' : '켜짐'; t.setAttribute('aria-pressed', String(!OPT.mute[k]));
+    t.onclick = () => { OPT.mute[k] = !OPT.mute[k]; saveOpt(); renderVol(); applyVolumes(); };
+    row.querySelector('input').addEventListener('input', ev => { OPT.vol[k] = +ev.target.value; row.querySelector('b').textContent = OPT.vol[k]; saveOpt(); applyVolumes(); });
+    row.append(t); box.append(row);
+  }
+}
+
+// ── 개발자 모드
+function devChanged() {
+  $('devBadge').classList.toggle('hidden', !(DEV() && running));
+  $('devRow').style.display = DEV() ? '' : 'none';
+  if (running) { infoTables(); if (!$('gacha').classList.contains('hidden')) renderGacha(); }
+}
+document.querySelectorAll('#devRow button').forEach(b => b.addEventListener('click', () => {
+  if (!P || !DEV()) return;
+  const k = b.dataset.dev;
+  if (k === 'gold') { P.gold += 1000000; log('개발자: 골드 +1,000,000', 'sys'); }
+  if (k === 'lv') gainXp(xpNeed(P.lv) - P.xp);
+  if (k === 'wb') { STATE.wbKill[MAP.id] = 0; wbT = 0; updateWorldBoss(0); }
+  if (k === 'wp') { for (const l of Object.values(WAYPOINTS)) for (const w of l) STATE.wp[w.id] = true; log('개발자: 웨이포인트 모두 열림', 'sys'); }
+  if (k === 'god') { P.god = !P.god; log(`개발자: 무적 ${P.god ? '켜짐' : '꺼짐'}`, 'sys'); }
+  if (k === 'items') { for (const id of ['pot_red', 'pot_blue', 'scroll_weapon', 'scroll_armor', 'scroll_return', 'scroll_teleport']) P.inv[id] = 99; log('개발자: 물약·주문서 99개', 'sys'); }
+  renderInv(); save();
+}));
+
+// ── 아이템 비교창: 고른 장비 ↔ 같은 부위에 착용 중인 장비
+let cmpT = null;
+function cmpCard(e, label) {
+  if (!e) return `<div class="ccard empty">${label}<br>비어 있음</div>`;
+  const d = equipDef(e.key), st = itemStats(e), tp = topPct(e);
+  const rows = Object.entries(st).map(([k, v]) => `<div class="cs"><span>${STAT_NAME[k]}</span><span>${fmtStat(k, v)}</span></div>`).join('');
+  return `<div class="ccard${e.px ? ' pxglow' : ''}"><div class="note">${label}</div><div class="cht"><canvas width="36" height="36" data-uid="${e.uid}"></canvas><div style="min-width:0"><div class="cn g-${d.grade}">+${e.enc} ${d.name}</div><div class="note">${GRADE_LABEL[d.grade]} · Lv ${d.lv}${tp != null ? ' · ' + fmtTop(tp) : ''}</div></div></div>${rows}${e.px ? `<div class="pxline">${PASSIVES[e.px.id].name}: ${PASSIVES[e.px.id].txt(e.px.v)}</div>` : ''}</div>`;
+}
+function showCompare(e, o = {}) {
+  if (!e || !equipDef(e.key)) return;
+  const slot = equippedSlotOf(e) || slotFor(e), cur = equippedOf(e) ? null : P.eq[slot];
+  const a = itemStats(e), b = cur ? itemStats(cur) : {};
+  const keys = [...new Set([...Object.keys(a), ...Object.keys(b)])];
+  const diff = keys.map(k => { const dv = (a[k] || 0) - (b[k] || 0); return dv ? `<span class="${dv > 0 ? 'up' : 'down'}">${STAT_NAME[k]} ${dv > 0 ? '▲' : '▼'}${fmtStat(k, Math.abs(dv))}</span>` : ''; }).filter(Boolean).join(' · ');
+  const ds = statVal(e) - statVal(cur);
+  $('cmpGrid').innerHTML = cmpCard(e, equippedOf(e) ? '착용 중' : '선택한 아이템') + (equippedOf(e) ? '<div class="ccard empty">이미 착용 중인 장비입니다</div>' : cmpCard(cur, `착용 중 (${ITEM_LABEL[equipDef(e.key).slot]})`));
+  $('cmpTot').innerHTML = equippedOf(e) ? '' : `${diff || '능력치 차이 없음'}<br><b class="${ds > 0 ? 'up' : ds < 0 ? 'down' : ''}" style="color:${ds > 0 ? '#8ae07a' : ds < 0 ? '#ff8a7a' : 'inherit'}">종합 전투력 ${ds >= 0 ? '+' : ''}${ds.toFixed(1)}</b>${P.lv < equipDef(e.key).lv ? ` · <span style="color:#ff8a7a">착용 Lv ${equipDef(e.key).lv}</span>` : ''}`;
+  $('cmpGrid').querySelectorAll('canvas').forEach(cv => { const it = findEquip(+cv.dataset.uid) || (+cv.dataset.uid === e.uid ? e : null); if (it) { const d = equipDef(it.key); gradeFrame(cv, d.grade, d.icon, it.enc); } });
+  const host = $('inv').classList.contains('hidden') ? document.body : $('inv');
+  if ($('cmp').parentNode !== host) host.append($('cmp'));
+  $('cmp').classList.toggle('docked', host !== document.body);
+  $('cmp').classList.remove('hidden');
+  clearTimeout(cmpT); if (o.auto) cmpT = setTimeout(() => $('cmp').classList.add('hidden'), o.auto * 1000);
+}
+$('cmpClose').addEventListener('click', () => $('cmp').classList.add('hidden'));
+$('invClose').addEventListener('click', () => $('cmp').classList.add('hidden'));
+
+// ── 강화 연출: 모루 위 장비를 망치로 세 번 두드림 → 성공(금빛 기둥·빛살·떠오름) / 실패(금 가고 회색 연기·흔들림)
+let encRaf = 0;
+function encAnim(d, ok, text, color, onResult) {
+  const box = $('encFx');
+  if ($('inv').classList.contains('hidden')) { onResult(); encToast(text, color); return; }
+  cancelAnimationFrame(encRaf); box.classList.remove('hidden'); $('encFxT').textContent = '';
+  const cv = $('encCv'), c = cv.getContext('2d'); c.imageSmoothingEnabled = false;
+  const t0 = performance.now(), STRIKE = [0.18, 0.48, 0.78], END = 1.0, TOTAL = 2.0;
+  const parts = []; let done = false; const hit = {};
+  const anvil = META.props.anvil, ic = itemIcon(d.icon);
+  const step = () => {
+    const t = (performance.now() - t0) / 1000;
+    c.clearRect(0, 0, 260, 200);
+    const shakeX = !ok && t > END && t < END + 0.4 ? Math.sin(t * 90) * 3 : 0;
+    // 바닥 빛
+    const g = c.createRadialGradient(130, 150, 4, 130, 150, 120); g.addColorStop(0, 'rgba(255,150,60,.25)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, 260, 200);
+    if (anvil) { const im = img(anvil.sheet); if (im.complete) c.drawImage(im, 0, 0, anvil.fw, anvil.fh, 130 - anvil.ax * 3 + shakeX, 178 - anvil.ay * 3, anvil.fw * 3, anvil.fh * 3); }
+    // 장비(모루 위) — 성공하면 떠오름
+    let iy = 110, alpha = 1;
+    if (ok && t > END) iy = 110 - Math.min(1, (t - END) / 0.5) * 34;
+    c.save();
+    if (!ok && t > END) c.filter = `grayscale(${Math.min(1, (t - END) * 3)}) brightness(${1 - Math.min(0.4, (t - END))})`;
+    if (ic && ic.im.complete) c.drawImage(ic.im, ic.sx, ic.sy, 32, 32, 108 + shakeX, iy - 22, 44, 44);
+    c.restore();
+    // 망치: 오른쪽 위에서 내려침
+    for (const [k, st] of STRIKE.entries()) if (t >= st && !hit[k]) { hit[k] = 1; sfx('hit_blunt', { gain: 0.45 }); for (let i = 0; i < 14; i++) parts.push({ x: 130, y: 104, vx: rnd(-90, 90), vy: rnd(-130, -20), life: rnd(0.25, 0.5), t: 0, col: i % 3 ? '255,190,80' : '255,250,210' }); }
+    if (t < END + 0.1) {
+      let ph = 1; for (const st of STRIKE) { const dd = t - st; if (dd > -0.14 && dd < 0.16) ph = dd < 0 ? Math.min(ph, -dd / 0.14) : Math.min(ph, dd / 0.16); }
+      const ang = -0.15 - ph * 1.25;
+      c.save(); c.translate(186, 70); c.rotate(ang);
+      c.fillStyle = '#5a3a1e'; c.fillRect(-54, -4, 58, 8);           // 자루
+      c.fillStyle = '#2a2c32'; c.fillRect(-72, -14, 22, 28);         // 머리
+      c.fillStyle = '#8a8e98'; c.fillRect(-72, -14, 22, 6); c.fillStyle = '#c8ccd6'; c.fillRect(-72, -14, 4, 28);
+      c.restore();
+    }
+    // 불꽃 입자
+    c.save(); c.globalCompositeOperation = 'lighter';
+    for (const p of parts) { p.t += 1 / 60; p.vy += 260 / 60; p.x += p.vx / 60; p.y += p.vy / 60; const a = 1 - p.t / p.life; if (a > 0) { c.fillStyle = `rgba(${p.col},${a})`; c.fillRect(p.x, p.y, 2, 2); } }
+    c.restore();
+    if (t >= END && !done) {
+      done = true; onResult(); $('encFxT').textContent = text; $('encFxT').style.color = color;
+      if (!ok) for (let i = 0; i < 16; i++) parts.push({ x: 130 + rnd(-20, 20), y: 100, vx: rnd(-20, 20), vy: rnd(-40, -10), life: rnd(0.6, 1.0), t: 0, col: '150,150,150' });
+    }
+    if (t >= END) {
+      const u = Math.min(1, (t - END) / 0.6);
+      c.save(); c.globalCompositeOperation = 'lighter';
+      if (ok) {
+        c.fillStyle = `rgba(255,220,120,${0.35 * (1 - u * 0.6)})`; c.fillRect(118, 0, 24, 140);   // 빛 기둥
+        for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6 + t * 1.5; c.strokeStyle = `rgba(255,230,150,${0.6 * (1 - u * 0.5)})`; c.lineWidth = 2; c.beginPath(); c.moveTo(130 + Math.cos(a) * 20, iy + Math.sin(a) * 20); c.lineTo(130 + Math.cos(a) * (40 + u * 30), iy + Math.sin(a) * (40 + u * 30)); c.stroke(); }
+      } else {
+        c.globalCompositeOperation = 'source-over'; c.strokeStyle = `rgba(30,10,10,${Math.min(1, u * 2)})`; c.lineWidth = 2;
+        c.beginPath(); c.moveTo(120, iy - 20); c.lineTo(128, iy - 8); c.lineTo(122, iy + 2); c.lineTo(132, iy + 14); c.moveTo(128, iy - 8); c.lineTo(140, iy - 4); c.stroke();
+        c.fillStyle = `rgba(200,30,20,${0.18 * (1 - u)})`; c.fillRect(0, 0, 260, 200);
+      }
+      c.restore();
+    }
+    if (t < TOTAL) encRaf = requestAnimationFrame(step); else box.classList.add('hidden');
+  };
+  encRaf = requestAnimationFrame(step);
+}
+
+// ── 도감 보너스(펫 + 변신)
+const GG = [
+  { name: '일반', color: '#f2f2f2', p: 70.0 }, { name: '고급', color: '#5fd068', p: 20.0 }, { name: '희귀', color: '#4aa8ff', p: 8.0 },
+  { name: '영웅', color: '#b56cff', p: 1.8 }, { name: '전설', color: '#ff3b30', p: 0.19 }, { name: '신화', color: '#ff9a1f', p: 0.01 },
+];
+const DEV_GG = [20, 20, 20, 20, 15, 5];
+const GACHA_POOL = {
+  pet: [['ooze', '아기 늪 점액', 0], ['goblin', '꼬마 고블린', 0], ['wolf', '아기 다이어울프', 1], ['spider', '새끼 거미', 1], ['skeleton', '꼬마 해골 병사', 2], ['skeleton_archer', '꼬마 해골 궁수', 2],
+    ['orc', '꼬마 오크 전사', 3], ['boss', '꼬마 몰락한 왕', 4], ['wb_warlord', '꼬마 그롬마르', 5], ['wb_lich', '꼬마 벨카르', 5]],
+  morph: [['goblin', '고블린', 0], ['ooze', '늪 점액', 0], ['wolf', '다이어울프', 1], ['spider', '거대 거미', 1], ['skeleton', '해골 병사', 2], ['skeleton_archer', '해골 궁수', 2],
+    ['orc', '오크 전사', 3], ['boss', '몰락한 왕', 4], ['wb_warlord', '피의 군주 그롬마르', 5], ['wb_lich', '심연의 리치 군주 벨카르', 5]],
+};
+const GACHA_BONUS = {
+  pet: { atk: [2, 3, 5, 8, 12, 20], hp: [2, 3, 5, 8, 12, 20], gold: [5, 8, 12, 18, 25, 40] },
+  morph: { atk: [3, 5, 8, 12, 18, 30], hp: [2, 4, 6, 10, 15, 25], spd: [2, 3, 5, 7, 10, 15] },
+};
+const GACHA_COST = { 1: 10000, 11: 100000 };
+const PITY_N = 80, MILE_MAX = 300, OVERFLOW = [1, 2, 4, 10, 30, 80];
+const gEntry = (cat, id) => { const r = GACHA_POOL[cat].find(x => x[0] === id); return r ? { id: r[0], name: r[1], g: r[2] } : null; };
+const starMul = s => 1 + 0.2 * ((s || 1) - 1);
+function collBonus(k) {
+  if (!P || !P.coll) return 0;
+  let v = 0;
+  for (const cat of ['pet', 'morph']) {
+    const id = cat === 'pet' ? P.pet : P.morph; if (!id) continue;
+    const e = gEntry(cat, id), tb = GACHA_BONUS[cat][k]; if (!e || !tb) continue;
+    v += tb[e.g] / 100 * starMul((P.coll[cat] || {})[id]);
+  }
+  return v;
+}
+const morphK = id => { const s = META.monsters[id]; return !s ? 1 : s.fw >= 200 ? 0.62 : s.fw >= 140 ? 0.78 : 1.0; };
+const petK = id => { const s = META.monsters[id]; return !s ? 0.5 : s.fw >= 200 ? 0.3 : s.fw >= 140 ? 0.4 : 0.5; };
+function setMorph(id) {
+  P.morph = id || null; applyStats(); if (id) img(META.monsters[id].sheet);
+  banner(id ? '변신!' : '변신 해제', id ? gEntry('morph', id).name : ''); sfx('magic_cast', { gain: 0.7 }); vfx.push({ k: 'lvup', x: P.x, y: P.y, t: 0, life: 1.0 });
+  save();
+}
+function setPet(id) { P.pet = id || null; PET = null; applyStats(); if (id) img(META.monsters[id].sheet); save(); }
+// 펫: 주인공 뒤를 따라다님(몬스터 그림을 작게)
+let PET = null;
+function updatePet(dt) {
+  if (!P || !P.pet || !META.monsters[P.pet]) { PET = null; return; }
+  if (!PET || PET.sheet !== P.pet) { const e = gEntry('pet', P.pet); PET = { kind: 'pet', group: 'monsters', sheet: P.pet, x: P.x - 0.8, y: P.y - 0.8, dir: 0, anim: 'idle', t: 0, f: 0, buffs: {}, scale: petK(P.pet), col: GG[e.g].color }; }
+  const v = dirVec(P.dir), tx = P.x - v.x * 1.1 + 0.3, ty = P.y - v.y * 1.1 - 0.3, d = Math.hypot(tx - PET.x, ty - PET.y);
+  if (d > 9) { PET.x = P.x; PET.y = P.y; }
+  else if (d > 0.35) { const sp = Math.min(d, (P.c.speed * 1.15 + d) * dt); PET.x += (tx - PET.x) / d * sp; PET.y += (ty - PET.y) / d * sp; PET.dir = dirOf(tx - PET.x, ty - PET.y); setAnim(PET, 'walk'); }
+  else setAnim(PET, 'idle');
+  tickAnim(PET, dt);
+}
+function addColl(cat, id) {
+  P.coll[cat] = P.coll[cat] || {}; const e = gEntry(cat, id), cur = P.coll[cat][id] || 0;
+  if (cur >= 5) { P.gacha[cat].mile = Math.min(MILE_MAX, P.gacha[cat].mile + OVERFLOW[e.g]); return { isNew: false, star: 5, over: OVERFLOW[e.g] }; }
+  P.coll[cat][id] = cur + 1; return { isNew: !cur, star: cur + 1, over: 0 };
+}
+function gachaRates() { return DEV() ? DEV_GG : GG.map(g => g.p); }
+function gachaRoll(cat, minG) {
+  const rates = gachaRates(); let r = Math.random() * 100, g = 0;
+  for (; g < 5; g++) { r -= rates[g]; if (r < 0) break; }
+  if (minG != null) g = Math.max(g, minG);
+  const pool = GACHA_POOL[cat].filter(x => x[2] === g);
+  const pick = pool[irnd(0, pool.length - 1)];
+  return { id: pick[0], name: pick[1], g };
+}
+let gCat = 'pet', gSelId = null;
+function pullGacha(n) {
+  const cost = GACHA_COST[n]; if (!P || P.gold < cost) { log('골드가 부족합니다.', 'bad'); return null; }
+  P.gold -= cost; const st = P.gacha[gCat]; const res = [];
+  for (let i = 0; i < n; i++) {
+    st.pity++;
+    let minG = st.pity >= PITY_N ? 3 : null;                                       // 천장: 80회 안에 영웅 이상 확정
+    if (n === 11 && i === 10 && !res.some(x => x.g >= 2)) minG = Math.max(minG || 0, 2);   // 11회: 희귀 이상 1회 확정
+    const it = gachaRoll(gCat, minG);
+    if (it.g >= 3) st.pity = 0;
+    st.mile = Math.min(MILE_MAX, st.mile + 1);
+    res.push(Object.assign(it, addColl(gCat, it.id)));
+  }
+  STATE.pulls = (STATE.pulls || 0) + n;
+  save(); showPulls(res); renderGacha();
+  return res;
+}
+function exchangeMile() {
+  const st = P.gacha[gCat]; if (st.mile < MILE_MAX) return null;
+  const legend = GACHA_POOL[gCat].filter(x => x[2] === 4)[0];
+  st.mile -= MILE_MAX; const r = Object.assign({ id: legend[0], name: legend[1], g: 4 }, addColl(gCat, legend[0]));
+  showPulls([r]); renderGacha(); save(); return r;
+}
+function monThumb(cv, id) {
+  const c = cv.getContext('2d'), s = META.monsters[id]; c.imageSmoothingEnabled = false; c.clearRect(0, 0, cv.width, cv.height);
+  if (!s) return; const im = img(s.sheet);
+  const draw = () => { c.clearRect(0, 0, cv.width, cv.height); const k = Math.min(cv.width / s.fw, cv.height / (s.ay + 6)) * 1.25; c.drawImage(im, s.anims.idle[0] * s.fw, 1 * s.fh, s.fw, s.fh, cv.width / 2 - s.ax * k, cv.height * 0.95 - s.ay * k, s.fw * k, s.fh * k); };
+  if (im.complete && im.naturalWidth) draw(); else im.addEventListener('load', draw, { once: true });
+}
+function showPulls(res) {
+  const box = $('gRes'); box.innerHTML = '';
+  const best = Math.max(...res.map(r => r.g));
+  res.forEach((r, i) => {
+    const c = document.createElement('div'); c.className = 'gcard' + (r.g >= 3 ? ' hi' : ''); c.style.setProperty('--gc', GG[r.g].color);
+    c.innerHTML = `<div class="in"><div class="bk"></div><div class="fr"><canvas width="64" height="64"></canvas><div class="gn">${r.name}</div><div class="gg">${GG[r.g].name} ${'★'.repeat(r.star)}</div>${r.isNew ? '<span class="nw">NEW</span>' : ''}</div></div>`;
+    monThumb(c.querySelector('canvas'), r.id); box.append(c);
+    setTimeout(() => { c.classList.add('open'); sfx(r.g >= 4 ? 'level_up' : r.g >= 2 ? 'enchant_ok' : 'block', { gain: r.g >= 2 ? 0.5 : 0.25 }); }, 120 + i * (res.length > 1 ? 110 : 0));
+  });
+  if (best >= 4) { const f = $('gFlash'); f.style.background = `radial-gradient(circle, ${GG[best].color}aa, transparent 70%)`; f.style.opacity = 1; setTimeout(() => { f.style.opacity = 0; }, 500 + res.length * 110); banner(`${GG[best].name} 등급!`, res.filter(r => r.g === best).map(r => r.name).join(', ')); }
+}
+function renderGacha() {
+  if (!P) return;
+  document.querySelectorAll('#gTabs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.g === gCat)));
+  $('gGold').textContent = `${P.gold.toLocaleString()} 골드`;
+  const rates = gachaRates();
+  $('gRates').innerHTML = GG.map((g, i) => `<span><b style="color:${g.color}">${g.name}</b> ${rates[i]}%</span>`).join('') + (DEV() ? '<span style="color:#ff6a5a">· 개발자 확률</span>' : '');
+  $('gPull1').disabled = P.gold < GACHA_COST[1]; $('gPull11').disabled = P.gold < GACHA_COST[11];
+  const st = P.gacha[gCat];
+  $('gInfo').innerHTML = `영웅 이상 확정까지 <b>${PITY_N - st.pity}</b>회<br>마일리지 <b>${st.mile}</b> / ${MILE_MAX} <button type="button" id="gMile" ${st.mile >= MILE_MAX ? '' : 'disabled'}>전설 교환</button><br><span>중복은 별(★, 최대 5)로 강화 · 별 5개 이후 중복은 마일리지로</span>`;
+  $('gMile').onclick = exchangeMile;
+  const coll = P.coll[gCat] || {}, cur = gCat === 'pet' ? P.pet : P.morph;
+  const box = $('gColl'); box.innerHTML = '';
+  for (const [id, name, g] of GACHA_POOL[gCat]) {
+    const own = coll[id] || 0;
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'gitem' + (own ? '' : ' no') + (cur === id ? ' on' : ''); b.style.setProperty('--gc', GG[g].color);
+    b.innerHTML = `<canvas width="56" height="56"></canvas><span style="color:${GG[g].color}">${GG[g].name}</span><span>${name}</span><span class="st">${own ? '★'.repeat(own) : '미보유'}</span>${cur === id ? '<span class="eqb">사용 중</span>' : ''}`;
+    monThumb(b.querySelector('canvas'), id);
+    b.onclick = () => { if (!own) return; gSelId = id; renderGachaSel(); };
+    box.append(b);
+  }
+  renderGachaSel();
+}
+function renderGachaSel() {
+  const box = $('gSel'), cur = gCat === 'pet' ? P.pet : P.morph;
+  const id = gSelId && (P.coll[gCat] || {})[gSelId] ? gSelId : cur;
+  if (!id) { box.innerHTML = `<span class="note">${gCat === 'pet' ? '펫은 주인공을 따라다니며 공격력·HP·골드 획득량을 올려 줍니다.' : '변신하면 그 모습이 되고 공격력·HP·이동 속도가 오릅니다.'} 보유한 것을 눌러 ${gCat === 'pet' ? '데려가세요' : '변신하세요'}.</span>`; return; }
+  const e = gEntry(gCat, id), s = (P.coll[gCat] || {})[id] || 1, tb = GACHA_BONUS[gCat];
+  const txt = Object.entries(tb).map(([k, a]) => `${{ atk: '공격력', hp: '최대 HP', gold: '골드 획득', spd: '이동 속도' }[k]} +${(a[e.g] * starMul(s)).toFixed(1)}%`).join(' · ');
+  box.innerHTML = `<b style="color:${GG[e.g].color}">[${GG[e.g].name}] ${e.name} ${'★'.repeat(s)}</b><span>${txt}</span>`;
+  const b = document.createElement('button'); b.type = 'button';
+  const on = cur === id; b.textContent = gCat === 'pet' ? (on ? '펫 돌려보내기' : '데려가기') : (on ? '변신 해제' : '변신');
+  b.onclick = () => { if (gCat === 'pet') setPet(on ? null : id); else setMorph(on ? null : id); renderGacha(); };
+  box.append(b);
+}
+function toggleGacha() {
+  if (!running || !P) return;
+  const el = $('gacha'); el.classList.toggle('hidden');
+  if (!el.classList.contains('hidden')) { $('gRes').innerHTML = ''; renderGacha(); }
+  uiPauseCheck();
+}
+document.querySelectorAll('#gTabs button').forEach(b => b.addEventListener('click', () => { gCat = b.dataset.g; gSelId = null; $('gRes').innerHTML = ''; renderGacha(); }));
+$('gPull1').addEventListener('click', () => pullGacha(1));
+$('gPull11').addEventListener('click', () => pullGacha(11));
+$('gClose').addEventListener('click', toggleGacha);
+$('btnGacha').addEventListener('click', toggleGacha);
 
 // ───────────────────────── 루프 ─────────────────────────
 function loop(ts) {
@@ -2993,6 +3570,7 @@ function loop(ts) {
     updateProjs(dt);
     updateHazards(dt);
     updateWorldBoss(dt);
+    updatePet(dt); updateWaypoints(dt);
     updateFx(dt);
     updateVfx(dt);
     updateHud();
@@ -3016,6 +3594,7 @@ function simulate(seconds, step = 1 / 20) {
     updateProjs(step);
     updateHazards(step);
     updateWorldBoss(step);
+    updatePet(step); updateWaypoints(step);
     updateFx(step);
     updateVfx(step);
   }
@@ -3024,7 +3603,9 @@ function simulate(seconds, step = 1 / 20) {
 window.__game = {
   WORLD_BOSS, UNIQUE, PASSIVES, XITEMS, topPct, itemStats, useItem, wbAlive, wbSlot, safeSpot, walkable, findPath, handleTap, joy: JOY, joyVec, closeShop, nearNpc, skillIds, dropEquip,
   get hazards() { return hazards; }, get reach() { return reach; }, get blocked() { return blocked; }, get now() { return now; },
-  killMob, wbDrops, gradeFrame, renderShop,
+  killMob, wbDrops, gradeFrame, renderShop, pullGacha, exchangeMile, gachaRoll, setPet, setMorph, collBonus, teleportTo, openWp, WAYPOINTS, showCompare, renderGacha, toggleGacha, devChanged, applyVolumes,
+  get PET() { return PET; }, get SFX_STAT() { return SFX_STAT; }, RESPAWN_T, MOB_TUNE, GG, GACHA_POOL, sfx, sfxAt, mobVoice,
+  set gCat(v) { gCat = v; }, get gCat() { return gCat; },
   combat: COMBAT, get P() { return P; }, get mobs() { return mobs; }, get map() { return MAP; }, get fxs() { return fxs; }, get drops() { return drops; }, STATE,
   addStat, xpNeed, SKILL_LV, DUNGEON_MIN, gainXp, OPT, renderOpt, enchantItem, panelOpen, get uiPaused() { return uiPaused; }, LOOT, simulate, musicKind, SOUND_PICKS, audio, unequip, renderInv, statVal, slotFor, slotAllowed, EQS, SLOTS, GEAR, renderOnce, start: startGame, save, loadSave, openShop, buy, SHOP, QUESTS, inTown, enterMap, useSkill, enchant, drink, nearestMob, setAuto, equip, makeEquip, equipDef, DROP_TABLE, setPaused: v => { paused = v; },
 };
