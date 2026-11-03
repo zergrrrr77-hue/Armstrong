@@ -729,8 +729,21 @@ function img(path) {
   if (!IMG[path]) { const i = new Image(); i.src = A + path; IMG[path] = i; }
   return IMG[path];
 }
+const MISSING = [];   // 불러오지 못한 그림 파일(시작 화면에 안내)
 function preload(list) {
-  return Promise.all(list.map(p => new Promise(res => { const i = img(p); if (i.complete && i.naturalWidth) res(); else { i.onload = res; i.onerror = res; } })));
+  return Promise.all(list.map(p => new Promise(res => { const i = img(p); if (i.complete && i.naturalWidth) res(); else { i.onload = res; i.onerror = () => { MISSING.push(p); res(); }; } })));
+}
+// 그림이 하나라도 안 불러와지면 원인과 고치는 법을 시작 화면에 크게 보여 준다(조용히 캐릭터만 사라지는 일 방지)
+function showMissing() {
+  if (!MISSING.length) return;
+  const box = document.createElement('div');
+  box.id = 'assetWarn';
+  box.style.cssText = 'margin:10px 0;padding:10px 12px;border:2px solid #c84a2a;border-radius:4px;background:rgba(60,12,6,.85);color:#ffd8c8;font-size:13px;line-height:1.55';
+  box.innerHTML = `<b>그림 파일 ${MISSING.length}개를 불러오지 못했습니다.</b><br>` +
+    `index.html과 <b>lineage-assets 폴더가 같은 폴더 안에</b> 있어야 합니다. GitHub에서 받을 때는 index.html 한 파일이 아니라 저장소 전체(ZIP)를 받아 압축을 푼 뒤, ` +
+    `forgotten-forge 폴더 안의 index.html을 여세요.<br><small style="color:#c8a898">예: ${MISSING.slice(0, 3).join(', ')}</small>`;
+  const inner = document.querySelector('#title .inner'); if (inner) inner.insertBefore(box, inner.children[2] || null);
+  console.error('불러오지 못한 그림:', MISSING);
 }
 // 타일(i,j) ↔ 화면(px)
 const toScr = (x, y) => ({ x: (x - y) * TW / 2, y: (x + y) * TH / 2 });
@@ -3999,7 +4012,7 @@ function simulate(seconds, step = 1 / 20) {
 }
 // 시험용 손잡이
 window.__game = {
-  toggleWorldMap, WORLDMAP, SAVE_KEY, OLD_SAVE_KEY, migrateV1, loadSave, REGIONS, ELEMENTS, regionOf, regionOpen, CLOCK_START,
+  MISSING, toggleWorldMap, WORLDMAP, SAVE_KEY, OLD_SAVE_KEY, migrateV1, loadSave, REGIONS, ELEMENTS, regionOf, regionOpen, CLOCK_START,
   WORLD_BOSS, UNIQUE, PASSIVES, XITEMS, topPct, itemStats, useItem, wbAlive, wbSlot, safeSpot, walkable, findPath, handleTap, joy: JOY, joyVec, closeShop, nearNpc, skillIds, dropEquip,
   get hazards() { return hazards; }, get reach() { return reach; }, get blocked() { return blocked; }, get now() { return now; },
   killMob, wbDrops, gradeFrame, renderShop, pullGacha, exchangeMile, gachaRoll, setPet, setMorph, collBonus, teleportTo, openWp, WAYPOINTS, showCompare, renderGacha, toggleGacha, devChanged, applyVolumes,
@@ -4015,5 +4028,5 @@ const ASSETS = [
   ...Object.values(META.effects).map(s => s.sheet), ...Object.values(META.props).map(s => s.sheet),
   META.tiles.sheet, META.item_atlas.sheet, META.enchant_icons.sheet,
 ];
-preload(ASSETS).then(() => { titleScreen(); requestAnimationFrame(loop); });
+preload(ASSETS).then(() => { titleScreen(); showMissing(); requestAnimationFrame(loop); });
 </script>
