@@ -23,7 +23,7 @@ const realError = (t) => !/ERR_TUNNEL_CONNECTION_FAILED|ERR_INTERNET_DISCONNECTE
 
   console.log('[이름]');
   const t = await page.evaluate(() => ({ doc: document.title, h1: document.querySelector('#title h1').getAttribute('aria-label'), logo: document.querySelector('#title .logo').textContent }));
-  check(t.doc === '에르덴 : 별의 심장' && t.h1 === '에르덴 : 별의 심장' && t.logo === '에르덴', `게임 제목: ${t.doc} / 로고 ${t.logo}`, fails);
+  check(t.doc === '에르덴 : 별의 심장' && t.h1 === '에르덴 : 별의 심장' && t.logo === 'Erden', `게임 제목: ${t.doc} / 로고 ${t.logo}`, fails);
   await page.screenshot({ path: `${OUT}/e2_title.png` });
   await page.locator('.cls').nth(0).click(); await page.fill('#nick', '테스터').then(() => page.click('#start')); await page.waitForTimeout(700);
   const ui = await page.evaluate(() => ({ gold: document.getElementById('gold').textContent, zone: document.getElementById('zone').textContent,

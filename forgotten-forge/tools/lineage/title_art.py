@@ -37,7 +37,8 @@ def lerp(a, b, t):
     return a + (b - a) * t[..., None]
 
 
-def paint(W, H, portrait, seed=7):
+def paint(W, H, portrait, seed=7, army=False):
+    """army=False: 앞쪽 창병 실루엣 없이(움직이는 전투는 게임 화면에서 스프라이트로 그림)."""
     rng = np.random.default_rng(seed)
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
     v, u = yy / H, xx / W
@@ -163,6 +164,12 @@ def paint(W, H, portrait, seed=7):
     arr = np.asarray(base, np.float32)
     fogb = np.exp(-((v - (horizon + 0.10)) / 0.07) ** 2) * (0.5 + 0.5 * fbm(W, H, 140, rng))
     arr = lerp(arr, np.array([92, 86, 72]), fogb * 0.45)
+    # 들판 곳곳의 불길: 전장 여기저기 타오르는 불빛
+    for k in range(9):
+        fx_, fy_ = rng.random(), horizon + 0.05 + rng.random() * 0.25
+        r = 0.03 + rng.random() * 0.05
+        gl = np.exp(-(((u - fx_) / r) ** 2) - (((v - fy_) / (r * 0.6 * W / H)) ** 2))
+        arr = arr + gl[..., None] * np.array([120, 50, 8]) * (0.5 + rng.random() * 0.6)
     # 성문 주변 불꽃 빛
     arr = arr + fg[..., None] * np.array([110, 52, 10]) * 0.9
 
@@ -176,7 +183,7 @@ def paint(W, H, portrait, seed=7):
     def side(xx):   # 0(가운데)~1(가장자리)
         return min(1.0, abs(xx / WW - 0.5) * 2)
     # 창(pike): 가장자리일수록 많고 길게
-    for _ in range(int(W / 12)):
+    for _ in range(int(W / 12) if army else 0):
         bx = rng.random() * WW
         s = side(bx)
         if s < 0.35 or rng.random() > s ** 1.5:
@@ -192,7 +199,7 @@ def paint(W, H, portrait, seed=7):
         hl = wdt * 5
         dr.polygon([(ex + hx * hl, ey + hy * hl), (ex + px * wdt * 1.4, ey + py * wdt * 1.4), (ex - px * wdt * 1.4, ey - py * wdt * 1.4)], fill=(30, 26, 22, 255))
     # 깃발 몇 개(찢어진 붉은 천)
-    for k in range(4):
+    for k in range(4 if army else 0):
         bx = WW * (0.06 + 0.88 * (k / 3))
         if 0.3 < bx / WW < 0.7:
             continue
@@ -202,7 +209,7 @@ def paint(W, H, portrait, seed=7):
         pts = [(bx + 10 * S2, top), (bx + fw, top + HH * 0.02), (bx + fw * 0.85, top + HH * 0.10), (bx + fw * 0.6, top + HH * 0.08), (bx + fw * 0.45, top + HH * 0.13), (bx + 10 * S2, top + HH * 0.11)]
         dr.polygon(pts, fill=(78, 20, 18, 255))
     # 병사 머리·어깨: 아래쪽에 겹겹이
-    for row in range(3):
+    for row in range(3 if army else 0):
         ry = HH * (0.80 + row * 0.06)
         n = int(W / (26 - row * 6))
         for i in range(n):
