@@ -37,55 +37,73 @@ body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--bo
 button { font: inherit; color: inherit; }
 button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
-/* 시작 화면 */
-#title { position: fixed; inset: 0; overflow-y: auto; background: radial-gradient(ellipse at 50% 0%, #2a1e14 0%, #08070a 70%);
-  padding-block: max(28px, env(safe-area-inset-top, 0px)) 40px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); z-index: 20; }
-#title .inner { position: relative; max-width: 1040px; margin: 0 auto; display: grid; gap: 22px; padding: 26px clamp(16px, 3vw, 34px) 30px;
-  /* 돌 판 + 철 테두리 + 안쪽 양피지 띠 */
-  background: linear-gradient(rgba(30,25,20,.74), rgba(14,12,10,.84)), repeating-linear-gradient(115deg, rgba(255,255,255,.015) 0 2px, transparent 2px 7px);
-  border: 3px solid #4a4038; border-radius: 4px;
-  box-shadow: 0 0 0 1px #0a0806, 0 0 0 5px #23201c, 0 0 0 6px #0a0806, inset 0 0 0 1px #6a5a44, inset 0 0 0 5px rgba(196,168,120,.14), inset 0 0 40px rgba(0,0,0,.6), 0 20px 60px rgba(0,0,0,.7); }
-#title .inner::before, #title .inner::after { content: ''; position: absolute; top: 8px; width: 9px; height: 9px; border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #c8bcaa, #5a5048 60%, #1a1612); box-shadow: 0 1px 1px #000; }
-#title .inner::before { left: 8px; } #title .inner::after { right: 8px; }
-#titleBg { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; display: block; }
-#title .crest { display: grid; justify-items: center; text-align: center; gap: 4px; margin-top: -6px; }
-#title .crest canvas { width: 132px; height: 132px; }
-#title .crest h1 { background: linear-gradient(#fff4d8, #e8c88a 55%, #a8803e); -webkit-background-clip: text; background-clip: text; color: transparent;
-  filter: drop-shadow(0 2px 0 #000) drop-shadow(0 0 14px rgba(255,200,120,.25)); letter-spacing: .02em; }
-#title .crest .eyebrow { letter-spacing: .32em; font-size: 11px; }
-#title > .inner > p { justify-self: center; text-align: center; padding: 10px 16px; border-radius: 3px;
-  background: linear-gradient(#d8c8a0, #bca878); color: #2a2014; box-shadow: inset 0 0 18px rgba(90,60,20,.45), 0 0 0 1px #4a3a22; }
-#title > .inner > p i { color: #5a3a14; }
-.nickbox { display: grid; gap: 6px; justify-self: start; width: min(420px, 100%); }
-.nickbox label { font-size: 12px; letter-spacing: .14em; color: var(--gold); }
-.nickrow { display: grid; grid-template-columns: 1fr; gap: 4px; }
-#nick { font: 700 18px var(--body); color: #fbe7b8; background: #0f0c09; border: 1px solid #5a4a34; border-radius: 3px; padding: 10px 12px;
-  box-shadow: inset 0 2px 6px rgba(0,0,0,.6); outline: none; }
-#nick:focus { border-color: var(--gold); }
-#nick.bad { border-color: #c8584a; } #nick.good { border-color: #7ab85a; }
-.nickmsg { font-size: 12px; color: var(--muted); min-height: 16px; } .nickmsg.bad { color: #ff9a8a; } .nickmsg.good { color: #b8f0a0; }
-.orbtxt b small { font: 600 10px var(--body); color: var(--gold); letter-spacing: .06em; opacity: .85; margin-left: 6px; }
-#title .eyebrow { font-size: 12px; letter-spacing: .18em; color: var(--gold); opacity: .8; }
-#title h1 { font-family: var(--display); font-weight: 800; font-size: clamp(34px, 6vw, 58px); margin: 0; color: #f3e5c8; text-wrap: balance; }
-#title p { margin: 0; color: var(--muted); max-width: 64ch; line-height: 1.6; }
-.classes { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-.cls { background: #15120f; border: 1px solid var(--line); border-radius: 3px; padding: 14px; cursor: pointer; display: grid; gap: 8px; text-align: left;
-  box-shadow: inset 0 1px 0 #4a3e30; transition: border-color .15s; }
-.cls:hover { border-color: var(--line-hi); }
-.cls[aria-pressed="true"] { border-color: var(--gold); background: #24190d; }
-.cls canvas { width: 100%; height: 150px; image-rendering: pixelated; background: radial-gradient(ellipse at 50% 80%, #262a20, #121410 70%); border-radius: 2px; }
-.cls b { font-family: var(--display); font-size: 21px; color: #f3e5c8; }
-.cls .role { font-size: 12px; color: var(--gold); letter-spacing: .06em; }
-.cls .stats { display: flex; gap: 10px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.cls ul { margin: 0; padding-left: 16px; font-size: 12px; color: var(--muted); line-height: 1.6; }
-.start { justify-self: start; background: linear-gradient(#5a3e14, #3a280c); border: 1px solid var(--gold); color: #fbe7b8; padding: 12px 28px; font-size: 16px; font-weight: 700; border-radius: 3px; cursor: pointer; letter-spacing: .06em; }
-.start:disabled { opacity: .4; cursor: default; }
-.keys { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px 18px; font-size: 13px; color: var(--muted); }
-.keys kbd { display: inline-block; min-width: 22px; padding: 1px 6px; margin-right: 6px; border: 1px solid var(--line-hi); border-radius: 3px; background: #1c1712; color: var(--fg); font-family: var(--body); font-size: 12px; text-align: center; }
+/* 시작 화면(로그인) — 휴대폰 세로가 기본, 넓은 화면은 아래 @media 에서 조정 */
+#title { position: fixed; inset: 0; overflow: hidden auto; z-index: 20; background: #0b0908; }
+#title .tart { position: fixed; inset: 0; background: #0b0908 url("lineage-assets/ui/title_bg_portrait.jpg") center 30% / cover no-repeat; }
+#titleBg { position: fixed; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+#title .inner { position: relative; min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 14px;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(18px, env(safe-area-inset-right, 0px)) max(14px, env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px)); }
+#title .crest { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; margin-top: 4vh; }
+#title .crest canvas { width: 86px; height: 86px; margin-bottom: -6px; filter: drop-shadow(0 0 18px rgba(255,190,120,.35)); }
+#title h1 { margin: 0; display: flex; flex-direction: column; align-items: center; line-height: 1; }
+#title .logo { font-family: var(--display), "Noto Serif KR", serif; font-weight: 900; font-size: clamp(64px, 19vw, 120px); letter-spacing: .02em;
+  background: linear-gradient(#ffffff 0%, #e9e6e0 38%, #a9a49a 52%, #f2efe8 70%, #8a857c 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  -webkit-text-stroke: 1px rgba(30,24,18,.6); filter: drop-shadow(0 3px 0 #120e0b) drop-shadow(0 0 2px #000) drop-shadow(0 0 22px rgba(255,200,140,.28)); }
+#title .sub { margin-top: 6px; font: 700 clamp(13px, 3.6vw, 18px) var(--display), "Noto Serif KR", serif; letter-spacing: .5em; padding-left: .5em; color: #e8c88a;
+  text-shadow: 0 1px 0 #000, 0 0 10px rgba(255,180,90,.45); }
+#title .login { width: min(360px, 100%); display: grid; gap: 9px; }
+#title .frow { display: grid; grid-template-columns: 54px 1fr; align-items: center; gap: 10px; }
+#title .frow label, #title .frow .lbl { font: italic 700 16px var(--display), "Noto Serif KR", serif; color: #efe6d4; text-align: right; text-shadow: 0 1px 2px #000, 0 0 6px #000; }
+/* 입력 칸: 은빛 테두리 액자 안의 검은 칸 */
+#nick { width: 100%; min-width: 0; font: 700 17px var(--body); color: #fbf1da; padding: 10px 12px; border-radius: 3px; outline: none;
+  background: linear-gradient(#050404, #120e0c); border: 1px solid #8f8a80;
+  box-shadow: 0 0 0 1px #1a1612, 0 0 0 3px #4a463e, 0 0 0 4px #0c0a08, inset 0 2px 8px rgba(0,0,0,.9); }
+#nick::placeholder { color: #6e665a; font-weight: 500; }
+#nick:focus { border-color: #e6d6b0; } #nick.bad { border-color: #d0604c; } #nick.good { border-color: #9ad07a; }
+#title .nickmsg { margin: -4px 0 0 64px; min-height: 15px; font-size: 12px; color: #cfc4ae; text-shadow: 0 1px 2px #000; }
+#title .nickmsg.bad { color: #ffaa98; } #title .nickmsg.good { color: #c4f0a8; }
+/* 직업 3칸: 작은 초상 + 이름 */
+#title .classes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.cls { position: relative; display: grid; justify-items: center; gap: 0; padding: 3px 2px 5px; cursor: pointer; border-radius: 3px; color: #e8dfcc;
+  background: linear-gradient(rgba(12,10,8,.82), rgba(4,3,3,.9)); border: 1px solid #6e685e; box-shadow: 0 0 0 1px #0c0a08, inset 0 0 10px rgba(0,0,0,.8); transition: border-color .15s, box-shadow .15s; }
+.cls canvas { width: 100%; height: 58px; image-rendering: pixelated; }
+.cls b { font: 700 13px var(--display), "Noto Serif KR", serif; }
+.cls[aria-pressed="true"] { border-color: #f0d68a; color: #fff3cf; box-shadow: 0 0 0 1px #0c0a08, 0 0 12px rgba(240,200,110,.55), inset 0 0 12px rgba(240,200,110,.18); }
+/* 시작 버튼: 올리브빛 바탕 + 은빛 장식 테두리(로그인 버튼 느낌) */
+#title .cont { display: grid; gap: 8px; margin: 4px 0 0 64px; justify-self: stretch; }
+#title .chk { margin-left: 64px; }
+.start { width: 100%; min-height: 48px; padding: 10px 16px; border-radius: 6px; cursor: pointer;
+  font: italic 800 17px var(--display), "Noto Serif KR", serif; letter-spacing: .04em; color: #f4f0e0; text-shadow: 0 1px 2px #000;
+  background: radial-gradient(ellipse at 50% 20%, #7c9440 0%, #4a5e1e 55%, #26320c 100%);
+  border: 1px solid #c8c2b4; box-shadow: 0 0 0 2px #2a2620, 0 0 0 3px #8a847a, 0 3px 10px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.25); }
+.start:disabled { cursor: default; filter: grayscale(.75) brightness(.7); }
+.start.alt { min-height: 40px; font-size: 14px; background: linear-gradient(#2a2622, #151210); color: #d8cfbc; }
+#title .chk { justify-self: center; display: flex; gap: 6px; align-items: center; font-size: 12px; color: #bdb3a0; text-shadow: 0 1px 2px #000; }
+#title .chk input { width: 16px; height: 16px; accent-color: #9ab04a; }
+#title .warn { text-align: center; font-size: 12px; color: #ffb07a; text-shadow: 0 1px 2px #000; }
+#title .ver { font-size: 10px; letter-spacing: .3em; color: rgba(220,200,160,.45); }
+#title .missing { width: min(360px, 100%); }
+/* 넓은 화면(가로 화면·PC): 가로 그림, 로고를 성 위에, 입력은 그 아래 */
+@media (orientation: landscape) and (min-width: 700px) {
+  #title .tart { background-image: url("lineage-assets/ui/title_bg_landscape.jpg"); background-position: center 40%; }
+  #title .crest { flex: none; margin-top: 12vh; }
+  #title .logo { font-size: clamp(64px, 9vw, 120px); }
+  #title .inner { justify-content: flex-start; gap: 18px; }
+  #title .login { margin-top: 2vh; }
+}
+/* 낮은 가로 화면(휴대폰 눕힘): 문장 작게, 여백 줄임 */
+@media (orientation: landscape) and (max-height: 520px) {
+  /* 휴대폰을 눕히면: 왼쪽에 로고, 오른쪽에 입력 */
+  #title .inner { flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 36px; }
+  #title .crest { flex: none; margin: 0; } #title .crest canvas { width: 60px; height: 60px; }
+  #title .logo { font-size: 64px; } #title .login { margin: 0; width: min(340px, 52vw); gap: 6px; }
+  .cls canvas { height: 40px; } #nick { padding: 8px 10px; } .start { min-height: 42px; }
+  #title .ver { flex-basis: 100%; text-align: center; }
+}
+@media (prefers-reduced-motion: reduce) { .cls { transition: none; } }
 
 /* HUD */
+.orbtxt b small { font: 600 10px var(--body); color: #e8c88a; letter-spacing: .06em; margin-left: 7px; padding: 0 5px; border: 1px solid rgba(232,200,138,.45); border-radius: 8px; vertical-align: 2px; }
 .hud { position: fixed; z-index: 10; pointer-events: none; }
 .hud * { pointer-events: auto; }
 #status { left: max(8px, env(safe-area-inset-left, 0px)); top: max(8px, env(safe-area-inset-top, 0px)); display: flex; gap: 8px; align-items: center; }
@@ -579,7 +597,7 @@ details.info th { color: var(--gold); font-weight: 500; }
 /* 휴대폰·태블릿(손가락): 오른쪽 아래 공격 버튼 둘레에 스킬을 부채꼴로, 물약은 아래 가운데 */
 @media (pointer: coarse) {
   #atkBtn { right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px)); width: 78px; height: 78px; }
-  #bar { left: 0; right: 0; bottom: 0; height: 0; transform: none; padding: 0; gap: 0; background: none; border: 0; box-shadow: none; display: block; }
+  #bar { left: 0; right: 0; bottom: 0; height: 0; width: auto; max-width: none; transform: none; padding: 0; gap: 0; background: none; border: 0; box-shadow: none; display: block; }
   #bar .sep { display: none; }
   #bar button.slot { position: absolute; width: 50px; height: 50px; border-radius: 50%; }
   #bar button.slot canvas { border-radius: 50%; }
@@ -593,7 +611,15 @@ details.info th { color: var(--gold); font-weight: 500; }
   #bar button.slot:nth-of-type(8) { right: calc(max(16px, env(safe-area-inset-right, 0px)) + 28px); bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + 173px); }
   /* 물약 두 칸(맨 뒤 버튼 둘)은 아래 가운데 — 위의 부채꼴 규칙보다 뒤에 있어 우선한다 */
   #bar button.slot:nth-last-of-type(2), #bar button.slot:nth-last-of-type(1) { right: auto; left: 50%; bottom: max(8px, env(safe-area-inset-bottom, 0px)); width: 46px; height: 46px; border-radius: 4px; }
-  #bar button.slot:nth-last-of-type(2) { margin-left: -50px; } #bar button.slot:nth-last-of-type(1) { margin-left: 4px; }
+  /* 물약은 가운데보다 조금 왼쪽: 오른쪽 부채꼴 스킬과 겹치지 않게 */
+  #bar button.slot:nth-last-of-type(2) { margin-left: -112px; } #bar button.slot:nth-last-of-type(1) { margin-left: -60px; }
+  /* 메뉴 버튼 6개: 미니맵 밑에 3칸×2줄(화면 가운데를 가리지 않게) */
+  .mbtn { right: 0; top: calc(100% + 6px); width: 100%; grid-template-columns: repeat(3, 1fr); justify-items: stretch; }
+  .mbtn button { width: auto; }
+}
+/* 휴대폰을 눕혔을 때(세로 공간이 좁음): 메뉴는 미니맵 왼쪽에 2칸×3줄 — 오른쪽 아래 스킬 부채꼴과 겹치지 않게 */
+@media (pointer: coarse) and (orientation: landscape) {
+  .mbtn { right: calc(100% + 6px); top: 0; width: auto; grid-template-columns: repeat(2, auto); }
   #bar button.slot:nth-last-of-type(-n+2) canvas { border-radius: 3px; }
 }
 /* 드로간 대장간(제작) — 상점 창과 같은 틀 */
@@ -601,7 +627,7 @@ details.info th { color: var(--gold); font-weight: 500; }
   background: linear-gradient(var(--stone-a, #2c2620), var(--stone-b, #17140f)); border: 2px solid var(--bronze, #8a6a3a); border-radius: 4px; box-shadow: inset 0 0 0 1px #0c0a07, 0 0 0 1px #0c0a07, 0 10px 30px rgba(0,0,0,.6); z-index: 30; }
 #craft .shead { display: grid; grid-template-columns: 72px 1fr auto; gap: 10px; align-items: center; }
 #craft .shead canvas { width: 72px; height: 78px; image-rendering: pixelated; }
-#craft .sinfo { display: grid; gap: 2px; } #craft .sinfo small { color: var(--muted); font-size: 11px; } #craft .sinfo b { font: 900 18px "Noto Serif KR", var(--display), serif; color: #ffd9a0; }
+#craft .sinfo { display: grid; gap: 2px; } #craft .sinfo small { color: var(--muted); font-size: 11px; } #craft .sinfo b { font: 900 18px var(--display), "Noto Serif KR", serif; color: #ffd9a0; }
 #craft .ssay { font-size: 12px; color: #e8dcc0; }
 #craft .tabs { display: flex; gap: 6px; } #craft .tabs button { flex: 1; min-height: 34px; background: #1c160f; border: 1px solid var(--line); color: var(--muted); border-radius: 3px; cursor: pointer; font-weight: 700; }
 #craft .tabs button[aria-pressed="true"] { color: #ffe9b0; border-color: var(--bronze-hi, #c9a25a); background: #2a2118; }
@@ -625,34 +651,23 @@ details.info th { color: var(--gold); font-weight: 500; }
 <canvas id="game"></canvas>
 
 <div id="title">
+  <div class="tart" aria-hidden="true"></div>
   <canvas id="titleBg" aria-hidden="true"></canvas>
   <div class="inner">
-    <div class="crest"><canvas id="titleEmblem" width="200" height="200" aria-hidden="true"></canvas>
-      <div class="eyebrow">ERDEN · HEART OF THE STARS</div>
-      <h1>에르덴 : 별의 심장</h1></div>
-    <p><i>별이 태어난 세계, 잊힌 왕국의 마지막 이야기.</i><br>기사·요정·마법사 중 하나를 골라 아르델 평원의 숲과 늪에서 사냥하며 장비를 모으고 강해진 뒤, 남동쪽 끝의 계단으로 왕실 기사단 묘소에 내려가 <b>봉인된 수호자</b>를 쓰러뜨리세요. 들판에서 모은 재료로 대장장이 드로간에게 무기를 맞추고, 별빛 강화석으로 +10까지 강화하세요. 안전 구간을 넘어 +4부터 실패하면 장비가 부서질 수도 있습니다.</p>
-    <div class="classes" id="classes"></div>
-    <div class="nickbox">
-      <label for="nick">캐릭터 이름</label>
-      <div class="nickrow"><input id="nick" type="text" maxlength="8" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="한글·영문 2~8자" enterkeyhint="done">
-        <span class="nickmsg" id="nickMsg" aria-live="polite">이름을 지어 주세요</span></div>
+    <div class="crest">
+      <canvas id="titleEmblem" width="200" height="200" aria-hidden="true"></canvas>
+      <h1 aria-label="에르덴 : 별의 심장"><span class="logo">에르덴</span><span class="sub">별 의 심 장</span></h1>
     </div>
-    <div class="cont"><button class="start hidden" id="continue" type="button"></button><button class="start" id="start" disabled>클래스를 고르세요</button></div>
-    <label class="chk" style="justify-self:start"><input type="checkbox" id="devTitle"> 개발자 모드로 시작 (드롭·강화·공명 확률 상향, 시험용)</label>
-    <div class="warn hidden" id="newWarn">새로 시작하면 저장된 진행이 지워집니다.</div>
-    <div class="keys">
-      <div><kbd>클릭</kbd>이동 · 몬스터 클릭 공격</div>
-      <div><kbd>WASD</kbd>이동 (방향키도 가능)</div>
-      <div><kbd>Space</kbd>가까운 적 공격</div>
-      <div><kbd>1</kbd>~<kbd>4</kbd>스킬</div>
-      <div><kbd>Q</kbd>체력 물약 · <kbd>E</kbd>마나 물약</div>
-      <div><kbd>H</kbd>자동사냥 · <kbd>I</kbd>가방·강화 · <kbd>M</kbd>소리</div>
-      <div><kbd>F</kbd>상점·별빛 표석 · <kbd>5</kbd>~<kbd>8</kbd>월드보스 스킬</div>
-      <div><kbd>G</kbd>공명(펫·변신) · <kbd>F2</kbd>개발자 모드</div>
-      <div><kbd>Tab</kbd>세계지도 (미니맵을 눌러도 열림)</div>
-      <div><span style="color:#ff6a5a">▼</span> 선공 몬스터(먼저 공격) · <span style="color:#8ae07a">●</span> 후공 몬스터</div>
-      <div><kbd>휴대폰</kbd>왼쪽 아래를 누르고 끌면 투명 조이스틱</div>
+    <div class="login">
+      <div class="frow"><label for="nick">이름</label>
+        <input id="nick" type="text" maxlength="8" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="한글·영문 2~8자" enterkeyhint="done"></div>
+      <div class="nickmsg" id="nickMsg" aria-live="polite"></div>
+      <div class="frow"><span class="lbl">직업</span><div class="classes" id="classes"></div></div>
+      <div class="cont"><button class="start hidden" id="continue" type="button"></button><button class="start" id="start" type="button" disabled>클래스를 고르세요</button></div>
+      <label class="chk"><input type="checkbox" id="devTitle"> 개발자 모드</label>
+      <div class="warn hidden" id="newWarn">새로 시작하면 저장된 진행이 지워집니다.</div>
     </div>
+    <div class="ver">ERDEN · HEART OF THE STARS</div>
   </div>
 </div>
 
@@ -3685,7 +3700,7 @@ let chosen = null;
 const NICK_BAN = ['운영자', '관리자', '운영진', 'gm', 'admin', 'system', '시스템', '드로간', '세리아', '시발', '씨발', 'ㅅㅂ', '병신', '개새', '좆', '존나', '미친', 'fuck', 'shit', 'sex', '섹스', '느금'];
 function nickCheck(raw) {
   const s = String(raw == null ? '' : raw).normalize('NFC').trim();
-  if (!s) return { ok: false, msg: '이름을 지어 주세요', s };
+  if (!s) return { ok: false, msg: '', s };
   if (/\s/.test(s)) return { ok: false, msg: '띄어쓰기는 쓸 수 없습니다', s };
   if (/[ㄱ-ㅎㅏ-ㅣ]/.test(s)) return { ok: false, msg: '완성된 글자만 쓸 수 있습니다 (ㄱ, ㅏ 같은 낱자 불가)', s };
   if (!/^[가-힣A-Za-z]+$/.test(s)) return { ok: false, msg: '한글과 영문만 쓸 수 있습니다 (숫자·특수문자 불가)', s };
@@ -3703,47 +3718,34 @@ function startReady() {
   $('nickMsg').textContent = r.msg; $('nickMsg').className = 'nickmsg' + (typed ? (r.ok ? ' good' : ' bad') : '');
   const c = chosen && CLASSES[chosen];
   $('start').disabled = !(c && nickOk);
-  $('start').textContent = !c ? '클래스를 고르세요' : !nickOk ? '이름을 정하세요' : `${nickOk} · ${c.label}(으)로 시작`;
+  $('start').textContent = !nickOk ? '이름을 정하세요' : !c ? '직업을 고르세요' : (loadSave() ? '새로 시작' : '게임 시작');
 }
-// 시작 화면 배경: 밤하늘·별·먼 산맥·성채 실루엣·안개(창 크기가 바뀌면 다시 그림)
-const TB = { stars: [], fog: 0 };
+// 시작 화면 움직임: 배경 그림 위로 불티가 올라가고 연기가 흐름(그림 자체는 CSS 배경)
+const TB = { em: [], puffs: [], w: 0, h: 0 };
 function drawTitleBg() {
   const cv = $('titleBg'); if (!cv || $('title').classList.contains('hidden')) return;
   const w = cv.clientWidth, h = cv.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
   if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) {
-    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
-    TB.stars = Array.from({ length: Math.round(w * h / 2600) }, () => ({ x: Math.random(), y: Math.random() * 0.72, r: Math.random() < 0.08 ? 1.6 : 0.8, p: Math.random() * 6.28 }));
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); TB.w = w; TB.h = h;
+    TB.em = Array.from({ length: Math.round(Math.min(90, w * h / 9000)) }, () => ({ x: Math.random() * w, y: h * (0.4 + Math.random() * 0.6), v: 18 + Math.random() * 40, s: Math.random() * 6.28, r: 0.8 + Math.random() * 1.8, life: Math.random() }));
+    TB.puffs = Array.from({ length: 7 }, (_, i) => ({ x: Math.random() * w, y: h * (0.15 + Math.random() * 0.45), r: Math.max(w, h) * (0.18 + Math.random() * 0.22), v: 6 + Math.random() * 10, a: 0.05 + Math.random() * 0.07 }));
+    TB.last = performance.now();
   }
-  const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0);
-  const tt = performance.now() / 1000;
-  const sky = c.createLinearGradient(0, 0, 0, h); sky.addColorStop(0, '#05060c'); sky.addColorStop(0.55, '#141226'); sky.addColorStop(0.8, '#2a1c1a'); sky.addColorStop(1, '#0a0807');
-  c.fillStyle = sky; c.fillRect(0, 0, w, h);
-  for (const s of TB.stars) { c.globalAlpha = 0.35 + 0.45 * (0.5 + 0.5 * Math.sin(tt * 1.3 + s.p)); c.fillStyle = s.r > 1 ? '#ffe9b8' : '#cfd8ff'; c.fillRect(s.x * w, s.y * h, s.r, s.r); }
-  c.globalAlpha = 1;
-  // 은하수처럼 번지는 별빛
-  const mw = c.createRadialGradient(w * 0.5, h * 0.18, 10, w * 0.5, h * 0.18, Math.max(w, h) * 0.55);
-  mw.addColorStop(0, 'rgba(255,214,150,.16)'); mw.addColorStop(0.5, 'rgba(120,110,200,.06)'); mw.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = mw; c.fillRect(0, 0, w, h);
-  const ridge = (base, amp, seed, col) => {
-    c.fillStyle = col; c.beginPath(); c.moveTo(0, h);
-    for (let x = 0; x <= w + 8; x += 8) { const k = x / w * 6.28; c.lineTo(x, h * base - amp * (Math.sin(k * 1.7 + seed) * 0.6 + Math.sin(k * 4.3 + seed * 2) * 0.3 + Math.sin(k * 9.1 + seed) * 0.1)); }
-    c.lineTo(w, h); c.closePath(); c.fill();
-  };
-  ridge(0.74, h * 0.09, 1.2, '#1a1722');
-  // 먼 성채: 언덕 위 탑 세 개와 성벽
-  const cx = w * 0.72, cy = h * 0.66; c.fillStyle = '#100e14';
-  c.fillRect(cx - 70, cy - 26, 140, 30);
-  for (const [dx, tw, th] of [[-62, 16, 64], [-8, 22, 92], [46, 16, 58]]) { c.fillRect(cx + dx, cy - th, tw, th); c.beginPath(); c.moveTo(cx + dx - 3, cy - th); c.lineTo(cx + dx + tw / 2, cy - th - 20); c.lineTo(cx + dx + tw + 3, cy - th); c.fill(); }
-  for (let i = -66; i < 70; i += 10) c.fillRect(cx + i, cy - 32, 6, 6);
-  c.fillStyle = `rgba(255,190,110,${0.55 + 0.3 * Math.sin(tt * 2.2)})`; c.fillRect(cx - 2, cy - 70, 3, 5); c.fillRect(cx + 50, cy - 40, 2, 4);
-  ridge(0.84, h * 0.06, 3.7, '#0d0b0e');
-  // 안개: 천천히 흐르는 띠
-  for (let i = 0; i < 3; i++) {
-    const y = h * (0.78 + i * 0.06), x = ((tt * (8 + i * 5)) % (w + 400)) - 200;
-    const fg = c.createRadialGradient(x, y, 10, x, y, w * 0.45); fg.addColorStop(0, 'rgba(150,140,170,.10)'); fg.addColorStop(1, 'rgba(0,0,0,0)');
-    c.fillStyle = fg; c.fillRect(0, h * 0.6, w, h * 0.4);
+  const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
+  const now2 = performance.now(), dt = Math.min(0.05, (now2 - (TB.last || now2)) / 1000); TB.last = now2;
+  for (const p of TB.puffs) {   // 천천히 옆으로 흐르는 연기
+    p.x += p.v * dt; if (p.x - p.r > w) p.x = -p.r;
+    const g = c.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r); g.addColorStop(0, `rgba(24,22,20,${p.a})`); g.addColorStop(1, 'rgba(24,22,20,0)');
+    c.fillStyle = g; c.fillRect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
   }
-  const vg = c.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.3, w / 2, h / 2, Math.max(w, h) * 0.75); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.7)');
-  c.fillStyle = vg; c.fillRect(0, 0, w, h);
+  c.globalCompositeOperation = 'lighter';
+  for (const e of TB.em) {      // 불티: 흔들리며 위로, 올라갈수록 흐려짐
+    e.y -= e.v * dt; e.s += dt * 2; e.x += Math.sin(e.s) * 12 * dt; e.life += dt * 0.25;
+    if (e.y < h * 0.15 || e.life > 1) { e.x = Math.random() * w; e.y = h * (0.6 + Math.random() * 0.4); e.life = 0; }
+    const a = Math.sin(Math.min(1, e.life) * Math.PI) * (0.5 + 0.5 * Math.sin(e.s * 3));
+    c.fillStyle = `rgba(255,${150 + (e.r * 30 | 0)},70,${0.75 * a})`; c.beginPath(); c.arc(e.x, e.y, e.r, 0, 6.283); c.fill();
+  }
+  c.globalCompositeOperation = 'source-over';
 }
 // 별의 심장 문장: 하트 모양 수정 안에 여덟 갈래 별, 바깥에 철 고리와 룬 점. 맥박처럼 빛남
 function drawEmblem() {
@@ -3781,9 +3783,8 @@ function titleScreen() {
     const b = document.createElement('button'); b.className = 'cls'; b.type = 'button'; b.setAttribute('aria-pressed', 'false');
     const cv = document.createElement('canvas'); cv.width = 200; cv.height = 150;
     b.append(cv);
-    b.insertAdjacentHTML('beforeend', `<b>${c.label}</b><span class="role">${c.role}</span>
-      <span class="stats"><span>HP ${c.hp}</span><span>MP ${c.mp}</span><span>공격 ${c.atk[0]}–${c.atk[1]}</span></span>
-      <ul>${c.skills.map((id, i) => `<li>${i + 1}. ${SKILLS[id].name}</li>`).join('')}</ul>`);
+    b.title = `${c.label} — ${c.role} · HP ${c.hp} · MP ${c.mp}`; b.setAttribute('aria-label', `${c.label}, ${c.role}`);
+    b.insertAdjacentHTML('beforeend', `<b>${c.label}</b>`);
     b.addEventListener('click', () => {
       chosen = k; document.querySelectorAll('.cls').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
       startReady();
@@ -3801,7 +3802,7 @@ function titleScreen() {
       x.clearRect(0, 0, 200, 150);
       const fxk = Object.keys(META.effects).find(key => META.effects[key].anim === an);
       const fx = fxk && META.effects[fxk];
-      const sc = 1.4, fy = 140;
+      const sc = 1.9, fy = 146;
       const dr = (layer) => { if (!fx) return; const row = fxRow(fx, layer, 1); if (row < 0) return; x.save(); x.globalCompositeOperation = fx.blend[layer]; x.drawImage(img(fx.sheet), Math.min(f, fx.frames - 1) * fx.fw, row * fx.fh, fx.fw, fx.fh, 100 - fx.ax * sc * 0.7, fy - fx.ay * sc * 0.7, fx.fw * sc * 0.7, fx.fh * sc * 0.7); x.restore(); };
       dr('under');
       x.drawImage(img(s.sheet), (st + f) * s.fw, 1 * s.fh, s.fw, s.fh, 100 - s.ax * sc, fy - s.ay * sc, s.fw * sc, s.fh * sc);
@@ -3822,7 +3823,7 @@ function titleScreen() {
     c.textContent = `이어하기 · ${sv.name ? sv.name + ' · ' : ''}${CLASSES[sv.cls].label} Lv ${sv.lv}`;
     if (saveNote) c.title = saveNote;
     c.addEventListener('click', () => { audio(); startGame(sv.cls, sv); });
-    $('start').classList.add('alt');
+    $('start').classList.add('alt'); if (sv.name) $('nick').placeholder = '새 캐릭터 이름';
     $('newWarn').classList.remove('hidden');
   } else if (saveNote) { $('newWarn').textContent = saveNote; $('newWarn').classList.remove('hidden'); }   // 변환 실패 안내
 }

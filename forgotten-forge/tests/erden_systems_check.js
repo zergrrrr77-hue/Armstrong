@@ -18,10 +18,13 @@ const realError = (t) => !/ERR_TUNNEL_CONNECTION_FAILED|ERR_INTERNET_DISCONNECTE
   await page.evaluate(() => localStorage.clear()); await page.reload(); await title();
   console.log('[시작 화면·이름]');
   await page.waitForTimeout(600);
-  const art = await page.evaluate(() => { const bg = document.getElementById('titleBg'), em = document.getElementById('titleEmblem');
+  const art = await page.evaluate(async () => { const em = document.getElementById('titleEmblem');
     const px = (cv) => { const d = cv.getContext('2d').getImageData(cv.width / 2, cv.height / 2, 1, 1).data; return d[0] + d[1] + d[2]; };
-    return { bg: bg.width > 0 && px(bg) > 0, em: px(em) > 200 }; });
-  check(art.bg && art.em, '배경(밤하늘·성채)과 빛나는 별의 심장 문장이 그려짐', fails);
+    const url = getComputedStyle(document.querySelector('#title .tart')).backgroundImage.match(/url\("?([^")]+)/)[1];
+    const ok = await new Promise(r => { const i = new Image(); i.onload = () => r(i.naturalWidth > 1000); i.onerror = () => r(false); i.src = url; });
+    return { bg: ok, em: px(em) > 200, clean: !document.querySelector('#title .keys') && !document.querySelector('#title p') }; });
+  check(art.bg && art.em, '배경 그림(성채·연기·군대)과 빛나는 별의 심장 문장', fails);
+  check(art.clean, '시작 화면에 긴 설명·조작키 목록 없음', fails);
   const nk = await page.evaluate(() => { const g = __game; return ['', '가', '가나다라마바사아자', 'ab1', '별@빛', 'ㄱㄴ', '운영자님', 'Admin', '드 로', '아린', 'Luna', '별빛아린'].map(s => [s, g.nickCheck(s).ok]); });
   const want = [false, false, false, false, false, false, false, false, false, true, true, true];
   check(nk.every(([, ok], i) => ok === want[i]), `이름 규칙: ${nk.map(([s, ok]) => `${s || '(빈칸)'}=${ok ? '○' : '×'}`).join(' ')}`, fails);
@@ -30,7 +33,12 @@ const realError = (t) => !/ERR_TUNNEL_CONNECTION_FAILED|ERR_INTERNET_DISCONNECTE
   check(blocked.dis && /특수문자/.test(blocked.msg), `잘못된 이름이면 시작 막힘: ${blocked.msg}`, fails);
   await page.fill('#nick', '아린');
   await page.screenshot({ path: `${OUT}/sys_title.png` });
-  await page.setViewportSize({ width: 390, height: 844 }); await page.waitForTimeout(300); await page.screenshot({ path: `${OUT}/sys_title_phone.png` }); await page.setViewportSize({ width: 1280, height: 760 });
+  for (const [w, h] of [[390, 844], [375, 667], [844, 390]]) {
+    await page.setViewportSize({ width: w, height: h }); await page.waitForTimeout(300);
+    const fit = await page.evaluate(() => { const r = document.getElementById('start').getBoundingClientRect(); return { sh: document.getElementById('title').scrollHeight, ih: innerHeight, btn: r.bottom }; });
+    check(fit.sh <= fit.ih + 1 && fit.btn <= fit.ih, `휴대폰 ${w}×${h}: 스크롤 없이 한 화면(시작 버튼 ${Math.round(fit.btn)} / 화면 ${fit.ih})`, fails);
+  }
+  await page.setViewportSize({ width: 390, height: 844 }); await page.screenshot({ path: `${OUT}/sys_title_phone.png` }); await page.setViewportSize({ width: 1280, height: 760 });
   await page.click('#start'); await page.waitForTimeout(800);
   const nm = await page.evaluate(() => { __game.save(); return { p: document.getElementById('pname').textContent, inv: document.getElementById('invName').textContent, sv: JSON.parse(localStorage.getItem('erden_save_v2')).name }; });
   check(nm.p === '아린' && nm.inv === '아린' && nm.sv === '아린', `이름이 상태창·가방·저장에: ${nm.p} / ${nm.inv} / ${nm.sv}`, fails);

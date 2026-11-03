@@ -22,9 +22,8 @@ const realError = (t) => !/ERR_TUNNEL_CONNECTION_FAILED|ERR_INTERNET_DISCONNECTE
   await page.evaluate(() => localStorage.clear()); await page.reload(); await title();
 
   console.log('[이름]');
-  const t = await page.evaluate(() => ({ doc: document.title, h1: document.querySelector('#title h1').textContent, intro: document.querySelector('#title p').textContent }));
-  check(t.doc === '에르덴 : 별의 심장' && t.h1 === '에르덴 : 별의 심장', `게임 제목: ${t.doc}`, fails);
-  check(t.intro.includes('봉인된 수호자') && t.intro.includes('아르델 평원'), '시작 화면 소개문에 에르덴 용어', fails);
+  const t = await page.evaluate(() => ({ doc: document.title, h1: document.querySelector('#title h1').getAttribute('aria-label'), logo: document.querySelector('#title .logo').textContent }));
+  check(t.doc === '에르덴 : 별의 심장' && t.h1 === '에르덴 : 별의 심장' && t.logo === '에르덴', `게임 제목: ${t.doc} / 로고 ${t.logo}`, fails);
   await page.screenshot({ path: `${OUT}/e2_title.png` });
   await page.locator('.cls').nth(0).click(); await page.fill('#nick', '테스터').then(() => page.click('#start')); await page.waitForTimeout(700);
   const ui = await page.evaluate(() => ({ gold: document.getElementById('gold').textContent, zone: document.getElementById('zone').textContent,
