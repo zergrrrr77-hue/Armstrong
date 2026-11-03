@@ -181,35 +181,73 @@ def _npc_seria():
 
 
 def _npc_belos():
-    """벨로스 — 추방된 대마법사. 긴 잿빛 수염, 해진 짙은 보라 두건 로브, 뒤틀린 지팡이에 희미한 보랏빛."""
+    """벨로스 — 추방된 대마법사. 300년 전 금지 의식의 대가로 왼팔이 별의 파편처럼 결정화됐다.
+    두건 없이 드러난 민머리와 이마의 봉인 문양, 끊어진 족쇄, 사슬로 묶은 금서, 파편이 떠도는 갈고리 지팡이."""
     m = dict(Hm.M_COMMON)
     m.update({
         'skin': Mat(['#4a3a34', '#76605a', '#9e8680', '#bca49c', '#d4bfb6']),
-        'ash': Mat(['#3e3e42', '#646468', '#8c8c90', '#b2b2b4', '#d4d4d4']),             # 잿빛 수염
-        'violet': Mat(['#100818', '#1c0e2a', '#2a1640', '#3a2056', '#4c2c6c'],
-                      tex=lambda P, n: 0.4 * S.vnoise(P * 0.7, 9)),
-        'dimtrim': Mat(['#241c10', '#3a2e1a', '#524228', '#6a5838', '#82704a'], metal=True, hi='#b8a478'),  # 빛바랜 금테
-        'void': Mat(['#2a0a4a', '#4a167a', '#7030b0', '#a060e0', '#d8b0ff'], emit=True),
+        'ash': Mat(['#3e3e42', '#646468', '#8c8c90', '#b2b2b4', '#d4d4d4']),             # 잿빛 머리·수염
+        'robe': Mat(['#141416', '#222226', '#34343a', '#48484f', '#5e5e66'],
+                    tex=lambda P, n: 0.45 * S.vnoise(P * 0.7, 9)),                      # 재가 앉은 회흑색 겉로브
+        'crimson': Mat(['#1e0408', '#36080e', '#520e16', '#701820', '#8e242a']),        # 안감·허리띠: 검붉은 색
+        'shard': Mat(['#1a0636', '#3a1270', '#6a2cc0', '#a46cf0', '#e8d0ff'], emit=True, gloss=1.0),  # 결정화된 별의 파편
+        'rune': Mat(['#3a0a6a', '#6a20b0', '#9a50e8', '#c890ff', '#f0e0ff'], emit=True),
+        'tome': Mat(['#160c0a', '#281612', '#3c221a', '#523024', '#6a402e']),
         'gnarl': Mat(['#140c08', '#22160e', '#342216', '#48301e', '#5c3e28'],
                      tex=lambda P, n: 0.6 * S.vnoise(P * 2.2, 4)),
     })
-    parts = dict(skin='skin', hair='ash', eyes='eyes', torso='violet', pelvis='violet', legs='violet', shin='violet',
-                 boots='leather', arms='violet', farm='violet', hands='skin')
+    parts = dict(skin='skin', hair='ash', eyes='eyes', torso='robe', pelvis='robe', legs='robe', shin='robe',
+                 boots='leather', arms='robe', farm='robe', hands='skin')
 
     def gear(r, p, it):
         s = r.s
-        it += beard(r, 'ash', length=13.0, width=4.0)                                     # 가슴까지 오는 수염
-        it += Hm.robe(r, p, 'violet', 'dimtrim')
-        it += Hm.hood(r, 'violet', peak=False)
-        it += Hm.cape(r, p, 'violet', length=30, width=6.6, tatter=True)
-        it += Hm.pauldrons(r, 'violet', 3.0, trim='dimtrim')
-        # 목에 건 봉인 사슬 메달
-        it.append(Item(S.torus(r.neck - r.up * 2.0 * s + r.fwd * 1.0 * s, r.rot @ S.rx(25), 3.6 * s, 0.4 * s), 'iron'))
-        it.append(Item(S.sphere(r.chest + r.fwd * 5.0 * s + r.up * 0.5 * s, 1.0 * s), 'void'))
-        it += Hm.staff(r, 'gnarl', 'void', 'gnarl', 34)
+        H, HR = r.head, r.head_rot
+        R = r.rot
+        hr = r.b['head_r'] * s
+        # 머리: 정수리는 민머리, 뒤로 길게 늘어진 잿빛 머리 + 가슴까지 오는 수염
+        it.append(Item(S.ellipsoid(H + HR @ V(0, -2.4 * s, -0.4 * s), V(4.6 * s, 2.4 * s, 3.4 * s), HR), 'ash'))
+        it.append(Item(S.capsule(H + HR @ V(0, -3.0 * s, -1.0 * s), H + HR @ V(0, -4.6 * s, -11.0 * s), 3.0 * s, 1.8 * s), 'ash'))
+        it += beard(r, 'ash', length=14.0, width=3.8)
+        it.append(Item(S.sphere(H + HR @ V(0, hr * 0.92, 2.2 * s), 0.85 * s), 'rune'))   # 이마의 봉인 문양
+        # 겉로브(회흑) + 검붉은 안감 테두리 + 해진 망토
+        it += Hm.robe(r, p, 'robe', 'crimson')
+        it += Hm.cape(r, p, 'robe', length=30, width=7.0, tatter=True, split=True)
+        it.append(Item(S.torus(r.neck - r.up * 1.6 * s, R, 4.0 * s, 1.3 * s), 'crimson'))   # 목 둘레 검붉은 깃
+        it.append(Item(S.cylinder(r.waist + r.up * 0.8 * s, 5.4 * s, 1.1 * s, R, 0.3), 'crimson'))   # 허리띠
+        # 왼팔 결정화: 팔뚝을 따라 솟은 보랏빛 결정 + 손 끝 결정
+        el, ha = r.lel, r.lha
+        ax = S.nrm(ha - el)
+        for k, (u, ln, rad) in enumerate(((0.0, 4.4, 1.3), (0.3, 5.6, 1.5), (0.6, 5.0, 1.4), (0.9, 4.0, 1.2), (1.05, 3.4, 1.1))):
+            c = el + (ha - el) * u
+            out = S.nrm(np.cross(ax, r.up if k % 2 else r.fwd)) * (1 if k % 2 else -1)
+            it.append(Item(S.capsule(c, c + (out * 0.8 + ax * 0.6) * ln * s, rad * s, 0.15 * s), 'shard'))
+        it.append(Item(S.capsule(el - (ha - el) * 0.25, ha, 2.5 * s, 2.2 * s), 'shard'))   # 소매 밖으로 드러난 결정 팔
+        # 오른 손목: 끊어진 족쇄 + 늘어진 사슬 세 고리
+        cuff = r.rha + (r.rel - r.rha) * 0.25
+        it.append(Item(S.torus(cuff, S.frame_from(S.nrm(r.rel - r.rha)), 1.9 * s, 0.7 * s), 'iron'))
+        for k in range(3):
+            c = cuff - r.up * (2.0 + k * 1.6) * s + r.fwd * 0.4 * s * k
+            it.append(Item(S.torus(c, R @ (S.rx(90) if k % 2 else S.ry(90)), 0.9 * s, 0.35 * s), 'iron'))
+        # 허리에 사슬로 묶은 금서
+        bk = r.waist + r.right * 5.6 * s + r.fwd * 1.2 * s - r.up * 3.0 * s
+        it.append(Item(S.box(bk, V(1.2 * s, 2.6 * s, 3.2 * s), R, 0.3 * s), 'tome'))
+        it.append(Item(S.box(bk, V(1.35 * s, 2.75 * s, 0.4 * s), R, 0.1 * s), 'iron'))
+        it.append(Item(S.sphere(bk + r.right * 1.3 * s, 0.6 * s), 'rune'))
+        # 지팡이: 끝이 갈고리처럼 휜 나무 + 주위를 떠도는 파편 3개
+        h, w = r.rha, r.wdir
+        top = h + w * 22 * s
+        it.append(Item(S.capsule(h - w * 12 * s, top, 0.9 * s, 1.1 * s), 'gnarl'))
+        hook = top + w * 3.0 * s + r.fwd * 3.0 * s
+        it.append(Item(S.capsule(top, hook, 1.0 * s, 0.8 * s), 'gnarl'))
+        it.append(Item(S.capsule(hook, hook + r.fwd * 1.5 * s - w * 2.5 * s, 0.8 * s, 0.4 * s), 'gnarl'))
+        orb = top + r.fwd * 1.6 * s + w * 0.6 * s
+        for k in range(3):
+            a = math.radians(k * 120 + 20)
+            c = orb + (r.right * math.cos(a) + r.fwd * math.sin(a)) * 3.4 * s + w * (k - 1) * 1.2 * s
+            it.append(Item(S.capsule(c - w * 1.6 * s, c + w * 1.6 * s, 1.15 * s, 0.15 * s), 'shard'))
 
     return dict(name='npc_belos', label='벨로스', mats=m, parts=parts, gear=gear, weapon='staff',
-                build=dict(scale=1.0), opts=dict(no_legs=True, chest=(6.0, 3.9, 5.2), jaw=False))
+                build=dict(scale=1.0, torso=14.0), opts=dict(no_legs=True, chest=(5.8, 3.8, 5.0), jaw=False))
 
 
 def _npc_elysia():
@@ -229,4 +267,255 @@ def _npc_elysia():
     return d
 
 
-NPCS = [_npc_drogan(), _npc_arden(), _npc_seria(), _npc_belos(), _npc_elysia()]
+
+# ───────────────────────── 마을 사람 7명용 작은 도구 ─────────────────────────
+
+
+def short_hair(r, mat, back=1.0):
+    """짧은 머리: 정수리·뒤통수를 덮는 모자 모양."""
+    s = r.s
+    H, HR = r.head, r.head_rot
+    return [Item(S.ellipsoid(H + HR @ V(0, -0.9 * s, 0.9 * s), V(4.6 * s, 4.5 * s * back, 4.3 * s), HR), mat)]
+
+
+def bun(r, mat):
+    """뒤로 틀어 올린 머리."""
+    s = r.s
+    H, HR = r.head, r.head_rot
+    return short_hair(r, mat) + [Item(S.sphere(H + HR @ V(0, -4.4 * s, 2.4 * s), 2.4 * s), mat)]
+
+
+def pigtails(r, mat):
+    """양 갈래 머리(아이)."""
+    s = r.s
+    H, HR = r.head, r.head_rot
+    it = short_hair(r, mat)
+    for sx in (-1, 1):
+        a0 = H + HR @ V(sx * 4.2 * s, -1.6 * s, 1.0 * s)
+        it.append(Item(S.capsule(a0, a0 + HR @ V(sx * 1.6 * s, -1.0 * s, -6.5 * s), 1.5 * s, 1.0 * s), mat))
+    return it
+
+
+def apron_front(r, mat, top_up=1.0, bot_down=9.0, wide=4.6):
+    """몸 앞쪽에만 대는 앞치마."""
+    s = r.s
+    top = r.chest + r.fwd * 4.9 * s + r.up * top_up * s
+    bot = r.hip + r.fwd * 5.4 * s - r.up * bot_down * s
+    return [Item(S.box((top + bot) / 2, V(wide * s, 0.7 * s, np.linalg.norm(top - bot) / 2), r.rot, 0.5 * s), mat)]
+
+
+def straw_hat(r, mat, band):
+    s = r.s
+    H, HR = r.head, r.head_rot
+    hr = r.b['head_r'] * s
+    return [Item(S.cylinder(H + HR @ V(0, 0, hr * 0.7), hr * 2.3, 0.4 * s, HR, 0.3), mat),
+            Item(S.ellipsoid(H + HR @ V(0, 0, hr * 1.0), V(hr * 1.05, hr * 1.05, hr * 0.8), HR), mat),
+            Item(S.cylinder(H + HR @ V(0, 0, hr * 0.95), hr * 1.07, 0.6 * s, HR, 0.2), band)]
+
+
+def basket(r, wicker, fill):
+    """오른손에 든 바구니(약초·꽃이 담김)."""
+    s = r.s
+    c = r.rha - r.up * 3.6 * s
+    body = S.sub(S.cylinder(c, 3.0 * s, 2.2 * s, r.rot, 0.6 * s), S.cylinder(c + r.up * 1.0 * s, 2.5 * s, 2.0 * s, r.rot, 0.2))
+    it = [Item(body, wicker), Item(S.torus(r.rha - r.up * 0.6 * s, r.rot @ S.rx(90), 2.6 * s, 0.4 * s), wicker)]
+    for k in range(4):
+        a = math.radians(k * 90 + 30)
+        it.append(Item(S.sphere(c + r.up * 1.6 * s + (r.right * math.cos(a) + r.fwd * math.sin(a)) * 1.4 * s, 1.1 * s), fill))
+    return it
+
+
+def mug(r, mat, foam):
+    s = r.s
+    c = r.rha + r.up * 1.4 * s + r.fwd * 0.6 * s
+    return [Item(S.cylinder(c, 1.5 * s, 2.0 * s, r.rot, 0.3 * s), mat),
+            Item(S.cylinder(c + r.up * 2.1 * s, 1.55 * s, 0.6 * s, r.rot, 0.4 * s), foam)]
+
+
+def pole(r, wood, length=36):
+    """오른손에 세워 든 긴 자루(창·쇠스랑의 몸통). 끝 위치를 돌려준다."""
+    s = r.s
+    h, w = r.rha, r.wdir
+    top = h + w * (length * 0.62) * s
+    return [Item(S.capsule(h - w * (length * 0.38) * s, top, 0.8 * s, 0.8 * s), wood)], top
+
+
+def _base_mats(**kw):
+    m = dict(Hm.M_COMMON)
+    m.update({k: v for k, v in kw.items()})
+    return m
+
+
+def _npc_rowen():
+    """로웬 — 기사단 초소 경비대장. 푸른 깃털 투구, 푸른 망토, 세워 든 창."""
+    m = _base_mats(
+        blue=Mat(['#081226', '#0e1e40', '#16305e', '#22447e', '#325a9c']),
+        plume=Mat(['#0a1a40', '#14306a', '#2050a0', '#3a78d0', '#7ab0f0']),
+        mail=Mat(['#1d2026', '#30343c', '#474c56', '#626874', '#7d8491'], metal=True,
+                 tex=lambda P, n: 0.6 * ((np.floor(P[:, 2] * 0.9) + np.floor(P[:, 0] * 0.9)) % 2 - 0.5)))
+    parts = dict(skin='skin', hair='leather', eyes='eyes', torso='steel', pelvis='mail', legs='mail', shin='steel',
+                 boots='steel_dk', arms='mail', farm='steel', hands='steel_dk')
+
+    def gear(r, p, it):
+        s = r.s
+        it += Hm.helmet_knight(r, 'steel', 'steel_dk', plume='plume')
+        it += Hm.pauldrons(r, 'steel', 3.5, trim='blue')
+        it += Hm.cape(r, p, 'blue', length=28, width=6.4)
+        it += Hm.skirt(r, 'blue', 5.4, 6.6, 9.0)
+        it.append(Item(S.box(r.waist + r.up * 0.4 * s, V(5.4 * s, 4.4 * s, 0.9 * s), r.rot, 0.4), 'leather'))
+        sh, top = pole(r, 'wood', 40)
+        it += sh
+        w = r.wdir
+        it.append(Item(S.capsule(top, top + w * 4.5 * s, 1.1 * s, 0.1 * s), 'steel'))     # 창날
+        it.append(Item(S.box(top - w * 0.3 * s, V(1.4 * s, 0.6 * s, 0.4 * s), S.frame_from(w, r.right), 0.2), 'gold'))
+
+    return dict(name='npc_rowen', label='로웬', mats=m, parts=parts, gear=gear, weapon='staff',
+                build=dict(scale=1.02), opts=dict(limb=1.1, chest=(7.0, 4.5, 5.9), belly=(4.9, 5.7)))
+
+
+def _npc_maren():
+    """마렌 — 약초상. 땋아 내린 갈색 머리, 연두 두건, 녹색 원피스와 흰 앞치마, 약초 바구니."""
+    m = _base_mats(
+        skin=Mat(['#5e443a', '#93705e', '#c09c86', '#ddc1ab', '#f2dfcd']),
+        hairb=Mat(['#1e100a', '#341c10', '#4c2a18', '#663a22', '#80502e']),
+        dress=Mat(['#0e1c10', '#18301a', '#244626', '#325e34', '#447a44']),
+        linen=Mat(['#5a5448', '#8a8270', '#b4ac98', '#d6d0bc', '#f0ecdc']),
+        scarf=Mat(['#2a3a10', '#425a1a', '#5e7e26', '#7ca236', '#a0c84e']),
+        wicker=Mat(['#3a2810', '#5a4018', '#7c5a24', '#9c7632', '#ba9444']),
+        herb=Mat(['#163a10', '#22561a', '#327a24', '#48a030', '#70c84a']))
+    parts = dict(skin='skin', hair='hairb', eyes='eyes', torso='dress', pelvis='dress', legs='dress', shin='dress',
+                 boots='leather', arms='dress', farm='linen', hands='skin')
+
+    def gear(r, p, it):
+        s = r.s
+        it += Hm.long_hair(r, 'hairb', length=14, width=2.6, flow=p.cape * 0.6, side_locks=False)
+        it += Hm.hood(r, 'scarf', peak=False)[:1]                                         # 두건(머리만)
+        it += Hm.robe(r, p, 'dress', 'scarf')
+        it += apron_front(r, 'linen', 0.0, 12.0, 4.2)
+        it += basket(r, 'wicker', 'herb')
+
+    return dict(name='npc_maren', label='마렌', mats=m, parts=parts, gear=gear, weapon='staff',
+                build=dict(scale=0.95, sh_w=5.6, hip_w=3.2), opts=dict(no_legs=True, chest=(5.4, 3.6, 4.8), belly=(3.9, 4.6)))
+
+
+def _npc_erin():
+    """에린 — 여관 주인. 틀어 올린 붉은 머리, 포도주색 드레스, 흰 앞치마, 손에 든 맥주잔."""
+    m = _base_mats(
+        skin=Mat(['#6a4a3c', '#9c7462', '#c69c86', '#e2bea8', '#f6dccc']),
+        ginger=Mat(['#3a0e04', '#5e1c08', '#86300e', '#ac4818', '#cc6a2a']),
+        wine=Mat(['#1e060e', '#360c1a', '#521428', '#6e1e38', '#8a2c4a']),
+        linen=Mat(['#5a5448', '#8a8270', '#b4ac98', '#d6d0bc', '#f0ecdc']),
+        foam=Mat(['#8a8678', '#b4b0a2', '#d6d2c6', '#ece8de', '#fbf8f0']))
+    parts = dict(skin='skin', hair='ginger', eyes='eyes', torso='wine', pelvis='wine', legs='wine', shin='wine',
+                 boots='leather', arms='linen', farm='skin', hands='skin')
+
+    def gear(r, p, it):
+        it += bun(r, 'ginger')
+        it += Hm.robe(r, p, 'wine', 'linen')
+        it += apron_front(r, 'linen', -1.0, 12.0, 4.8)
+        it += mug(r, 'wood', 'foam')
+
+    return dict(name='npc_erin', label='에린', mats=m, parts=parts, gear=gear, weapon='staff',
+                build=dict(scale=0.97, sh_w=6.0, hip_w=3.4), opts=dict(no_legs=True, chest=(6.2, 4.4, 5.0), belly=(5.0, 5.8)))
+
+
+def _npc_thomas():
+    """토마스 — 농부. 밀짚모자, 흙빛 작업복, 멜빵, 세워 든 쇠스랑."""
+    m = _base_mats(
+        skin=Mat(['#4e3022', '#7c5038', '#a6724e', '#c69068', '#dcac84']),
+        straw=Mat(['#5a4414', '#8a6a24', '#b8923a', '#d8b65a', '#f0d888']),
+        tunic=Mat(['#2a1e12', '#42301e', '#5c442c', '#76583a', '#8e6e4a']),
+        pants=Mat(['#141a22', '#202a36', '#2e3c4c', '#3e5062', '#50667a']),
+        band=Mat(['#3a0a08', '#5a1410', '#7c2018', '#9a2e22', '#b84030']))
+    parts = dict(skin='skin', hair='leather', eyes='eyes', torso='tunic', pelvis='pants', legs='pants', shin='pants',
+                 boots='leather', arms='tunic', farm='skin', hands='skin')
+
+    def gear(r, p, it):
+        s = r.s
+        it += straw_hat(r, 'straw', 'band')
+        for sx in (-1, 1):                                                                  # 멜빵
+            it.append(Item(S.capsule(r.chest + r.up * 4.0 * s + r.right * sx * 2.6 * s + r.fwd * 3.6 * s,
+                                     r.waist + r.right * sx * 2.6 * s + r.fwd * 4.6 * s, 0.6 * s), 'pants'))
+        sh, top = pole(r, 'wood', 38)
+        it += sh
+        w = r.wdir
+        M = S.frame_from(w, r.right)
+        it.append(Item(S.box(top, V(3.0 * s, 0.5 * s, 0.5 * s), M, 0.2), 'iron'))          # 쇠스랑 가로대
+        for k in (-1, 0, 1):
+            b0 = top + M[:, 0] * k * 2.6 * s
+            it.append(Item(S.capsule(b0, b0 + w * 5.5 * s, 0.45 * s, 0.15 * s), 'iron'))
+
+    return dict(name='npc_thomas', label='토마스', mats=m, parts=parts, gear=gear, weapon='staff',
+                build=dict(scale=0.98), opts=dict(limb=1.05, chest=(6.6, 4.4, 5.6), belly=(5.4, 6.2)))
+
+
+def _npc_garen():
+    """가렌 — 무기점 주인. 우람한 체격, 붉은 두건, 짧은 갈색 수염, 가죽 조끼, 어깨에 멘 넓은 검."""
+    m = _base_mats(
+        skin=Mat(['#4e3022', '#7c5038', '#a6724e', '#c69068', '#dcac84']),
+        brown=Mat(['#1a0e08', '#2e1a0e', '#462816', '#5e3820', '#784a2c']),
+        red=Mat(['#2c0607', '#4a0c0e', '#6c1416', '#8f1f1f', '#b0302a']),
+        shirt=Mat(['#3a3428', '#5a5240', '#7a705a', '#9a8e74', '#b8ac90']))
+    parts = dict(skin='skin', hair='brown', eyes='eyes', torso='shirt', pelvis='leather', legs='brown', shin='leather',
+                 boots='leather', arms='skin', farm='skin', hands='leather')
+
+    def gear(r, p, it):
+        s = r.s
+        H, HR = r.head, r.head_rot
+        it.append(Item(S.ellipsoid(H + HR @ V(0, -0.6 * s, 1.2 * s), V(4.7 * s, 4.6 * s, 3.8 * s), HR), 'red'))    # 두건
+        it.append(Item(S.capsule(H + HR @ V(0, -4.2 * s, 1.0 * s), H + HR @ V(1.0 * s, -6.5 * s, -2.5 * s), 1.0 * s, 0.5 * s), 'red'))
+        it.append(Item(S.ellipsoid(H + HR @ V(0, 2.4 * s, -2.6 * s), V(3.8 * s, 2.6 * s, 2.4 * s), HR), 'brown'))   # 짧은 수염
+        it.append(Item(S.ellipsoid(r.chest + r.rot @ V(0, 0.6 * s, 0.6 * s), V(7.4 * s, 5.0 * s, 6.0 * s), r.rot), 'leather'))  # 가죽 조끼
+        it.append(Item(S.box(r.waist + r.up * 0.4 * s, V(6.0 * s, 4.8 * s, 1.0 * s), r.rot, 0.4), 'brown'))
+        it += Hm.broadsword(r, 19.0, 2.4, guard='iron', grip='leather', blade='steel', pommel='iron')
+
+    return dict(name='npc_garen', label='가렌', mats=m, parts=parts, gear=gear, weapon='blade',
+                build=dict(scale=1.08, sh_w=7.2), opts=dict(limb=1.25, chest=(7.8, 5.2, 6.2), belly=(6.0, 6.6)))
+
+
+def _npc_lia():
+    """리아 — 노엘의 여동생. 아이 체형(큰 머리·짧은 팔다리), 양 갈래 머리, 분홍 원피스, 꽃 바구니."""
+    m = _base_mats(
+        skin=Mat(['#6a4a3c', '#9c7462', '#c69c86', '#e2bea8', '#f6dccc']),
+        hairb=Mat(['#2a160a', '#442410', '#60361a', '#7c4a24', '#985e30']),
+        pink=Mat(['#3a0e1e', '#5e1a32', '#86284a', '#ac3c64', '#d05a84']),
+        linen=Mat(['#5a5448', '#8a8270', '#b4ac98', '#d6d0bc', '#f0ecdc']),
+        wicker=Mat(['#3a2810', '#5a4018', '#7c5a24', '#9c7632', '#ba9444']),
+        flower=Mat(['#5a2a06', '#a04a0a', '#e08a18', '#f8c040', '#fff0a0'], emit=False))
+    parts = dict(skin='skin', hair='hairb', eyes='eyes', torso='pink', pelvis='pink', legs='pink', shin='pink',
+                 boots='leather', arms='pink', farm='skin', hands='skin')
+
+    def gear(r, p, it):
+        it += pigtails(r, 'hairb')
+        it += Hm.robe(r, p, 'pink', 'linen')
+        it += basket(r, 'wicker', 'flower')
+
+    return dict(name='npc_lia', label='리아', mats=m, parts=parts, gear=gear, weapon='staff',
+                build=dict(scale=0.78, head_r=5.2, sh_w=5.0, hip_w=3.0, torso=13.0),
+                opts=dict(no_legs=True, chest=(5.0, 3.4, 4.4), belly=(3.8, 4.4)))
+
+
+def _npc_noel():
+    """노엘 — 사라진 정찰병, 리아의 오빠. 올리브 두건 망토, 가죽 경갑, 손에 든 짧은 활."""
+    m = _base_mats(
+        skin=Mat(['#6a4a3c', '#9c7462', '#c69c86', '#e2bea8', '#f6dccc']),
+        hairb=Mat(['#2a160a', '#442410', '#60361a', '#7c4a24', '#985e30']),
+        olive=Mat(['#141a0c', '#222c14', '#323f1e', '#44542a', '#586c38'],
+                  tex=lambda P, n: 0.35 * S.vnoise(P * 0.9, 6)),
+        fletch=Mat(['#3a2a1a', '#5a4430', '#7a6048', '#9a7c60', '#b89a7c']))
+    parts = dict(skin='skin', hair='hairb', eyes='eyes', torso='leather_lt', pelvis='leather', legs='olive', shin='leather',
+                 boots='leather', arms='olive', farm='leather_lt', hands='leather')
+
+    def gear(r, p, it):
+        it += short_hair(r, 'hairb')
+        it += Hm.hood(r, 'olive', peak=True)
+        it += Hm.cape(r, p, 'olive', length=24, width=5.6, tatter=True)
+        it += Hm.quiver(r, 'leather', 'fletch')
+        it += Hm.bow(r, 'wood', 'string', draw=p.draw)
+
+    return dict(name='npc_noel', label='노엘', mats=m, parts=parts, gear=gear, weapon='bow',
+                build=dict(scale=0.96, sh_w=6.0), opts=dict(limb=0.95, chest=(6.0, 4.0, 5.2), belly=(4.4, 5.0)))
+
+
+NPCS = [_npc_drogan(), _npc_arden(), _npc_seria(), _npc_belos(), _npc_elysia(),
+        _npc_rowen(), _npc_maren(), _npc_erin(), _npc_thomas(), _npc_garen(), _npc_lia(), _npc_noel()]
