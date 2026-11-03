@@ -25,6 +25,7 @@ import monsters as Mo    # noqa: E402
 import field as F        # noqa: E402
 import items as I        # noqa: E402
 import worlds            # noqa: E402,F401  월드보스·상점 신전·화로의 신 등록
+import critters          # noqa: E402,F401  에르덴: 돼지·닭·폐허·농장 소품 등록
 
 OUT = os.path.normpath(os.path.join(HERE, '..', '..', 'lineage-assets'))
 DIRS = ['S', 'SE', 'E', 'NE', 'N', 'NW', 'W', 'SW']      # yaw = 45° × 번호

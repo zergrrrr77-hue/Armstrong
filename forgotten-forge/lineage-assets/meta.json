@@ -700,6 +700,74 @@
     "skill_darkslash",
     "skill_hellfire"
    ]
+  },
+  "pig": {
+   "label": "돼지",
+   "sheet": "monsters/pig.png",
+   "fw": 80,
+   "fh": 64,
+   "ax": 40,
+   "ay": 46,
+   "cols": 22,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ],
+    "attack": [
+     14,
+     8
+    ]
+   },
+   "skills": []
+  },
+  "chicken": {
+   "label": "닭",
+   "sheet": "monsters/chicken.png",
+   "fw": 48,
+   "fh": 44,
+   "ax": 24,
+   "ay": 34,
+   "cols": 22,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ],
+    "attack": [
+     14,
+     8
+    ]
+   },
+   "skills": []
   }
  },
  "props": {
@@ -1202,6 +1270,307 @@
    "ax": 19,
    "ay": 66,
    "frames": 4
+  },
+  "ruin_wall": {
+   "label": "무너진 돌담",
+   "group": "폐허",
+   "sheet": "field/props/ruin_wall.png",
+   "fw": 79,
+   "fh": 72,
+   "ax": 46,
+   "ay": 55,
+   "frames": 1
+  },
+  "ruin_corner": {
+   "label": "무너진 집 모서리",
+   "group": "폐허",
+   "sheet": "field/props/ruin_corner.png",
+   "fw": 94,
+   "fh": 79,
+   "ax": 50,
+   "ay": 53,
+   "frames": 1
+  },
+  "ruin_arch": {
+   "label": "부서진 아치문",
+   "group": "폐허",
+   "sheet": "field/props/ruin_arch.png",
+   "fw": 57,
+   "fh": 76,
+   "ax": 26,
+   "ay": 63,
+   "frames": 1
+  },
+  "ruin_house": {
+   "label": "불탄 옛 집터",
+   "group": "폐허",
+   "sheet": "field/props/ruin_house.png",
+   "fw": 124,
+   "fh": 73,
+   "ax": 62,
+   "ay": 41,
+   "frames": 1
+  },
+  "pig_shed": {
+   "label": "돼지우리 지붕",
+   "group": "농장",
+   "sheet": "field/props/pig_shed.png",
+   "fw": 67,
+   "fh": 50,
+   "ax": 35,
+   "ay": 35,
+   "frames": 1
+  },
+  "coop": {
+   "label": "닭장",
+   "group": "농장",
+   "sheet": "field/props/coop.png",
+   "fw": 44,
+   "fh": 48,
+   "ax": 22,
+   "ay": 39,
+   "frames": 1
+  },
+  "ext_boulders": {
+   "label": "이끼 낀 큰 바위",
+   "group": "폐허",
+   "sheet": "field/props/ext_boulders.png",
+   "fw": 77,
+   "fh": 65,
+   "ax": 38,
+   "ay": 59,
+   "frames": 1,
+   "ext": "trees_plants_rocks.png"
+  },
+  "ext_cairns": {
+   "label": "돌탑",
+   "group": "폐허",
+   "sheet": "field/props/ext_cairns.png",
+   "fw": 64,
+   "fh": 44,
+   "ax": 32,
+   "ay": 40,
+   "frames": 1,
+   "ext": "trees_plants_rocks.png"
+  },
+  "ext_dolmen": {
+   "label": "고인돌",
+   "group": "폐허",
+   "sheet": "field/props/ext_dolmen.png",
+   "fw": 101,
+   "fh": 78,
+   "ax": 50,
+   "ay": 71,
+   "frames": 1,
+   "ext": "trees_plants_rocks.png"
+  },
+  "ext_log": {
+   "label": "쓰러진 통나무",
+   "group": "폐허",
+   "sheet": "field/props/ext_log.png",
+   "fw": 71,
+   "fh": 50,
+   "ax": 35,
+   "ay": 45,
+   "frames": 1,
+   "ext": "trees_plants_rocks.png"
+  },
+  "ext_log_rune": {
+   "label": "문양 새긴 통나무",
+   "group": "폐허",
+   "sheet": "field/props/ext_log_rune.png",
+   "fw": 70,
+   "fh": 50,
+   "ax": 35,
+   "ay": 45,
+   "frames": 1,
+   "ext": "trees_plants_rocks.png"
+  },
+  "ext_grave": {
+   "label": "이름 지워진 묘비",
+   "group": "폐허",
+   "sheet": "field/props/ext_grave.png",
+   "fw": 19,
+   "fh": 28,
+   "ax": 9,
+   "ay": 26,
+   "frames": 1,
+   "ext": "trees_plants_rocks.png"
+  },
+  "ext_grave_broken": {
+   "label": "깨진 묘비",
+   "group": "폐허",
+   "sheet": "field/props/ext_grave_broken.png",
+   "fw": 21,
+   "fh": 22,
+   "ax": 10,
+   "ay": 20,
+   "frames": 1,
+   "ext": "trees_plants_rocks.png"
+  },
+  "ext_stump": {
+   "label": "그루터기",
+   "group": "숲",
+   "sheet": "field/props/ext_stump.png",
+   "fw": 28,
+   "fh": 23,
+   "ax": 14,
+   "ay": 21,
+   "frames": 1,
+   "ext": "trees_plants_rocks.png"
+  },
+  "ext_trough": {
+   "label": "물 여물통",
+   "group": "농장",
+   "sheet": "field/props/ext_trough.png",
+   "fw": 43,
+   "fh": 29,
+   "ax": 21,
+   "ay": 27,
+   "frames": 1,
+   "ext": "trees_plants_rocks.png"
+  },
+  "ext_flatstones": {
+   "label": "흩어진 바닥돌",
+   "group": "폐허",
+   "sheet": "field/props/ext_flatstones.png",
+   "fw": 72,
+   "fh": 51,
+   "ax": 36,
+   "ay": 46,
+   "frames": 1,
+   "ext": "trees_plants_rocks.png"
+  },
+  "ext_tree_a": {
+   "label": "옅은 잎 나무",
+   "group": "숲",
+   "sheet": "field/props/ext_tree_a.png",
+   "fw": 88,
+   "fh": 125,
+   "ax": 44,
+   "ay": 113,
+   "frames": 1,
+   "ext": "trees_plants_rocks.png"
+  },
+  "ext_tree_b": {
+   "label": "작은 굽은 나무",
+   "group": "숲",
+   "sheet": "field/props/ext_tree_b.png",
+   "fw": 52,
+   "fh": 78,
+   "ax": 26,
+   "ay": 71,
+   "frames": 1,
+   "ext": "trees_plants_rocks.png"
+  },
+  "ext_bush_aut": {
+   "label": "단풍 덤불",
+   "group": "숲",
+   "sheet": "field/props/ext_bush_aut.png",
+   "fw": 55,
+   "fh": 51,
+   "ax": 27,
+   "ay": 46,
+   "frames": 1,
+   "ext": "trees_plants_rocks.png"
+  },
+  "ext_deadtree_big": {
+   "label": "뒤틀린 고목",
+   "group": "폐허",
+   "sheet": "field/props/ext_deadtree_big.png",
+   "fw": 115,
+   "fh": 138,
+   "ax": 57,
+   "ay": 125,
+   "frames": 1,
+   "ext": "trees_plants.png"
+  },
+  "ext_deadtree_s": {
+   "label": "검은 마른 나무",
+   "group": "폐허",
+   "sheet": "field/props/ext_deadtree_s.png",
+   "fw": 58,
+   "fh": 58,
+   "ax": 29,
+   "ay": 53,
+   "frames": 1,
+   "ext": "trees_plants.png"
+  },
+  "ext_scarecrow": {
+   "label": "허수아비",
+   "group": "농장",
+   "sheet": "field/props/ext_scarecrow.png",
+   "fw": 22,
+   "fh": 52,
+   "ax": 11,
+   "ay": 47,
+   "frames": 1,
+   "ext": "trees_plants.png"
+  },
+  "ext_pumpkins": {
+   "label": "호박 더미",
+   "group": "농장",
+   "sheet": "field/props/ext_pumpkins.png",
+   "fw": 23,
+   "fh": 43,
+   "ax": 11,
+   "ay": 39,
+   "frames": 1,
+   "ext": "trees_plants.png"
+  },
+  "ext_well": {
+   "label": "옛 우물",
+   "group": "폐허",
+   "sheet": "field/props/ext_well.png",
+   "fw": 44,
+   "fh": 50,
+   "ax": 22,
+   "ay": 45,
+   "frames": 1,
+   "ext": "town.png"
+  },
+  "ext_fountain": {
+   "label": "말라붙은 분수",
+   "group": "폐허",
+   "sheet": "field/props/ext_fountain.png",
+   "fw": 56,
+   "fh": 53,
+   "ax": 28,
+   "ay": 48,
+   "frames": 1,
+   "ext": "town.png"
+  },
+  "ext_statue": {
+   "label": "부서진 석상",
+   "group": "폐허",
+   "sheet": "field/props/ext_statue.png",
+   "fw": 23,
+   "fh": 54,
+   "ax": 11,
+   "ay": 49,
+   "frames": 1,
+   "ext": "town.png"
+  },
+  "ext_pedestal": {
+   "label": "빈 받침돌",
+   "group": "폐허",
+   "sheet": "field/props/ext_pedestal.png",
+   "fw": 22,
+   "fh": 46,
+   "ax": 11,
+   "ay": 42,
+   "frames": 1,
+   "ext": "town.png"
+  },
+  "fence_v": {
+   "label": "나무 울타리(세로)",
+   "group": "농장",
+   "sheet": "field/props/fence_v.png",
+   "fw": 52,
+   "fh": 43,
+   "ax": 26,
+   "ay": 30,
+   "frames": 1
   }
  },
  "tiles": {
