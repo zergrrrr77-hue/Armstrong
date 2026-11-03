@@ -768,6 +768,48 @@
     ]
    },
    "skills": []
+  },
+  "dog": {
+   "label": "들개",
+   "sheet": "monsters/dog.png",
+   "fw": 112,
+   "fh": 96,
+   "ax": 56,
+   "ay": 68,
+   "cols": 31,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ],
+    "attack": [
+     14,
+     8
+    ],
+    "hurt": [
+     22,
+     3
+    ],
+    "death": [
+     25,
+     6
+    ]
+   },
+   "skills": []
   }
  },
  "props": {
@@ -1571,6 +1613,28 @@
    "ax": 26,
    "ay": 30,
    "frames": 1
+  },
+  "node_ore": {
+   "label": "철광석 광맥",
+   "group": "채집",
+   "sheet": "field/props/node_ore.png",
+   "fw": 36,
+   "fh": 40,
+   "ax": 18,
+   "ay": 37,
+   "frames": 1,
+   "ext": "trees_plants_rocks.png / trees_plants.png"
+  },
+  "node_herb": {
+   "label": "야생 약초",
+   "group": "채집",
+   "sheet": "field/props/node_herb.png",
+   "fw": 44,
+   "fh": 30,
+   "ax": 22,
+   "ay": 27,
+   "frames": 1,
+   "ext": "trees_plants_rocks.png / trees_plants.png"
   }
  },
  "tiles": {
@@ -2293,5 +2357,355 @@
    "bow",
    "staff"
   ]
+ },
+ "npcs": {
+  "npc_drogan": {
+   "label": "드로간",
+   "sheet": "npcs/npc_drogan.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 14,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ]
+   }
+  },
+  "npc_arden": {
+   "label": "아르덴",
+   "sheet": "npcs/npc_arden.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 14,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ]
+   }
+  },
+  "npc_seria": {
+   "label": "세리아",
+   "sheet": "npcs/npc_seria.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 14,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ]
+   }
+  },
+  "npc_belos": {
+   "label": "벨로스",
+   "sheet": "npcs/npc_belos.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 14,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ]
+   }
+  },
+  "npc_elysia": {
+   "label": "엘리시아",
+   "sheet": "npcs/npc_elysia.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 14,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ]
+   }
+  },
+  "npc_rowen": {
+   "label": "로웬",
+   "sheet": "npcs/npc_rowen.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 14,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ]
+   }
+  },
+  "npc_maren": {
+   "label": "마렌",
+   "sheet": "npcs/npc_maren.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 14,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ]
+   }
+  },
+  "npc_erin": {
+   "label": "에린",
+   "sheet": "npcs/npc_erin.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 14,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ]
+   }
+  },
+  "npc_thomas": {
+   "label": "토마스",
+   "sheet": "npcs/npc_thomas.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 14,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ]
+   }
+  },
+  "npc_garen": {
+   "label": "가렌",
+   "sheet": "npcs/npc_garen.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 14,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ]
+   }
+  },
+  "npc_lia": {
+   "label": "리아",
+   "sheet": "npcs/npc_lia.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 14,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ]
+   }
+  },
+  "npc_noel": {
+   "label": "노엘",
+   "sheet": "npcs/npc_noel.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 14,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ]
+   }
+  }
  }
 }

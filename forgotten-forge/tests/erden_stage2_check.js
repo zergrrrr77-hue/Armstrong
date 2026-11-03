@@ -26,7 +26,7 @@ const realError = (t) => !/ERR_TUNNEL_CONNECTION_FAILED|ERR_INTERNET_DISCONNECTE
   check(t.doc === '에르덴 : 별의 심장' && t.h1 === '에르덴 : 별의 심장', `게임 제목: ${t.doc}`, fails);
   check(t.intro.includes('봉인된 수호자') && t.intro.includes('아르델 평원'), '시작 화면 소개문에 에르덴 용어', fails);
   await page.screenshot({ path: `${OUT}/e2_title.png` });
-  await page.locator('.cls').nth(0).click(); await page.click('#start'); await page.waitForTimeout(700);
+  await page.locator('.cls').nth(0).click(); await page.fill('#nick', '테스터').then(() => page.click('#start')); await page.waitForTimeout(700);
   const ui = await page.evaluate(() => ({ gold: document.getElementById('gold').textContent, zone: document.getElementById('zone').textContent,
     mobNames: [...new Set(__game.mobs.map(m => m.d.name))], body: document.body.innerText }));
   check(/에테르/.test(ui.gold) && !/골드/.test(ui.gold), `화폐: ${ui.gold}`, fails);

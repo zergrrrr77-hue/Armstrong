@@ -17,7 +17,7 @@ async function boot(browser, opt, cls = 0) {
   await page.waitForFunction(() => document.querySelectorAll('.cls').length === 3, null, { timeout: 20000 });
   await page.evaluate(() => localStorage.clear());
   await page.locator('.cls').nth(cls).click();
-  await page.click('#start');
+  await page.fill('#nick', '테스터').then(() => page.click('#start'));
   await page.waitForTimeout(700);
   return { page, ctx, errors };
 }

@@ -41,7 +41,32 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 #title { position: fixed; inset: 0; overflow-y: auto; background: radial-gradient(ellipse at 50% 0%, #2a1e14 0%, #08070a 70%);
   padding-block: max(28px, env(safe-area-inset-top, 0px)) 40px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); z-index: 20; }
-#title .inner { max-width: 1040px; margin: 0 auto; display: grid; gap: 22px; }
+#title .inner { position: relative; max-width: 1040px; margin: 0 auto; display: grid; gap: 22px; padding: 26px clamp(16px, 3vw, 34px) 30px;
+  /* 돌 판 + 철 테두리 + 안쪽 양피지 띠 */
+  background: linear-gradient(rgba(30,25,20,.74), rgba(14,12,10,.84)), repeating-linear-gradient(115deg, rgba(255,255,255,.015) 0 2px, transparent 2px 7px);
+  border: 3px solid #4a4038; border-radius: 4px;
+  box-shadow: 0 0 0 1px #0a0806, 0 0 0 5px #23201c, 0 0 0 6px #0a0806, inset 0 0 0 1px #6a5a44, inset 0 0 0 5px rgba(196,168,120,.14), inset 0 0 40px rgba(0,0,0,.6), 0 20px 60px rgba(0,0,0,.7); }
+#title .inner::before, #title .inner::after { content: ''; position: absolute; top: 8px; width: 9px; height: 9px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #c8bcaa, #5a5048 60%, #1a1612); box-shadow: 0 1px 1px #000; }
+#title .inner::before { left: 8px; } #title .inner::after { right: 8px; }
+#titleBg { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; display: block; }
+#title .crest { display: grid; justify-items: center; text-align: center; gap: 4px; margin-top: -6px; }
+#title .crest canvas { width: 132px; height: 132px; }
+#title .crest h1 { background: linear-gradient(#fff4d8, #e8c88a 55%, #a8803e); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 2px 0 #000) drop-shadow(0 0 14px rgba(255,200,120,.25)); letter-spacing: .02em; }
+#title .crest .eyebrow { letter-spacing: .32em; font-size: 11px; }
+#title > .inner > p { justify-self: center; text-align: center; padding: 10px 16px; border-radius: 3px;
+  background: linear-gradient(#d8c8a0, #bca878); color: #2a2014; box-shadow: inset 0 0 18px rgba(90,60,20,.45), 0 0 0 1px #4a3a22; }
+#title > .inner > p i { color: #5a3a14; }
+.nickbox { display: grid; gap: 6px; justify-self: start; width: min(420px, 100%); }
+.nickbox label { font-size: 12px; letter-spacing: .14em; color: var(--gold); }
+.nickrow { display: grid; grid-template-columns: 1fr; gap: 4px; }
+#nick { font: 700 18px var(--body); color: #fbe7b8; background: #0f0c09; border: 1px solid #5a4a34; border-radius: 3px; padding: 10px 12px;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.6); outline: none; }
+#nick:focus { border-color: var(--gold); }
+#nick.bad { border-color: #c8584a; } #nick.good { border-color: #7ab85a; }
+.nickmsg { font-size: 12px; color: var(--muted); min-height: 16px; } .nickmsg.bad { color: #ff9a8a; } .nickmsg.good { color: #b8f0a0; }
+.orbtxt b small { font: 600 10px var(--body); color: var(--gold); letter-spacing: .06em; opacity: .85; margin-left: 6px; }
 #title .eyebrow { font-size: 12px; letter-spacing: .18em; color: var(--gold); opacity: .8; }
 #title h1 { font-family: var(--display); font-weight: 800; font-size: clamp(34px, 6vw, 58px); margin: 0; color: #f3e5c8; text-wrap: balance; }
 #title p { margin: 0; color: var(--muted); max-width: 64ch; line-height: 1.6; }
@@ -571,16 +596,47 @@ details.info th { color: var(--gold); font-weight: 500; }
   #bar button.slot:nth-last-of-type(2) { margin-left: -50px; } #bar button.slot:nth-last-of-type(1) { margin-left: 4px; }
   #bar button.slot:nth-last-of-type(-n+2) canvas { border-radius: 3px; }
 }
+/* 드로간 대장간(제작) — 상점 창과 같은 틀 */
+#craft { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(600px, calc(100vw - 20px)); max-height: calc(100vh - 24px); overflow-y: auto; padding: 12px; display: grid; gap: 10px;
+  background: linear-gradient(var(--stone-a, #2c2620), var(--stone-b, #17140f)); border: 2px solid var(--bronze, #8a6a3a); border-radius: 4px; box-shadow: inset 0 0 0 1px #0c0a07, 0 0 0 1px #0c0a07, 0 10px 30px rgba(0,0,0,.6); z-index: 30; }
+#craft .shead { display: grid; grid-template-columns: 72px 1fr auto; gap: 10px; align-items: center; }
+#craft .shead canvas { width: 72px; height: 78px; image-rendering: pixelated; }
+#craft .sinfo { display: grid; gap: 2px; } #craft .sinfo small { color: var(--muted); font-size: 11px; } #craft .sinfo b { font: 900 18px "Noto Serif KR", var(--display), serif; color: #ffd9a0; }
+#craft .ssay { font-size: 12px; color: #e8dcc0; }
+#craft .tabs { display: flex; gap: 6px; } #craft .tabs button { flex: 1; min-height: 34px; background: #1c160f; border: 1px solid var(--line); color: var(--muted); border-radius: 3px; cursor: pointer; font-weight: 700; }
+#craft .tabs button[aria-pressed="true"] { color: #ffe9b0; border-color: var(--bronze-hi, #c9a25a); background: #2a2118; }
+.crow { display: grid; grid-template-columns: 40px 1fr auto; gap: 10px; align-items: center; padding: 9px 10px; background: rgba(8,6,4,.55); border: 1px solid #3a2f22; border-radius: 4px; }
+.crow canvas { width: 40px; height: 40px; image-rendering: pixelated; }
+.crow .cn { font-weight: 800; font-size: 14px; } .crow .cm { color: var(--muted); font-size: 11px; margin-top: 1px; }
+.crow .cfx { font-size: 11px; color: #c8e8ff; margin-top: 2px; }
+.crow .mats { display: flex; flex-wrap: wrap; gap: 4px 8px; margin-top: 5px; font-size: 11px; }
+.crow .mats span { display: inline-flex; align-items: center; gap: 3px; } .crow .mats canvas { width: 18px; height: 18px; }
+.crow .mats .lack { color: #ff9a7a; } .crow .mats .ok { color: #b8f0a0; }
+.crow .lockr { font-size: 11px; color: #d8b07a; margin-top: 4px; }
+.crow .cbtn { display: grid; gap: 4px; justify-items: end; font-size: 11px; color: var(--muted); }
+.crow .cbtn button { min-width: 84px; min-height: 38px; background: linear-gradient(#6a4a16, #3a280c); border: 1px solid #f0cf7a; color: #fff1c8; border-radius: 3px; font-weight: 800; cursor: pointer; }
+.crow .cbtn button:disabled { opacity: .35; cursor: default; }
+.crow.other { opacity: .62; }
+#gatherBtn, #smithBtn { left: 50%; transform: translateX(-50%); bottom: max(150px, calc(env(safe-area-inset-bottom, 0px) + 146px)); background: linear-gradient(#2a4a1a, #16280c); border: 1px solid #a8e07a; color: #eaffd8; padding: 10px 20px; border-radius: 20px; font-weight: 700; cursor: pointer; }
+#smithBtn { background: linear-gradient(#5a3216, #301a0a); border-color: #ffb06a; color: #fff0e0; }
+@media (hover: hover) and (pointer: fine) and (min-width: 960px) and (min-height: 600px) { #gatherBtn, #smithBtn { bottom: 190px; } }
 </style>
 
 <canvas id="game"></canvas>
 
 <div id="title">
+  <canvas id="titleBg" aria-hidden="true"></canvas>
   <div class="inner">
-    <div class="eyebrow">어두운 중세 쿼터뷰 RPG</div>
-    <h1>에르덴 : 별의 심장</h1>
-    <p><i>별이 태어난 세계, 잊힌 왕국의 마지막 이야기.</i><br>기사·요정·마법사 중 하나를 골라 아르델 평원의 숲과 늪에서 사냥하며 장비를 모으고 강해진 뒤, 남동쪽 끝의 계단으로 왕실 기사단 묘소에 내려가 <b>봉인된 수호자</b>를 쓰러뜨리세요. 강화 주문서로 장비를 +10까지 강화할 수 있지만, 안전 강화 구간을 넘으면 실패할 때 강화 수치가 사라집니다.</p>
+    <div class="crest"><canvas id="titleEmblem" width="200" height="200" aria-hidden="true"></canvas>
+      <div class="eyebrow">ERDEN · HEART OF THE STARS</div>
+      <h1>에르덴 : 별의 심장</h1></div>
+    <p><i>별이 태어난 세계, 잊힌 왕국의 마지막 이야기.</i><br>기사·요정·마법사 중 하나를 골라 아르델 평원의 숲과 늪에서 사냥하며 장비를 모으고 강해진 뒤, 남동쪽 끝의 계단으로 왕실 기사단 묘소에 내려가 <b>봉인된 수호자</b>를 쓰러뜨리세요. 들판에서 모은 재료로 대장장이 드로간에게 무기를 맞추고, 별빛 강화석으로 +10까지 강화하세요. 안전 구간을 넘어 +4부터 실패하면 장비가 부서질 수도 있습니다.</p>
     <div class="classes" id="classes"></div>
+    <div class="nickbox">
+      <label for="nick">캐릭터 이름</label>
+      <div class="nickrow"><input id="nick" type="text" maxlength="8" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="한글·영문 2~8자" enterkeyhint="done">
+        <span class="nickmsg" id="nickMsg" aria-live="polite">이름을 지어 주세요</span></div>
+    </div>
     <div class="cont"><button class="start hidden" id="continue" type="button"></button><button class="start" id="start" disabled>클래스를 고르세요</button></div>
     <label class="chk" style="justify-self:start"><input type="checkbox" id="devTitle"> 개발자 모드로 시작 (드롭·강화·공명 확률 상향, 시험용)</label>
     <div class="warn hidden" id="newWarn">새로 시작하면 저장된 진행이 지워집니다.</div>
@@ -602,7 +658,7 @@ details.info th { color: var(--gold); font-weight: 500; }
 
 <div class="hud hidden" id="status">
   <div class="orb"><canvas id="orb" width="168" height="168"></canvas><span class="lvb" id="plv">1</span><span class="spbadge hidden" id="spBadge" title="능력치 포인트">+</span></div>
-  <div class="orbtxt"><b id="pname">기사</b><div class="sbar" id="shp"><i></i></div><div class="sbar" id="smp"><i></i></div><div class="num"><span class="hpt" id="hpt"></span><span class="mpt" id="mpt"></span></div><div id="buffs"></div></div>
+  <div class="orbtxt"><b><span id="pname">기사</span><small id="pcls"></small></b><div class="sbar" id="shp"><i></i></div><div class="sbar" id="smp"><i></i></div><div class="num"><span class="hpt" id="hpt"></span><span class="mpt" id="mpt"></span></div><div id="buffs"></div></div>
 </div>
 <div class="hud hidden" id="quest"><button class="qh" id="qToggle" type="button" aria-expanded="true"><span>목표</span><span id="qArrow">▾</span></button><span class="qt" id="qt"></span><span class="qp" id="qp"></span></div>
 <button class="hud hidden" id="shopBtn" type="button">✦ 세리아와 거래 (F)</button>
@@ -643,6 +699,16 @@ details.info th { color: var(--gold); font-weight: 500; }
 </div>
 </div>
 <div class="hud hidden" id="devBadge">DEV</div>
+<button class="hud hidden" id="gatherBtn" type="button">⛏ 채집 (F)</button>
+<button class="hud hidden" id="smithBtn" type="button">⚒ 드로간과 대화 (F)</button>
+<div class="hud hidden" id="craft" role="dialog" aria-label="드로간의 대장간">
+  <div class="shead"><canvas id="craftNpc" width="96" height="104"></canvas>
+    <div class="sinfo"><small>아르델 마을 · 대장간</small><b>드로간</b><span class="ssay" id="craftSay"></span></div>
+    <button type="button" id="craftClose" class="wclose" aria-label="대장간 닫기">✕</button></div>
+  <div class="tabs" id="craftTabs"><button type="button" data-ct="mine" aria-pressed="true">내 직업</button><button type="button" data-ct="all" aria-pressed="false">전체 제작법</button></div>
+  <div id="craftList"></div>
+  <div class="note" id="craftGold"></div>
+</div>
 <button class="hud hidden" id="wpBtn" type="button">◈ 별빛 표석 (F)</button>
 <div class="hud hidden" id="wmap" role="dialog" aria-label="세계지도">
   <div class="wm-frame">
@@ -669,7 +735,7 @@ details.info th { color: var(--gold); font-weight: 500; }
 <div class="hud hidden" id="banner"><b></b><span></span></div>
 <div class="hud hidden" id="inv" role="dialog" aria-label="가방과 장비">
   <div class="whead">
-    <b>가방 · 장비</b>
+    <b><span id="invName"></span> · 가방</b>
     <div class="tabs" id="invTabs"><button type="button" data-tab="eq" aria-pressed="true">장비창</button><button type="button" data-tab="stat" aria-pressed="false">능력치</button><button type="button" data-tab="log" aria-pressed="false">획득 기록</button><button type="button" data-tab="prob" aria-pressed="false">확률표</button></div>
     <span class="wgold" id="wGold"></span>
     <button type="button" id="invClose" class="wclose" aria-label="가방 닫기">✕</button>
@@ -711,7 +777,7 @@ details.info th { color: var(--gold); font-weight: 500; }
 <script src="lineage-assets/audio/sfx.js"></script>
 <script>
 'use strict';
-const META = {"version":1,"style":"리니지풍 프리렌더 도트 (쿼터뷰 30°, 2:1 타일)","tile":{"w":64,"h":32,"world":45.25483399593904},"dirs":["S","SE","E","NE","N","NW","W","SW"],"dir_note":"행 = 방향(yaw 45°씩: S, SE, E, NE, N, NW, W, SW). 좌우 반전 없이 8방향을 모두 렌더링.","anims":[{"name":"idle","frames":6},{"name":"walk","frames":8},{"name":"attack","frames":8},{"name":"hurt","frames":3},{"name":"death","frames":6}],"hit_frame":4,"skill_hit":{"skill_spin":2,"skill_slam":4,"skill_guard":1,"skill_bless":3,"skill_wind":5,"skill_volley":4,"skill_whirl":3,"skill_fairy":3,"skill_bolt":4,"skill_ice":3,"skill_meteor":5,"skill_pillar":2,"skill_darkslash":4,"skill_hellfire":5},"characters":{"knight":{"label":"기사","sheet":"characters/knight.png","fw":112,"fh":104,"ax":56,"ay":70,"cols":61,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6],"skill_spin":[31,8],"skill_slam":[39,8],"skill_guard":[47,6],"skill_bless":[53,8]},"skills":["skill_spin","skill_slam","skill_guard","skill_bless"]},"elf":{"label":"요정","sheet":"characters/elf.png","fw":112,"fh":104,"ax":56,"ay":70,"cols":63,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6],"skill_wind":[31,8],"skill_volley":[39,8],"skill_whirl":[47,8],"skill_fairy":[55,8]},"skills":["skill_wind","skill_volley","skill_whirl","skill_fairy"]},"mage":{"label":"마법사","sheet":"characters/mage.png","fw":112,"fh":104,"ax":56,"ay":70,"cols":63,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6],"skill_bolt":[31,8],"skill_ice":[39,8],"skill_meteor":[47,8],"skill_pillar":[55,8]},"skills":["skill_bolt","skill_ice","skill_meteor","skill_pillar"]}},"monsters":{"orc":{"label":"고블린 전사","sheet":"monsters/orc.png","fw":96,"fh":88,"ax":48,"ay":66,"cols":31,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6]},"skills":[]},"skeleton":{"label":"해골 병사","sheet":"monsters/skeleton.png","fw":96,"fh":88,"ax":48,"ay":66,"cols":31,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6]},"skills":[]},"wolf":{"label":"검은 늑대","sheet":"monsters/wolf.png","fw":112,"fh":96,"ax":56,"ay":68,"cols":31,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6]},"skills":[]},"spider":{"label":"숲 거미","sheet":"monsters/spider.png","fw":112,"fh":88,"ax":56,"ay":60,"cols":31,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6]},"skills":[]},"ooze":{"label":"녹색 슬라임","sheet":"monsters/ooze.png","fw":96,"fh":88,"ax":48,"ay":62,"cols":31,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6]},"skills":[]},"boss":{"label":"봉인된 수호자","sheet":"monsters/boss.png","fw":144,"fh":128,"ax":72,"ay":100,"cols":47,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6],"skill_darkslash":[31,8],"skill_hellfire":[39,8]},"skills":["skill_darkslash","skill_hellfire"]},"goblin":{"label":"고블린","sheet":"monsters/goblin.png","fw":96,"fh":88,"ax":48,"ay":66,"cols":31,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6]},"skills":[]},"skeleton_archer":{"label":"해골 궁수","sheet":"monsters/skeleton_archer.png","fw":96,"fh":88,"ax":48,"ay":66,"cols":31,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6]},"skills":[]},"wb_warlord":{"label":"몰락의 군주 그롬마르","sheet":"monsters/wb_warlord.png","fw":216,"fh":192,"ax":108,"ay":150,"cols":37,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,4],"walk":[4,6],"attack":[10,8],"hurt":[18,2],"death":[20,5],"skill_darkslash":[25,6],"skill_hellfire":[31,6]},"skills":["skill_darkslash","skill_hellfire"]},"wb_lich":{"label":"잊힌 기억의 리치 모르벤","sheet":"monsters/wb_lich.png","fw":216,"fh":192,"ax":108,"ay":150,"cols":37,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,4],"walk":[4,6],"attack":[10,8],"hurt":[18,2],"death":[20,5],"skill_darkslash":[25,6],"skill_hellfire":[31,6]},"skills":["skill_darkslash","skill_hellfire"]},"pig":{"label":"돼지","sheet":"monsters/pig.png","fw":80,"fh":64,"ax":40,"ay":46,"cols":22,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8]},"skills":[]},"chicken":{"label":"닭","sheet":"monsters/chicken.png","fw":48,"fh":44,"ax":24,"ay":34,"cols":22,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8]},"skills":[]}},"props":{"oak":{"label":"참나무","group":"자연","sheet":"field/props/oak.png","fw":106,"fh":129,"ax":54,"ay":118,"frames":1},"pine":{"label":"전나무","group":"자연","sheet":"field/props/pine.png","fw":72,"fh":130,"ax":36,"ay":114,"frames":1},"dead_tree":{"label":"고목","group":"자연","sheet":"field/props/dead_tree.png","fw":65,"fh":102,"ax":31,"ay":90,"frames":1},"bush":{"label":"덤불","group":"자연","sheet":"field/props/bush.png","fw":38,"fh":24,"ax":19,"ay":19,"frames":1},"rock_big":{"label":"큰 바위","group":"자연","sheet":"field/props/rock_big.png","fw":61,"fh":45,"ax":31,"ay":35,"frames":1},"rock_small":{"label":"작은 바위","group":"자연","sheet":"field/props/rock_small.png","fw":19,"fh":14,"ax":9,"ay":10,"frames":1},"wall":{"label":"성벽","group":"성채","sheet":"field/props/wall.png","fw":88,"fh":115,"ax":44,"ay":94,"frames":1},"tower":{"label":"성탑","group":"성채","sheet":"field/props/tower.png","fw":74,"fh":193,"ax":37,"ay":177,"frames":1},"gate":{"label":"성문","group":"성채","sheet":"field/props/gate.png","fw":118,"fh":147,"ax":59,"ay":117,"frames":1},"house":{"label":"마을 집","group":"마을","sheet":"field/props/house.png","fw":121,"fh":109,"ax":61,"ay":82,"frames":1},"well":{"label":"우물","group":"마을","sheet":"field/props/well.png","fw":38,"fh":60,"ax":19,"ay":51,"frames":1},"fence":{"label":"나무 울타리","group":"마을","sheet":"field/props/fence.png","fw":52,"fh":43,"ax":26,"ay":30,"frames":1},"torch":{"label":"화톳불 받침","group":"성채","sheet":"field/props/torch.png","fw":15,"fh":43,"ax":7,"ay":38,"frames":4},"campfire":{"label":"모닥불","group":"마을","sheet":"field/props/campfire.png","fw":27,"fh":23,"ax":13,"ay":16,"frames":4},"grave":{"label":"묘비","group":"묘지·폐허","sheet":"field/props/grave.png","fw":16,"fh":32,"ax":8,"ay":23,"frames":1},"cross_grave":{"label":"나무 십자가 무덤","group":"묘지·폐허","sheet":"field/props/cross_grave.png","fw":16,"fh":33,"ax":8,"ay":22,"frames":1},"barrel":{"label":"술통","group":"마을","sheet":"field/props/barrel.png","fw":16,"fh":20,"ax":8,"ay":17,"frames":1},"crate":{"label":"나무 상자","group":"마을","sheet":"field/props/crate.png","fw":20,"fh":21,"ax":10,"ay":16,"frames":1},"signpost":{"label":"이정표","group":"마을","sheet":"field/props/signpost.png","fw":29,"fh":31,"ax":13,"ay":29,"frames":1},"tent":{"label":"야영 천막","group":"마을","sheet":"field/props/tent.png","fw":78,"fh":60,"ax":39,"ay":40,"frames":1},"pillar":{"label":"부서진 기둥","group":"묘지·폐허","sheet":"field/props/pillar.png","fw":34,"fh":65,"ax":13,"ay":57,"frames":1},"crystal":{"label":"마나 수정","group":"자연","sheet":"field/props/crystal.png","fw":30,"fh":37,"ax":15,"ay":30,"frames":1},"bones":{"label":"해골 더미","group":"묘지·폐허","sheet":"field/props/bones.png","fw":26,"fh":10,"ax":13,"ay":7,"frames":1},"dungeon_wall":{"label":"던전 벽","group":"던전","sheet":"field/props/dungeon_wall.png","fw":88,"fh":124,"ax":43,"ay":99,"frames":1},"wall_torch":{"label":"벽 횃불","group":"던전","sheet":"field/props/wall_torch.png","fw":8,"fh":23,"ax":4,"ay":43,"frames":4},"portcullis":{"label":"쇠창살 문","group":"던전","sheet":"field/props/portcullis.png","fw":96,"fh":126,"ax":48,"ay":101,"frames":1},"chain_pillar":{"label":"사슬 기둥","group":"던전","sheet":"field/props/chain_pillar.png","fw":24,"fh":101,"ax":12,"ay":94,"frames":1},"chest":{"label":"보물상자","group":"던전","sheet":"field/props/chest.png","fw":32,"fh":30,"ax":16,"ay":23,"frames":1},"chest_open":{"label":"열린 보물상자","group":"던전","sheet":"field/props/chest_open.png","fw":35,"fh":33,"ax":19,"ay":26,"frames":1},"altar":{"label":"해골 제단","group":"던전","sheet":"field/props/altar.png","fw":38,"fh":37,"ax":19,"ay":30,"frames":4},"sarcophagus":{"label":"석관","group":"던전","sheet":"field/props/sarcophagus.png","fw":52,"fh":44,"ax":26,"ay":31,"frames":1},"cage":{"label":"쇠우리","group":"던전","sheet":"field/props/cage.png","fw":28,"fh":56,"ax":14,"ay":49,"frames":1},"spikes":{"label":"가시 함정","group":"던전","sheet":"field/props/spikes.png","fw":50,"fh":31,"ax":25,"ay":18,"frames":1},"stairs":{"label":"돌계단","group":"던전","sheet":"field/props/stairs.png","fw":55,"fh":72,"ax":25,"ay":57,"frames":1},"bone_pile":{"label":"해골 무더기","group":"던전","sheet":"field/props/bone_pile.png","fw":36,"fh":24,"ax":18,"ay":14,"frames":1},"stall":{"label":"시장 노점","group":"마을 생활","sheet":"field/props/stall.png","fw":65,"fh":62,"ax":30,"ay":48,"frames":1},"anvil":{"label":"모루와 망치","group":"마을 생활","sheet":"field/props/anvil.png","fw":28,"fh":22,"ax":15,"ay":18,"frames":1},"forge":{"label":"대장간 화로","group":"마을 생활","sheet":"field/props/forge.png","fw":49,"fh":77,"ax":24,"ay":65,"frames":4},"cart":{"label":"짐수레","group":"마을 생활","sheet":"field/props/cart.png","fw":40,"fh":36,"ax":21,"ay":25,"frames":1},"lamp_post":{"label":"가로등","group":"마을 생활","sheet":"field/props/lamp_post.png","fw":10,"fh":54,"ax":5,"ay":51,"frames":4},"haybale":{"label":"건초 더미","group":"마을 생활","sheet":"field/props/haybale.png","fw":27,"fh":21,"ax":15,"ay":17,"frames":1},"notice_board":{"label":"게시판","group":"마을 생활","sheet":"field/props/notice_board.png","fw":30,"fh":35,"ax":15,"ay":32,"frames":1},"grindstone":{"label":"숫돌","group":"마을 생활","sheet":"field/props/grindstone.png","fw":20,"fh":27,"ax":10,"ay":23,"frames":1},"firewood":{"label":"장작 더미","group":"마을 생활","sheet":"field/props/firewood.png","fw":35,"fh":23,"ax":20,"ay":16,"frames":1},"planter":{"label":"꽃 화분","group":"마을 생활","sheet":"field/props/planter.png","fw":24,"fh":21,"ax":12,"ay":15,"frames":1},"banner_pole":{"label":"깃발 장대","group":"마을 생활","sheet":"field/props/banner_pole.png","fw":21,"fh":68,"ax":5,"ay":65,"frames":1},"trough":{"label":"여물통","group":"마을 생활","sheet":"field/props/trough.png","fw":28,"fh":22,"ax":14,"ay":15,"frames":1},"shrine":{"label":"별빛 성소(상점)","group":"마을 생활","sheet":"field/props/shrine.png","fw":202,"fh":270,"ax":101,"ay":215,"frames":1},"deity":{"label":"일곱 근원의 신상(상점)","group":"마을 생활","sheet":"field/props/deity.png","fw":106,"fh":121,"ax":53,"ay":141,"frames":6},"waypoint":{"label":"별빛 표석(룬 비석)","group":"마을 생활","sheet":"field/props/waypoint.png","fw":38,"fh":76,"ax":19,"ay":66,"frames":4},"ruin_wall":{"label":"무너진 돌담","group":"폐허","sheet":"field/props/ruin_wall.png","fw":79,"fh":72,"ax":46,"ay":55,"frames":1},"ruin_corner":{"label":"무너진 집 모서리","group":"폐허","sheet":"field/props/ruin_corner.png","fw":94,"fh":79,"ax":50,"ay":53,"frames":1},"ruin_arch":{"label":"부서진 아치문","group":"폐허","sheet":"field/props/ruin_arch.png","fw":57,"fh":76,"ax":26,"ay":63,"frames":1},"ruin_house":{"label":"불탄 옛 집터","group":"폐허","sheet":"field/props/ruin_house.png","fw":124,"fh":73,"ax":62,"ay":41,"frames":1},"pig_shed":{"label":"돼지우리 지붕","group":"농장","sheet":"field/props/pig_shed.png","fw":67,"fh":50,"ax":35,"ay":35,"frames":1},"coop":{"label":"닭장","group":"농장","sheet":"field/props/coop.png","fw":44,"fh":48,"ax":22,"ay":39,"frames":1},"ext_boulders":{"label":"이끼 낀 큰 바위","group":"폐허","sheet":"field/props/ext_boulders.png","fw":77,"fh":65,"ax":38,"ay":59,"frames":1,"ext":"trees_plants_rocks.png"},"ext_cairns":{"label":"돌탑","group":"폐허","sheet":"field/props/ext_cairns.png","fw":64,"fh":44,"ax":32,"ay":40,"frames":1,"ext":"trees_plants_rocks.png"},"ext_dolmen":{"label":"고인돌","group":"폐허","sheet":"field/props/ext_dolmen.png","fw":101,"fh":78,"ax":50,"ay":71,"frames":1,"ext":"trees_plants_rocks.png"},"ext_log":{"label":"쓰러진 통나무","group":"폐허","sheet":"field/props/ext_log.png","fw":71,"fh":50,"ax":35,"ay":45,"frames":1,"ext":"trees_plants_rocks.png"},"ext_log_rune":{"label":"문양 새긴 통나무","group":"폐허","sheet":"field/props/ext_log_rune.png","fw":70,"fh":50,"ax":35,"ay":45,"frames":1,"ext":"trees_plants_rocks.png"},"ext_grave":{"label":"이름 지워진 묘비","group":"폐허","sheet":"field/props/ext_grave.png","fw":19,"fh":28,"ax":9,"ay":26,"frames":1,"ext":"trees_plants_rocks.png"},"ext_grave_broken":{"label":"깨진 묘비","group":"폐허","sheet":"field/props/ext_grave_broken.png","fw":21,"fh":22,"ax":10,"ay":20,"frames":1,"ext":"trees_plants_rocks.png"},"ext_stump":{"label":"그루터기","group":"숲","sheet":"field/props/ext_stump.png","fw":28,"fh":23,"ax":14,"ay":21,"frames":1,"ext":"trees_plants_rocks.png"},"ext_trough":{"label":"물 여물통","group":"농장","sheet":"field/props/ext_trough.png","fw":43,"fh":29,"ax":21,"ay":27,"frames":1,"ext":"trees_plants_rocks.png"},"ext_flatstones":{"label":"흩어진 바닥돌","group":"폐허","sheet":"field/props/ext_flatstones.png","fw":72,"fh":51,"ax":36,"ay":46,"frames":1,"ext":"trees_plants_rocks.png"},"ext_tree_a":{"label":"옅은 잎 나무","group":"숲","sheet":"field/props/ext_tree_a.png","fw":88,"fh":125,"ax":44,"ay":113,"frames":1,"ext":"trees_plants_rocks.png"},"ext_tree_b":{"label":"작은 굽은 나무","group":"숲","sheet":"field/props/ext_tree_b.png","fw":52,"fh":78,"ax":26,"ay":71,"frames":1,"ext":"trees_plants_rocks.png"},"ext_bush_aut":{"label":"단풍 덤불","group":"숲","sheet":"field/props/ext_bush_aut.png","fw":55,"fh":51,"ax":27,"ay":46,"frames":1,"ext":"trees_plants_rocks.png"},"ext_deadtree_big":{"label":"뒤틀린 고목","group":"폐허","sheet":"field/props/ext_deadtree_big.png","fw":115,"fh":138,"ax":57,"ay":125,"frames":1,"ext":"trees_plants.png"},"ext_deadtree_s":{"label":"검은 마른 나무","group":"폐허","sheet":"field/props/ext_deadtree_s.png","fw":58,"fh":58,"ax":29,"ay":53,"frames":1,"ext":"trees_plants.png"},"ext_scarecrow":{"label":"허수아비","group":"농장","sheet":"field/props/ext_scarecrow.png","fw":22,"fh":52,"ax":11,"ay":47,"frames":1,"ext":"trees_plants.png"},"ext_pumpkins":{"label":"호박 더미","group":"농장","sheet":"field/props/ext_pumpkins.png","fw":23,"fh":43,"ax":11,"ay":39,"frames":1,"ext":"trees_plants.png"},"ext_well":{"label":"옛 우물","group":"폐허","sheet":"field/props/ext_well.png","fw":44,"fh":50,"ax":22,"ay":45,"frames":1,"ext":"town.png"},"ext_fountain":{"label":"말라붙은 분수","group":"폐허","sheet":"field/props/ext_fountain.png","fw":56,"fh":53,"ax":28,"ay":48,"frames":1,"ext":"town.png"},"ext_statue":{"label":"부서진 석상","group":"폐허","sheet":"field/props/ext_statue.png","fw":23,"fh":54,"ax":11,"ay":49,"frames":1,"ext":"town.png"},"ext_pedestal":{"label":"빈 받침돌","group":"폐허","sheet":"field/props/ext_pedestal.png","fw":22,"fh":46,"ax":11,"ay":42,"frames":1,"ext":"town.png"},"fence_v":{"label":"나무 울타리(세로)","group":"농장","sheet":"field/props/fence_v.png","fw":52,"fh":43,"ax":26,"ay":30,"frames":1}},"tiles":{"sheet":"field/tiles.png","w":64,"h":32,"cols":4,"rows":[{"name":"grass","label":"풀밭"},{"name":"dirt","label":"흙길"},{"name":"cobble","label":"돌길"},{"name":"swamp","label":"늪지"},{"name":"snow","label":"설원"},{"name":"dungeon","label":"던전 바닥"},{"name":"dungeon_wet","label":"젖은 던전 바닥"},{"name":"planks","label":"나무 마루"},{"name":"water","label":"물(애니)"}],"note":"행 = 지형, 열 = 변형 4종 (물은 애니메이션 4프레임)"},"items":{"dagger":{"name":"단검","cat":"무기","grade":"common","index":0,"enchantable":true},"longsword":{"name":"롱소드","cat":"무기","grade":"uncommon","index":1,"enchantable":true},"greatsword":{"name":"투핸드 소드","cat":"무기","grade":"rare","index":2,"enchantable":true},"rune_blade":{"name":"룬의 검","cat":"무기","grade":"heroic","index":3,"enchantable":true},"kingsword":{"name":"왕의 검","cat":"무기","grade":"legend","index":4,"enchantable":true},"axe":{"name":"전투 도끼","cat":"무기","grade":"common","index":5,"enchantable":true},"battleaxe":{"name":"양날 도끼","cat":"무기","grade":"rare","index":6,"enchantable":true},"spear":{"name":"창","cat":"무기","grade":"uncommon","index":7,"enchantable":true},"mace":{"name":"철퇴","cat":"무기","grade":"common","index":8,"enchantable":true},"bow":{"name":"장궁","cat":"무기","grade":"uncommon","index":9,"enchantable":true},"staff":{"name":"마법 지팡이","cat":"무기","grade":"rare","index":10,"enchantable":true},"arrows":{"name":"화살 묶음","cat":"무기","grade":"common","index":11,"enchantable":false},"helm":{"name":"기사 투구","cat":"방어구","grade":"uncommon","index":12,"enchantable":true},"plate":{"name":"판금 갑옷","cat":"방어구","grade":"rare","index":13,"enchantable":true},"leather_armor":{"name":"가죽 갑옷","cat":"방어구","grade":"common","index":14,"enchantable":true},"robe":{"name":"마법사 로브","cat":"방어구","grade":"rare","index":15,"enchantable":true},"kite_shield":{"name":"연 방패","cat":"방어구","grade":"uncommon","index":16,"enchantable":true},"round_shield":{"name":"원형 방패","cat":"방어구","grade":"common","index":17,"enchantable":true},"boots":{"name":"철 장화","cat":"방어구","grade":"common","index":18,"enchantable":true},"gauntlet":{"name":"건틀릿","cat":"방어구","grade":"uncommon","index":19,"enchantable":true},"cloak":{"name":"망토","cat":"방어구","grade":"uncommon","index":20,"enchantable":true},"ring_ruby":{"name":"루비 반지","cat":"장신구","grade":"rare","index":21,"enchantable":false},"ring_sapph":{"name":"사파이어 반지","cat":"장신구","grade":"heroic","index":22,"enchantable":false},"amulet":{"name":"수호 목걸이","cat":"장신구","grade":"heroic","index":23,"enchantable":false},"bracelet":{"name":"전사의 팔찌","cat":"장신구","grade":"uncommon","index":24,"enchantable":false},"pot_red":{"name":"체력 회복제","cat":"소모품","grade":"common","index":25,"enchantable":false},"pot_orange":{"name":"강력 체력 회복제","cat":"소모품","grade":"uncommon","index":26,"enchantable":false},"pot_white":{"name":"고급 체력 회복제","cat":"소모품","grade":"rare","index":27,"enchantable":false},"pot_blue":{"name":"마나 회복제","cat":"소모품","grade":"uncommon","index":28,"enchantable":false},"pot_green":{"name":"속도 향상 물약","cat":"소모품","grade":"uncommon","index":29,"enchantable":false},"scroll_weapon":{"name":"무기 마법 주문서","cat":"소모품","grade":"rare","index":30,"enchantable":false},"scroll_armor":{"name":"갑옷 마법 주문서","cat":"소모품","grade":"rare","index":31,"enchantable":false},"scroll_teleport":{"name":"순간이동 주문서","cat":"소모품","grade":"common","index":32,"enchantable":false},"scroll_return":{"name":"귀환 주문서","cat":"소모품","grade":"common","index":33,"enchantable":false},"gold":{"name":"금화 더미","cat":"기타","grade":"common","index":34,"enchantable":false},"gem_ruby":{"name":"루비","cat":"기타","grade":"rare","index":35,"enchantable":false},"key":{"name":"던전 열쇠","cat":"기타","grade":"uncommon","index":36,"enchantable":false},"spellbook":{"name":"마법서","cat":"기타","grade":"heroic","index":37,"enchantable":false},"bone":{"name":"해골 뼈","cat":"기타","grade":"common","index":38,"enchantable":false}},"enchant_showcase":{"sheet":"characters/knight_enchant.png","fw":112,"fh":104,"levels":[0,7,8,9,10]},"effects":{"spin":{"label":"회전 베기","sheet":"effects/spin.png","fw":176,"fh":112,"ax":88,"ay":78,"frames":8,"anim":"skill_spin","actor":"knight","loop":false,"dirs":false,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"blue"},"slam":{"label":"대지 강타","sheet":"effects/slam.png","fw":144,"fh":176,"ax":72,"ay":134,"frames":8,"anim":"skill_slam","actor":"knight","loop":false,"dirs":false,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"blue"},"guard":{"label":"수호 결계","sheet":"effects/guard.png","fw":144,"fh":150,"ax":72,"ay":110,"frames":6,"anim":"skill_guard","actor":"knight","loop":true,"dirs":false,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"blue"},"bless":{"label":"성스러운 축복","sheet":"effects/bless.png","fw":136,"fh":200,"ax":68,"ay":164,"frames":8,"anim":"skill_bless","actor":"knight","loop":false,"dirs":false,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"gold"},"wind":{"label":"바람 화살","sheet":"effects/wind.png","fw":240,"fh":170,"ax":120,"ay":118,"frames":8,"anim":"skill_wind","actor":"elf","loop":false,"dirs":true,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"green"},"volley":{"label":"도약 연사","sheet":"effects/volley.png","fw":240,"fh":190,"ax":120,"ay":140,"frames":8,"anim":"skill_volley","actor":"elf","loop":false,"dirs":true,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"green"},"whirl":{"label":"잎 회오리","sheet":"effects/whirl.png","fw":176,"fh":150,"ax":88,"ay":112,"frames":8,"anim":"skill_whirl","actor":"elf","loop":false,"dirs":false,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"green"},"fairy":{"label":"요정의 축복","sheet":"effects/fairy.png","fw":160,"fh":180,"ax":80,"ay":140,"frames":8,"anim":"skill_fairy","actor":"elf","loop":false,"dirs":false,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"green"},"bolt":{"label":"마력 화살","sheet":"effects/bolt.png","fw":240,"fh":170,"ax":120,"ay":118,"frames":8,"anim":"skill_bolt","actor":"mage","loop":false,"dirs":true,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"blue"},"ice":{"label":"얼음 결정 폭발","sheet":"effects/ice.png","fw":200,"fh":170,"ax":100,"ay":130,"frames":8,"anim":"skill_ice","actor":"mage","loop":false,"dirs":false,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"blue"},"meteor":{"label":"운석 낙하","sheet":"effects/meteor.png","fw":240,"fh":260,"ax":120,"ay":196,"frames":8,"anim":"skill_meteor","actor":"mage","loop":false,"dirs":true,"layers":["under","over","solid"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"purple"},"pillar":{"label":"마나 기둥","sheet":"effects/pillar.png","fw":140,"fh":210,"ax":70,"ay":172,"frames":8,"anim":"skill_pillar","actor":"mage","loop":false,"dirs":false,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"purple"},"darkslash":{"label":"암흑 베기","sheet":"effects/darkslash.png","fw":320,"fh":240,"ax":160,"ay":160,"frames":8,"anim":"skill_darkslash","actor":"boss","loop":false,"dirs":true,"layers":["under","over","solid"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"red"},"hellfire":{"label":"지옥불 강타","sheet":"effects/hellfire.png","fw":300,"fh":260,"ax":150,"ay":190,"frames":8,"anim":"skill_hellfire","actor":"boss","loop":false,"dirs":false,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"red"}},"item_atlas":{"sheet":"items/icons.png","w":32,"h":32,"cols":10},"grades":{"sheet":"items/grade_frames.png","w":36,"h":36,"list":[{"id":"common","label":"일반","color":"#7e7a72"},{"id":"uncommon","label":"고급","color":"#4f9a4a"},{"id":"rare","label":"희귀","color":"#3f7fd0"},{"id":"heroic","label":"영웅","color":"#9a52d8"},{"id":"legend","label":"전설","color":"#e0901c"}]},"enchant_icons":{"sheet":"items/enchant_weapons.png","w":32,"h":32,"levels":[0,7,8,9,10],"rows":["dagger","longsword","greatsword","rune_blade","kingsword","axe","battleaxe","spear","mace","bow","staff"]}};
+const META = {"version":1,"style":"리니지풍 프리렌더 도트 (쿼터뷰 30°, 2:1 타일)","tile":{"w":64,"h":32,"world":45.25483399593904},"dirs":["S","SE","E","NE","N","NW","W","SW"],"dir_note":"행 = 방향(yaw 45°씩: S, SE, E, NE, N, NW, W, SW). 좌우 반전 없이 8방향을 모두 렌더링.","anims":[{"name":"idle","frames":6},{"name":"walk","frames":8},{"name":"attack","frames":8},{"name":"hurt","frames":3},{"name":"death","frames":6}],"hit_frame":4,"skill_hit":{"skill_spin":2,"skill_slam":4,"skill_guard":1,"skill_bless":3,"skill_wind":5,"skill_volley":4,"skill_whirl":3,"skill_fairy":3,"skill_bolt":4,"skill_ice":3,"skill_meteor":5,"skill_pillar":2,"skill_darkslash":4,"skill_hellfire":5},"characters":{"knight":{"label":"기사","sheet":"characters/knight.png","fw":112,"fh":104,"ax":56,"ay":70,"cols":61,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6],"skill_spin":[31,8],"skill_slam":[39,8],"skill_guard":[47,6],"skill_bless":[53,8]},"skills":["skill_spin","skill_slam","skill_guard","skill_bless"]},"elf":{"label":"요정","sheet":"characters/elf.png","fw":112,"fh":104,"ax":56,"ay":70,"cols":63,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6],"skill_wind":[31,8],"skill_volley":[39,8],"skill_whirl":[47,8],"skill_fairy":[55,8]},"skills":["skill_wind","skill_volley","skill_whirl","skill_fairy"]},"mage":{"label":"마법사","sheet":"characters/mage.png","fw":112,"fh":104,"ax":56,"ay":70,"cols":63,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6],"skill_bolt":[31,8],"skill_ice":[39,8],"skill_meteor":[47,8],"skill_pillar":[55,8]},"skills":["skill_bolt","skill_ice","skill_meteor","skill_pillar"]}},"monsters":{"orc":{"label":"고블린 전사","sheet":"monsters/orc.png","fw":96,"fh":88,"ax":48,"ay":66,"cols":31,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6]},"skills":[]},"skeleton":{"label":"해골 병사","sheet":"monsters/skeleton.png","fw":96,"fh":88,"ax":48,"ay":66,"cols":31,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6]},"skills":[]},"wolf":{"label":"검은 늑대","sheet":"monsters/wolf.png","fw":112,"fh":96,"ax":56,"ay":68,"cols":31,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6]},"skills":[]},"spider":{"label":"숲 거미","sheet":"monsters/spider.png","fw":112,"fh":88,"ax":56,"ay":60,"cols":31,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6]},"skills":[]},"ooze":{"label":"녹색 슬라임","sheet":"monsters/ooze.png","fw":96,"fh":88,"ax":48,"ay":62,"cols":31,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6]},"skills":[]},"boss":{"label":"봉인된 수호자","sheet":"monsters/boss.png","fw":144,"fh":128,"ax":72,"ay":100,"cols":47,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6],"skill_darkslash":[31,8],"skill_hellfire":[39,8]},"skills":["skill_darkslash","skill_hellfire"]},"goblin":{"label":"고블린","sheet":"monsters/goblin.png","fw":96,"fh":88,"ax":48,"ay":66,"cols":31,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6]},"skills":[]},"skeleton_archer":{"label":"해골 궁수","sheet":"monsters/skeleton_archer.png","fw":96,"fh":88,"ax":48,"ay":66,"cols":31,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6]},"skills":[]},"wb_warlord":{"label":"몰락의 군주 그롬마르","sheet":"monsters/wb_warlord.png","fw":216,"fh":192,"ax":108,"ay":150,"cols":37,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,4],"walk":[4,6],"attack":[10,8],"hurt":[18,2],"death":[20,5],"skill_darkslash":[25,6],"skill_hellfire":[31,6]},"skills":["skill_darkslash","skill_hellfire"]},"wb_lich":{"label":"잊힌 기억의 리치 모르벤","sheet":"monsters/wb_lich.png","fw":216,"fh":192,"ax":108,"ay":150,"cols":37,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,4],"walk":[4,6],"attack":[10,8],"hurt":[18,2],"death":[20,5],"skill_darkslash":[25,6],"skill_hellfire":[31,6]},"skills":["skill_darkslash","skill_hellfire"]},"pig":{"label":"돼지","sheet":"monsters/pig.png","fw":80,"fh":64,"ax":40,"ay":46,"cols":22,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8]},"skills":[]},"chicken":{"label":"닭","sheet":"monsters/chicken.png","fw":48,"fh":44,"ax":24,"ay":34,"cols":22,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8]},"skills":[]},"dog":{"label":"들개","sheet":"monsters/dog.png","fw":112,"fh":96,"ax":56,"ay":68,"cols":31,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8],"attack":[14,8],"hurt":[22,3],"death":[25,6]},"skills":[]}},"props":{"oak":{"label":"참나무","group":"자연","sheet":"field/props/oak.png","fw":106,"fh":129,"ax":54,"ay":118,"frames":1},"pine":{"label":"전나무","group":"자연","sheet":"field/props/pine.png","fw":72,"fh":130,"ax":36,"ay":114,"frames":1},"dead_tree":{"label":"고목","group":"자연","sheet":"field/props/dead_tree.png","fw":65,"fh":102,"ax":31,"ay":90,"frames":1},"bush":{"label":"덤불","group":"자연","sheet":"field/props/bush.png","fw":38,"fh":24,"ax":19,"ay":19,"frames":1},"rock_big":{"label":"큰 바위","group":"자연","sheet":"field/props/rock_big.png","fw":61,"fh":45,"ax":31,"ay":35,"frames":1},"rock_small":{"label":"작은 바위","group":"자연","sheet":"field/props/rock_small.png","fw":19,"fh":14,"ax":9,"ay":10,"frames":1},"wall":{"label":"성벽","group":"성채","sheet":"field/props/wall.png","fw":88,"fh":115,"ax":44,"ay":94,"frames":1},"tower":{"label":"성탑","group":"성채","sheet":"field/props/tower.png","fw":74,"fh":193,"ax":37,"ay":177,"frames":1},"gate":{"label":"성문","group":"성채","sheet":"field/props/gate.png","fw":118,"fh":147,"ax":59,"ay":117,"frames":1},"house":{"label":"마을 집","group":"마을","sheet":"field/props/house.png","fw":121,"fh":109,"ax":61,"ay":82,"frames":1},"well":{"label":"우물","group":"마을","sheet":"field/props/well.png","fw":38,"fh":60,"ax":19,"ay":51,"frames":1},"fence":{"label":"나무 울타리","group":"마을","sheet":"field/props/fence.png","fw":52,"fh":43,"ax":26,"ay":30,"frames":1},"torch":{"label":"화톳불 받침","group":"성채","sheet":"field/props/torch.png","fw":15,"fh":43,"ax":7,"ay":38,"frames":4},"campfire":{"label":"모닥불","group":"마을","sheet":"field/props/campfire.png","fw":27,"fh":23,"ax":13,"ay":16,"frames":4},"grave":{"label":"묘비","group":"묘지·폐허","sheet":"field/props/grave.png","fw":16,"fh":32,"ax":8,"ay":23,"frames":1},"cross_grave":{"label":"나무 십자가 무덤","group":"묘지·폐허","sheet":"field/props/cross_grave.png","fw":16,"fh":33,"ax":8,"ay":22,"frames":1},"barrel":{"label":"술통","group":"마을","sheet":"field/props/barrel.png","fw":16,"fh":20,"ax":8,"ay":17,"frames":1},"crate":{"label":"나무 상자","group":"마을","sheet":"field/props/crate.png","fw":20,"fh":21,"ax":10,"ay":16,"frames":1},"signpost":{"label":"이정표","group":"마을","sheet":"field/props/signpost.png","fw":29,"fh":31,"ax":13,"ay":29,"frames":1},"tent":{"label":"야영 천막","group":"마을","sheet":"field/props/tent.png","fw":78,"fh":60,"ax":39,"ay":40,"frames":1},"pillar":{"label":"부서진 기둥","group":"묘지·폐허","sheet":"field/props/pillar.png","fw":34,"fh":65,"ax":13,"ay":57,"frames":1},"crystal":{"label":"마나 수정","group":"자연","sheet":"field/props/crystal.png","fw":30,"fh":37,"ax":15,"ay":30,"frames":1},"bones":{"label":"해골 더미","group":"묘지·폐허","sheet":"field/props/bones.png","fw":26,"fh":10,"ax":13,"ay":7,"frames":1},"dungeon_wall":{"label":"던전 벽","group":"던전","sheet":"field/props/dungeon_wall.png","fw":88,"fh":124,"ax":43,"ay":99,"frames":1},"wall_torch":{"label":"벽 횃불","group":"던전","sheet":"field/props/wall_torch.png","fw":8,"fh":23,"ax":4,"ay":43,"frames":4},"portcullis":{"label":"쇠창살 문","group":"던전","sheet":"field/props/portcullis.png","fw":96,"fh":126,"ax":48,"ay":101,"frames":1},"chain_pillar":{"label":"사슬 기둥","group":"던전","sheet":"field/props/chain_pillar.png","fw":24,"fh":101,"ax":12,"ay":94,"frames":1},"chest":{"label":"보물상자","group":"던전","sheet":"field/props/chest.png","fw":32,"fh":30,"ax":16,"ay":23,"frames":1},"chest_open":{"label":"열린 보물상자","group":"던전","sheet":"field/props/chest_open.png","fw":35,"fh":33,"ax":19,"ay":26,"frames":1},"altar":{"label":"해골 제단","group":"던전","sheet":"field/props/altar.png","fw":38,"fh":37,"ax":19,"ay":30,"frames":4},"sarcophagus":{"label":"석관","group":"던전","sheet":"field/props/sarcophagus.png","fw":52,"fh":44,"ax":26,"ay":31,"frames":1},"cage":{"label":"쇠우리","group":"던전","sheet":"field/props/cage.png","fw":28,"fh":56,"ax":14,"ay":49,"frames":1},"spikes":{"label":"가시 함정","group":"던전","sheet":"field/props/spikes.png","fw":50,"fh":31,"ax":25,"ay":18,"frames":1},"stairs":{"label":"돌계단","group":"던전","sheet":"field/props/stairs.png","fw":55,"fh":72,"ax":25,"ay":57,"frames":1},"bone_pile":{"label":"해골 무더기","group":"던전","sheet":"field/props/bone_pile.png","fw":36,"fh":24,"ax":18,"ay":14,"frames":1},"stall":{"label":"시장 노점","group":"마을 생활","sheet":"field/props/stall.png","fw":65,"fh":62,"ax":30,"ay":48,"frames":1},"anvil":{"label":"모루와 망치","group":"마을 생활","sheet":"field/props/anvil.png","fw":28,"fh":22,"ax":15,"ay":18,"frames":1},"forge":{"label":"대장간 화로","group":"마을 생활","sheet":"field/props/forge.png","fw":49,"fh":77,"ax":24,"ay":65,"frames":4},"cart":{"label":"짐수레","group":"마을 생활","sheet":"field/props/cart.png","fw":40,"fh":36,"ax":21,"ay":25,"frames":1},"lamp_post":{"label":"가로등","group":"마을 생활","sheet":"field/props/lamp_post.png","fw":10,"fh":54,"ax":5,"ay":51,"frames":4},"haybale":{"label":"건초 더미","group":"마을 생활","sheet":"field/props/haybale.png","fw":27,"fh":21,"ax":15,"ay":17,"frames":1},"notice_board":{"label":"게시판","group":"마을 생활","sheet":"field/props/notice_board.png","fw":30,"fh":35,"ax":15,"ay":32,"frames":1},"grindstone":{"label":"숫돌","group":"마을 생활","sheet":"field/props/grindstone.png","fw":20,"fh":27,"ax":10,"ay":23,"frames":1},"firewood":{"label":"장작 더미","group":"마을 생활","sheet":"field/props/firewood.png","fw":35,"fh":23,"ax":20,"ay":16,"frames":1},"planter":{"label":"꽃 화분","group":"마을 생활","sheet":"field/props/planter.png","fw":24,"fh":21,"ax":12,"ay":15,"frames":1},"banner_pole":{"label":"깃발 장대","group":"마을 생활","sheet":"field/props/banner_pole.png","fw":21,"fh":68,"ax":5,"ay":65,"frames":1},"trough":{"label":"여물통","group":"마을 생활","sheet":"field/props/trough.png","fw":28,"fh":22,"ax":14,"ay":15,"frames":1},"shrine":{"label":"별빛 성소(상점)","group":"마을 생활","sheet":"field/props/shrine.png","fw":202,"fh":270,"ax":101,"ay":215,"frames":1},"deity":{"label":"일곱 근원의 신상(상점)","group":"마을 생활","sheet":"field/props/deity.png","fw":106,"fh":121,"ax":53,"ay":141,"frames":6},"waypoint":{"label":"별빛 표석(룬 비석)","group":"마을 생활","sheet":"field/props/waypoint.png","fw":38,"fh":76,"ax":19,"ay":66,"frames":4},"ruin_wall":{"label":"무너진 돌담","group":"폐허","sheet":"field/props/ruin_wall.png","fw":79,"fh":72,"ax":46,"ay":55,"frames":1},"ruin_corner":{"label":"무너진 집 모서리","group":"폐허","sheet":"field/props/ruin_corner.png","fw":94,"fh":79,"ax":50,"ay":53,"frames":1},"ruin_arch":{"label":"부서진 아치문","group":"폐허","sheet":"field/props/ruin_arch.png","fw":57,"fh":76,"ax":26,"ay":63,"frames":1},"ruin_house":{"label":"불탄 옛 집터","group":"폐허","sheet":"field/props/ruin_house.png","fw":124,"fh":73,"ax":62,"ay":41,"frames":1},"pig_shed":{"label":"돼지우리 지붕","group":"농장","sheet":"field/props/pig_shed.png","fw":67,"fh":50,"ax":35,"ay":35,"frames":1},"coop":{"label":"닭장","group":"농장","sheet":"field/props/coop.png","fw":44,"fh":48,"ax":22,"ay":39,"frames":1},"ext_boulders":{"label":"이끼 낀 큰 바위","group":"폐허","sheet":"field/props/ext_boulders.png","fw":77,"fh":65,"ax":38,"ay":59,"frames":1,"ext":"trees_plants_rocks.png"},"ext_cairns":{"label":"돌탑","group":"폐허","sheet":"field/props/ext_cairns.png","fw":64,"fh":44,"ax":32,"ay":40,"frames":1,"ext":"trees_plants_rocks.png"},"ext_dolmen":{"label":"고인돌","group":"폐허","sheet":"field/props/ext_dolmen.png","fw":101,"fh":78,"ax":50,"ay":71,"frames":1,"ext":"trees_plants_rocks.png"},"ext_log":{"label":"쓰러진 통나무","group":"폐허","sheet":"field/props/ext_log.png","fw":71,"fh":50,"ax":35,"ay":45,"frames":1,"ext":"trees_plants_rocks.png"},"ext_log_rune":{"label":"문양 새긴 통나무","group":"폐허","sheet":"field/props/ext_log_rune.png","fw":70,"fh":50,"ax":35,"ay":45,"frames":1,"ext":"trees_plants_rocks.png"},"ext_grave":{"label":"이름 지워진 묘비","group":"폐허","sheet":"field/props/ext_grave.png","fw":19,"fh":28,"ax":9,"ay":26,"frames":1,"ext":"trees_plants_rocks.png"},"ext_grave_broken":{"label":"깨진 묘비","group":"폐허","sheet":"field/props/ext_grave_broken.png","fw":21,"fh":22,"ax":10,"ay":20,"frames":1,"ext":"trees_plants_rocks.png"},"ext_stump":{"label":"그루터기","group":"숲","sheet":"field/props/ext_stump.png","fw":28,"fh":23,"ax":14,"ay":21,"frames":1,"ext":"trees_plants_rocks.png"},"ext_trough":{"label":"물 여물통","group":"농장","sheet":"field/props/ext_trough.png","fw":43,"fh":29,"ax":21,"ay":27,"frames":1,"ext":"trees_plants_rocks.png"},"ext_flatstones":{"label":"흩어진 바닥돌","group":"폐허","sheet":"field/props/ext_flatstones.png","fw":72,"fh":51,"ax":36,"ay":46,"frames":1,"ext":"trees_plants_rocks.png"},"ext_tree_a":{"label":"옅은 잎 나무","group":"숲","sheet":"field/props/ext_tree_a.png","fw":88,"fh":125,"ax":44,"ay":113,"frames":1,"ext":"trees_plants_rocks.png"},"ext_tree_b":{"label":"작은 굽은 나무","group":"숲","sheet":"field/props/ext_tree_b.png","fw":52,"fh":78,"ax":26,"ay":71,"frames":1,"ext":"trees_plants_rocks.png"},"ext_bush_aut":{"label":"단풍 덤불","group":"숲","sheet":"field/props/ext_bush_aut.png","fw":55,"fh":51,"ax":27,"ay":46,"frames":1,"ext":"trees_plants_rocks.png"},"ext_deadtree_big":{"label":"뒤틀린 고목","group":"폐허","sheet":"field/props/ext_deadtree_big.png","fw":115,"fh":138,"ax":57,"ay":125,"frames":1,"ext":"trees_plants.png"},"ext_deadtree_s":{"label":"검은 마른 나무","group":"폐허","sheet":"field/props/ext_deadtree_s.png","fw":58,"fh":58,"ax":29,"ay":53,"frames":1,"ext":"trees_plants.png"},"ext_scarecrow":{"label":"허수아비","group":"농장","sheet":"field/props/ext_scarecrow.png","fw":22,"fh":52,"ax":11,"ay":47,"frames":1,"ext":"trees_plants.png"},"ext_pumpkins":{"label":"호박 더미","group":"농장","sheet":"field/props/ext_pumpkins.png","fw":23,"fh":43,"ax":11,"ay":39,"frames":1,"ext":"trees_plants.png"},"ext_well":{"label":"옛 우물","group":"폐허","sheet":"field/props/ext_well.png","fw":44,"fh":50,"ax":22,"ay":45,"frames":1,"ext":"town.png"},"ext_fountain":{"label":"말라붙은 분수","group":"폐허","sheet":"field/props/ext_fountain.png","fw":56,"fh":53,"ax":28,"ay":48,"frames":1,"ext":"town.png"},"ext_statue":{"label":"부서진 석상","group":"폐허","sheet":"field/props/ext_statue.png","fw":23,"fh":54,"ax":11,"ay":49,"frames":1,"ext":"town.png"},"ext_pedestal":{"label":"빈 받침돌","group":"폐허","sheet":"field/props/ext_pedestal.png","fw":22,"fh":46,"ax":11,"ay":42,"frames":1,"ext":"town.png"},"fence_v":{"label":"나무 울타리(세로)","group":"농장","sheet":"field/props/fence_v.png","fw":52,"fh":43,"ax":26,"ay":30,"frames":1},"node_ore":{"label":"철광석 광맥","group":"채집","sheet":"field/props/node_ore.png","fw":36,"fh":40,"ax":18,"ay":37,"frames":1,"ext":"trees_plants_rocks.png / trees_plants.png"},"node_herb":{"label":"야생 약초","group":"채집","sheet":"field/props/node_herb.png","fw":44,"fh":30,"ax":22,"ay":27,"frames":1,"ext":"trees_plants_rocks.png / trees_plants.png"}},"tiles":{"sheet":"field/tiles.png","w":64,"h":32,"cols":4,"rows":[{"name":"grass","label":"풀밭"},{"name":"dirt","label":"흙길"},{"name":"cobble","label":"돌길"},{"name":"swamp","label":"늪지"},{"name":"snow","label":"설원"},{"name":"dungeon","label":"던전 바닥"},{"name":"dungeon_wet","label":"젖은 던전 바닥"},{"name":"planks","label":"나무 마루"},{"name":"water","label":"물(애니)"}],"note":"행 = 지형, 열 = 변형 4종 (물은 애니메이션 4프레임)"},"items":{"dagger":{"name":"단검","cat":"무기","grade":"common","index":0,"enchantable":true},"longsword":{"name":"롱소드","cat":"무기","grade":"uncommon","index":1,"enchantable":true},"greatsword":{"name":"투핸드 소드","cat":"무기","grade":"rare","index":2,"enchantable":true},"rune_blade":{"name":"룬의 검","cat":"무기","grade":"heroic","index":3,"enchantable":true},"kingsword":{"name":"왕의 검","cat":"무기","grade":"legend","index":4,"enchantable":true},"axe":{"name":"전투 도끼","cat":"무기","grade":"common","index":5,"enchantable":true},"battleaxe":{"name":"양날 도끼","cat":"무기","grade":"rare","index":6,"enchantable":true},"spear":{"name":"창","cat":"무기","grade":"uncommon","index":7,"enchantable":true},"mace":{"name":"철퇴","cat":"무기","grade":"common","index":8,"enchantable":true},"bow":{"name":"장궁","cat":"무기","grade":"uncommon","index":9,"enchantable":true},"staff":{"name":"마법 지팡이","cat":"무기","grade":"rare","index":10,"enchantable":true},"arrows":{"name":"화살 묶음","cat":"무기","grade":"common","index":11,"enchantable":false},"helm":{"name":"기사 투구","cat":"방어구","grade":"uncommon","index":12,"enchantable":true},"plate":{"name":"판금 갑옷","cat":"방어구","grade":"rare","index":13,"enchantable":true},"leather_armor":{"name":"가죽 갑옷","cat":"방어구","grade":"common","index":14,"enchantable":true},"robe":{"name":"마법사 로브","cat":"방어구","grade":"rare","index":15,"enchantable":true},"kite_shield":{"name":"연 방패","cat":"방어구","grade":"uncommon","index":16,"enchantable":true},"round_shield":{"name":"원형 방패","cat":"방어구","grade":"common","index":17,"enchantable":true},"boots":{"name":"철 장화","cat":"방어구","grade":"common","index":18,"enchantable":true},"gauntlet":{"name":"건틀릿","cat":"방어구","grade":"uncommon","index":19,"enchantable":true},"cloak":{"name":"망토","cat":"방어구","grade":"uncommon","index":20,"enchantable":true},"ring_ruby":{"name":"루비 반지","cat":"장신구","grade":"rare","index":21,"enchantable":false},"ring_sapph":{"name":"사파이어 반지","cat":"장신구","grade":"heroic","index":22,"enchantable":false},"amulet":{"name":"수호 목걸이","cat":"장신구","grade":"heroic","index":23,"enchantable":false},"bracelet":{"name":"전사의 팔찌","cat":"장신구","grade":"uncommon","index":24,"enchantable":false},"pot_red":{"name":"체력 회복제","cat":"소모품","grade":"common","index":25,"enchantable":false},"pot_orange":{"name":"강력 체력 회복제","cat":"소모품","grade":"uncommon","index":26,"enchantable":false},"pot_white":{"name":"고급 체력 회복제","cat":"소모품","grade":"rare","index":27,"enchantable":false},"pot_blue":{"name":"마나 회복제","cat":"소모품","grade":"uncommon","index":28,"enchantable":false},"pot_green":{"name":"속도 향상 물약","cat":"소모품","grade":"uncommon","index":29,"enchantable":false},"scroll_weapon":{"name":"무기 마법 주문서","cat":"소모품","grade":"rare","index":30,"enchantable":false},"scroll_armor":{"name":"갑옷 마법 주문서","cat":"소모품","grade":"rare","index":31,"enchantable":false},"scroll_teleport":{"name":"순간이동 주문서","cat":"소모품","grade":"common","index":32,"enchantable":false},"scroll_return":{"name":"귀환 주문서","cat":"소모품","grade":"common","index":33,"enchantable":false},"gold":{"name":"금화 더미","cat":"기타","grade":"common","index":34,"enchantable":false},"gem_ruby":{"name":"루비","cat":"기타","grade":"rare","index":35,"enchantable":false},"key":{"name":"던전 열쇠","cat":"기타","grade":"uncommon","index":36,"enchantable":false},"spellbook":{"name":"마법서","cat":"기타","grade":"heroic","index":37,"enchantable":false},"bone":{"name":"해골 뼈","cat":"기타","grade":"common","index":38,"enchantable":false}},"enchant_showcase":{"sheet":"characters/knight_enchant.png","fw":112,"fh":104,"levels":[0,7,8,9,10]},"effects":{"spin":{"label":"회전 베기","sheet":"effects/spin.png","fw":176,"fh":112,"ax":88,"ay":78,"frames":8,"anim":"skill_spin","actor":"knight","loop":false,"dirs":false,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"blue"},"slam":{"label":"대지 강타","sheet":"effects/slam.png","fw":144,"fh":176,"ax":72,"ay":134,"frames":8,"anim":"skill_slam","actor":"knight","loop":false,"dirs":false,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"blue"},"guard":{"label":"수호 결계","sheet":"effects/guard.png","fw":144,"fh":150,"ax":72,"ay":110,"frames":6,"anim":"skill_guard","actor":"knight","loop":true,"dirs":false,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"blue"},"bless":{"label":"성스러운 축복","sheet":"effects/bless.png","fw":136,"fh":200,"ax":68,"ay":164,"frames":8,"anim":"skill_bless","actor":"knight","loop":false,"dirs":false,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"gold"},"wind":{"label":"바람 화살","sheet":"effects/wind.png","fw":240,"fh":170,"ax":120,"ay":118,"frames":8,"anim":"skill_wind","actor":"elf","loop":false,"dirs":true,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"green"},"volley":{"label":"도약 연사","sheet":"effects/volley.png","fw":240,"fh":190,"ax":120,"ay":140,"frames":8,"anim":"skill_volley","actor":"elf","loop":false,"dirs":true,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"green"},"whirl":{"label":"잎 회오리","sheet":"effects/whirl.png","fw":176,"fh":150,"ax":88,"ay":112,"frames":8,"anim":"skill_whirl","actor":"elf","loop":false,"dirs":false,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"green"},"fairy":{"label":"요정의 축복","sheet":"effects/fairy.png","fw":160,"fh":180,"ax":80,"ay":140,"frames":8,"anim":"skill_fairy","actor":"elf","loop":false,"dirs":false,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"green"},"bolt":{"label":"마력 화살","sheet":"effects/bolt.png","fw":240,"fh":170,"ax":120,"ay":118,"frames":8,"anim":"skill_bolt","actor":"mage","loop":false,"dirs":true,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"blue"},"ice":{"label":"얼음 결정 폭발","sheet":"effects/ice.png","fw":200,"fh":170,"ax":100,"ay":130,"frames":8,"anim":"skill_ice","actor":"mage","loop":false,"dirs":false,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"blue"},"meteor":{"label":"운석 낙하","sheet":"effects/meteor.png","fw":240,"fh":260,"ax":120,"ay":196,"frames":8,"anim":"skill_meteor","actor":"mage","loop":false,"dirs":true,"layers":["under","over","solid"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"purple"},"pillar":{"label":"마나 기둥","sheet":"effects/pillar.png","fw":140,"fh":210,"ax":70,"ay":172,"frames":8,"anim":"skill_pillar","actor":"mage","loop":false,"dirs":false,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"purple"},"darkslash":{"label":"암흑 베기","sheet":"effects/darkslash.png","fw":320,"fh":240,"ax":160,"ay":160,"frames":8,"anim":"skill_darkslash","actor":"boss","loop":false,"dirs":true,"layers":["under","over","solid"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"red"},"hellfire":{"label":"지옥불 강타","sheet":"effects/hellfire.png","fw":300,"fh":260,"ax":150,"ay":190,"frames":8,"anim":"skill_hellfire","actor":"boss","loop":false,"dirs":false,"layers":["under","over"],"blend":{"under":"lighter","over":"lighter","solid":"source-over"},"color":"red"}},"item_atlas":{"sheet":"items/icons.png","w":32,"h":32,"cols":10},"grades":{"sheet":"items/grade_frames.png","w":36,"h":36,"list":[{"id":"common","label":"일반","color":"#7e7a72"},{"id":"uncommon","label":"고급","color":"#4f9a4a"},{"id":"rare","label":"희귀","color":"#3f7fd0"},{"id":"heroic","label":"영웅","color":"#9a52d8"},{"id":"legend","label":"전설","color":"#e0901c"}]},"enchant_icons":{"sheet":"items/enchant_weapons.png","w":32,"h":32,"levels":[0,7,8,9,10],"rows":["dagger","longsword","greatsword","rune_blade","kingsword","axe","battleaxe","spear","mace","bow","staff"]},"npcs":{"npc_drogan":{"label":"드로간","sheet":"npcs/npc_drogan.png","fw":112,"fh":104,"ax":56,"ay":70,"cols":14,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8]}},"npc_arden":{"label":"아르덴","sheet":"npcs/npc_arden.png","fw":112,"fh":104,"ax":56,"ay":70,"cols":14,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8]}},"npc_seria":{"label":"세리아","sheet":"npcs/npc_seria.png","fw":112,"fh":104,"ax":56,"ay":70,"cols":14,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8]}},"npc_belos":{"label":"벨로스","sheet":"npcs/npc_belos.png","fw":112,"fh":104,"ax":56,"ay":70,"cols":14,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8]}},"npc_elysia":{"label":"엘리시아","sheet":"npcs/npc_elysia.png","fw":112,"fh":104,"ax":56,"ay":70,"cols":14,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8]}},"npc_rowen":{"label":"로웬","sheet":"npcs/npc_rowen.png","fw":112,"fh":104,"ax":56,"ay":70,"cols":14,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8]}},"npc_maren":{"label":"마렌","sheet":"npcs/npc_maren.png","fw":112,"fh":104,"ax":56,"ay":70,"cols":14,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8]}},"npc_erin":{"label":"에린","sheet":"npcs/npc_erin.png","fw":112,"fh":104,"ax":56,"ay":70,"cols":14,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8]}},"npc_thomas":{"label":"토마스","sheet":"npcs/npc_thomas.png","fw":112,"fh":104,"ax":56,"ay":70,"cols":14,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8]}},"npc_garen":{"label":"가렌","sheet":"npcs/npc_garen.png","fw":112,"fh":104,"ax":56,"ay":70,"cols":14,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8]}},"npc_lia":{"label":"리아","sheet":"npcs/npc_lia.png","fw":112,"fh":104,"ax":56,"ay":70,"cols":14,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8]}},"npc_noel":{"label":"노엘","sheet":"npcs/npc_noel.png","fw":112,"fh":104,"ax":56,"ay":70,"cols":14,"rows":["S","SE","E","NE","N","NW","W","SW"],"anims":{"idle":[0,6],"walk":[6,8]}}}};
 const A = 'lineage-assets/';
 const TW = 64, TH = 32;
 const DIRS = META.dirs;                       // ['S','SE','E','NE','N','NW','W','SW']
@@ -861,6 +927,8 @@ const MONSTERS = {
   ooze:     { name: '녹색 슬라임', hp: 140, atk: [7, 11], def: 2, speed: 1.4, range: 1.1, aggro: 4, xp: 20, cd: 1.6 },
   orc:      { name: '고블린 전사', hp: 220, atk: [14, 20], def: 3, speed: 2.3, range: 1.3, aggro: 6, xp: 45, cd: 1.6 },
   skeleton: { name: '해골 병사', hp: 170, atk: [12, 17], def: 4, speed: 2.2, range: 1.25, aggro: 6, xp: 38, cd: 1.5 },
+  dog:      { name: '들개', hp: 100, atk: [8, 13], def: 0, speed: 3.1, range: 1.2, aggro: 6, xp: 20, cd: 1.3 },
+  goblin_archer: { name: '고블린 궁수', hp: 75, atk: [8, 12], def: 1, speed: 2.4, range: 5.2, aggro: 7, xp: 22, cd: 2.0, ranged: true, sheet: 'goblin' },
   goblin:   { name: '고블린', hp: 80, atk: [7, 11], def: 1, speed: 2.6, range: 1.15, aggro: 5.5, xp: 16, cd: 1.3 },
   skeleton_archer: { name: '해골 궁수', hp: 110, atk: [10, 14], def: 2, speed: 2.0, range: 5.5, aggro: 7, xp: 30, cd: 2.0, ranged: true },
   boss:     { name: '봉인된 수호자', hp: 3200, atk: [26, 36], def: 6, speed: 2.0, range: 1.9, aggro: 9, xp: 1200, cd: 1.9, boss: true },
@@ -868,7 +936,7 @@ const MONSTERS = {
   wb_warlord: { name: '몰락의 군주 그롬마르', hp: 7200, atk: [48, 66], def: 10, speed: 2.3, range: 2.5, aggro: 7, xp: 4200, cd: 1.7, boss: true, wb: true, rad: 1.25, draw: 1.45, skillMul: 1.9, fxSc: 1.6 },
   wb_lich:    { name: '잊힌 기억의 리치 모르벤', hp: 9000, atk: [54, 76], def: 12, speed: 2.1, range: 2.5, aggro: 7, xp: 5600, cd: 1.6, boss: true, wb: true, rad: 1.25, draw: 1.5, skillMul: 2.2, fxSc: 1.6, hue: 'hue-rotate(230deg) saturate(1.4)' },
 };
-const MLV = { goblin: 1, wolf: 2, ooze: 2, spider: 3, skeleton_archer: 4, skeleton: 5, orc: 6, boss: 12, wb_warlord: 15, wb_lich: 18 };
+const MLV = { dog: 3, goblin_archer: 3, goblin: 1, wolf: 2, ooze: 2, spider: 3, skeleton_archer: 4, skeleton: 5, orc: 6, boss: 12, wb_warlord: 15, wb_lich: 18 };
 // ── 에르덴 세계관 데이터 ──────────────────────────────
 // 일곱 근원: 모든 생명과 마법이 받는 영향. 공허는 악이 아니라 '소멸과 순환'이다.
 const ELEMENTS = {
@@ -881,7 +949,7 @@ const ELEMENTS = {
   void:  { name: '공허', meaning: '소멸과 순환', color: '#b48cff' },
 };
 // 몬스터·스킬의 근원 속성(지금은 표시·데이터용, 피해 계산에는 아직 쓰지 않음)
-const MONSTER_EL = { goblin: 'earth', wolf: 'moon', ooze: 'sea', spider: 'earth', skeleton_archer: 'void', skeleton: 'void',
+const MONSTER_EL = { dog: 'earth', goblin_archer: 'storm', goblin: 'earth', wolf: 'moon', ooze: 'sea', spider: 'earth', skeleton_archer: 'void', skeleton: 'void',
   orc: 'fire', boss: 'void', wb_warlord: 'fire', wb_lich: 'moon' };
 for (const [k, el] of Object.entries(MONSTER_EL)) if (MONSTERS[k] && ELEMENTS[el]) MONSTERS[k].el = el;
 const SKILL_EL = { spin: 'earth', slam: 'earth', guard: 'earth', bless: 'sun', wind: 'storm', volley: 'storm', whirl: 'earth',
@@ -905,6 +973,8 @@ const rad = m => m.d.rad != null ? m.d.rad : (m.d.boss ? 0.6 : 0);
 const AI = {
   goblin:   { leash: 12, combo: 1, hurtRes: 0.6, sep: 0.75 },
   wolf:     { leash: 16, combo: 2, comboGap: 0.35, hurtRes: 0.4, sep: 0.8, dash: 1.35 },
+  dog:      { leash: 14, combo: 2, comboGap: 0.4, hurtRes: 0.45, sep: 0.8, dash: 1.25 },
+  goblin_archer: { leash: 13, combo: 1, hurtRes: 0.55, sep: 0.85, keep: [3.0, 4.8] },
   spider:   { leash: 12, combo: 1, hurtRes: 0.4, sep: 0.85 },
   ooze:     { leash: 9, combo: 1, hurtRes: 0.25, sep: 0.9 },
   skeleton: { leash: 13, combo: 1, hurtRes: 0.25, sep: 0.8, heavy: 1.35 },
@@ -925,7 +995,8 @@ const SHOP = [
   { id: 'pot_red', price: 25, desc: '최대 HP의 32% 회복' }, { id: 'pot_blue', price: 35, desc: '최대 MP의 40% 회복' },
   { id: 'scroll_return', price: 60, desc: '어디서든 마을 광장으로 즉시 귀환' },
   { id: 'scroll_teleport', price: 150, desc: '찾아 둔 별빛 표석 중 원하는 곳으로 이동' },
-  { id: 'scroll_weapon', price: 450, desc: '무기 강화 +1 시도' }, { id: 'scroll_armor', price: 320, desc: '방어구 강화 +1 시도' },
+  { id: 'scroll_weapon', price: 450, desc: '일반·고급 무기 강화 +1 시도' }, { id: 'scroll_armor', price: 320, desc: '일반·고급 방어구 강화 +1 시도' },
+  { id: 'star_shard', price: 2400, desc: '희귀 등급 이상 장비 강화 +1 시도' },
 ];
 // 상점 NPC(세리아)의 인사말
 const NPC_SAY = ['어서 오게, 길 잃은 별이여. 오늘은 무엇이 필요하지?', '이 물약 말인가? 삼백 년 전에도 같은 값이었지… 아, 농담일세.', '강화는 욕심을 시험하지. 안전한 구간을 넘을 땐 각오하게.',
@@ -1106,6 +1177,8 @@ const DROP_TABLE = {
   // 고블린: 잔돈을 자주 / 늑대: 체력약 / 거미: 마나약 / 점액: 물약·보석 / 해골 궁수·병사: 주문서 / 고블린 전사: 에테르·장비 / 보스: 확정
   goblin:   { equip: 0.06, odds: [75, 22, 3, 0, 0], gold: [6, 14], goldP: 0.95, red: 0.18, blue: 0.09, sw: 0.03, sa: 0.04, gem: 0.01 },
   skeleton_archer: { equip: 0.10, odds: [45, 40, 13, 2, 0], gold: [14, 26], red: 0.16, blue: 0.16, sw: 0.10, sa: 0.08, gem: 0.02 },
+  dog:      { equip: 0.06, odds: [70, 25, 5, 0, 0], gold: [6, 14], red: 0.2, blue: 0.07, sw: 0.03, sa: 0.04, gem: 0.01 },
+  goblin_archer: { equip: 0.07, odds: [70, 26, 4, 0, 0], gold: [7, 15], goldP: 0.9, red: 0.16, blue: 0.1, sw: 0.04, sa: 0.04, gem: 0.01 },
   wolf:     { equip: 0.06, odds: [70, 25, 5, 0, 0], gold: [6, 14], red: 0.22, blue: 0.07, sw: 0.03, sa: 0.04, gem: 0.01 },
   spider:   { equip: 0.07, odds: [65, 28, 7, 0, 0], gold: [8, 16], red: 0.14, blue: 0.18, sw: 0.04, sa: 0.04, gem: 0.02 },
   ooze:     { equip: 0.06, odds: [70, 25, 5, 0, 0], gold: [6, 15], red: 0.19, blue: 0.16, sw: 0.03, sa: 0.05, gem: 0.04 },
@@ -1118,7 +1191,18 @@ const ENCHANT = {
   weapon: { safe: 6, chance: { 6: 50, 7: 40, 8: 30, 9: 20 }, atk: 2.4 },
   armor: { safe: 4, chance: { 4: 60, 5: 50, 6: 40, 7: 30, 8: 25, 9: 20 }, def: 1.5 },
 };
-const encChance = (slot, lv) => DEV() ? 100 : lv < ENCHANT[slot].safe ? 100 : (ENCHANT[slot].chance[lv] || 0);
+// 에르덴 강화: 등급별 안전 구간(일반 +3 · 고급 +2 · 희귀 이상 +1)까지 100%.
+// 그 뒤 +3까지는 90→82→75%이고 실패해도 단계 유지(강화석만 사라짐).
+// +4부터는 실패하면 위험: +4~+6은 50% 소멸 · 50% +0 초기화, +7 이상은 소멸.
+const ENC_SAFE = { common: 3, uncommon: 2, rare: 1, heroic: 1, legend: 1, unique: 1 };
+const ENC_LOW = [90, 82, 75];                          // 목표 +1·+2·+3
+const ENC_HIGH = { 3: 60, 4: 50, 5: 40, 6: 30, 7: 22, 8: 15, 9: 10 };   // 현재 단계 → 성공 확률
+const encChance = (slot, lv, grade = 'common') => DEV() ? 100 : lv < (ENC_SAFE[grade] || 1) ? 100 : lv < 3 ? ENC_LOW[lv] : (ENC_HIGH[lv] || 0);
+// 실패하면 일어나는 일: 'keep' 단계 유지 · 'risk' 소멸 50%/초기화 50% · 'break' 소멸
+const encFail = (lv, grade = 'common') => lv < (ENC_SAFE[grade] || 1) ? 'none' : lv < 3 ? 'keep' : lv < 6 ? 'risk' : 'break';
+const ENC_FAIL_TXT = { none: '안전', keep: '단계 유지', risk: '소멸 50% · +0 50%', break: '장비 소멸' };
+// 쓰는 강화석: 희귀 이상은 정제된 별의 파편, 그 밑은 별빛 강화석(무기/방어구)
+const encStone = (kind, grade) => GRADES.indexOf(grade) >= 2 ? 'star_shard' : kind === 'weapon' ? 'scroll_weapon' : 'scroll_armor';
 const DEV = () => typeof OPT !== 'undefined' && OPT.dev === 'on';
 const DEV_ODDS = [10, 20, 30, 25, 15];
 const equipDef = key => { if (GEAR[key]) return Object.assign({ lv: GRADE_LV[GEAR[key].grade] }, GEAR[key]); for (const base of Object.values(EQUIP)) for (const slot of ['weapon', 'armor']) { const d = base[slot].find(x => x.key === key); if (d) return Object.assign({ slot, lv: GRADE_LV[d.grade] }, d); } return null; };
@@ -1145,6 +1229,7 @@ const BLOCK = { oak: 0.7, pine: 0.6, dead_tree: 0.5, rock_big: 0.9, rock_small: 
   sarcophagus: 0.9, cage: 0.6, stall: 1.0, anvil: 0.35, forge: 0.9, cart: 0.8, lamp_post: 0.2, haybale: 0.45, notice_board: 0.3,
   grindstone: 0.35, firewood: 0.45, planter: 0.4, banner_pole: 0.2, trough: 0.5, bone_pile: 0.6, torch: 0.2, wall_torch: 0.2, shrine: 2.0, waypoint: 0.4,
   // 에르덴: 폐허·농장(그림 공장) + 사용자 제공 도트 소품(ext_)
+  node_ore: 0.5, node_herb: 0,
   ruin_wall: 0.8, ruin_corner: 1.0, ruin_arch: 0.45, ruin_house: 1.4, pig_shed: 0.8, coop: 0.7, fence_v: 0.5,
   ext_boulders: 0.9, ext_cairns: 0.5, ext_dolmen: 1.0, ext_log: 0.7, ext_log_rune: 0.7, ext_grave: 0.25, ext_grave_broken: 0.25, ext_stump: 0.3,
   ext_trough: 0.45, ext_tree_a: 0.6, ext_tree_b: 0.45, ext_bush_aut: 0.45, ext_deadtree_big: 0.7, ext_deadtree_s: 0.4, ext_scarecrow: 0.2,
@@ -1236,11 +1321,20 @@ function makeField() {
   // 선공/후공을 출현 순서대로 번갈아 배정 → 맵 전체가 정확히 50:50
   const zone = (type, ci, cj, n, r) => { for (let k = 0; k < n; k++) spawns.push({ type, x: ci + rnd(-r, r), y: cj + rnd(-r, r), home: { x: ci, y: cj }, aggr: spawns.length % 2 === 0 }); };
   zone('goblin', 24, 20, 5, 3); zone('goblin', 22, 30, 4, 3);
+  zone('dog', 21, 37, 3, 2); zone('dog', 31, 41, 4, 3); zone('goblin_archer', 27, 24, 3, 2); zone('goblin_archer', 38, 33, 2, 2);
   zone('skeleton_archer', 47, 7, 3, 2);
   zone('wolf', 30, 14, 4, 4); zone('wolf', 30, 34, 4, 4); zone('wolf', 52, 30, 3, 3);
   zone('ooze', 17, 46, 6, 6); zone('spider', 24, 52, 3, 3);
   zone('skeleton', 44, 10, 5, 4); zone('spider', 52, 20, 3, 3);
   zone('orc', 42, 30, 5, 3); zone('orc', 46, 38, 3, 2);
+  // 채집 지점: 철광석 광맥(바위 곁·폐허), 야생 약초(늪 가장자리·숲)
+  const nodes = [
+    ['ore', 34, 13], ['ore', 45, 22], ['ore', 50, 27], ['ore', 39, 35], ['ore', 26, 9], ['ore', 47, 16],
+    ['herb', 12, 36], ['herb', 25, 38], ['herb', 21, 45], ['herb', 31, 18], ['herb', 44, 41], ['herb', 15, 33], ['herb', 28, 33],
+  ].map(([kind, i, j], k) => ({ id: `n${k}`, kind, x: i + 0.5, y: j + 0.5, ready: true, t: 0 }));
+  for (const n of nodes) { const name = n.kind === 'ore' ? 'node_ore' : 'node_herb'; if (META.props[name]) props.push({ name, x: n.x, y: n.y, frame: 0, node: n }); }
+  // 드로간의 대장간(화로 옆)
+  const smith = META.npcs && META.npcs.npc_drogan ? { id: 'smith', sprite: 'npc_drogan', name: '드로간', x: 12.4, y: 18.6 } : null;
   // 우리 안을 돌아다니는 동물: pen = 움직일 수 있는 사각형(타일)
   const critters = [
     ...[0, 1, 2].map(k => ({ kind: 'pig', x: 7 + k * 1.2, y: 27 + (k % 2), pen: { x0: 5.9, y0: 25.6, x1: 10.2, y1: 29.3 } })),
@@ -1248,7 +1342,7 @@ function makeField() {
     ...[0, 1].map(k => ({ kind: 'chicken', x: 12.5 + k, y: 25 + k, pen: { x0: 11.6, y0: 23.6, x1: 14.4, y1: 30.4 } })),   // 우리 밖에 나온 닭
   ];
   const npcs = [{ id: 'deity', name: '세리아의 상점', x: 10.7, y: 10.7 }];   // 일곱 근원의 신상(세리아 그림은 3단계에서 앞에 세움)
-  return { id: 'field', name: '아르델 평원', N, g, props, spawns, npcs, critters, start: { x: 13.5, y: 13.5 }, exit: { x: 51.5, y: 47.5, to: 'dungeon' }, back: { x: 50.2, y: 46.2 },
+  return { id: 'field', name: '아르델 평원', N, g, props, spawns, npcs, critters, nodes, smith, start: { x: 13.5, y: 13.5 }, exit: { x: 51.5, y: 47.5, to: 'dungeon' }, back: { x: 50.2, y: 46.2 },
     amb: 'forest', dark: 0, step: t => t === 'cobble' ? 'step_stone' : t === 'swamp' || t === 'water' ? 'step_swamp' : 'step_grass' };
 }
 
@@ -1444,7 +1538,7 @@ function newMob(s) {
   const aggr = base.boss ? true : s.aggr !== false;
   const hk = base.boss ? 1 : MOB_TUNE.hp * (dun ? DUNGEON_BONUS.hp : 1), ak = base.boss ? 1 : MOB_TUNE.atk * (dun ? DUNGEON_BONUS.atk : 1), xk = base.boss ? 1 : MOB_TUNE.xp * (dun ? DUNGEON_BONUS.xp : 1) * (aggr ? MOB_TUNE.aggrXp : 1);
   const d = base.boss ? base : Object.assign({}, base, { hp: Math.round(base.hp * hk), atk: base.atk.map(v => v * ak), xp: Math.round(base.xp * xk) });
-  return { kind: 'mob', type: s.type, d, aggr, lv: MLV[s.type] + (dun ? DUNGEON_BONUS.lv : 0), group: 'monsters', sheet: s.type, x: s.x, y: s.y, home: s.home, spawn: s, dir: irnd(0, 7), anim: 'idle', t: rnd(0, 1), f: 0,
+  return { kind: 'mob', type: s.type, d, aggr, lv: MLV[s.type] + (dun ? DUNGEON_BONUS.lv : 0), group: 'monsters', sheet: d.sheet || s.type, x: s.x, y: s.y, home: s.home, spawn: s, dir: irnd(0, 7), anim: 'idle', t: rnd(0, 1), f: 0,
     hp: d.hp, maxhp: d.hp, state: 'idle', atkCd: rnd(0, 1), wanderT: rnd(1, 4), goal: null, buffs: {}, dead: false, deadT: 0, hitFlash: 0,
     skillCd: { skill_darkslash: 4, skill_hellfire: 7, rain: 6 }, casting: null, phase: 0 };
 }
@@ -1485,6 +1579,41 @@ function setAnim(e, a, force) {
 function animLen(e, a) { const s = META[e.group][e.sheet]; return (s.anims[a] || s.anims.idle)[1]; }
 
 // ───────────────────────── 맵 진입 ─────────────────────────
+// ───────── 채집: 광맥·약초를 눌러(또는 F) 1.4초 동안 캐면 재료, 45초 뒤 다시 자람 ─────────
+const GATHER = { ore: { item: 'mat_iron_ore', n: [1, 2], dur: 1.6, verb: '캐는 중', sfx: 'hit_blunt', respawn: 45 },
+  herb: { item: 'mat_herb', n: [1, 3], dur: 1.2, verb: '뜯는 중', sfx: 'step_grass', respawn: 40 } };
+const nearNode = (r = 1.7) => P && MAP && MAP.nodes ? MAP.nodes.find(n => n.ready && dist(P, n) < r) : null;
+function startGather(n) {
+  if (!n || !n.ready || P.dead) return false;
+  if (dist(P, n) > 1.7) { P.target = null; P.goal = safeSpot(n.x + 0.9, n.y + 0.9); P.gatherGo = n; P.autoHold = 6; return false; }
+  P.goal = null; P.target = null; P.gatherGo = null;
+  P.gathering = { n, t: 0, dur: GATHER[n.kind].dur }; P.dir = dirOf(n.x - P.x, n.y - P.y); setAnim(P, 'attack', true);
+  sfx(GATHER[n.kind].sfx, { gain: 0.45 });
+  return true;
+}
+function updateNodes(dt) {
+  if (!MAP || !MAP.nodes) return;
+  for (const n of MAP.nodes) if (!n.ready && (n.t -= dt) <= 0) n.ready = true;
+  if (P.gatherGo && dist(P, P.gatherGo) < 1.7) startGather(P.gatherGo);
+  const g = P.gathering;
+  if (g) {
+    if (P.goal || P.target || P.dead || !g.n.ready) { P.gathering = null; }
+    else if ((g.t += dt) >= g.dur) {
+      const G = GATHER[g.n.kind], n = irnd(G.n[0], G.n[1]);
+      P.inv[G.item] = (P.inv[G.item] || 0) + n; g.n.ready = false; g.n.t = G.respawn; P.gathering = null;
+      log(`${itemName(G.item)} ×${n}을(를) 얻었습니다.`, 'sys'); lootLog(`${itemName(G.item)} ×${n}`, 'common'); sfx('arrow_hit', { gain: 0.35 });
+      texts.push({ who: P, x: P.x, y: P.y, z: 60, t: 0, s: `+${n} ${itemName(G.item)}`, c: '#c8f0a0' });
+      renderInv(); save();
+    }
+  }
+  const nn = nearNode();
+  $('gatherBtn').classList.toggle('hidden', !nn || !!P.gathering || !running || !$('craft').classList.contains('hidden'));
+  if (nn) $('gatherBtn').textContent = nn.kind === 'ore' ? '⛏ 철광석 캐기 (F)' : '✿ 약초 뜯기 (F)';
+  // 대장간: 다가가면 '드로간과 대화' 버튼, 걸어가서 닿으면 제작 창
+  const sm = MAP.smith, nearSm = sm && dist(P, sm) < 2.4;
+  $('smithBtn').classList.toggle('hidden', !nearSm || !$('craft').classList.contains('hidden') || !running);
+  if (P.smithGo && nearSm) { P.smithGo = false; P.goal = null; openCraft(); }
+}
 // ───────── 마을 동물(돼지·닭): 공격할 수 없고, 우리 안에서 걷고·쉬고·먹는다 ─────────
 let critters = [];
 const CRITTER = { pig: { speed: 0.75, eat: 0.35, rest: [1.5, 4.5] }, chicken: { speed: 1.25, eat: 0.5, rest: [0.6, 2.2] } };
@@ -1554,11 +1683,17 @@ function damage(target, amount, src, opts = {}) {
     dmg = Math.max(1, dmg - (target.c.def + EQS().def)) * (target.buffs.guard > 0 ? (1 - BUFFS.guard.def) : 1) * (panelOpen() ? 0.5 : 1);
     if (target.hp < target.maxhp * 0.3 && pxv('bulwark')) dmg *= 1 - pxv('bulwark') / 100;
   } else {
+    // 명중: 자기보다 레벨이 높은 몬스터일수록 빗나감(1레벨당 2%), 무기 명중 1당 2% 줄어듦. 같은 레벨 이하는 빗나가지 않음
+    if (src && src.kind === 'player' && !opts.proc) {
+      const miss = clamp(0.02 * (target.lv - P.lv) - 0.02 * wSpec('acc'), 0, 0.3);
+      if (miss > 0 && Math.random() < miss) { texts.push({ who: target, x: target.x, y: target.y, z: 46, t: 0, s: 'MISS', c: '#c8c0b0' }); return 0; }
+    }
     dmg = Math.max(1, dmg - target.d.def);
     if (src && src.kind === 'player' && target.hp < target.maxhp * 0.25 && pxv('execute')) dmg *= 1 + pxv('execute') / 100;
+    if (src && src.kind === 'player' && UNDEAD.has(target.type)) dmg *= 1 + wSpec('undead');
   }
   const crit = opts.crit != null ? opts.crit : (src && src.kind === 'player' && Math.random() < 0.12 + bonus('dex') * 0.004 + EQS().crit);
-  if (crit) { dmg *= 1.8; shake = Math.max(shake, 3); }
+  if (crit) { dmg *= 1.8 + (src && src.kind === 'player' ? wSpec('critDmg') : 0); shake = Math.max(shake, 3); }
   dmg = Math.round(dmg);
   target.hp -= dmg;
   target.hitFlash = 0.12;
@@ -1593,6 +1728,17 @@ function damage(target, amount, src, opts = {}) {
     if (opts.stun) target.buffs.stun = opts.stun;
     if (opts.slow) target.buffs.slow = opts.slow;
     if (opts.push) { const dx = target.x - src.x, dy = target.y - src.y, l = Math.hypot(dx, dy) || 1; moveEnt(target, dx / l * opts.push, dy / l * opts.push); }
+    if (src && src.kind === 'player' && !opts.proc) {   // 제작 무기 발동 효과(발동으로 생긴 피해는 다시 발동하지 않음)
+      if (wSpec('flame') && Math.random() < wSpec('flame')) {
+        vfx.push({ k: 'death', x: target.x, y: target.y, t: 0, life: 0.6, big: true }); sfxAt(target, 'magic_hit', 0.6);
+        texts.push({ who: target, x: target.x, y: target.y, z: 64, t: 0, s: '화염 폭발!', c: '#ff9a4a' });
+        for (const o of mobs) if (!o.dead && o !== target && Math.hypot(o.x - target.x, o.y - target.y) < 2.2) damage(o, Math.round(dmg * 0.6), src, { proc: true, noKb: true });
+      }
+      if (wSpec('chain') && Math.random() < wSpec('chain')) {
+        const o = mobs.filter(x => !x.dead && x !== target && Math.hypot(x.x - target.x, x.y - target.y) < 3.5).sort((a, b) => Math.hypot(a.x - target.x, a.y - target.y) - Math.hypot(b.x - target.x, b.y - target.y))[0];
+        if (o) { vfx.push({ k: 'spark', x: o.x, y: o.y, t: 0, life: 0.25 }); damage(o, Math.round(dmg * 0.4), src, { proc: true, noKb: true }); }
+      }
+    }
     if (target.hp <= 0) killMob(target);
     if (target.d.boss && target.phase === 0 && target.hp < target.maxhp * 0.5) { target.phase = 1; log(`${target.d.name}이(가) 분노한다! 공격이 거세진다.`, 'bad'); target.skillCd.skill_hellfire = 0.5; if (target.d.wb) { banner(`${target.d.name} 분노`, '붉은 원을 피하세요!'); target.skillCd.rain = 0.5; } }
   } else {
@@ -1623,6 +1769,9 @@ function killMob(m) {
   roll('gem_ruby', T.gem != null ? T.gem : 0.02, m.d.boss ? 3 : 1);
   roll('loot_' + m.type, DEV() ? 1 : m.d.boss ? 1 : LOOT_P);
   roll('scroll_return', DEV() ? 0.3 : 0.03); roll('scroll_teleport', DEV() ? 0.2 : 0.015);
+  for (const [id, p, n] of (MAT_DROPS[m.type] || [])) roll(id, p, n);
+  roll('star_shard', m.d.boss ? 1 : m.type.startsWith('skeleton') ? 0.01 : 0.004, m.d.boss ? 3 : 1);
+  roll('blessed_stone', m.d.boss ? 0.08 : 0.0005);
   for (let k = 0; k < (T.n || 1); k++) {
     if (!DEV() && Math.random() >= T.equip) continue;
     dropEquip(m, rollGrade(DEV() ? DEV_ODDS : T.odds), m.d.boss ? 2 : 1, m.d.boss ? PX_SRC.boss : PX_SRC.mob);
@@ -1655,11 +1804,11 @@ function dropEquip(m, g, bias, pxk) {
 // 월드보스 보상: 고대 무기 20% · 스킬북 1권 확정 · 변신 인형 1.5% · 고등급 장비 2회(각 85%)
 function wbDrops(m) {
   const at = () => ({ x: m.x + rnd(-1.5, 1.5), y: m.y + rnd(-1.5, 1.5), t: 0 });
-  const W = WORLD_BOSS[MAP.id];
+  const W = WORLD_BOSS[MAP.id], got = [];
   STATE.wbKill[MAP.id] = Date.now();
   drops.push(Object.assign({ id: 'gold', n: irnd(WB_DROP.gold[0], WB_DROP.gold[1]) }, at()));
-  for (const [id, n] of [['pot_red', 8], ['pot_blue', 6], ['scroll_weapon', 3], ['scroll_armor', 3], ['gem_ruby', 2]]) drops.push(Object.assign({ id, n }, at()));
-  const got = [];
+  for (const [id, n] of [['pot_red', 8], ['pot_blue', 6], ['scroll_weapon', 3], ['scroll_armor', 3], ['gem_ruby', 2], ['star_shard', 4]]) drops.push(Object.assign({ id, n }, at()));
+  if (Math.random() < (DEV() ? 1 : 0.25)) { drops.push(Object.assign({ id: 'blessed_stone', n: 1 }, at())); got.push('축복받은 강화석'); }
   drops.push(Object.assign({ id: 'loot_' + m.type, n: 1 }, at()));
   if (Math.random() < (DEV() ? 1 : WB_DROP.unique)) {
     const u = UNIQUE[MAP.id][P.c.base];
@@ -1779,7 +1928,7 @@ function useSkill(i) {
   // 대상이 있으면 그쪽을 바라봄
   const t = (P.target && !P.target.dead && dist(P.target, P) < 9) ? P.target : nearestMob(7);
   if (t && sk.type !== 'buff') P.dir = dirOf(t.x - P.x, t.y - P.y);
-  P.mp -= sk.mp; P.cds[id] = sk.cd;
+  P.mp -= sk.mp; P.cds[id] = sk.cd * (1 - wSpec('cdr'));
   if (pxRoll('reset')) { P.cds[id] = 0; texts.push({ who: P, x: P.x, y: P.y, z: 70, t: 0, s: '시간 왜곡!', c: '#9ad8ff' }); }
   const anim = sk.wb ? WB_ANIM[P.cls] : sk.anim;
   P.casting = { id, sk, anim, done: false, fxStart: now };
@@ -1998,7 +2147,7 @@ function updatePlayer(dt) {
   P.atkCd -= dt; P.hurtCd = (P.hurtCd || 0) - dt; P.hitFlash = Math.max(0, P.hitFlash - dt);
   if (P.dead) { tickAnim(P, dt); return; }
   P.regenT += dt;
-  if (P.regenT > 1) { P.regenT = 0; const k = inTown(P) ? 6 : 1; P.hp = Math.min(P.maxhp, P.hp + P.maxhp * 0.008 * k * (1 + bonus('con') * 0.04)); P.mp = Math.min(P.maxmp, P.mp + P.maxmp * 0.02 * k * (1 + bonus('int') * 0.03)); }
+  if (P.regenT > 1) { P.regenT = 0; const k = inTown(P) ? 6 : 1; P.hp = Math.min(P.maxhp, P.hp + P.maxhp * 0.008 * k * (1 + bonus('con') * 0.04)); P.mp = Math.min(P.maxmp, P.mp + P.maxmp * 0.02 * (1 + wSpec('mpRegen')) * k * (1 + bonus('int') * 0.03)); }
   autoPotion(dt);
   runEcho(dt);
   // 막힘 자가 복구: 어떤 이유로든 막힌 칸·갇힌 칸 안에 있으면 가장 가까운 빈 칸으로
@@ -2097,7 +2246,7 @@ function pickup(d) {
     d.n = Math.round(d.n * (1 + collBonus('gold')));
     P.gold += d.n; sfx('arrow_hit', { gain: 0.25 });
     vfx.push({ k: 'gold', x: d.x, y: d.y, t: 0, life: 0.5 });
-    texts.push({ who: d, x: P.x, y: P.y, z: 52, t: 0, s: `+${d.n} G`, c: '#ffd65a' });
+    texts.push({ who: d, x: P.x, y: P.y, z: 52, t: 0, s: `+${d.n} 에테르`, c: '#ffd65a' });
     lootLog(`${d.n} 에테르`, 'gold');
     return;
   }
@@ -2292,6 +2441,10 @@ function drawIconAt(c, id, x, y, size) {
     c.drawImage(im, s.anims.idle[0] * s.fw, 0, s.fw, s.fh, x + size / 2 - s.ax * k, y + size * 0.98 - s.ay * k, s.fw * k, s.fh * k);
     return true;
   }
+  if (xi && xi.ico != null) {   // 에르덴 재료 아이콘 묶음(items/materials.png, 32칸 8열)
+    const im = img(MAT_SHEET); if (!im.complete || !im.naturalWidth) return false;
+    c.drawImage(im, (xi.ico % 8) * 32, Math.floor(xi.ico / 8) * 32, 32, 32, x, y, size, size); return true;
+  }
   const ic = itemIcon(xi ? xi.icon : id); if (!ic) return false;
   if (!ic.im.complete || !ic.im.naturalWidth) return false;
   if (xi && xi.hue) { c.save(); c.filter = xi.hue; }
@@ -2392,18 +2545,35 @@ function render() {
   for (const c of critters) { const s = toScr(c.x, c.y); if (Math.abs(s.x - cam.x) < vw + 60 && Math.abs(s.y - cam.y) < vh + 80) list.push({ d: c.x + c.y, kind: 'ent', e: c }); }
   for (const w of (WAYPOINTS[MAP.id] || [])) if (STATE.wp && STATE.wp[w.id]) list.push({ d: w.x + w.y + 0.5, kind: 'wpglow', e: w });
   for (const n of MAP.npcs || []) list.push({ d: n.x + n.y, kind: 'npc', e: n });
+  if (MAP.smith) list.push({ d: MAP.smith.x + MAP.smith.y, kind: 'smith', e: MAP.smith });
   for (const p of projs) list.push({ d: p.x + p.y + 0.2, kind: 'proj', e: p });
   list.sort((a, b) => a.d - b.d);
   for (const o of list) {
     if (o.kind === 'prop') {
       const pm = META.props[o.p.name];
       const fr = pm.frames > 1 ? (Math.floor(now * 7) + o.p.frame) % pm.frames : 0;
+      if (o.p.node && !o.p.node.ready) ctx.globalAlpha = 0.28;
       ctx.drawImage(img(pm.sheet), fr * pm.fw, 0, pm.fw, pm.fh, Math.round(o.s.x - pm.ax), Math.round(o.s.y + TH / 2 - pm.ay), pm.fw, pm.fh);
+      ctx.globalAlpha = 1;
+      if (o.p.node && o.p.node.ready && dist(P, o.p.node) < 4) {   // 가까우면 반짝임 표시
+        const a = 0.45 + 0.35 * Math.sin(now * 4); ctx.fillStyle = `rgba(255,236,170,${a})`; ctx.fillRect(Math.round(o.s.x) - 1, Math.round(o.s.y + TH / 2 - pm.ay) - 6, 2, 4);
+      }
     } else if (o.kind === 'wpglow') {
       const s = toScr(o.e.x, o.e.y);
       ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(s.x, s.y - 30, 0, s.x, s.y - 30, 40);
       g.addColorStop(0, `rgba(90,170,255,${0.18 + 0.08 * Math.sin(now * 2.5)})`); g.addColorStop(1, 'rgba(90,170,255,0)'); ctx.fillStyle = g; ctx.fillRect(s.x - 40, s.y - 70, 80, 80); ctx.restore();
       ctx.font = '700 7px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#000'; ctx.fillText(o.e.name, s.x + 0.5, s.y - 62.5); ctx.fillStyle = '#9ad8ff'; ctx.fillText(o.e.name, s.x, s.y - 63);
+    } else if (o.kind === 'smith') {   // 드로간: 대기 동작, 플레이어 쪽을 바라봄
+      const n = o.e, sm = META.npcs[n.sprite], s = toScr(n.x, n.y), im = img(sm.sheet);
+      shadow(s.x, s.y, 13);
+      if (im.complete && im.naturalWidth) {
+        const d8 = dist(P, n) < 6 ? dirOf(P.x - n.x, P.y - n.y) : 1, fr = Math.floor(now * 6) % sm.anims.idle[1];
+        ctx.drawImage(im, (sm.anims.idle[0] + fr) * sm.fw, d8 * sm.fh, sm.fw, sm.fh, Math.round(s.x - sm.ax), Math.round(s.y - sm.ay), sm.fw, sm.fh);
+      }
+      const ty = s.y - 52;
+      ctx.font = '700 8px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = '#000'; ctx.fillText(n.name, s.x + 0.5, ty + 0.5); ctx.fillStyle = '#ffd9a0'; ctx.fillText(n.name, s.x, ty);
+      ctx.font = '700 7px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#000'; ctx.fillText('제작·대장간', s.x + 0.5, ty - 8.5); ctx.fillStyle = '#ff9a4a'; ctx.fillText('제작·대장간', s.x, ty - 9);
     } else if (o.kind === 'npc') {
       const n = o.e, pm = META.props.deity, s = toScr(n.x, n.y);
       if (pm) {
@@ -2424,8 +2594,14 @@ function render() {
       if (e === P.target && !e.dead) { const rr = wb ? 48 : e.d.boss ? 26 : 16; ctx.strokeStyle = 'rgba(255,90,60,.8)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(s.x, s.y, rr, rr * 0.45, 0, 0, Math.PI * 2); ctx.stroke(); }
       drawSprite(e, s.x, s.y);
       ctx.globalAlpha = 1;
+      if (e === P && P.gathering) {   // 채집 진행 막대
+        const g = P.gathering, k = Math.min(1, g.t / g.dur), bx = Math.round(s.x - 16), by = Math.round(s.y - 66);
+        ctx.fillStyle = '#000'; ctx.fillRect(bx - 1, by - 1, 34, 6); ctx.fillStyle = '#3a2f22'; ctx.fillRect(bx, by, 32, 4);
+        ctx.fillStyle = '#c8f0a0'; ctx.fillRect(bx, by, Math.round(32 * k), 4);
+        ctx.font = '700 7px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#000'; ctx.fillText(GATHER[g.n.kind].verb, s.x + 0.5, by - 2.5); ctx.fillStyle = '#e8f8d0'; ctx.fillText(GATHER[g.n.kind].verb, s.x, by - 3);
+      }
       if (e.kind === 'mob' && !e.dead && !e.d.boss && (e.hp < e.maxhp || e === P.target)) {
-        const hy = s.y - (e.type === 'ooze' ? 30 : e.type === 'goblin' ? 46 : 58);
+        const hy = s.y - (e.type === 'ooze' ? 30 : e.sheet === 'goblin' ? 46 : 58);
         ctx.fillStyle = '#000'; ctx.fillRect(s.x - 14, hy - 1, 28, 5);
         ctx.fillStyle = '#3a0c0c'; ctx.fillRect(s.x - 13, hy, 26, 3);
         ctx.fillStyle = e.hp / e.maxhp < 0.3 ? '#ff7a3a' : '#d83a2a'; ctx.fillRect(s.x - 13, hy, 26 * e.hp / e.maxhp, 3);
@@ -2437,7 +2613,7 @@ function render() {
         }
       }
       if (e.kind === 'mob' && !e.dead && !e.d.boss) {
-        const my = s.y - (e.type === 'ooze' ? 36 : e.type === 'goblin' ? 52 : 64);
+        const my = s.y - (e.type === 'ooze' ? 36 : e.sheet === 'goblin' ? 52 : 64);
         if (e.aggr) { ctx.fillStyle = '#000'; ctx.beginPath(); ctx.moveTo(s.x - 4, my - 4); ctx.lineTo(s.x + 4, my - 4); ctx.lineTo(s.x, my + 2); ctx.fill(); ctx.fillStyle = e.state === 'chase' ? '#ff3a2a' : '#ff6a5a'; ctx.beginPath(); ctx.moveTo(s.x - 3, my - 3.4); ctx.lineTo(s.x + 3, my - 3.4); ctx.lineTo(s.x, my + 1); ctx.fill(); }
         else { ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(s.x, my - 1, 2.6, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#8ae07a'; ctx.beginPath(); ctx.arc(s.x, my - 1, 1.8, 0, Math.PI * 2); ctx.fill(); }
       }
@@ -2924,13 +3100,13 @@ function renderInv() {
     <span>HP</span><b>${P.maxhp}</b><span>MP</span><b>${P.maxmp}</b>
     <span>치명타</span><b>${((0.12 + bonus('dex') * 0.004 + q.crit) * 100).toFixed(1)}%</b><span>이동</span><b>+${(q.spd * 100).toFixed(0)}%</b>`;
   // 필터
-  const filters = [['all', '전체'], ['weapon', '무기'], ['armor', '방어구'], ['acc', '장신구'], ['use', '소모품'], ['loot', '전리품']];
+  const filters = [['all', '전체'], ['weapon', '무기'], ['armor', '방어구'], ['acc', '장신구'], ['use', '소모품'], ['loot', '전리품·재료']];
   const fb = $('bagFilter'); fb.innerHTML = '';
   for (const [id, label] of filters) { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = label; b.setAttribute('aria-pressed', String(bagFilter === id)); b.onclick = () => { bagFilter = id; renderInv(); }; fb.append(b); }
   // 창고 칸
   const items = P.bag.filter(e => bagFilter === 'all' || (bagFilter !== 'use' && bagFilter !== 'loot' && kindOf(e) === bagFilter))
     .sort((a, b) => GRADES.indexOf(equipDef(b.key).grade) - GRADES.indexOf(equipDef(a.key).grade) || b.enc - a.enc);
-  const cons = (bagFilter === 'all' || bagFilter === 'use' || bagFilter === 'loot') ? Object.entries(P.inv).filter(([id, n]) => n > 0 && (bagFilter === 'all' || (bagFilter === 'loot') === id.startsWith('loot_'))) : [];
+  const cons = (bagFilter === 'all' || bagFilter === 'use' || bagFilter === 'loot') ? Object.entries(P.inv).filter(([id, n]) => n > 0 && (bagFilter === 'all' || (bagFilter === 'loot') === (id.startsWith('loot_') || id.startsWith('mat_')))) : [];
   $('bagCount').textContent = `장비 ${P.bag.length} / ${BAG_MAX}`;
   const g = $('eqgrid'); g.innerHTML = '';
   for (const e of items) {
@@ -2989,11 +3165,12 @@ function renderDetail() {
   }).join('');
   const tp = topPct(sel);
   const pxl = sel.px ? `<div class="dline pxline"><span>특수 패시브 <b>${PASSIVES[sel.px.id].name}</b> — ${PASSIVES[sel.px.id].txt(sel.px.v)}</span></div>` : '';
-  const scroll = kind === 'weapon' ? 'scroll_weapon' : kind === 'armor' ? 'scroll_armor' : null, have = scroll ? (P.inv[scroll] || 0) : 0;
-  const ch = scroll && sel.enc < 10 ? encChance(kind, sel.enc) : 0;
+  const scroll = kind === 'weapon' || kind === 'armor' ? encStone(kind, d.grade) : null, have = scroll ? (P.inv[scroll] || 0) : 0;
+  const ch = scroll && sel.enc < 10 ? encChance(kind, sel.enc, d.grade) : 0, failTxt = scroll && sel.enc < 10 ? ENC_FAIL_TXT[encFail(sel.enc, d.grade)] : '';
+  const bless = P.inv.blessed_stone || 0;
   const nxt = scroll && sel.enc < 10 ? itemStats(sel, sel.enc + 1) : null;
   const encLine = !scroll ? '<span>장신구는 강화할 수 없습니다</span>' : sel.enc >= 10 ? '<span>최대 강화(+10)</span>'
-    : `<span>다음 강화 <em>${kind === 'weapon' ? '공격력' : '방어력'} ${fmtStat(kind === 'weapon' ? 'atk' : 'def', kind === 'weapon' ? st.atk : st.def)} → <span class="up">${fmtStat(kind === 'weapon' ? 'atk' : 'def', kind === 'weapon' ? nxt.atk : nxt.def)}</span></em> · 성공 ${ch}%${sel.enc >= ENCHANT[kind].safe ? ' · 실패 시 +0' : ' · 안전'}</span><span>필요 재료 <em>${META.items[scroll].name} 1장</em> (보유 ${have})</span>`;
+    : `<span>다음 강화 <em>${kind === 'weapon' ? '공격력' : '방어력'} ${fmtStat(kind === 'weapon' ? 'atk' : 'def', kind === 'weapon' ? st.atk : st.def)} → <span class="up">${fmtStat(kind === 'weapon' ? 'atk' : 'def', kind === 'weapon' ? nxt.atk : nxt.def)}</span></em> · 성공 ${ch}%${failTxt === '안전' ? ' · 안전' : ' · 실패 시 ' + failTxt}</span><span>필요 재료 <em>${itemName(scroll)} 1개</em> (보유 ${have})</span>`;
   const lvOk = P.lv >= d.lv, allowed = slotAllowed(tgtSlot);
   det.innerHTML = `<canvas width="36" height="36"></canvas>
     <div class="dinfo"><b class="g-${d.grade}">+${sel.enc} ${d.name}</b>
@@ -3002,8 +3179,9 @@ function renderDetail() {
       <div class="dline">${encLine}</div></div>
     <div class="dact">
       ${on ? (d.slot === 'weapon' ? '' : '<button type="button" class="sub" id="btnUnequip">해제</button>') : `<button type="button" id="btnEquip" ${lvOk && allowed ? '' : 'disabled'}>착용</button>`}
-      ${scroll ? `<button type="button" id="btnEnc" ${(!have || sel.enc >= 10) ? 'disabled' : ''}>강화 ${sel.enc < 10 ? ch + '%' : ''}</button>` : ''}
-      ${on ? '' : `<button type="button" class="sub" id="btnSell">판매 ${Math.round(sellPrice(sel))} G</button><button type="button" class="sub" id="btnCmp">비교</button>`}
+      ${scroll ? `<button type="button" id="btnEnc" title="${itemName(scroll)} ${have}개 · 실패 시 ${failTxt}" ${(!have || sel.enc >= 10) ? 'disabled' : ''}>강화 ${sel.enc < 10 ? ch + '%' : ''}</button>` : ''}
+      ${scroll && bless ? `<button type="button" id="btnEncB" title="축복받은 강화석 ${bless}개 · 실패해도 소멸·초기화 없음, 대성공 가능" ${sel.enc >= 10 ? 'disabled' : ''}>축복 강화</button>` : ''}
+      ${on ? '' : `<button type="button" class="sub" id="btnSell">판매 ${Math.round(sellPrice(sel))} 에테르</button><button type="button" class="sub" id="btnCmp">비교</button>`}
     </div>`;
   const bc = $('btnCmp'); if (bc) bc.onclick = () => showCompare(sel);
   if (sel.px) det.querySelector('canvas').classList.add('pxglow');
@@ -3012,6 +3190,7 @@ function renderDetail() {
   const bu = $('btnUnequip'); if (bu) bu.onclick = () => unequip(on);
   const bs = $('btnSell'); if (bs) bs.onclick = () => sell(sel.uid);
   const bn = $('btnEnc'); if (bn) bn.onclick = () => enchantItem(sel);
+  const bb = $('btnEncB'); if (bb) bb.onclick = () => enchantItem(sel, true);
 }
 $('spBadge').addEventListener('click', () => { if ($('inv').classList.contains('hidden')) toggleInv(); invTab('stat'); });
 function equip(uid) {
@@ -3019,6 +3198,7 @@ function equip(uid) {
   const e = P.bag[i], d = equipDef(e.key), slot = slotFor(e);
   if (d.lv && P.lv < d.lv) { log(`${d.name}은(는) Lv ${d.lv}부터 착용할 수 있습니다.`, 'bad'); return false; }
   if (!slotAllowed(slot)) { log(`${ITEM_LABEL[d.slot]}은(는) 기사만 착용할 수 있습니다.`, 'bad'); return false; }
+  if (d.base && d.base !== P.c.base) { log(`${d.name}은(는) ${BASE_LABEL[d.base]} 전용입니다.`, 'bad'); return false; }
   const before = statVal(P.eq[slot]), old = P.eq[slot];
   P.bag.splice(i, 1); if (old) P.bag.push(old);
   P.eq[slot] = e; selUid = e.uid; selCons = null;
@@ -3046,18 +3226,21 @@ function encToast(text, color) {
   const t = $('encToast'); t.textContent = text; t.style.color = color; t.classList.add('show');
   clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 1100);
 }
-function enchantItem(e) {
+// blessed = 축복받은 강화석: 일반 강화석 대신 써서 실패해도 소멸·초기화가 없고, 성공하면 30%로 +2, 10%로 +3
+function enchantItem(e, blessed) {
   const d = equipDef(e.key), kind = SLOT_KIND[d.slot];
   if (kind === 'acc') return false;
-  const key = kind === 'weapon' ? 'scroll_weapon' : 'scroll_armor';
+  const key = blessed ? 'blessed_stone' : encStone(kind, d.grade);
   if (!(P.inv[key] > 0) || e.enc >= 10) return false;
   P.inv[key]--;
-  const ch = encChance(kind, e.enc), from = e.enc;
+  const ch = encChance(kind, e.enc, d.grade), from = e.enc;
   const name = d.name, word = kind === 'weapon' ? '공격력' : '방어력';
   const before = statAt(e, from);
   const ok = Math.random() * 100 < ch;
   if (ok) {
-    e.enc++;
+    const jump = blessed ? (Math.random() < 0.1 ? 3 : Math.random() < 0.3 ? 2 : 1) : 1;
+    e.enc = Math.min(10, e.enc + jump);
+    if (jump > 1) { banner('대성공!', `축복의 빛 · +${from} → +${e.enc}`); texts.push({ who: P, x: P.x, y: P.y, z: 74, t: 0, s: '대성공!', c: '#fff0a0', big: true }); }
     if (kind === 'weapon' && equippedOf(e)) questEvent('enc', e.enc);
     const col = e.enc >= 9 ? '200,120,255' : e.enc >= 7 ? '120,180,255' : '255,220,120';
     log(`+${e.enc} ${name} 강화 성공 (${ch}%) — ${word} ${before.toFixed(1)} → ${statAt(e, e.enc).toFixed(1)}`, 'sys');
@@ -3067,9 +3250,22 @@ function enchantItem(e) {
       if (lv >= 7) banner(`+${lv} ${name}`, lv >= 9 ? '눈부신 빛이 감돈다' : '장비가 빛을 머금는다');
     });
   } else {
-    e.enc = 0;
-    log(`${name} 강화 실패 (${ch}%) — +${from} → +0`, 'bad');
-    encAnim(d, false, `강화 실패 · +${from} → +0`, '#ff8a7a', () => { sfx('enchant_fail'); shake = 4; });
+    const fail = blessed ? 'keep' : encFail(from, d.grade);
+    const broke = fail === 'break' || (fail === 'risk' && Math.random() < 0.5);
+    if (broke) {
+      destroyItem(e);
+      log(`${name} 강화 실패 (${ch}%) — 장비가 빛을 잃고 부서져 사라졌습니다.`, 'bad');
+      encAnim(d, false, `강화 실패 · +${from} ${name} 소멸`, '#ff5a4a', () => { sfx('enchant_fail'); shake = 7; });
+      renderInv(); save(); return false;
+    }
+    if (fail === 'keep') {
+      log(`${name} 강화 실패 (${ch}%) — +${from} 그대로${blessed ? ' (축복이 장비를 지켰습니다)' : ''}`, 'bad');
+      encAnim(d, false, `강화 실패 · +${from} 유지`, '#ffb07a', () => { sfx('enchant_fail'); shake = 2; });
+    } else {
+      e.enc = 0;
+      log(`${name} 강화 실패 (${ch}%) — +${from} → +0`, 'bad');
+      encAnim(d, false, `강화 실패 · +${from} → +0`, '#ff8a7a', () => { sfx('enchant_fail'); shake = 4; });
+    }
   }
   if (equippedOf(e)) applyStats();
   selUid = e.uid; selCons = null;
@@ -3078,6 +3274,15 @@ function enchantItem(e) {
   return ok;
 }
 function enchant(kind) { return enchantItem(kind === 'w' ? P.weapon : P.armor); }
+// 강화 실패로 장비가 사라짐. 무기가 사라지면 직업 기본 무기(+0)를 대신 쥔다(무기 칸은 비울 수 없음)
+function destroyItem(e) {
+  const bi = P.bag.findIndex(x => x.uid === e.uid); if (bi >= 0) P.bag.splice(bi, 1);
+  for (const [slot, v] of Object.entries(P.eq)) if (v && v.uid === e.uid) {
+    P.eq[slot] = null;
+    if (slot === 'weapon') { P.eq.weapon = makeEquip(START_EQUIP[P.c.base][0], 0, { mid: true }); log(`기본 무기 ${equipDef(P.eq.weapon.key).name}을(를) 대신 쥐었습니다.`, 'sys'); }
+  }
+  selUid = null; applyStats();
+}
 function addStat(k) {
   if (!(P.sp > 0)) return false;
   const hp0 = P.maxhp, mp0 = P.maxmp;
@@ -3104,17 +3309,25 @@ function renderStats() {
     <div class="row"><span>공격 속도</span><span>${(aspd()).toFixed(2)}회/초</span></div>
     <div class="row"><span>치명타</span><span>${((0.12 + bonus('dex') * 0.004 + q.crit) * 100).toFixed(1)}%</span></div>
     <div class="row"><span>스킬 피해</span><span>+${(bonus('int') * 2).toFixed(0)}%</span></div>
+    <div class="row"><span>이름</span><span>${P.name || ''} · ${CLASSES[P.cls].label}</span></div>
     <div class="row"><span>다음 레벨</span><span>${P.xp} / ${xpNeed(P.lv)} 경험치</span></div>`;
 }
 function infoTables() {
-  const rows = slot => { let h = ''; for (let lv = 0; lv < 10; lv++) { const ch = encChance(slot, lv), safe = lv < ENCHANT[slot].safe; h += `<tr><td>+${lv} → +${lv + 1}</td><td class="${safe ? 'ok' : 'risk'}">${ch}%</td><td>${safe ? '안전' : '+0 초기화'}</td></tr>`; } return h; };
-  $('encTable').innerHTML = `<table class="tbl"><tr><th>무기</th><th>성공</th><th>실패 시</th></tr>${rows('weapon')}</table>
-    <table class="tbl"><tr><th>갑옷</th><th>성공</th><th>실패 시</th></tr>${rows('armor')}</table>
-    <div class="note">강화 1단계당 무기 공격력 +${ENCHANT.weapon.atk}, 갑옷 방어력 +${ENCHANT.armor.def}. 무기는 +${ENCHANT.weapon.safe}, 갑옷은 +${ENCHANT.armor.safe}까지 실패하지 않습니다.</div>`;
+  // 에르덴 강화 표: 등급마다 안전 구간이 달라 등급별 열로 보여 준다(무기·방어구 같은 규칙)
+  const gs = [['common', '일반'], ['uncommon', '고급'], ['rare', '희귀 이상']];
+  let h = '<table class="tbl"><tr><th>단계</th>' + gs.map(([, l]) => `<th>${l}</th>`).join('') + '<th>실패 시(안전 구간 밖)</th></tr>';
+  for (let lv = 0; lv < 10; lv++) {
+    h += `<tr><td>+${lv} → +${lv + 1}</td>` + gs.map(([g]) => { const f = encFail(lv, g); return `<td class="${f === 'none' ? 'ok' : 'risk'}">${encChance('weapon', lv, g)}%</td>`; }).join('')
+      + `<td>${ENC_FAIL_TXT[encFail(lv, 'rare')]}</td></tr>`;
+  }
+  $('encTable').innerHTML = h + `</table>
+    <div class="note">안전 구간(실패 없음): 일반 +3 · 고급 +2 · 희귀 이상 +1. 그 뒤 +3까지는 실패해도 단계가 그대로이고, +4~+6 실패는 50% 소멸 · 50% +0, +7 이상 실패는 장비 소멸입니다.<br>
+    강화석: 일반·고급 = 별빛 강화석(무기/방어구), 희귀 이상 = 정제된 별의 파편. 축복받은 강화석은 소멸·초기화를 막고 성공 시 30% 확률로 +2, 10% 확률로 +3.<br>
+    강화 1단계당 무기 공격력 +${ENCHANT.weapon.atk}, 방어구 방어력 +${ENCHANT.armor.def}.</div>`;
   const pct = v => Math.round(v * 100) + '%';
   let d = '<table class="tbl"><tr><th>몬스터</th><th>Lv</th><th>장비</th><th>일반/고급/희귀/영웅/전설</th></tr>';
   for (const [k, T] of Object.entries(DROP_TABLE)) d += `<tr><td>${MONSTERS[k].name}</td><td>${MLV[k]}</td><td>${T.n ? `${T.n}회 × ${pct(T.equip)}` : pct(T.equip)}</td><td>${T.odds.join(' / ')}</td></tr>`;
-  d += '</table><table class="tbl"><tr><th>몬스터</th><th>체력약</th><th>마나약</th><th>무기주문서</th><th>갑옷주문서</th></tr>';
+  d += '</table><table class="tbl"><tr><th>몬스터</th><th>체력약</th><th>마나약</th><th>별빛 강화석(무기)</th><th>별빛 강화석(방어구)</th></tr>';
   for (const [k, T] of Object.entries(DROP_TABLE)) d += `<tr><td>${MONSTERS[k].name}</td><td>${pct(T.red)}</td><td>${pct(T.blue)}</td><td>${pct(T.sw)}</td><td>${pct(T.sa)}</td></tr>`;
   d += `</table><div class="note">장비는 내 클래스용으로만 떨어집니다. 던전 몬스터는 레벨 +${DUNGEON_BONUS.lv}, 체력 ×${DUNGEON_BONUS.hp}, 경험치 ×${DUNGEON_BONUS.xp}입니다.</div>`;
   d += `<div class="sect">개별 수치 · 특수 패시브</div><div class="note">같은 장비도 능력치마다 기본값의 ${ROLL_LO * 100}~${ROLL_HI * 100}% 사이에서 따로 정해지고, 가방에서 <b>상위 %</b>로 보여 줍니다(상위 1% = 100개 중 가장 좋은 1개 수준). 보스는 좋은 수치가 더 잘 나옵니다.<br>
@@ -3165,19 +3378,19 @@ function renderShop() {
       const row = document.createElement('div'); row.className = 'srow';
       const cv = document.createElement('canvas'); cv.width = 36; cv.height = 36; gradeFrame(cv, d.grade, d.icon, e.enc);
       const nm = document.createElement('div'); nm.innerHTML = `<span class="g-${d.grade}">+${e.enc} ${d.name}</span><small>${GRADE_LABEL[d.grade]}${tp != null ? ' · ' + fmtTop(tp) : ''}${e.px ? ' · ' + PASSIVES[e.px.id].name : ''}</small><span class="sd">${statText(e)}</span>`;
-      const b1 = document.createElement('button'); b1.type = 'button'; b1.textContent = `${Math.round(sellPrice(e))} G`; b1.onclick = () => { sell(e.uid); renderShop(); };
+      const b1 = document.createElement('button'); b1.type = 'button'; b1.textContent = `${Math.round(sellPrice(e))} 에테르`; b1.onclick = () => { sell(e.uid); renderShop(); };
       row.append(cv, nm, b1, document.createElement('span')); box.append(row);
     }
   }
   const commons = P.bag.filter(e => equipDef(e.key).grade === 'common' && !e.px);
   const uncs = P.bag.filter(e => equipDef(e.key).grade === 'uncommon' && !e.px);
   $('sellUncommon').disabled = !uncs.length;
-  $('sellUncommon').textContent = uncs.length ? `고급 ${uncs.length}개 판매 (+${Math.round(uncs.reduce((a, e) => a + sellPrice(e), 0))} G)` : '팔 고급 장비 없음';
+  $('sellUncommon').textContent = uncs.length ? `고급 ${uncs.length}개 판매 (+${Math.round(uncs.reduce((a, e) => a + sellPrice(e), 0))} 에테르)` : '팔 고급 장비 없음';
   $('sellCommon').disabled = !commons.length;
   $('sellCommon').textContent = commons.length ? `일반 등급 장비 ${commons.length}개 판매 (+${Math.round(commons.reduce((a, e) => a + sellPrice(e), 0))} 에테르)` : '팔 일반 장비 없음';
   $('shopGold').textContent = `보유 ${P.gold.toLocaleString()} 에테르`;
   const lootSum = Object.entries(P.inv).filter(([id, n]) => id.startsWith('loot_') && n > 0).reduce((a, [id, n]) => a + (XITEMS[id] ? XITEMS[id].price * n : 0), 0);
-  $('sellLoot').disabled = !lootSum; $('sellLoot').textContent = lootSum ? `전리품 모두 판매 (+${lootSum.toLocaleString()} G)` : '팔 전리품 없음';
+  $('sellLoot').disabled = !lootSum; $('sellLoot').textContent = lootSum ? `전리품 모두 판매 (+${lootSum.toLocaleString()} 에테르)` : '팔 전리품 없음';
   const gems = P.inv.gem_ruby || 0;
   $('sellGem').disabled = !gems; $('sellGem').textContent = gems ? `루비 ${gems}개 판매 (+${gems * GEM_PRICE} 에테르)` : '팔 루비 없음';
 }
@@ -3298,7 +3511,7 @@ function renderOpt() {
 document.querySelectorAll('#opt .seg').forEach(seg => seg.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { OPT[seg.dataset.opt] = b.dataset.v; saveOpt(); renderOpt(); uiPauseCheck(); if (seg.dataset.opt === 'dev') devChanged(); })));
 $('potHp').addEventListener('input', e => { OPT.potHp = +e.target.value; saveOpt(); renderOpt(); });
 $('potMp').addEventListener('input', e => { OPT.potMp = +e.target.value; saveOpt(); renderOpt(); });
-const panelOpen = () => ['inv', 'shop', 'opt', 'gacha', 'wpMenu', 'wmap'].some(id => !$(id).classList.contains('hidden'));
+const panelOpen = () => ['inv', 'shop', 'opt', 'gacha', 'wpMenu', 'wmap', 'craft'].some(id => !$(id).classList.contains('hidden'));
 let uiPaused = false;
 function uiPauseCheck() { uiPaused = running && panelOpen() && OPT.invMode === 'pause'; }
 let optTab = 'auto';
@@ -3312,7 +3525,7 @@ $('mmIn').addEventListener('click', () => { OPT.mmZoom = Math.min(4, OPT.mmZoom 
 $('mmOut').addEventListener('click', () => { OPT.mmZoom = Math.max(1, OPT.mmZoom - 1); saveOpt(); });
 function save() {
   if (!P || !running) return;
-  const d = { v: 1, cls: P.cls, lv: P.lv, xp: P.xp, st: P.st, sp: P.sp, hp: P.hp, mp: P.mp, gold: P.gold, inv: P.inv, eq: P.eq, weapon: P.weapon, armor: P.armor, bag: P.bag,
+  const d = { v: 1, name: P.name, cls: P.cls, lv: P.lv, xp: P.xp, st: P.st, sp: P.sp, hp: P.hp, mp: P.mp, gold: P.gold, inv: P.inv, eq: P.eq, weapon: P.weapon, armor: P.armor, bag: P.bag,
     autoSell: !!P.autoSell, map: MAP.id, x: P.dead ? null : P.x, y: P.dead ? null : P.y, wbs: P.wbs || {}, morph: P.morph || null,
     coll: P.coll, pet: P.pet || null, gacha: P.gacha,
     state: { bossDead: STATE.bossDead, kills: STATE.kills, quest: STATE.quest || 0, qn: STATE.qn || 0, wbKill: STATE.wbKill || {}, wp: STATE.wp || {},
@@ -3379,11 +3592,11 @@ window.addEventListener('keydown', e => {
   if (e.code === 'KeyI') toggleInv();
   if (e.code === 'KeyM') toggleSound();
   if (e.code === 'KeyH') setAuto(!P.auto);
-  if (e.code === 'KeyF') { if (!$('wpMenu').classList.contains('hidden')) closeWp(); else if (nearWp()) openWp(nearWp()); else if ($('shop').classList.contains('hidden')) openShop(); else closeShop(); }
+  if (e.code === 'KeyF') { if (!$('wpMenu').classList.contains('hidden')) closeWp(); else if (!$('craft').classList.contains('hidden')) closeCraft(); else if (nearWp()) openWp(nearWp()); else if (MAP.smith && dist(P, MAP.smith) < 2.4) openCraft(); else if (nearNode()) startGather(nearNode()); else if ($('shop').classList.contains('hidden')) openShop(); else closeShop(); }
   if (e.code === 'KeyG') toggleGacha();
   if (e.code === 'Tab') { toggleWorldMap(); e.preventDefault(); }
   if (e.code === 'F2') { OPT.dev = OPT.dev === 'on' ? 'off' : 'on'; saveOpt(); renderOpt(); devChanged(); e.preventDefault(); }
-  if (e.code === 'Escape') { ['shop', 'inv', 'opt', 'gacha', 'wpMenu', 'cmp', 'wmap'].forEach(id => $(id).classList.add('hidden')); P.talk = false; uiPauseCheck(); }
+  if (e.code === 'Escape') { ['shop', 'inv', 'opt', 'gacha', 'wpMenu', 'cmp', 'wmap', 'craft'].forEach(id => $(id).classList.add('hidden')); P.talk = false; uiPauseCheck(); }
   if (e.code === 'Space') { const m = nearestMob(8); if (m) { P.target = m; P.goal = null; } e.preventDefault(); }
   if (e.code.startsWith('Arrow')) e.preventDefault();
 });
@@ -3392,6 +3605,10 @@ function handleTap(cx, cy) {
   if (!running || paused || P.dead) return;
   audio();
   const sx = (cx - W / 2) / ZOOM + cam.x, sy = (cy - H / 2) / ZOOM + cam.y;
+  // 드로간 탭 → 다가가서 제작 창
+  if (MAP.smith) { const s = toScr(MAP.smith.x, MAP.smith.y); if (Math.abs(sx - s.x) < 22 && sy < s.y + 8 && sy > s.y - 70) { if (dist(P, MAP.smith) < 2.4) openCraft(); else { P.target = null; P.goal = safeSpot(MAP.smith.x + 1, MAP.smith.y + 1); P.smithGo = true; P.autoHold = 6; } return; } }
+  // 채집 지점 탭 → 다가가서 캐기
+  for (const n of (MAP.nodes || [])) { if (!n.ready) continue; const s = toScr(n.x, n.y); if (Math.abs(sx - s.x) < 20 && sy < s.y + 12 && sy > s.y - 44) { startGather(n); return; } }
   // 세리아(상점) 탭 → 다가가서 상점 열기
   for (const n of MAP.npcs || []) {
     const s = toScr(n.x, n.y);
@@ -3464,6 +3681,99 @@ function joyRest() {
 
 // ───────────────────────── 시작 화면 ─────────────────────────
 let chosen = null;
+// 캐릭터 이름 규칙: 한글(완성형)·영문만, 2~8자, 금지어 불가
+const NICK_BAN = ['운영자', '관리자', '운영진', 'gm', 'admin', 'system', '시스템', '드로간', '세리아', '시발', '씨발', 'ㅅㅂ', '병신', '개새', '좆', '존나', '미친', 'fuck', 'shit', 'sex', '섹스', '느금'];
+function nickCheck(raw) {
+  const s = String(raw == null ? '' : raw).normalize('NFC').trim();
+  if (!s) return { ok: false, msg: '이름을 지어 주세요', s };
+  if (/\s/.test(s)) return { ok: false, msg: '띄어쓰기는 쓸 수 없습니다', s };
+  if (/[ㄱ-ㅎㅏ-ㅣ]/.test(s)) return { ok: false, msg: '완성된 글자만 쓸 수 있습니다 (ㄱ, ㅏ 같은 낱자 불가)', s };
+  if (!/^[가-힣A-Za-z]+$/.test(s)) return { ok: false, msg: '한글과 영문만 쓸 수 있습니다 (숫자·특수문자 불가)', s };
+  if (s.length < 2) return { ok: false, msg: '2글자 이상이어야 합니다', s };
+  if (s.length > 8) return { ok: false, msg: '8글자까지 쓸 수 있습니다', s };
+  const low = s.toLowerCase();
+  if (NICK_BAN.some(w => low.includes(w))) return { ok: false, msg: '쓸 수 없는 단어가 들어 있습니다', s };
+  return { ok: true, msg: `「${s}」 — 좋은 이름입니다`, s };
+}
+let nickOk = null;
+function startReady() {
+  const r = nickCheck($('nick').value); nickOk = r.ok ? r.s : null;
+  const typed = $('nick').value.length > 0;
+  $('nick').classList.toggle('bad', typed && !r.ok); $('nick').classList.toggle('good', r.ok);
+  $('nickMsg').textContent = r.msg; $('nickMsg').className = 'nickmsg' + (typed ? (r.ok ? ' good' : ' bad') : '');
+  const c = chosen && CLASSES[chosen];
+  $('start').disabled = !(c && nickOk);
+  $('start').textContent = !c ? '클래스를 고르세요' : !nickOk ? '이름을 정하세요' : `${nickOk} · ${c.label}(으)로 시작`;
+}
+// 시작 화면 배경: 밤하늘·별·먼 산맥·성채 실루엣·안개(창 크기가 바뀌면 다시 그림)
+const TB = { stars: [], fog: 0 };
+function drawTitleBg() {
+  const cv = $('titleBg'); if (!cv || $('title').classList.contains('hidden')) return;
+  const w = cv.clientWidth, h = cv.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) {
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    TB.stars = Array.from({ length: Math.round(w * h / 2600) }, () => ({ x: Math.random(), y: Math.random() * 0.72, r: Math.random() < 0.08 ? 1.6 : 0.8, p: Math.random() * 6.28 }));
+  }
+  const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const tt = performance.now() / 1000;
+  const sky = c.createLinearGradient(0, 0, 0, h); sky.addColorStop(0, '#05060c'); sky.addColorStop(0.55, '#141226'); sky.addColorStop(0.8, '#2a1c1a'); sky.addColorStop(1, '#0a0807');
+  c.fillStyle = sky; c.fillRect(0, 0, w, h);
+  for (const s of TB.stars) { c.globalAlpha = 0.35 + 0.45 * (0.5 + 0.5 * Math.sin(tt * 1.3 + s.p)); c.fillStyle = s.r > 1 ? '#ffe9b8' : '#cfd8ff'; c.fillRect(s.x * w, s.y * h, s.r, s.r); }
+  c.globalAlpha = 1;
+  // 은하수처럼 번지는 별빛
+  const mw = c.createRadialGradient(w * 0.5, h * 0.18, 10, w * 0.5, h * 0.18, Math.max(w, h) * 0.55);
+  mw.addColorStop(0, 'rgba(255,214,150,.16)'); mw.addColorStop(0.5, 'rgba(120,110,200,.06)'); mw.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = mw; c.fillRect(0, 0, w, h);
+  const ridge = (base, amp, seed, col) => {
+    c.fillStyle = col; c.beginPath(); c.moveTo(0, h);
+    for (let x = 0; x <= w + 8; x += 8) { const k = x / w * 6.28; c.lineTo(x, h * base - amp * (Math.sin(k * 1.7 + seed) * 0.6 + Math.sin(k * 4.3 + seed * 2) * 0.3 + Math.sin(k * 9.1 + seed) * 0.1)); }
+    c.lineTo(w, h); c.closePath(); c.fill();
+  };
+  ridge(0.74, h * 0.09, 1.2, '#1a1722');
+  // 먼 성채: 언덕 위 탑 세 개와 성벽
+  const cx = w * 0.72, cy = h * 0.66; c.fillStyle = '#100e14';
+  c.fillRect(cx - 70, cy - 26, 140, 30);
+  for (const [dx, tw, th] of [[-62, 16, 64], [-8, 22, 92], [46, 16, 58]]) { c.fillRect(cx + dx, cy - th, tw, th); c.beginPath(); c.moveTo(cx + dx - 3, cy - th); c.lineTo(cx + dx + tw / 2, cy - th - 20); c.lineTo(cx + dx + tw + 3, cy - th); c.fill(); }
+  for (let i = -66; i < 70; i += 10) c.fillRect(cx + i, cy - 32, 6, 6);
+  c.fillStyle = `rgba(255,190,110,${0.55 + 0.3 * Math.sin(tt * 2.2)})`; c.fillRect(cx - 2, cy - 70, 3, 5); c.fillRect(cx + 50, cy - 40, 2, 4);
+  ridge(0.84, h * 0.06, 3.7, '#0d0b0e');
+  // 안개: 천천히 흐르는 띠
+  for (let i = 0; i < 3; i++) {
+    const y = h * (0.78 + i * 0.06), x = ((tt * (8 + i * 5)) % (w + 400)) - 200;
+    const fg = c.createRadialGradient(x, y, 10, x, y, w * 0.45); fg.addColorStop(0, 'rgba(150,140,170,.10)'); fg.addColorStop(1, 'rgba(0,0,0,0)');
+    c.fillStyle = fg; c.fillRect(0, h * 0.6, w, h * 0.4);
+  }
+  const vg = c.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.3, w / 2, h / 2, Math.max(w, h) * 0.75); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.7)');
+  c.fillStyle = vg; c.fillRect(0, 0, w, h);
+}
+// 별의 심장 문장: 하트 모양 수정 안에 여덟 갈래 별, 바깥에 철 고리와 룬 점. 맥박처럼 빛남
+function drawEmblem() {
+  const cv = $('titleEmblem'); if (!cv || $('title').classList.contains('hidden')) return;
+  const c = cv.getContext('2d'), S = 200, m = S / 2, tt = performance.now() / 1000, beat = 0.5 + 0.5 * Math.pow(Math.sin(tt * 2.1), 6) + 0.25 * Math.sin(tt * 0.9);
+  c.clearRect(0, 0, S, S);
+  const halo = c.createRadialGradient(m, m, 4, m, m, 96); halo.addColorStop(0, `rgba(255,220,150,${0.35 + 0.35 * beat})`); halo.addColorStop(0.45, `rgba(255,140,80,${0.12 + 0.12 * beat})`); halo.addColorStop(1, 'rgba(0,0,0,0)');
+  c.fillStyle = halo; c.fillRect(0, 0, S, S);
+  // 철 고리
+  c.lineWidth = 7; c.strokeStyle = '#3a342e'; c.beginPath(); c.arc(m, m, 78, 0, 6.283); c.stroke();
+  c.lineWidth = 1.5; c.strokeStyle = '#7a6a54'; c.beginPath(); c.arc(m, m, 81.5, 0, 6.283); c.stroke(); c.beginPath(); c.arc(m, m, 74.5, 0, 6.283); c.stroke();
+  for (let i = 0; i < 12; i++) { const a = i / 12 * 6.283 + tt * 0.05, x = m + Math.cos(a) * 78, y = m + Math.sin(a) * 78; c.fillStyle = i % 3 ? '#8a7a62' : `rgba(255,214,140,${0.5 + 0.5 * beat})`; c.fillRect(x - 1.5, y - 1.5, 3, 3); }
+  // 하트 모양 수정
+  const heart = () => { c.beginPath(); c.moveTo(m, m + 46); c.bezierCurveTo(m - 58, m + 4, m - 46, m - 52, m, m - 22); c.bezierCurveTo(m + 46, m - 52, m + 58, m + 4, m, m + 46); c.closePath(); };
+  heart(); const hg = c.createLinearGradient(m, m - 50, m, m + 46); hg.addColorStop(0, '#5a1a22'); hg.addColorStop(0.5, '#a8303a'); hg.addColorStop(1, '#2a0a12');
+  c.fillStyle = hg; c.fill(); c.lineWidth = 3; c.strokeStyle = '#c8a060'; c.stroke();
+  c.save(); heart(); c.clip(); c.globalAlpha = 0.25; c.fillStyle = '#fff'; c.beginPath(); c.moveTo(m - 40, m - 30); c.lineTo(m - 10, m - 30); c.lineTo(m - 34, m + 6); c.closePath(); c.fill(); c.restore();
+  // 여덟 갈래 별(가운데에서 빛이 뿜어짐)
+  c.save(); c.translate(m, m - 2); c.rotate(tt * 0.15);
+  c.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 8; i++) {
+    const L = i % 2 ? 18 : 30 + 6 * beat; c.rotate(Math.PI / 4);
+    const g = c.createLinearGradient(0, 0, 0, -L); g.addColorStop(0, `rgba(255,250,220,${0.9})`); g.addColorStop(1, 'rgba(255,200,120,0)');
+    c.fillStyle = g; c.beginPath(); c.moveTo(-4, 0); c.lineTo(0, -L); c.lineTo(4, 0); c.closePath(); c.fill();
+  }
+  const core = c.createRadialGradient(0, 0, 1, 0, 0, 14 + 4 * beat); core.addColorStop(0, '#fffef4'); core.addColorStop(0.4, `rgba(255,224,150,${0.8 + 0.2 * beat})`); core.addColorStop(1, 'rgba(255,150,80,0)');
+  c.fillStyle = core; c.beginPath(); c.arc(0, 0, 18, 0, 6.283); c.fill();
+  c.restore();
+}
+function titleLoop() { if ($('title').classList.contains('hidden')) return; drawTitleBg(); drawEmblem(); requestAnimationFrame(titleLoop); }
 function titleScreen() {
   const box = $('classes');
   for (const [k, c] of Object.entries(CLASSES)) {
@@ -3476,7 +3786,7 @@ function titleScreen() {
       <ul>${c.skills.map((id, i) => `<li>${i + 1}. ${SKILLS[id].name}</li>`).join('')}</ul>`);
     b.addEventListener('click', () => {
       chosen = k; document.querySelectorAll('.cls').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-      $('start').disabled = false; $('start').textContent = `${c.label}(으)로 시작`;
+      startReady();
       audio(); sfx(k === 'mage' ? 'magic_cast' : k === 'elf' ? 'bow_release' : 'swing_sword', { gain: 0.6 });
     });
     box.append(b);
@@ -3500,20 +3810,23 @@ function titleScreen() {
       if (t >= n * (an === 'idle' ? 2 : 1)) { t = 0; ai = (ai + 1) % anims.length; }
     }, 100);
   }
-  $('start').addEventListener('click', () => { if (chosen) startGame(chosen); });
+  $('start').addEventListener('click', () => { startReady(); if (chosen && nickOk) startGame(chosen, null, nickOk); });
+  $('nick').addEventListener('input', startReady);
+  $('nick').addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); $('nick').blur(); if (!$('start').disabled) $('start').click(); } });
+  startReady(); requestAnimationFrame(titleLoop);
   $('devTitle').checked = OPT.dev === 'on';
   $('devTitle').addEventListener('change', e => { OPT.dev = e.target.checked ? 'on' : 'off'; saveOpt(); });
   const sv = loadSave();
   if (sv) {
     const c = $('continue'); c.classList.remove('hidden');
-    c.textContent = `이어하기 · ${CLASSES[sv.cls].label} Lv ${sv.lv}`;
+    c.textContent = `이어하기 · ${sv.name ? sv.name + ' · ' : ''}${CLASSES[sv.cls].label} Lv ${sv.lv}`;
     if (saveNote) c.title = saveNote;
     c.addEventListener('click', () => { audio(); startGame(sv.cls, sv); });
     $('start').classList.add('alt');
     $('newWarn').classList.remove('hidden');
   } else if (saveNote) { $('newWarn').textContent = saveNote; $('newWarn').classList.remove('hidden'); }   // 변환 실패 안내
 }
-function startGame(cls, sv) {
+function startGame(cls, sv, nick) {
   $('title').classList.add('hidden');
   ['status', 'mini', 'bar', 'xp', 'log', 'quest', 'dock'].forEach(id => $(id).classList.remove('hidden'));
   $('joyZone').classList.toggle('hidden', !IS_TOUCH); if (IS_TOUCH) joyRest();
@@ -3540,7 +3853,9 @@ function startGame(cls, sv) {
   if (typeof STATE.clock !== 'number' || !isFinite(STATE.clock)) STATE.clock = CLOCK_START;
   if (STATE.migratedFrom === 1) { delete STATE.migratedFrom; setTimeout(() => log('잊혀진 대장간의 진행을 에르덴으로 옮겼습니다. 이미 이룬 목표는 완료로 표시됩니다.', 'sys'), 300); }
   PET = null; applyStats(); devChanged();
-  $('pname').textContent = CLASSES[cls].label;
+  // 캐릭터 이름: 새로 시작하면 입력한 이름, 이어하기면 저장된 이름(예전 저장은 직업 이름)
+  P.name = (sv && sv.name && nickCheck(sv.name).ok) ? sv.name : (nick && nickCheck(nick).ok ? nickCheck(nick).s : CLASSES[cls].label);
+  $('pname').textContent = P.name; $('pcls').textContent = CLASSES[cls].label; $('invName').textContent = P.name;
   buildBar();
   const a = audio();
   if (a && soundOn) applyVolumes();
@@ -3560,6 +3875,7 @@ function startGame(cls, sv) {
 // ── 몬스터 고유 전리품: 처치 시 30%(보스·월드보스 확정), 상점에서 판매
 const LOOT_P = 0.3;
 const LOOT_DEF = {
+  dog: ['들개 송곳니', 'bone', 20, 'sepia(.6)'], goblin_archer: ['고블린 화살깃', 'arrows', 22, 'sepia(.5) hue-rotate(60deg)'],
   goblin: ['고블린의 녹슨 귀걸이', 'ring_ruby', 18, 'grayscale(.5) sepia(.6)'], wolf: ['검은 늑대 송곳니', 'bone', 24, 'sepia(.3) brightness(1.1)'],
   spider: ['숲 거미 독샘', 'pot_green', 30, 'hue-rotate(40deg) saturate(1.6)'], ooze: ['녹색 슬라임 핵', 'gem_ruby', 26, 'hue-rotate(110deg) saturate(1.4)'],
   skeleton: ['저주받은 두개골', 'bone', 40, 'grayscale(.4) hue-rotate(200deg)'], skeleton_archer: ['부러진 뼈 화살', 'arrows', 34, 'grayscale(.7)'],
@@ -3568,6 +3884,54 @@ const LOOT_DEF = {
 };
 for (const [mob, [name, icon, price, hue]] of Object.entries(LOOT_DEF)) XITEMS['loot_' + mob] = { name, icon, price, hue, loot: true, mob, grade: mob.startsWith('wb_') || mob === 'boss' ? 'legend' : 'uncommon' };
 XITEMS.scroll_teleport = { name: '이동 포탈 스크롤', icon: 'scroll_teleport', grade: 'rare' };
+// ── 에르덴 재료 ──
+// [이름, 아이콘(숫자 = items/materials.png 칸 번호, 글자 = 기존 아이콘), 판매가, 색 필터, 나는 지역, 등급, 얻는 곳]
+const MAT_SHEET = 'items/materials.png';
+const MATERIALS = {
+  mat_iron_ore:       ['철광석', 0, 6, null, 'ardel', 'common', '철광석 광맥 채집 · 고블린 무리'],
+  mat_herb:           ['야생 약초', 1, 4, null, 'ardel', 'common', '야생 약초 채집'],
+  mat_slime_gel:      ['녹색 슬라임의 점액', 2, 5, null, 'ardel', 'common', '녹색 슬라임 (70%)'],
+  mat_dog_hide:       ['들개의 가죽', 3, 8, null, 'ardel', 'common', '들개 (60%)'],
+  mat_old_bow:        ['고블린의 낡은 활', 'bow', 14, 'sepia(.9) brightness(.75)', 'ardel', 'uncommon', '고블린 궁수'],
+  mat_vine:           ['질긴 넝쿨', 4, 6, null, 'ardel', 'common', '고블린 무리'],
+  mat_ring_wood:      ['고대 나무의 나이테', 5, 40, null, 'elasia', 'uncommon', '엘라시아 숲 채집'],
+  mat_moon_essence:   ['달빛의 정수', 'pot_white', 120, 'hue-rotate(190deg) saturate(2) brightness(1.2)', 'elasia', 'rare', '엘라시아 숲 채집(밤)'],
+  mat_spirit_breath:  ['정령의 숨결', 'pot_green', 60, 'hue-rotate(60deg) brightness(1.3)', 'elasia', 'uncommon', '숲 정령 · 트렌트'],
+  mat_soft_bark:      ['유연한 나무껍질', 6, 30, null, 'elasia', 'common', '숲 정령 · 트렌트'],
+  mat_assassin_strap: ['암살자의 가죽끈', 'bracelet', 300, 'brightness(.55) saturate(.5)', 'elasia', 'rare', '다크 엘프 정찰병(정예)'],
+  mat_iron_ore_hi:    ['상급 철광석', 10, 30, null, 'kardum', 'uncommon', '카르둠 산맥 채집'],
+  mat_lava_stone:     ['마력 깃든 용암석', 7, 90, null, 'kardum', 'rare', '카르둠 산맥 채집'],
+  mat_orichalcum:     ['오리하르콘 원석', 11, 400, null, 'kardum', 'heroic', '카르둠 산맥 채집'],
+  mat_silver_ore:     ['은 광석', 12, 40, null, 'kardum', 'uncommon', '카르둠 산맥 채집'],
+  mat_hard_stone:     ['단단한 돌조각', 8, 20, null, 'kardum', 'common', '돌골렘 · 화염의 하수인'],
+  mat_mana_shard:     ['마나의 파편', 'gem_ruby', 80, 'hue-rotate(210deg) saturate(1.6) brightness(1.2)', 'kardum', 'rare', '돌골렘 · 화염의 하수인'],
+  mat_flame_dust:     ['불꽃의 가루', 'gold', 50, 'hue-rotate(-25deg) saturate(2.4)', 'kardum', 'uncommon', '돌골렘 · 화염의 하수인'],
+  mat_flame_heart:    ['화염의 심장 파편', 'gem_ruby', 5000, 'hue-rotate(20deg) saturate(2) brightness(1.3)', 'kardum', 'heroic', '필드 보스 불꽃의 파괴자'],
+  mat_ruin_shard:     ['고대 유적의 파편', 9, 150, null, 'arcana', 'rare', '아르카나 폐허'],
+};
+for (const [id, [name, ic, price, hue, region, grade, src]] of Object.entries(MATERIALS))
+  XITEMS[id] = { name, icon: typeof ic === 'string' ? ic : null, ico: typeof ic === 'number' ? ic : null, price, hue, mat: true, region, grade, src };
+// 아직 맵이 없는 지역의 몬스터(데이터만 · 지역 맵을 만들 때 그대로 쓴다)
+const FUTURE_MOBS = {
+  elasia: [{ name: '숲 정령', lv: [16, 25], drops: ['mat_spirit_breath', 'mat_soft_bark'] }, { name: '트렌트', lv: [18, 25], drops: ['mat_spirit_breath', 'mat_soft_bark'] },
+    { name: '다크 엘프 정찰병', lv: [24, 28], elite: true, drops: ['mat_assassin_strap'] }],
+  kardum: [{ name: '돌골렘', lv: [28, 36], drops: ['mat_hard_stone', 'mat_mana_shard'] }, { name: '화염의 하수인', lv: [30, 40], drops: ['mat_mana_shard', 'mat_flame_dust'] },
+    { name: '불꽃의 파괴자', lv: [42, 42], boss: true, drops: ['mat_flame_heart'] }],
+};
+// 몬스터별 재료 드롭 [재료, 확률, 개수]
+const MAT_DROPS = {
+  ooze: [['mat_slime_gel', 0.7, 1]], dog: [['mat_dog_hide', 0.6, 1]],
+  goblin: [['mat_iron_ore', 0.3, 1], ['mat_vine', 0.35, 1], ['mat_old_bow', 0.04, 1]],
+  goblin_archer: [['mat_iron_ore', 0.3, 1], ['mat_vine', 0.4, 1], ['mat_old_bow', 0.15, 1]],
+  orc: [['mat_iron_ore', 0.45, 2], ['mat_vine', 0.25, 1]],
+};
+// ── 강화석(에르덴 강화 규칙) ──
+// 일반·고급 장비 = 별빛 강화석(무기용/방어구용, 기존 주문서 id 그대로), 희귀 이상 = 정제된 별의 파편, 축복받은 강화석 = 파괴 방지 + 대성공
+XITEMS.scroll_weapon = { name: '별빛 강화석(무기)', icon: 'gem_ruby', hue: 'hue-rotate(185deg) saturate(1.3) brightness(1.35)', grade: 'uncommon' };
+XITEMS.scroll_armor = { name: '별빛 강화석(방어구)', icon: 'gem_ruby', hue: 'hue-rotate(140deg) saturate(1.1) brightness(1.25)', grade: 'uncommon' };
+XITEMS.star_shard = { name: '정제된 별의 파편', icon: 'gem_ruby', hue: 'hue-rotate(40deg) saturate(.6) brightness(1.7)', grade: 'rare' };
+XITEMS.blessed_stone = { name: '축복받은 강화석', icon: 'gem_ruby', hue: 'hue-rotate(60deg) saturate(2.2) brightness(1.5)', grade: 'legend', skill: true };
+
 
 // ── 별빛 표석: 다가가면 활성화, 활성화된 곳끼리(마을 포함) 안전하게 이동
 const WAYPOINTS = {
@@ -3661,6 +4025,106 @@ function toggleWorldMap(force) {
 }
 $('wmClose').addEventListener('click', () => toggleWorldMap(false));
 $('btnMap').addEventListener('click', () => { if (running) toggleWorldMap(); });
+// ───────────────────────── 드로간의 대장간: 직업별 무기 제작 ─────────────────────────
+// 실패하면 재료와 에테르가 모두 사라진다. 결과물은 일반 드롭 장비보다 특수 옵션이 붙는다.
+const CRAFT_GEAR = {
+  cr_iron_short:   { key: 'cr_iron_short', name: '철제 숏소드', icon: 'longsword', grade: 'uncommon', slot: 'weapon', base: 'blade', lv: 10, atk: 10, acc: 1, fx: '명중 +1 · 공격력 +2 보정' },
+  cr_hunter_bow:   { key: 'cr_hunter_bow', name: '헌터스의 숏보우', icon: 'bow', grade: 'uncommon', slot: 'weapon', base: 'bow', lv: 12, atk: 9, acc: 2, fx: '원거리 명중 +2' },
+  cr_spirit_staff: { key: 'cr_spirit_staff', name: '정령의 마력 지팡이', icon: 'staff', grade: 'uncommon', slot: 'weapon', base: 'staff', lv: 20, atk: 12, mp: 50, mpRegen: 0.5, fx: '마법 공격력 +4 · 최대 MP +50 · MP 자연 회복 +50%' },
+  cr_silver_bow:   { key: 'cr_silver_bow', name: '요정의 은빛 활', icon: 'bow', grade: 'rare', slot: 'weapon', base: 'bow', lv: 25, atk: 14, acc: 3, undead: 0.25, fx: '원거리 명중 +3 · 언데드에게 피해 +25%' },
+  cr_flame_great:  { key: 'cr_flame_great', name: '화염의 대검', icon: 'greatsword', grade: 'heroic', slot: 'weapon', base: 'blade', lv: 40, atk: 19, flame: 0.2, fx: '공격 시 20% 확률로 주변에 화염 폭발' },
+  cr_circle_staff: { key: 'cr_circle_staff', name: '대마법사의 서클 스태프', icon: 'staff', grade: 'heroic', slot: 'weapon', base: 'staff', lv: 40, atk: 19, mp: 30, cdr: 0.05, critDmg: 0.15, chain: 0.25, fx: '스킬 재사용 대기 -5% · 치명타 피해 +15% · 25% 확률 연쇄 피해' },
+};
+Object.assign(GEAR, CRAFT_GEAR);
+const RECIPES = [
+  { item: 'cr_iron_short', cost: 5000, ch: 85, mats: { mat_iron_ore: 10, mat_slime_gel: 15, mat_dog_hide: 5 } },
+  { item: 'cr_hunter_bow', cost: 7000, ch: 80, mats: { mat_vine: 10, mat_old_bow: 2, mat_iron_ore: 5 } },
+  { item: 'cr_spirit_staff', cost: 12000, ch: 75, mats: { mat_mana_shard: 5, mat_iron_ore: 8, mat_herb: 20 } },
+  { item: 'cr_silver_bow', cost: 50000, ch: 60, mats: { mat_moon_essence: 3, mat_ring_wood: 8, mat_silver_ore: 20 } },
+  { item: 'cr_flame_great', cost: 300000, ch: 35, mats: { mat_flame_heart: 1, mat_lava_stone: 15, mat_orichalcum: 5 } },
+  { item: 'cr_circle_staff', cost: 350000, ch: 30, mats: { mat_lava_stone: 15, mat_flame_heart: 1, mat_ruin_shard: 10 } },
+];
+const BASE_LABEL = { blade: '기사', bow: '요정', staff: '마법사' };
+const SMITH_SAY = ['쇠는 거짓말을 안 하지. 재료를 가져오면 두드려 주마.', '실패하면 재료도 돈도 불길 속으로 사라진다. 각오는 됐나?',
+  '들개 가죽은 질기고 슬라임 점액은 담금질에 좋아. 아르델에서 다 구할 수 있다.', '카르둠의 용암석만 있으면… 아, 그 길은 아직 닫혀 있지.'];
+let craftTab = 'mine';
+const craftMatOk = r => Object.entries(r.mats).every(([id, n]) => (P.inv[id] || 0) >= n);
+function craftBlock(r) {   // 제작할 수 없는 까닭(없으면 null)
+  const d = CRAFT_GEAR[r.item];
+  const locked = Object.keys(r.mats).map(id => XITEMS[id].region).filter(g => g && !regionOpen(g));
+  if (locked.length) return `재료가 나는 ${[...new Set(locked)].map(g => REGIONS[g].name).join(' · ')}이(가) 아직 열리지 않았습니다`;
+  if (d.base !== P.c.base) return `${BASE_LABEL[d.base]} 전용 무기입니다`;
+  if (!craftMatOk(r)) return '재료가 모자랍니다';
+  if (P.gold < r.cost) return '에테르가 모자랍니다';
+  if (P.bag.length >= BAG_MAX) return '가방이 가득 찼습니다';
+  return null;
+}
+function renderCraft() {
+  const list = $('craftList'); list.innerHTML = '';
+  document.querySelectorAll('#craftTabs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.ct === craftTab)));
+  for (const r of RECIPES) {
+    const d = CRAFT_GEAR[r.item], mine = d.base === P.c.base;
+    if (craftTab === 'mine' && !mine) continue;
+    const why = craftBlock(r), row = document.createElement('div'); row.className = 'crow' + (mine ? '' : ' other');
+    const ic = document.createElement('canvas'); ic.width = 40; ic.height = 40; row.append(ic); gradeFrame(ic, d.grade, d.icon, 0);
+    const info = document.createElement('div');
+    info.innerHTML = `<div class="cn g-${d.grade}">[${GRADE_LABEL[d.grade]}] ${d.name}</div><div class="cm">${BASE_LABEL[d.base]} 전용 · Lv ${d.lv} · 공격력 ${d.atk}${d.mp ? ` · MP +${d.mp}` : ''}</div><div class="cfx">${d.fx}</div>`;
+    const mats = document.createElement('div'); mats.className = 'mats';
+    for (const [id, n] of Object.entries(r.mats)) {
+      const have = P.inv[id] || 0, sp = document.createElement('span'); sp.className = have >= n ? 'ok' : 'lack'; sp.title = `${itemName(id)} — ${XITEMS[id].src}`;
+      const c = document.createElement('canvas'); c.width = 18; c.height = 18; sp.append(c); iconTo(c, id);
+      sp.append(document.createTextNode(`${itemName(id)} ${have}/${n}`)); mats.append(sp);
+    }
+    info.append(mats);
+    if (why) { const l = document.createElement('div'); l.className = 'lockr'; l.textContent = why; info.append(l); }
+    row.append(info);
+    const bx = document.createElement('div'); bx.className = 'cbtn';
+    bx.innerHTML = `<span>${r.cost.toLocaleString()} 에테르</span><span>성공 ${DEV() ? 100 : r.ch}%</span>`;
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = '제작'; b.disabled = !!why; b.onclick = () => craftItem(r);
+    bx.append(b); row.append(bx); list.append(row);
+  }
+  $('craftGold').textContent = `보유 ${P.gold.toLocaleString()} 에테르 · 실패하면 재료와 에테르가 모두 사라집니다`;
+}
+function craftItem(r) {
+  if (!r || craftBlock(r)) return false;
+  const d = CRAFT_GEAR[r.item];
+  for (const [id, n] of Object.entries(r.mats)) P.inv[id] -= n;
+  P.gold -= r.cost;
+  const ok = Math.random() * 100 < (DEV() ? 100 : r.ch);
+  if (ok) {
+    const e = makeEquip(d.key, 0, { bias: 1.5 }); P.bag.push(e);
+    log(`[${GRADE_LABEL[d.grade]}] ${d.name} 제작 성공!`, 'sys'); banner(`${d.name} 제작 성공`, d.fx); sfx('enchant_ok');
+    vfx.push({ k: 'beam', x: P.x, y: P.y, t: 0, life: 1.0, col: GRADE_RGB[d.grade] });
+    $('craftSay').textContent = '좋은 쇠다. 아껴 써라.';
+  } else {
+    log(`${d.name} 제작 실패 — 재료와 ${r.cost.toLocaleString()} 에테르가 사라졌습니다.`, 'bad'); sfx('enchant_fail'); shake = 4;
+    $('craftSay').textContent = '…불길이 쇠를 삼켰군. 다시 모아 오게.';
+  }
+  renderCraft(); renderInv(); save();
+  return ok;
+}
+function drawCraftNpc() {
+  const cv = $('craftNpc'), c = cv.getContext('2d'), sm = META.npcs && META.npcs.npc_drogan; c.clearRect(0, 0, cv.width, cv.height); c.imageSmoothingEnabled = false;
+  if (!sm) return; const im = img(sm.sheet); if (!im.complete) { im.addEventListener('load', drawCraftNpc, { once: true }); return; }
+  c.drawImage(im, 0, 1 * sm.fh, sm.fw, sm.fh, (cv.width - sm.fw) / 2, 0, sm.fw, sm.fh);
+}
+function openCraft() {
+  if (!running || !P || P.dead) return false;
+  $('craft').classList.remove('hidden'); $('smithBtn').classList.add('hidden'); $('gatherBtn').classList.add('hidden');
+  $('craftSay').textContent = SMITH_SAY[irnd(0, SMITH_SAY.length - 1)];
+  drawCraftNpc(); renderCraft(); uiPauseCheck(); sfx('hit_blunt', { gain: 0.4 });
+  return true;
+}
+function closeCraft() { $('craft').classList.add('hidden'); uiPauseCheck(); }
+$('craftClose').addEventListener('click', closeCraft);
+$('smithBtn').addEventListener('click', openCraft);
+$('gatherBtn').addEventListener('click', () => startGather(nearNode()));
+document.querySelectorAll('#craftTabs button').forEach(b => b.addEventListener('click', () => { craftTab = b.dataset.ct; renderCraft(); }));
+// 제작 무기 특수 옵션: 장착한 무기의 값을 읽는다
+const wSpec = k => { const e = P && P.eq && P.eq.weapon, d = e && equipDef(e.key); return d && d[k] ? d[k] : 0; };
+const UNDEAD = new Set(['skeleton', 'skeleton_archer', 'boss', 'wb_lich']);
+// 새 몬스터 소리: 들개 = 늑대, 고블린 궁수 = 고블린
+if (window.LineageAudio && LineageAudio.ACTOR_SFX) { const A = LineageAudio.ACTOR_SFX; if (!A.dog) A.dog = A.wolf; if (!A.goblin_archer) A.goblin_archer = A.goblin; }
 $('wmap').addEventListener('click', e => { if (e.target.id === 'wmap') toggleWorldMap(false); });   // 바깥 어두운 곳을 누르면 닫힘
 $('minimap').addEventListener('click', () => { if (running) toggleWorldMap(true); });
 $('minimap').style.cursor = 'pointer'; $('minimap').title = '세계지도 열기 (Tab)';
@@ -3981,7 +4445,7 @@ function loop(ts) {
     updateProjs(dt);
     updateHazards(dt);
     updateWorldBoss(dt);
-    updatePet(dt); updateWaypoints(dt); updateCritters(dt);
+    updatePet(dt); updateWaypoints(dt); updateCritters(dt); updateNodes(dt);
     updateFx(dt);
     updateVfx(dt);
     updateHud();
@@ -4012,11 +4476,12 @@ function simulate(seconds, step = 1 / 20) {
 }
 // 시험용 손잡이
 window.__game = {
+  nickCheck, startReady,
   MISSING, toggleWorldMap, WORLDMAP, SAVE_KEY, OLD_SAVE_KEY, migrateV1, loadSave, REGIONS, ELEMENTS, regionOf, regionOpen, CLOCK_START,
   WORLD_BOSS, UNIQUE, PASSIVES, XITEMS, topPct, itemStats, useItem, wbAlive, wbSlot, safeSpot, walkable, findPath, handleTap, joy: JOY, joyVec, closeShop, nearNpc, skillIds, dropEquip,
   get hazards() { return hazards; }, get reach() { return reach; }, get blocked() { return blocked; }, get now() { return now; },
   killMob, wbDrops, gradeFrame, renderShop, pullGacha, exchangeMile, gachaRoll, setPet, setMorph, collBonus, teleportTo, openWp, WAYPOINTS, showCompare, renderGacha, toggleGacha, devChanged, applyVolumes,
-  get PET() { return PET; }, get critters() { return critters; }, get SFX_STAT() { return SFX_STAT; }, RESPAWN_T, MOB_TUNE, GG, GACHA_POOL, sfx, sfxAt, mobVoice,
+  get PET() { return PET; }, get critters() { return critters; }, MATERIALS, MAT_DROPS, FUTURE_MOBS, RECIPES, CRAFT_GEAR, craftItem, openCraft, closeCraft, startGather, encChance, encFail, encStone, destroyItem, GATHER, get SFX_STAT() { return SFX_STAT; }, RESPAWN_T, MOB_TUNE, GG, GACHA_POOL, sfx, sfxAt, mobVoice,
   set gCat(v) { gCat = v; }, get gCat() { return gCat; },
   combat: COMBAT, get P() { return P; }, get mobs() { return mobs; }, get map() { return MAP; }, get fxs() { return fxs; }, get drops() { return drops; }, STATE,
   addStat, xpNeed, SKILL_LV, DUNGEON_MIN, gainXp, OPT, renderOpt, enchantItem, panelOpen, get uiPaused() { return uiPaused; }, LOOT, simulate, musicKind, SOUND_PICKS, audio, unequip, renderInv, statVal, slotFor, slotAllowed, EQS, SLOTS, GEAR, renderOnce, start: startGame, save, loadSave, openShop, buy, SHOP, QUESTS, inTown, enterMap, useSkill, enchant, drink, nearestMob, setAuto, equip, makeEquip, equipDef, DROP_TABLE, setPaused: v => { paused = v; },
@@ -4026,7 +4491,8 @@ resize();
 const ASSETS = [
   ...Object.values(META.characters).map(s => s.sheet), ...Object.values(META.monsters).map(s => s.sheet),
   ...Object.values(META.effects).map(s => s.sheet), ...Object.values(META.props).map(s => s.sheet),
-  META.tiles.sheet, META.item_atlas.sheet, META.enchant_icons.sheet,
+  META.tiles.sheet, META.item_atlas.sheet, META.enchant_icons.sheet, MAT_SHEET,
+  ...(META.npcs && META.npcs.npc_drogan ? [META.npcs.npc_drogan.sheet] : []),
 ];
 preload(ASSETS).then(() => { titleScreen(); showMissing(); requestAnimationFrame(loop); });
 </script>

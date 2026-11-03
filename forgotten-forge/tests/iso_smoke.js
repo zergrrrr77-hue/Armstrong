@@ -21,7 +21,7 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
     const idx = ['knight', 'elf', 'mage'].indexOf(cls);
     await page.locator('.cls').nth(idx).click();
     if (cls === 'knight') await page.screenshot({ path: `${OUT}/g0_title.png` });
-    await page.click('#start');
+    await page.fill('#nick', '테스터').then(() => page.click('#start'));
     await page.waitForTimeout(600);
 
     // 이동(키보드)
@@ -83,7 +83,7 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
     const pot = await page.evaluate(() => { const P = __game.P; if (P.dead) return false; P.hp = 10; const n = P.inv.pot_red; __game.drink('pot_red'); return P.hp > 10 && P.inv.pot_red === n - 1; });
     check(pot, '체력 물약', fails);
     const enc = await page.evaluate(() => { const P = __game.P; P.inv.scroll_weapon = 3; __game.enchant('w'); __game.enchant('w'); return P.wEnc === 2; });
-    check(enc, '무기 강화(+6 이하 안전)', fails);
+    check(enc, '무기 강화(안전 구간)', fails);
     const gold = await page.evaluate(() => document.getElementById('gold').textContent.includes('에테르'));
     check(gold, '화폐 단위 에테르', fails);
 
@@ -119,7 +119,7 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
       await page.click('#wIcon'); await page.waitForTimeout(100);
       const det = await page.evaluate(() => { const t = document.getElementById('detail').textContent; return ['등급', '공격력', '강화', '착용', '다음 강화', '필요 재료'].every(k => t.includes(k)); });
       check(det, '장비 상세: 등급·능력치·강화·착용·다음 강화·재료', fails);
-      await page.evaluate(() => { __game.P.inv.scroll_weapon = 2; });
+      await page.evaluate(() => { __game.P.inv.scroll_weapon = 2; __game.P.inv.star_shard = 2; __game.renderInv(); });
       await page.click('#btnEnc'); await page.waitForTimeout(100);
       const toast = await page.evaluate(() => document.getElementById('encToast').textContent);
       check(/강화/.test(toast), '강화 결과 알림: ' + toast, fails);
@@ -147,8 +147,8 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
       await page.click('.dslot[data-slot="helm"]'); await page.click('#btnUnequip');
       const un = await page.evaluate(() => !__game.P.eq.helm && __game.P.bag.some(e => e.key === 'helm_2'));
       check(un, '장비 해제 → 가방으로', fails);
-      const encH = await page.evaluate(() => { const G = __game, P = G.P; P.inv.scroll_armor = 3; const e = P.eq.boots; G.enchantItem(e); return P.inv.scroll_armor === 2; });
-      check(encH, '장화를 갑옷 주문서로 강화', fails);
+      const encH = await page.evaluate(() => { const G = __game, P = G.P; P.inv.scroll_armor = 3; P.inv.star_shard = 3; const e = P.eq.boots; G.enchantItem(e); return P.inv.scroll_armor + P.inv.star_shard === 5; });
+      check(encH, '장화를 별빛 강화석(방어구)으로 강화', fails);
       const accNo = await page.evaluate(() => __game.enchantItem(__game.P.eq.amulet) === false);
       check(accNo, '장신구는 강화 불가', fails);
       await page.keyboard.press('KeyI');
@@ -236,7 +236,7 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
   const m = await browser.newPage({ viewport: { width: 400, height: 780 } });
   await m.goto('file://' + path.resolve(__dirname, '../index.html'));
   await m.waitForFunction(() => document.querySelectorAll('.cls').length === 3, null, { timeout: 20000 });
-  await m.locator('.cls').nth(1).click(); await m.click('#start'); await m.waitForTimeout(800);
+  await m.locator('.cls').nth(1).click(); await m.fill('#nick', '테스터').then(() => m.click('#start')); await m.waitForTimeout(800);
   await m.screenshot({ path: `${OUT}/g6_phone.png` });
   const ov = await m.evaluate(() => document.documentElement.scrollWidth - innerWidth);
   check(ov <= 0, '휴대폰 화면 가로 넘침 없음', fails);

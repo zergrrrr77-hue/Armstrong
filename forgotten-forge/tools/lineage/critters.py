@@ -268,3 +268,20 @@ def p_coop(f):
 def p_fence_v(f):
     """기존 '나무 울타리'와 같은 모양을 다른 축 방향으로 세운 것(우리·닭장 옆면용)."""
     return F.p_fence(f)
+
+
+# ───────────────────────── 들개(에르덴 아르델 평원) ─────────────────────────
+
+def _dog():
+    """검은 늑대와 같은 뼈대·동작, 털만 누런 갈색으로 바꾸고 조금 작게."""
+    d = Mo._wolf()
+    fur_tex = lambda P, n: 0.55 * S.vnoise(P * V(0.9, 0.35, 1.4), 11) + 0.25 * S.vnoise(P * 2.6, 5)
+    d['mats'] = dict(d['mats'])
+    d['mats']['fur'] = Mat(['#2a1c10', '#46301a', '#644626', '#82603a', '#9e7a50'], tex=fur_tex)
+    d['mats']['fur_lt'] = Mat(['#3e2c18', '#5e4628', '#80643c', '#a08458', '#bca074'], tex=fur_tex)
+    d['mats']['eyes'] = Mat(['#3a1a04', '#5a2a08', '#7a3e10', '#9a5418', '#b86a24'], emit=True)
+    d.update(name='dog', label='들개', scale=1.05)
+    return d
+
+
+Mo.MONSTERS += [_dog()]

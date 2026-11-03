@@ -9,7 +9,7 @@ let fail = 0;
     const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
     await p.goto('file://' + path.resolve(__dirname + '/../index.html'));
     await p.waitForFunction(() => document.querySelectorAll('.cls').length === 3);
-    await p.evaluate(() => localStorage.clear()); await p.locator('.cls').nth(0).click(); await p.click('#start'); await p.waitForTimeout(700);
+    await p.evaluate(() => localStorage.clear()); await p.locator('.cls').nth(0).click(); await p.fill('#nick', '테스터').then(() => p.click('#start')); await p.waitForTimeout(700);
     const cdp = await ctx.newCDPSession(p);
     const swipe = async (sel) => {
       const r = await p.locator(sel).boundingBox(); const x = r.x + r.width / 2, y0 = r.y + r.height * 0.75, y1 = r.y + r.height * 0.2;

@@ -11,7 +11,7 @@ const OUT = process.argv[2] || '/tmp';
     await p.goto('file://' + path.resolve(__dirname, '../index.html'));
     await p.waitForFunction(() => document.querySelectorAll('.cls').length === 3);
     await p.evaluate(() => localStorage.clear());
-    await p.locator('.cls').nth(0).click(); await p.click('#start'); await p.waitForTimeout(600);
+    await p.locator('.cls').nth(0).click(); await p.fill('#nick', '테스터').then(() => p.click('#start')); await p.waitForTimeout(600);
     await p.locator('#btnOpt').tap(); await p.waitForTimeout(200);
     const fits = {};
     for (const t of ['auto', 'view', 'sound', 'dev']) {
@@ -33,7 +33,7 @@ const OUT = process.argv[2] || '/tmp';
   await p.goto('file://' + path.resolve(__dirname, '../index.html'));
   await p.waitForFunction(() => document.querySelectorAll('.cls').length === 3);
   await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForFunction(() => document.querySelectorAll('.cls').length === 3);
-  await p.locator('#devTitle').check(); await p.locator('.cls').nth(1).click(); await p.click('#start'); await p.waitForTimeout(500);
+  await p.locator('#devTitle').check(); await p.locator('.cls').nth(1).click(); await p.fill('#nick', '테스터').then(() => p.click('#start')); await p.waitForTimeout(500);
   ck(await p.evaluate(() => __game.OPT.dev === 'on' && !document.getElementById('devBadge').classList.contains('hidden')), '시작 화면 "개발자 모드로 시작" 체크');
   await b.close();
   console.log(fail ? `실패 ${fail}건` : '모두 통과'); process.exit(fail ? 1 : 0);

@@ -29,7 +29,7 @@ async function scriptCost(page) {
     await page.waitForFunction(() => document.querySelectorAll('.cls').length === 3, null, { timeout: 20000 });
     await page.evaluate(() => localStorage.clear());
     await (mobile ? page.locator('.cls').nth(2).tap() : page.locator('.cls').nth(2).click());
-    await (mobile ? page.tap('#start') : page.click('#start'));
+    await (mobile ? page.fill('#nick', '테스터').then(() => page.tap('#start')) : page.fill('#nick', '테스터').then(() => page.click('#start')));
     await page.waitForTimeout(600);
     // 전투가 많은 상황: 몬스터 무리 한가운데 + 자동사냥
     await page.evaluate(() => { const G = __game, P = G.P; P.maxhp = 1e6; P.hp = 1e6; P.lv = 8; const m = G.mobs.find(x => x.type === 'orc'); P.x = m.x - 1; P.y = m.y; G.setAuto(true); });

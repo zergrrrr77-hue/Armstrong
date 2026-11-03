@@ -53,6 +53,26 @@ def grade(im):
     return Image.fromarray(a.astype(np.uint8))
 
 
+def gather_nodes():
+    """채집 지점 그림 2종: 철광석 광맥(바위 + 주황 광맥 점), 야생 약초 덤불(약초 세 포기)."""
+    rock = Image.open(os.path.join(SRC, 'trees_plants_rocks.png')).convert('RGBA').crop((78, 30, 125, 93))
+    rock = rock.crop(rock.getbbox()).resize((36, 40), Image.NEAREST)
+    a = np.array(rock)
+    r = np.random.default_rng(11)
+    ys, xs = np.nonzero(a[..., 3] > 200)
+    for k in r.choice(len(xs), size=min(26, len(xs)), replace=False):
+        a[ys[k], xs[k], :3] = (214, 120, 60)
+    ore = Image.fromarray(a)
+    herb1 = Image.open(os.path.join(SRC, 'trees_plants.png')).convert('RGBA').crop((231, 264, 252, 287))
+    herb1 = herb1.crop(herb1.getbbox())
+    flower = Image.open(os.path.join(SRC, 'trees_plants.png')).convert('RGBA').crop((293, 196, 314, 222))
+    flower = flower.crop(flower.getbbox()) if flower.getbbox() else herb1
+    herb = Image.new('RGBA', (44, 30), (0, 0, 0, 0))
+    herb.alpha_composite(herb1, (2, 30 - herb1.height)); herb.alpha_composite(herb1, (22, 30 - herb1.height - 2))
+    herb.alpha_composite(flower.resize((max(1, flower.width * 3 // 4), max(1, flower.height * 3 // 4)), Image.NEAREST), (12, 6))
+    return [('node_ore', '철광석 광맥', ore, '채집'), ('node_herb', '야생 약초', herb, '채집')]
+
+
 def main():
     mp = os.path.join(OUT, 'meta.json')
     meta = json.load(open(mp, encoding='utf-8'))
@@ -72,6 +92,12 @@ def main():
         rel = os.path.join('field', 'props', f'{name}.png')
         im.save(os.path.join(OUT, rel), optimize=True)
         meta['props'][name] = dict(label=label, group=group, sheet=rel.replace(os.sep, '/'), fw=im.width, fh=im.height, ax=ax, ay=ay, frames=1, ext=fn)
+        print(name, im.size)
+    for name, label, im, group in gather_nodes():
+        im = grade(im)
+        rel = os.path.join('field', 'props', f'{name}.png')
+        im.save(os.path.join(OUT, rel), optimize=True)
+        meta['props'][name] = dict(label=label, group=group, sheet=rel.replace(os.sep, '/'), fw=im.width, fh=im.height, ax=im.width // 2, ay=im.height - 3, frames=1, ext='trees_plants_rocks.png / trees_plants.png')
         print(name, im.size)
     json.dump(meta, open(mp, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     sys.path.insert(0, HERE)
