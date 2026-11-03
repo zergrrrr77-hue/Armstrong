@@ -102,7 +102,7 @@ def _wb_warlord():
             it.append(Item(S.capsule(c - w * 3.0 * s + side * sg * 1.0 * s, c + w * 3.0 * s + side * sg * 1.0 * s, 0.45 * s), 'blood', 'blade'))
         it.append(Item(S.box(top - w * 3.6 * s, V(1.9 * s, 1.9 * s, 3.2 * s), Mb, 0.3), 'iron'))
         it.append(Item(S.cone(top + w * 1.0 * s, top + w * 6.0 * s, 1.4 * s), 'iron'))
-    d = Mo.humanoid_monster('wb_warlord', '피의 군주 그롬마르', m, parts, opts, build, 'great', gear, WB_FRAME, lean=8)
+    d = Mo.humanoid_monster('wb_warlord', '몰락의 군주 그롬마르', m, parts, opts, build, 'great', gear, WB_FRAME, lean=8)
     d['anims'] = WB_ANIMS
     return d
 
@@ -175,7 +175,7 @@ def _wb_lich():
             a = ph + k * 2.094
             c = r.chest + V(math.cos(a) * 11 * s, math.sin(a) * 11 * s, 2.0 * s + math.sin(a * 2) * 2 * s)
             it.append(Item(S.sphere(c, 1.5 * s), 'soul'))
-    d = Mo.humanoid_monster('wb_lich', '심연의 리치 군주 벨카르', m, parts, opts, build, 'great', gear, WB_FRAME, lean=2)
+    d = Mo.humanoid_monster('wb_lich', '잊힌 기억의 리치 모르벤', m, parts, opts, build, 'great', gear, WB_FRAME, lean=2)
     d['anims'] = WB_ANIMS
     return d
 
@@ -204,7 +204,7 @@ F.PM.update({
 })
 
 
-@F.prop('shrine', '천상의 화로 신전(상점)', (150, 165, 75, 120), yaw=0, scale=2.0, group='마을 생활')
+@F.prop('shrine', '별빛 성소(상점)', (150, 165, 75, 120), yaw=0, scale=2.0, group='마을 생활')
 def p_shrine(f):
     it = []
     # 2단 원형 단(계단)
@@ -268,7 +268,7 @@ def p_shrine(f):
     return it
 
 
-@F.prop('deity', '화로의 신 헤스카르(상점 NPC)', (230, 250, 115, 222), frames=6, yaw=180, scale=1.0, group='마을 생활')
+@F.prop('deity', '일곱 근원의 신상(상점)', (230, 250, 115, 222), frames=6, yaw=180, scale=1.0, group='마을 생활')
 def p_deity(f):
     n = 6
     ph = 2 * math.pi * f / n
@@ -360,7 +360,7 @@ F.PM.update({
 })
 
 
-@F.prop('waypoint', '웨이포인트(룬 비석)', (80, 120, 40, 96), frames=4, yaw=0, scale=1.4, group='마을 생활')
+@F.prop('waypoint', '별빛 표석(룬 비석)', (80, 120, 40, 96), frames=4, yaw=0, scale=1.4, group='마을 생활')
 def p_waypoint(f):
     ph = f * math.pi / 2
     it = [Item(S.cylinder(V(0, 0, 1.6), 13, 1.6, None, 0.5), 'runestone'),

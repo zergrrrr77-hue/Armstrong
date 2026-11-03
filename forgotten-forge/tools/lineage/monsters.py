@@ -139,7 +139,7 @@ def _orc():
         it.append(Item(S.box(r.waist - r.up * 0.4 * s, V(6.4 * s, 4.8 * s, 1.1 * s), R, 0.5), 'leather'))
         it += Hm.skirt(r, 'cloth', 6.2, 7.0, 8.5)
         it += axe_head(r, 'wood', 'iron', 17, double=False)
-    return humanoid_monster('orc', '오크 전사', m, parts, opts, build, 'axe', gear, (96, 88, 48, 66), lean=10)
+    return humanoid_monster('orc', '고블린 전사', m, parts, opts, build, 'axe', gear, (96, 88, 48, 66), lean=10)
 
 
 # 해골 병사 ────────────────────────────────────────────────
@@ -285,7 +285,7 @@ def _boss():
         w = r.wdir
         b0 = r.rha + w * 5 * s
         it.append(Item(S.capsule(b0, b0 + w * 22 * s, 0.55 * s), 'ember', 'blade'))
-    return humanoid_monster('boss', '몰락한 왕', m, parts, opts, build, 'great', gear, (144, 128, 72, 100), lean=4)
+    return humanoid_monster('boss', '봉인된 수호자', m, parts, opts, build, 'great', gear, (144, 128, 72, 100), lean=4)
 
 
 # ───────────────────────── 다이어울프 ─────────────────────────
@@ -398,7 +398,7 @@ def _wolf():
             pivot = V(5.0, 0, 0)
             tt = pivot - M @ pivot + V(0, 0, -samp([0, 0.3, 1.0, 1.8, 2.7, 2.5], f, n))
         return it, M, tt
-    return dict(name='wolf', label='다이어울프', mats=m, build=make, frame=(112, 96, 56, 68), scale=1.25)
+    return dict(name='wolf', label='검은 늑대', mats=m, build=make, frame=(112, 96, 56, 68), scale=1.25)
 
 
 # ───────────────────────── 거대 거미 ─────────────────────────
@@ -472,7 +472,7 @@ def _spider():
                 it.append(Item(S.capsule(root, knee, 1.5, 1.2), 'leg'))
                 it.append(Item(S.capsule(knee, foot, 1.15, 0.45), 'leg'))
         return it, None, None
-    return dict(name='spider', label='거대 거미', mats=m, build=make, frame=(112, 88, 56, 60))
+    return dict(name='spider', label='숲 거미', mats=m, build=make, frame=(112, 88, 56, 60))
 
 
 # ───────────────────────── 늪 점액 ─────────────────────────
@@ -519,7 +519,7 @@ def _ooze():
             for sx in (-1, 1):
                 it.append(Item(S.sphere(V(sx * 3.2, 7.5 + fw * 0.8, hz * 1.35 + up), 1.0), 'eyes'))
         return it, None, None
-    return dict(name='ooze', label='늪 점액', mats=m, build=make, frame=(96, 88, 48, 62))
+    return dict(name='ooze', label='녹색 슬라임', mats=m, build=make, frame=(96, 88, 48, 62))
 
 
 MONSTERS = [_orc(), _skeleton(), _wolf(), _spider(), _ooze(), _boss(), _goblin(), _skeleton(archer=True)]

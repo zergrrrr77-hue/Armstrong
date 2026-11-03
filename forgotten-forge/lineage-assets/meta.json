@@ -249,7 +249,7 @@
  },
  "monsters": {
   "orc": {
-   "label": "오크 전사",
+   "label": "고블린 전사",
    "sheet": "monsters/orc.png",
    "fw": 96,
    "fh": 88,
@@ -333,7 +333,7 @@
    "skills": []
   },
   "wolf": {
-   "label": "다이어울프",
+   "label": "검은 늑대",
    "sheet": "monsters/wolf.png",
    "fw": 112,
    "fh": 96,
@@ -375,7 +375,7 @@
    "skills": []
   },
   "spider": {
-   "label": "거대 거미",
+   "label": "숲 거미",
    "sheet": "monsters/spider.png",
    "fw": 112,
    "fh": 88,
@@ -417,7 +417,7 @@
    "skills": []
   },
   "ooze": {
-   "label": "늪 점액",
+   "label": "녹색 슬라임",
    "sheet": "monsters/ooze.png",
    "fw": 96,
    "fh": 88,
@@ -459,7 +459,7 @@
    "skills": []
   },
   "boss": {
-   "label": "몰락한 왕",
+   "label": "봉인된 수호자",
    "sheet": "monsters/boss.png",
    "fw": 144,
    "fh": 128,
@@ -596,7 +596,7 @@
    "skills": []
   },
   "wb_warlord": {
-   "label": "피의 군주 그롬마르",
+   "label": "몰락의 군주 그롬마르",
    "sheet": "monsters/wb_warlord.png",
    "fw": 216,
    "fh": 192,
@@ -649,7 +649,7 @@
    ]
   },
   "wb_lich": {
-   "label": "심연의 리치 군주 벨카르",
+   "label": "잊힌 기억의 리치 모르벤",
    "sheet": "monsters/wb_lich.png",
    "fw": 216,
    "fh": 192,
@@ -1174,7 +1174,7 @@
    "frames": 1
   },
   "shrine": {
-   "label": "천상의 화로 신전(상점)",
+   "label": "별빛 성소(상점)",
    "group": "마을 생활",
    "sheet": "field/props/shrine.png",
    "fw": 202,
@@ -1184,7 +1184,7 @@
    "frames": 1
   },
   "deity": {
-   "label": "화로의 신 헤스카르(상점 NPC)",
+   "label": "일곱 근원의 신상(상점)",
    "group": "마을 생활",
    "sheet": "field/props/deity.png",
    "fw": 106,
@@ -1194,7 +1194,7 @@
    "frames": 6
   },
   "waypoint": {
-   "label": "웨이포인트(룬 비석)",
+   "label": "별빛 표석(룬 비석)",
    "group": "마을 생활",
    "sheet": "field/props/waypoint.png",
    "fw": 38,

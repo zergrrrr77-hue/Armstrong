@@ -1,4 +1,4 @@
-<title>잊혀진 대장간</title>
+<title>에르덴 : 별의 심장</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -219,7 +219,7 @@ button.hud, .hud button { pointer-events: auto; }
 #encFx { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(5, 4, 3, .55); z-index: 5; pointer-events: none; }
 #encFx canvas { width: 260px; height: 200px; image-rendering: pixelated; }
 #encFx b { position: absolute; top: calc(50% + 92px); font-family: var(--display); font-size: 24px; text-shadow: 0 2px 10px #000; }
-/* 웨이포인트 메뉴 */
+/* 별빛 표석 메뉴 */
 #wpMenu { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(380px, calc(100vw - 20px)); max-height: calc(100vh - 30px); overflow-y: auto; background: var(--panel); border: 1px solid #6ac4ff; border-radius: 6px; padding: 12px; display: grid; gap: 8px; z-index: 25; box-shadow: 0 0 30px rgba(80, 160, 255, .2), 0 10px 40px #000; }
 #wpMenu h3 { margin: 0; font-family: var(--display); display: flex; justify-content: space-between; color: #c8ecff; }
 #wpMenu h3 button { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 16px; }
@@ -229,7 +229,7 @@ button.hud, .hud button { pointer-events: auto; }
 .wprow button:disabled { opacity: .35; cursor: default; }
 .wprow.off { opacity: .5; }
 #wpBtn { left: 50%; transform: translateX(-50%); bottom: max(150px, calc(env(safe-area-inset-bottom, 0px) + 146px)); background: linear-gradient(#14385a, #0c2238); border: 1px solid #6ac4ff; color: #e0f4ff; padding: 10px 20px; border-radius: 20px; font-weight: 700; cursor: pointer; box-shadow: 0 0 18px rgba(80, 160, 255, .45); z-index: 12; }
-/* 뽑기 */
+/* 공명 */
 #gacha { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(760px, calc(100vw - 16px)); height: min(640px, calc(100vh - 16px)); background: linear-gradient(#1a1410, #0e0b08); border: 1px solid var(--gold); border-radius: 8px; z-index: 26; display: grid; grid-template-rows: auto auto auto 1fr; overflow: hidden; box-shadow: 0 0 0 1px #000, 0 0 50px rgba(255, 170, 60, .2), 0 20px 60px #000; }
 .ghead { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); background: radial-gradient(ellipse at 20% 0%, rgba(255, 190, 90, .25), transparent 60%), #17110c; flex-wrap: wrap; }
 .ghead b { font-family: var(--display); font-size: 19px; color: #ffe2a0; }
@@ -472,11 +472,11 @@ details.info th { color: var(--gold); font-weight: 500; }
 <div id="title">
   <div class="inner">
     <div class="eyebrow">어두운 중세 쿼터뷰 RPG</div>
-    <h1>잊혀진 대장간</h1>
-    <p>기사·요정·마법사 중 하나를 골라 마을 밖 숲과 늪에서 사냥하며 장비를 모으고 강해진 뒤, 남동쪽 끝의 지하 계단으로 내려가 던전 깊은 곳의 보스 <b>몰락한 왕</b>을 쓰러뜨리세요. 강화 주문서로 장비를 +10까지 강화할 수 있지만, 안전 강화 구간을 넘으면 실패할 때 강화 수치가 사라집니다.</p>
+    <h1>에르덴 : 별의 심장</h1>
+    <p><i>별이 태어난 세계, 잊힌 왕국의 마지막 이야기.</i><br>기사·요정·마법사 중 하나를 골라 아르델 평원의 숲과 늪에서 사냥하며 장비를 모으고 강해진 뒤, 남동쪽 끝의 계단으로 왕실 기사단 묘소에 내려가 <b>봉인된 수호자</b>를 쓰러뜨리세요. 강화 주문서로 장비를 +10까지 강화할 수 있지만, 안전 강화 구간을 넘으면 실패할 때 강화 수치가 사라집니다.</p>
     <div class="classes" id="classes"></div>
     <div class="cont"><button class="start hidden" id="continue" type="button"></button><button class="start" id="start" disabled>클래스를 고르세요</button></div>
-    <label class="chk" style="justify-self:start"><input type="checkbox" id="devTitle"> 개발자 모드로 시작 (드롭·강화·뽑기 확률 상향, 시험용)</label>
+    <label class="chk" style="justify-self:start"><input type="checkbox" id="devTitle"> 개발자 모드로 시작 (드롭·강화·공명 확률 상향, 시험용)</label>
     <div class="warn hidden" id="newWarn">새로 시작하면 저장된 진행이 지워집니다.</div>
     <div class="keys">
       <div><kbd>클릭</kbd>이동 · 몬스터 클릭 공격</div>
@@ -485,8 +485,8 @@ details.info th { color: var(--gold); font-weight: 500; }
       <div><kbd>1</kbd>~<kbd>4</kbd>스킬</div>
       <div><kbd>Q</kbd>체력 물약 · <kbd>E</kbd>마나 물약</div>
       <div><kbd>H</kbd>자동사냥 · <kbd>I</kbd>가방·강화 · <kbd>M</kbd>소리</div>
-      <div><kbd>F</kbd>상점·웨이포인트 · <kbd>5</kbd>~<kbd>8</kbd>월드보스 스킬</div>
-      <div><kbd>G</kbd>뽑기(펫·변신) · <kbd>F2</kbd>개발자 모드</div>
+      <div><kbd>F</kbd>상점·별빛 표석 · <kbd>5</kbd>~<kbd>8</kbd>월드보스 스킬</div>
+      <div><kbd>G</kbd>공명(펫·변신) · <kbd>F2</kbd>개발자 모드</div>
       <div><span style="color:#ff6a5a">▼</span> 선공 몬스터(먼저 공격) · <span style="color:#8ae07a">●</span> 후공 몬스터</div>
       <div><kbd>휴대폰</kbd>왼쪽 아래를 누르고 끌면 투명 조이스틱</div>
     </div>
@@ -498,20 +498,20 @@ details.info th { color: var(--gold); font-weight: 500; }
   <div class="orbtxt"><b id="pname">기사</b><div class="sbar" id="shp"><i></i></div><div class="sbar" id="smp"><i></i></div><div class="num"><span class="hpt" id="hpt"></span><span class="mpt" id="mpt"></span></div><div id="buffs"></div></div>
 </div>
 <div class="hud hidden" id="quest"><button class="qh" id="qToggle" type="button" aria-expanded="true"><span>목표</span><span id="qArrow">▾</span></button><span class="qt" id="qt"></span><span class="qp" id="qp"></span></div>
-<button class="hud hidden" id="shopBtn" type="button">✦ 헤스카르와 거래 (F)</button>
-<div class="hud hidden" id="shop" role="dialog" aria-label="화로의 신 상점">
+<button class="hud hidden" id="shopBtn" type="button">✦ 세리아와 거래 (F)</button>
+<div class="hud hidden" id="shop" role="dialog" aria-label="세리아의 상점">
   <div class="shead"><canvas id="shopNpc" width="96" height="104"></canvas>
-    <div class="sinfo"><small>천상의 화로 신전 · 상점</small><b>화로의 신 헤스카르</b><span class="ssay" id="shopSay"></span></div>
+    <div class="sinfo"><small>별빛 성소 · 상점</small><b>세리아</b><span class="ssay" id="shopSay"></span></div>
     <button type="button" id="shopClose" class="wclose" aria-label="상점 닫기">✕</button></div>
   <div class="tabs" id="shopTabs"><button type="button" data-st="buy" aria-pressed="true">구매</button><button type="button" data-st="sell" aria-pressed="false">판매</button></div>
   <div id="shopList"></div>
   <div class="act hidden" id="shopSell"><button type="button" id="sellCommon">일반 등급 장비 모두 판매</button><button type="button" id="sellUncommon">고급 등급 장비 모두 판매</button><button type="button" id="sellLoot">전리품 모두 판매</button><button type="button" id="sellGem">루비 판매</button></div>
   <div class="note" id="shopGold"></div></div>
 <div class="hud hidden" id="target"><b></b><div class="bar"><i></i><span></span></div></div>
-<div class="hud hidden" id="mini"><div class="zone" id="zone">마을 외곽</div><div class="mmwrap"><canvas id="minimap" width="150" height="150"></canvas><div class="mmz"><button id="mmIn" type="button" aria-label="미니맵 확대">+</button><button id="mmOut" type="button" aria-label="미니맵 축소">−</button></div></div>
+<div class="hud hidden" id="mini"><div class="zone" id="zone">아르델 평원</div><div class="mmwrap"><canvas id="minimap" width="150" height="150"></canvas><div class="mmz"><button id="mmIn" type="button" aria-label="미니맵 확대">+</button><button id="mmOut" type="button" aria-label="미니맵 축소">−</button></div></div>
   <div class="gold"><canvas id="goldIcon" width="32" height="32"></canvas><span id="gold">0</span></div>
   <div class="wbt" id="wbTimer"></div>
-  <div class="mbtn"><button id="btnAuto" type="button" aria-pressed="false" title="자동사냥 (H)" aria-label="자동사냥"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/><path d="M9 15l3-7 3 7M10 13h4"/></svg><span>자동</span></button><button id="btnInv" type="button" title="가방 (I)" aria-label="가방"><svg viewBox="0 0 24 24"><path d="M5 9h14l-1.2 11H6.2z"/><path d="M9 9V7a3 3 0 0 1 6 0v2"/></svg><span>가방</span></button><button id="btnGacha" type="button" title="뽑기 (G)" aria-label="뽑기"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17l-5.6 2.9 1.1-6.3L2.9 9.2l6.3-.9z"/></svg><span>뽑기</span></button><button id="btnSnd" type="button" aria-pressed="true" title="소리 켜기/끄기 (M)" aria-label="소리"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span>소리</span></button><button id="btnOpt" type="button" title="설정" aria-label="설정"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg><span>설정</span></button></div></div>
+  <div class="mbtn"><button id="btnAuto" type="button" aria-pressed="false" title="자동사냥 (H)" aria-label="자동사냥"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/><path d="M9 15l3-7 3 7M10 13h4"/></svg><span>자동</span></button><button id="btnInv" type="button" title="가방 (I)" aria-label="가방"><svg viewBox="0 0 24 24"><path d="M5 9h14l-1.2 11H6.2z"/><path d="M9 9V7a3 3 0 0 1 6 0v2"/></svg><span>가방</span></button><button id="btnGacha" type="button" title="공명 (G)" aria-label="공명"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17l-5.6 2.9 1.1-6.3L2.9 9.2l6.3-.9z"/></svg><span>공명</span></button><button id="btnSnd" type="button" aria-pressed="true" title="소리 켜기/끄기 (M)" aria-label="소리"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span>소리</span></button><button id="btnOpt" type="button" title="설정" aria-label="설정"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg><span>설정</span></button></div></div>
 <div class="hud hidden" id="opt">
   <h3>설정 <button type="button" id="optClose" aria-label="설정 닫기">✕</button></h3>
   <div class="tabs" id="optTabs"><button type="button" data-ot="auto" aria-pressed="true">자동</button><button type="button" data-ot="view" aria-pressed="false">화면</button><button type="button" data-ot="sound" aria-pressed="false">사운드</button><button type="button" data-ot="dev" aria-pressed="false">개발자</button></div>
@@ -531,18 +531,18 @@ details.info th { color: var(--gold); font-weight: 500; }
   </div>
   <div class="osec hidden" data-sec="dev">
   <div class="orow"><span>개발자 모드 (F2)</span><div class="seg" data-opt="dev"><button type="button" data-v="off">끄기</button><button type="button" data-v="on">켜기</button></div>
-    <div class="note">드롭 100% · 높은 등급 · 강화 100% · 뽑기 확률 대폭 상향 · 패시브 30%. 시험용입니다.</div>
-    <div class="devrow" id="devRow"><button type="button" data-dev="gold">골드 +1,000,000</button><button type="button" data-dev="lv">레벨 +1</button><button type="button" data-dev="wb">월드보스 즉시 출현</button><button type="button" data-dev="wp">웨이포인트 모두 열기</button><button type="button" data-dev="god">무적 켜기/끄기</button><button type="button" data-dev="items">주문서·물약 99개</button></div></div>
+    <div class="note">드롭 100% · 높은 등급 · 강화 100% · 공명 확률 대폭 상향 · 패시브 30%. 시험용입니다.</div>
+    <div class="devrow" id="devRow"><button type="button" data-dev="gold">아데나 +1,000,000</button><button type="button" data-dev="lv">레벨 +1</button><button type="button" data-dev="wb">월드보스 즉시 출현</button><button type="button" data-dev="wp">별빛 표석 모두 열기</button><button type="button" data-dev="god">무적 켜기/끄기</button><button type="button" data-dev="items">주문서·물약 99개</button></div></div>
 </div>
 </div>
 <div class="hud hidden" id="devBadge">DEV</div>
-<button class="hud hidden" id="wpBtn" type="button">◈ 웨이포인트 (F)</button>
-<div class="hud hidden" id="wpMenu" role="dialog" aria-label="웨이포인트"><h3><span id="wpTitle">웨이포인트</span><button type="button" id="wpClose" aria-label="닫기">✕</button></h3><div class="note" id="wpNote"></div><div id="wpList"></div></div>
+<button class="hud hidden" id="wpBtn" type="button">◈ 별빛 표석 (F)</button>
+<div class="hud hidden" id="wpMenu" role="dialog" aria-label="별빛 표석"><h3><span id="wpTitle">별빛 표석</span><button type="button" id="wpClose" aria-label="닫기">✕</button></h3><div class="note" id="wpNote"></div><div id="wpList"></div></div>
 <div class="hud hidden" id="cmp" role="dialog" aria-label="아이템 비교"><div class="ch"><span>아이템 비교</span><button type="button" id="cmpClose" aria-label="비교창 닫기">✕</button></div><div class="cmpg" id="cmpGrid"></div><div class="ctot" id="cmpTot"></div></div>
-<div class="hud hidden" id="gacha" role="dialog" aria-label="뽑기">
-  <div class="ghead"><b>신의 축복 뽑기</b><div class="tabs" id="gTabs"><button type="button" data-g="pet" aria-pressed="true">펫</button><button type="button" data-g="morph" aria-pressed="false">변신 인형</button></div><span class="wgold" id="gGold"></span><button type="button" id="gClose" class="wclose" aria-label="뽑기 닫기">✕</button></div>
+<div class="hud hidden" id="gacha" role="dialog" aria-label="공명">
+  <div class="ghead"><b>별의 파편 공명</b><div class="tabs" id="gTabs"><button type="button" data-g="pet" aria-pressed="true">펫</button><button type="button" data-g="morph" aria-pressed="false">변신 인형</button></div><span class="wgold" id="gGold"></span><button type="button" id="gClose" class="wclose" aria-label="공명 닫기">✕</button></div>
   <div class="grates" id="gRates"></div>
-  <div class="gctl"><button type="button" class="pull" id="gPull1">1회 뽑기<small>10,000 골드</small></button><button type="button" class="pull" id="gPull11">11회 뽑기<small>100,000 골드 · 희귀 이상 1회 확정</small></button><div class="ginfo" id="gInfo"></div></div>
+  <div class="gctl"><button type="button" class="pull" id="gPull1">1회 공명<small>10,000 아데나</small></button><button type="button" class="pull" id="gPull11">11회 공명<small>100,000 아데나 · 희귀 이상 1회 확정</small></button><div class="ginfo" id="gInfo"></div></div>
   <div class="gbody"><div class="gres" id="gRes"></div><div><div class="gsel" id="gSel"></div><div class="sect" style="margin:8px 0 6px">도감 · 보유</div><div class="gcoll" id="gColl"></div></div></div>
 </div>
 <div id="gFlash"></div>
@@ -728,19 +728,49 @@ const BUFFS = {
   pillar: { name: '마나', atk: 1.25 }, slow: { name: '둔화' }, stun: { name: '기절' },
 };
 const MONSTERS = {
-  wolf:     { name: '다이어울프', hp: 90, atk: [8, 12], def: 0, speed: 3.0, range: 1.2, aggro: 6, xp: 18, cd: 1.3 },
-  spider:   { name: '거대 거미', hp: 120, atk: [9, 14], def: 1, speed: 2.4, range: 1.3, aggro: 5, xp: 24, cd: 1.5 },
-  ooze:     { name: '늪 점액', hp: 140, atk: [7, 11], def: 2, speed: 1.4, range: 1.1, aggro: 4, xp: 20, cd: 1.6 },
-  orc:      { name: '오크 전사', hp: 220, atk: [14, 20], def: 3, speed: 2.3, range: 1.3, aggro: 6, xp: 45, cd: 1.6 },
+  wolf:     { name: '검은 늑대', hp: 90, atk: [8, 12], def: 0, speed: 3.0, range: 1.2, aggro: 6, xp: 18, cd: 1.3 },
+  spider:   { name: '숲 거미', hp: 120, atk: [9, 14], def: 1, speed: 2.4, range: 1.3, aggro: 5, xp: 24, cd: 1.5 },
+  ooze:     { name: '녹색 슬라임', hp: 140, atk: [7, 11], def: 2, speed: 1.4, range: 1.1, aggro: 4, xp: 20, cd: 1.6 },
+  orc:      { name: '고블린 전사', hp: 220, atk: [14, 20], def: 3, speed: 2.3, range: 1.3, aggro: 6, xp: 45, cd: 1.6 },
   skeleton: { name: '해골 병사', hp: 170, atk: [12, 17], def: 4, speed: 2.2, range: 1.25, aggro: 6, xp: 38, cd: 1.5 },
   goblin:   { name: '고블린', hp: 80, atk: [7, 11], def: 1, speed: 2.6, range: 1.15, aggro: 5.5, xp: 16, cd: 1.3 },
   skeleton_archer: { name: '해골 궁수', hp: 110, atk: [10, 14], def: 2, speed: 2.0, range: 5.5, aggro: 7, xp: 30, cd: 2.0, ranged: true },
-  boss:     { name: '몰락한 왕', hp: 3200, atk: [26, 36], def: 6, speed: 2.0, range: 1.9, aggro: 9, xp: 1200, cd: 1.9, boss: true },
+  boss:     { name: '봉인된 수호자', hp: 3200, atk: [26, 36], def: 6, speed: 2.0, range: 1.9, aggro: 9, xp: 1200, cd: 1.9, boss: true },
   // 월드보스: 일반 보스의 2~3배 난이도, 화면상 2배 크기(1.5배 해상도 시트를 draw 배율로 확대)
-  wb_warlord: { name: '피의 군주 그롬마르', hp: 7200, atk: [48, 66], def: 10, speed: 2.3, range: 2.5, aggro: 7, xp: 4200, cd: 1.7, boss: true, wb: true, rad: 1.25, draw: 1.45, skillMul: 1.9, fxSc: 1.6 },
-  wb_lich:    { name: '심연의 리치 군주 벨카르', hp: 9000, atk: [54, 76], def: 12, speed: 2.1, range: 2.5, aggro: 7, xp: 5600, cd: 1.6, boss: true, wb: true, rad: 1.25, draw: 1.5, skillMul: 2.2, fxSc: 1.6, hue: 'hue-rotate(230deg) saturate(1.4)' },
+  wb_warlord: { name: '몰락의 군주 그롬마르', hp: 7200, atk: [48, 66], def: 10, speed: 2.3, range: 2.5, aggro: 7, xp: 4200, cd: 1.7, boss: true, wb: true, rad: 1.25, draw: 1.45, skillMul: 1.9, fxSc: 1.6 },
+  wb_lich:    { name: '잊힌 기억의 리치 모르벤', hp: 9000, atk: [54, 76], def: 12, speed: 2.1, range: 2.5, aggro: 7, xp: 5600, cd: 1.6, boss: true, wb: true, rad: 1.25, draw: 1.5, skillMul: 2.2, fxSc: 1.6, hue: 'hue-rotate(230deg) saturate(1.4)' },
 };
 const MLV = { goblin: 1, wolf: 2, ooze: 2, spider: 3, skeleton_archer: 4, skeleton: 5, orc: 6, boss: 12, wb_warlord: 15, wb_lich: 18 };
+// ── 에르덴 세계관 데이터 ──────────────────────────────
+// 일곱 근원: 모든 생명과 마법이 받는 영향. 공허는 악이 아니라 '소멸과 순환'이다.
+const ELEMENTS = {
+  sun:   { name: '태양', meaning: '생명과 창조', color: '#ffd36a' },
+  moon:  { name: '달',   meaning: '정신과 기억', color: '#c8d4ff' },
+  earth: { name: '대지', meaning: '생장과 보호', color: '#a8c86a' },
+  sea:   { name: '바다', meaning: '흐름과 변화', color: '#6ac4e8' },
+  fire:  { name: '화염', meaning: '의지와 파괴', color: '#ff8a5a' },
+  storm: { name: '폭풍', meaning: '자유와 이동', color: '#b8f0e0' },
+  void:  { name: '공허', meaning: '소멸과 순환', color: '#b48cff' },
+};
+// 몬스터·스킬의 근원 속성(지금은 표시·데이터용, 피해 계산에는 아직 쓰지 않음)
+const MONSTER_EL = { goblin: 'earth', wolf: 'moon', ooze: 'sea', spider: 'earth', skeleton_archer: 'void', skeleton: 'void',
+  orc: 'fire', boss: 'void', wb_warlord: 'fire', wb_lich: 'moon' };
+for (const [k, el] of Object.entries(MONSTER_EL)) if (MONSTERS[k] && ELEMENTS[el]) MONSTERS[k].el = el;
+const SKILL_EL = { spin: 'earth', slam: 'earth', guard: 'earth', bless: 'sun', wind: 'storm', volley: 'storm', whirl: 'earth',
+  fairy: 'sun', bolt: 'storm', ice: 'sea', meteor: 'fire', pillar: 'moon' };
+for (const [k, el] of Object.entries(SKILL_EL)) if (SKILLS[k] && ELEMENTS[el]) SKILLS[k].el = el;
+// 여섯 지역: 지금 플레이할 수 있는 곳은 아르델(맵 field·dungeon). 나머지는 이름·권장 레벨·열리는 조건만 등록.
+const REGIONS = {
+  ardel:      { name: '아르델 평원', lv: [1, 15],  maps: ['field', 'dungeon'], open: null },
+  elasia:     { name: '엘라시아 숲', lv: [15, 30], maps: [], open: { flag: 'ch1_done' } },
+  kardum:     { name: '카르둠 산맥', lv: [25, 40], maps: [], open: { flag: 'ch2_done' } },
+  arcana:     { name: '아르카나 폐허', lv: [45, 60], maps: [], open: { flag: 'ch3_done' } },
+  blackwaste: { name: '검은 황무지', lv: [35, 50], maps: [], open: { flag: 'ch4_done' } },
+  sanctum:    { name: '천공의 성역', lv: [60, 99], maps: [], open: { flag: 'ch6_done' } },
+};
+const regionOf = mapId => Object.keys(REGIONS).find(k => REGIONS[k].maps.includes(mapId)) || null;
+// 지역이 열렸는지: 처음부터 열린 곳이거나, 필요한 스토리 기록(flags)이 있으면 열림
+const regionOpen = id => { const r = REGIONS[id]; if (!r) return false; return !r.open || !!(STATE.flags && STATE.flags[r.open.flag]); };
 // 맞히는 반지름(타일): 큰 몸집일수록 멀리서도 닿음
 const rad = m => m.d.rad != null ? m.d.rad : (m.d.boss ? 0.6 : 0);
 // 몬스터별 행동 패턴: leash = 추적 한계(집에서 거리), combo = 연속 공격 수, keep = 원거리 유지 거리, hurtRes = 피격 경직 확률
@@ -766,23 +796,23 @@ const inTown = e => MAP && MAP.id === 'field' && e.x >= TOWN.i0 && e.x <= TOWN.i
 const SHOP = [
   { id: 'pot_red', price: 25, desc: '최대 HP의 32% 회복' }, { id: 'pot_blue', price: 35, desc: '최대 MP의 40% 회복' },
   { id: 'scroll_return', price: 60, desc: '어디서든 마을 광장으로 즉시 귀환' },
-  { id: 'scroll_teleport', price: 150, desc: '찾아 둔 웨이포인트 중 원하는 곳으로 이동' },
+  { id: 'scroll_teleport', price: 150, desc: '찾아 둔 별빛 표석 중 원하는 곳으로 이동' },
   { id: 'scroll_weapon', price: 450, desc: '무기 강화 +1 시도' }, { id: 'scroll_armor', price: 320, desc: '방어구 강화 +1 시도' },
 ];
-// 상점 NPC(화로의 신)의 인사말
-const NPC_SAY = ['불꽃은 잊혀져도 꺼지지 않는다. 무엇이 필요하냐, 필멸자여.', '내 화로에서 벼린 물약이다. 아껴 쓰거라.', '강화의 불길은 탐욕을 시험하지. 안전 구간을 넘을 땐 각오하라.',
-  '월드보스의 기척이 느껴지는구나… 여섯 시간마다 깨어나지.', '쓸모없는 장비는 내게 팔아라. 녹여서 다시 벼려 주마.'];
+// 상점 NPC(세리아)의 인사말
+const NPC_SAY = ['어서 오게, 길 잃은 별이여. 오늘은 무엇이 필요하지?', '이 물약 말인가? 삼백 년 전에도 같은 값이었지… 아, 농담일세.', '강화는 욕심을 시험하지. 안전한 구간을 넘을 땐 각오하게.',
+  '월드보스의 기척이 느껴지는군… 여섯 시간마다 깨어난다네.', '쓸모없는 장비는 내게 넘기게. 값은 후하게 쳐 주지.'];
 const QUESTS = [
-  { text: '다이어울프 5마리 처치', hint: '마을 동쪽 숲', kind: 'kill', types: ['wolf'], n: 5, goto: { map: 'field', x: 30, y: 14 }, reward: { gold: 120, pot_red: 4 } },
+  { text: '검은 늑대 5마리 처치', hint: '마을 동쪽 숲', kind: 'kill', types: ['wolf'], n: 5, goto: { map: 'field', x: 30, y: 14 }, reward: { gold: 120, pot_red: 4 } },
   { text: '레벨 4 달성', kind: 'lv', n: 4, reward: { scroll_weapon: 2 } },
   { text: '무기를 +3 이상으로 강화', hint: 'I 가방 → 무기 강화', kind: 'enc', n: 3, reward: { gold: 200, scroll_armor: 2 } },
-  { text: '해골 병사·오크 6마리 처치', hint: '북동쪽 묘지 · 동쪽 야영지', kind: 'kill', types: ['skeleton', 'orc'], n: 6, goto: { map: 'field', x: 44, y: 10 }, reward: { gold: 300, pot_red: 5, pot_blue: 4 } },
-  { text: `지하 묘소에 들어가기 (권장 Lv ${DUNGEON_REC})`, hint: '남동쪽 끝 지하 계단', kind: 'enter', goto: { map: 'field', x: 51.5, y: 47.5 }, reward: { pot_red: 6 } },
-  { text: '몰락한 왕 처치', hint: '묘소 남동쪽 제단', kind: 'boss', goto: { map: 'dungeon', x: 27.5, y: 26 }, reward: { gold: 2000, scroll_weapon: 3 } },
+  { text: '해골 병사·고블린 전사 6마리 처치', hint: '북동쪽 묘지 · 동쪽 야영지', kind: 'kill', types: ['skeleton', 'orc'], n: 6, goto: { map: 'field', x: 44, y: 10 }, reward: { gold: 300, pot_red: 5, pot_blue: 4 } },
+  { text: `기사단 묘소에 들어가기 (권장 Lv ${DUNGEON_REC})`, hint: '남동쪽 끝 지하 계단', kind: 'enter', goto: { map: 'field', x: 51.5, y: 47.5 }, reward: { pot_red: 6 } },
+  { text: '봉인된 수호자 처치', hint: '묘소 남동쪽 제단', kind: 'boss', goto: { map: 'dungeon', x: 27.5, y: 26 }, reward: { gold: 2000, scroll_weapon: 3 } },
 ];
 const GRADE_COLOR = Object.fromEntries(META.grades.list.map(g => [g.id, g.color]));
 const GRADE_LABEL = Object.fromEntries(META.grades.list.map(g => [g.id, g.label]));
-GRADE_COLOR.unique = '#ff4b3a'; GRADE_LABEL.unique = '유니크';
+GRADE_COLOR.unique = '#ff4b3a'; GRADE_LABEL.unique = '고대';
 const GRADES = ['common', 'uncommon', 'rare', 'heroic', 'legend', 'unique'];
 // 장비: base(클래스 계열)별 무기·갑옷. icon = 아이콘 id, atk/def = 기본 수치
 const EQUIP = {
@@ -803,7 +833,7 @@ const EQUIP = {
       { key: 'p_plate', name: '판금 갑옷', icon: 'plate', grade: 'uncommon', def: 4 },
       { key: 'p_order', name: '기사단 판금 갑옷', icon: 'plate', grade: 'rare', def: 7 },
       { key: 'p_guard', name: '수호자의 판금 갑옷', icon: 'plate', grade: 'heroic', def: 10 },
-      { key: 'p_king', name: '몰락한 왕의 갑주', icon: 'plate', grade: 'legend', def: 14 },
+      { key: 'p_king', name: '봉인된 수호자의 갑주', icon: 'plate', grade: 'legend', def: 14 },
     ],
   },
   bow: {
@@ -860,7 +890,7 @@ const SLOT_KIND = { weapon: 'weapon', armor: 'armor', helm: 'armor', cloak: 'arm
 const ITEM_LABEL = { weapon: '무기', armor: '갑옷', helm: '투구', cloak: '망토', gloves: '장갑', boots: '장화', shield: '방패', amulet: '목걸이', ring: '반지', bracelet: '팔찌' };
 // 모든 클래스가 쓰는 부위 장비: 등급 순서(일반→전설)로 이름·수치
 const GEAR_TABLE = {
-  helm:     { icon: 'helm', names: ['가죽 모자', '철 투구', '기사의 투구', '수호자의 투구', '몰락한 왕의 투구'], def: [1, 2, 3, 5, 7] },
+  helm:     { icon: 'helm', names: ['가죽 모자', '철 투구', '기사의 투구', '수호자의 투구', '봉인된 수호자의 투구'], def: [1, 2, 3, 5, 7] },
   gloves:   { icon: 'gauntlet', names: ['가죽 장갑', '철 장갑', '힘의 장갑', '영웅의 건틀릿', '왕의 건틀릿'], def: [1, 1, 2, 3, 4], atk: [0, 1, 2, 3, 5] },
   boots:    { icon: 'boots', names: ['가죽 장화', '철 장화', '질풍의 장화', '영웅의 장화', '왕의 장화'], def: [1, 1, 2, 3, 4], spd: [0, 0.03, 0.05, 0.07, 0.1] },
   cloak:    { icon: 'cloak', names: ['여행자 망토', '두꺼운 망토', '마법 저항 망토', '영웅의 망토', '어둠의 망토'], def: [1, 2, 3, 4, 6], hp: [0, 10, 20, 35, 50] },
@@ -876,15 +906,15 @@ for (const [k, g] of Object.entries(GEAR_TABLE)) g.names.forEach((nm, gi) => {
   for (const st of ['atk', 'def', 'hp', 'mp', 'crit', 'spd']) if (g[st]) d[st] = g[st][gi];
   GEAR[d.key] = d;
 });
-// 월드보스 유니크 무기: 클래스 계열별 1종씩, 고정 패시브가 반드시 붙음
+// 월드보스 고대 무기: 클래스 계열별 1종씩, 고정 패시브가 반드시 붙음
 const UNIQUE = {
   field: {
     blade: { key: 'u_gromm_b', name: '그롬마르의 피도끼', icon: 'battleaxe', grade: 'unique', atk: 27, crit: 0.04, px: 'leech' },
-    bow: { key: 'u_gromm_w', name: '피의 군주의 뿔활', icon: 'bow', grade: 'unique', atk: 27, crit: 0.05, px: 'double' },
+    bow: { key: 'u_gromm_w', name: '몰락의 군주의 뿔활', icon: 'bow', grade: 'unique', atk: 27, crit: 0.05, px: 'double' },
     staff: { key: 'u_gromm_s', name: '피의 토템 지팡이', icon: 'staff', grade: 'unique', atk: 27, mp: 30, px: 'echo' },
   },
   dungeon: {
-    blade: { key: 'u_belk_b', name: '벨카르의 영혼 대검', icon: 'greatsword', grade: 'unique', atk: 30, hp: 40, px: 'echo' },
+    blade: { key: 'u_belk_b', name: '모르벤의 영혼 대검', icon: 'greatsword', grade: 'unique', atk: 30, hp: 40, px: 'echo' },
     bow: { key: 'u_belk_w', name: '심연의 장궁', icon: 'bow', grade: 'unique', atk: 30, crit: 0.05, px: 'reset' },
     staff: { key: 'u_belk_s', name: '리치 군주의 홀', icon: 'staff', grade: 'unique', atk: 30, mp: 45, px: 'mana' },
   },
@@ -929,14 +959,14 @@ const XITEMS = {
   book_wb_bloodwhirl: { name: '스킬북: 혈풍 회오리', icon: 'spellbook', grade: 'heroic', skill: 'wb_bloodwhirl' },
   book_wb_darkslash: { name: '스킬북: 암흑 베기', icon: 'spellbook', grade: 'heroic', skill: 'wb_darkslash' },
   book_wb_hellfire: { name: '스킬북: 지옥불 강타', icon: 'spellbook', grade: 'heroic', skill: 'wb_hellfire' },
-  doll_wb_warlord: { name: '변신 인형: 피의 군주', icon: 'spellbook', grade: 'unique', morph: 'wb_warlord' },
+  doll_wb_warlord: { name: '변신 인형: 몰락의 군주', icon: 'spellbook', grade: 'unique', morph: 'wb_warlord' },
   doll_wb_lich: { name: '변신 인형: 리치 군주', icon: 'spellbook', grade: 'unique', morph: 'wb_lich' },
 };
 const itemName = id => (XITEMS[id] || META.items[id] || { name: id }).name;
 // 월드보스: 맵마다 1마리, 하루 4번(0·6·12·18시, 기기 시간 기준) 6시간 간격으로 다시 나타남
 const WB_HOURS = 6;
 const WORLD_BOSS = {
-  field: { type: 'wb_warlord', x: 36.5, y: 51.5, books: ['wb_quake', 'wb_bloodwhirl'], area: '피의 제단(남쪽 숲)' },
+  field: { type: 'wb_warlord', x: 36.5, y: 51.5, books: ['wb_quake', 'wb_bloodwhirl'], area: '몰락의 제단(남쪽 숲)' },
   dungeon: { type: 'wb_lich', x: 9.5, y: 29.5, books: ['wb_darkslash', 'wb_hellfire'], area: '묘소 남서쪽 납골당' },
 };
 const WB_DROP = { unique: 0.20, doll: 0.015, equip: 0.85, n: 2, odds: [0, 0, 40, 45, 15], gold: [2600, 4000] };
@@ -945,7 +975,7 @@ const DROP_SLOTS = [['weapon', 28], ['armor', 16], ['helm', 10], ['gloves', 9], 
 const START_EQUIP = { blade: ['b_long', 'p_chain'], bow: ['w_hunt', 'l_leather'], staff: ['s_novice', 'r_novice'] };
 // 몬스터별 드롭: equip = 장비 드롭 확률, odds = 등급 확률(%), n = 떨어뜨리는 장비 수
 const DROP_TABLE = {
-  // 고블린: 잔돈을 자주 / 늑대: 체력약 / 거미: 마나약 / 점액: 물약·보석 / 해골 궁수·병사: 주문서 / 오크: 골드·장비 / 보스: 확정
+  // 고블린: 잔돈을 자주 / 늑대: 체력약 / 거미: 마나약 / 점액: 물약·보석 / 해골 궁수·병사: 주문서 / 고블린 전사: 아데나·장비 / 보스: 확정
   goblin:   { equip: 0.06, odds: [75, 22, 3, 0, 0], gold: [6, 14], goldP: 0.95, red: 0.18, blue: 0.09, sw: 0.03, sa: 0.04, gem: 0.01 },
   skeleton_archer: { equip: 0.10, odds: [45, 40, 13, 2, 0], gold: [14, 26], red: 0.16, blue: 0.16, sw: 0.10, sa: 0.08, gem: 0.02 },
   wolf:     { equip: 0.06, odds: [70, 25, 5, 0, 0], gold: [6, 14], red: 0.22, blue: 0.07, sw: 0.03, sa: 0.04, gem: 0.01 },
@@ -1017,7 +1047,7 @@ function makeField() {
   put('torch', 6, 11, 1); put('torch', 6, 13, 3);
   for (let i = 6; i <= 18; i += 2) put('fence', i, 22);
   put('signpost', 20, 15);
-  // 야영지(오크)
+  // 야영지(고블린 전사)
   put('tent', 40, 28); put('tent', 44, 31); put('campfire', 42, 30, 2); put('barrel', 39, 31); put('crate', 45, 28);
   // 묘지
   const graves = [[40, 8], [42, 9], [44, 8], [46, 10], [41, 12], [43, 13], [47, 13], [49, 9]];
@@ -1055,8 +1085,8 @@ function makeField() {
   zone('ooze', 17, 46, 6, 6); zone('spider', 24, 52, 3, 3);
   zone('skeleton', 44, 10, 5, 4); zone('spider', 52, 20, 3, 3);
   zone('orc', 42, 30, 5, 3); zone('orc', 46, 38, 3, 2);
-  const npcs = [{ id: 'deity', name: '화로의 신 헤스카르', x: 10.7, y: 10.7 }];
-  return { id: 'field', name: '마을 외곽', N, g, props, spawns, npcs, start: { x: 13.5, y: 13.5 }, exit: { x: 51.5, y: 47.5, to: 'dungeon' }, back: { x: 50.2, y: 46.2 },
+  const npcs = [{ id: 'deity', name: '세리아의 상점', x: 10.7, y: 10.7 }];   // 일곱 근원의 신상(세리아 그림은 3단계에서 앞에 세움)
+  return { id: 'field', name: '아르델 평원', N, g, props, spawns, npcs, start: { x: 13.5, y: 13.5 }, exit: { x: 51.5, y: 47.5, to: 'dungeon' }, back: { x: 50.2, y: 46.2 },
     amb: 'forest', dark: 0, step: t => t === 'cobble' ? 'step_stone' : t === 'swamp' || t === 'water' ? 'step_swamp' : 'step_grass' };
 }
 
@@ -1092,7 +1122,7 @@ function makeDungeon() {
   zone('spider', 22, 14, 3, 2); zone('skeleton', 24, 20, 3, 2);
   zone('skeleton_archer', 14, 16, 2, 2); zone('skeleton_archer', 26, 12, 2, 2);
   spawns.push({ type: 'boss', x: 27.5, y: 26, home: { x: 27.5, y: 26 }, noRespawn: true });
-  return { id: 'dungeon', name: '몰락한 왕의 지하 묘소', N, g, props, spawns, lamps, npcs: [], start: { x: 4.5, y: 7.5 }, exit: { x: 3.5, y: 5.5, to: 'field' }, back: { x: 4.6, y: 7.2 },
+  return { id: 'dungeon', name: '왕실 기사단 묘소', N, g, props, spawns, lamps, npcs: [], start: { x: 4.5, y: 7.5 }, exit: { x: 3.5, y: 5.5, to: 'field' }, back: { x: 4.6, y: 7.2 },
     amb: 'dungeon', dark: 0.78, step: () => 'step_stone' };
 }
 
@@ -1408,7 +1438,7 @@ function killMob(m) {
     STATE.bossDead = true; save();
     const chest = MAP.props.find(p => p.name === 'chest');
     if (chest) chest.name = 'chest_open';
-    setTimeout(() => { banner('몰락한 왕을 쓰러뜨렸다', '던전 깊은 곳의 저주가 풀렸다'); sfx('level_up'); showOver('승리', `처치한 몬스터 ${STATE.kills}마리 · Lv ${P.lv} · +${P.wEnc} ${equipDef(P.weapon.key).name}<br>보물상자가 열렸습니다. 계속 사냥하거나 강화를 이어갈 수 있습니다.`); }, 2600);
+    setTimeout(() => { banner('봉인된 수호자를 쓰러뜨렸다', '던전 깊은 곳의 저주가 풀렸다'); sfx('level_up'); showOver('승리', `처치한 몬스터 ${STATE.kills}마리 · Lv ${P.lv} · +${P.wEnc} ${equipDef(P.weapon.key).name}<br>보물상자가 열렸습니다. 계속 사냥하거나 강화를 이어갈 수 있습니다.`); }, 2600);
     musicNow = null;
   }
 }
@@ -1429,7 +1459,7 @@ function dropEquip(m, g, bias, pxk) {
   else if (g === 'heroic' || g === 'legend') { banner(`${GRADE_LABEL[g]} 아이템!`, `${pick.name}이(가) 떨어졌습니다`); sfx('level_up', { gain: 0.6 }); }
   return e;
 }
-// 월드보스 보상: 유니크 무기 20% · 스킬북 1권 확정 · 변신 인형 1.5% · 고등급 장비 2회(각 85%)
+// 월드보스 보상: 고대 무기 20% · 스킬북 1권 확정 · 변신 인형 1.5% · 고등급 장비 2회(각 85%)
 function wbDrops(m) {
   const at = () => ({ x: m.x + rnd(-1.5, 1.5), y: m.y + rnd(-1.5, 1.5), t: 0 });
   const W = WORLD_BOSS[MAP.id];
@@ -1442,7 +1472,7 @@ function wbDrops(m) {
     const u = UNIQUE[MAP.id][P.c.base];
     const e = makeEquip(u.key, 0, { bias: 2, px: rollPassive(u.px) });
     drops.push(Object.assign({ id: u.icon, equip: e, n: 1, grade: 'unique' }, at()));
-    got.push(`유니크 ${u.name}`);
+    got.push(`고대 ${u.name}`);
     vfx.push({ k: 'beam', x: m.x, y: m.y, t: 0, life: 1.6, col: GRADE_RGB.unique });
   }
   const book = W.books[irnd(0, W.books.length - 1)];
@@ -1467,7 +1497,7 @@ function gainXp(n) {
     vfx.push({ k: 'lvup', x: P.x, y: P.y, t: 0, life: 1.2 });
     texts.push({ who: P, x: P.x, y: P.y, z: 70, t: 0, s: 'LEVEL UP', c: '#ffd65a', big: true });
     const lines = [`최대 HP ${hp0} → ${P.maxhp}`, `최대 MP ${mp0} → ${P.maxmp}`, `능력치 포인트 +${SP_PER_LV}`].concat(unlocked.map(n => `새 스킬: ${n}`));
-    if (P.lv === DUNGEON_MIN) lines.push('지하 묘소 입장 가능');
+    if (P.lv === DUNGEON_MIN) lines.push('기사단 묘소 입장 가능');
     const eq = Object.entries(GRADE_LV).find(([, l]) => l === P.lv);
     if (eq) lines.push(`${GRADE_LABEL[eq[0]]} 장비 착용 가능`);
     banner(`레벨 ${P.lv}`, lines.join(' · '));
@@ -1486,7 +1516,7 @@ function playerDie() {
     P.gold = Math.floor(P.gold * 0.9); P.dead = false; P.hp = P.maxhp; P.mp = P.maxmp; P.buffs = {}; setAnim(P, 'idle', true);
     enterMap('field');
   };
-  setTimeout(() => { if (P.dead && P.revive) showOver('쓰러졌습니다', '마을에서 다시 일어납니다. 가진 골드의 10%를 잃습니다.', P.revive); }, 1800);
+  setTimeout(() => { if (P.dead && P.revive) showOver('쓰러졌습니다', '마을에서 다시 일어납니다. 가진 아데나의 10%를 잃습니다.', P.revive); }, 1800);
 }
 
 function nearestMob(maxD, from = P) {
@@ -1819,14 +1849,14 @@ function updatePlayer(dt) {
       setAnim(P, 'idle');
     }
   } else if (!busy && P.anim === 'walk') setAnim(P, 'idle');
-  // 화로의 신에게 다가가면 상점 열기
+  // 세리아에게 다가가면 상점 열기
   if (P.talk && MAP.npcs && MAP.npcs[0] && dist(P, MAP.npcs[0]) < 2.4) { P.talk = false; P.goal = null; openShop(true); }
   tickAnim(P, dt, onPlayerFrame);
   // 출구
   if (MAP.exit && dist(P, MAP.exit) < 0.9 && !P.casting) {
     if (MAP.exit.to === 'dungeon') {
       if (P.lv < DUNGEON_MIN) {
-        if (now - (P.gateWarn || -99) > 3) { P.gateWarn = now; banner('입장할 수 없습니다', `지하 묘소는 Lv ${DUNGEON_MIN}부터 들어갈 수 있습니다`); log(`지하 묘소는 Lv ${DUNGEON_MIN}부터 입장할 수 있습니다.`, 'bad'); }
+        if (now - (P.gateWarn || -99) > 3) { P.gateWarn = now; banner('입장할 수 없습니다', `기사단 묘소는 Lv ${DUNGEON_MIN}부터 들어갈 수 있습니다`); log(`기사단 묘소는 Lv ${DUNGEON_MIN}부터 입장할 수 있습니다.`, 'bad'); }
         // 막힌 칸(횃불·깃대)으로 밀려 갇히지 않도록 정해 둔 안전 지점으로 되돌림
         const s = safeSpot(MAP.back.x, MAP.back.y); P.x = s.x; P.y = s.y; P.goal = null; P.target = null; P.path = null;
       }
@@ -1860,7 +1890,7 @@ function pickup(d) {
   d.taken = true;
   if (d.equip) {
     const dd = equipDef(d.equip.key);
-    if (P.autoSell && dd.grade === 'common') { const pr = Math.round(sellPrice(d.equip)); P.gold += pr; log(`${dd.name} 자동 판매 +${pr} 골드`); sfx('arrow_hit', { gain: 0.25 }); return; }
+    if (P.autoSell && dd.grade === 'common') { const pr = Math.round(sellPrice(d.equip)); P.gold += pr; log(`${dd.name} 자동 판매 +${pr} 아데나`); sfx('arrow_hit', { gain: 0.25 }); return; }
     if (P.bag.length >= BAG_MAX) { d.taken = false; if (now - (P.fullWarn || -99) > 8) { P.fullWarn = now; log('가방이 가득 찼습니다. 장비를 팔거나 버리세요.', 'bad'); banner('가방이 가득 찼습니다', '상점에서 일반 장비를 한 번에 팔 수 있습니다'); } return; }
     P.bag.push(d.equip);
     const def = equipDef(d.equip.key);
@@ -1875,7 +1905,7 @@ function pickup(d) {
     P.gold += d.n; sfx('arrow_hit', { gain: 0.25 });
     vfx.push({ k: 'gold', x: d.x, y: d.y, t: 0, life: 0.5 });
     texts.push({ who: d, x: P.x, y: P.y, z: 52, t: 0, s: `+${d.n} G`, c: '#ffd65a' });
-    lootLog(`${d.n} 골드`, 'gold');
+    lootLog(`${d.n} 아데나`, 'gold');
     return;
   }
   P.inv[d.id] = (P.inv[d.id] || 0) + d.n;
@@ -2132,7 +2162,7 @@ function render() {
   }
   // 바닥 이펙트(under)
   for (const e of fxs) { const s = toScr(e.x, e.y); drawFx(e, 'under', s.x, s.y); }
-  // 화로의 신 발밑 마법진(천천히 회전)
+  // 세리아 발밑 마법진(천천히 회전)
   for (const n of MAP.npcs || []) {
     const s = toScr(n.x, n.y);
     ctx.save(); ctx.globalCompositeOperation = 'lighter';
@@ -2551,14 +2581,14 @@ function updateHud() {
   $('mpt').textContent = `MP ${Math.floor(P.mp)}/${P.maxmp}`;
   $('plv').textContent = P.lv;
   $('spBadge').classList.toggle('hidden', !(P.sp > 0));
-  $('zone').textContent = inTown(P) ? '마을 · 안전 지대' : MAP.name;
+  $('zone').textContent = inTown(P) ? '아르델 마을 · 안전 지대' : MAP.name;
   const npc = (MAP.npcs || [])[0], nd = npc ? dist(P, npc) : 99, nearShop = nd < 3.0;
   $('shopBtn').classList.toggle('hidden', !nearShop || !$('shop').classList.contains('hidden'));
   if (nd > 3.8 && !$('shop').classList.contains('hidden')) { $('shop').classList.add('hidden'); uiPauseCheck(); }
   renderWbTimer();
   renderQuest();
   $('xp').querySelector('i').style.width = (100 * P.xp / xpNeed(P.lv)) + '%';
-  $('gold').textContent = `${P.gold.toLocaleString()} 골드`;
+  $('gold').textContent = `${P.gold.toLocaleString()} 아데나`;
   const bh = (P.morph ? '<span>변신</span>' : '') + Object.entries(P.buffs).filter(([k]) => BUFFS[k]).map(([k, t]) => `<span class="${k === 'slow' || k === 'stun' ? 'debuff' : ''}">${BUFFS[k].name} ${Math.ceil(t)}s</span>`).join('');
   if ($('buffs').innerHTML !== bh) $('buffs').innerHTML = bh;
   for (const s of slotEls) {
@@ -2576,7 +2606,7 @@ function updateHud() {
   if (t) {
     tb.classList.remove('hidden'); tb.classList.toggle('boss', !!t.d.boss);
     const lg = t.lv - P.lv;
-    tb.querySelector('b').textContent = `Lv ${t.lv} ${t.d.name}` + (t.d.boss ? '' : t.aggr ? ' · ▼선공' : ' · ●후공') + (t.phase ? ' · 분노' : '');
+    tb.querySelector('b').textContent = `Lv ${t.lv} ${t.d.name}` + (t.d.el ? ` · ${ELEMENTS[t.d.el].name}` : '') + (t.d.boss ? '' : t.aggr ? ' · ▼선공' : ' · ●후공') + (t.phase ? ' · 분노' : '');
     tb.querySelector('b').style.color = t.d.boss ? '' : lg >= 3 ? '#ff7a6a' : lg >= 1 ? '#ffd27a' : '#e8dcc6';
     tb.querySelector('i').style.width = (100 * t.hp / t.maxhp) + '%';
     tb.querySelector('span').textContent = `${Math.max(0, Math.ceil(t.hp))} / ${t.maxhp}`;
@@ -2670,7 +2700,7 @@ setInterval(drawDoll, 100);
 
 function renderInv() {
   if (!P) return;
-  $('wGold').textContent = `${P.gold.toLocaleString()} 골드`;
+  $('wGold').textContent = `${P.gold.toLocaleString()} 아데나`;
   $('autoSell').checked = !!P.autoSell;
   // 장비 칸
   const box = $('dslots'); box.innerHTML = '';
@@ -2741,12 +2771,12 @@ function renderDetail() {
   const sel = selUid != null ? findEquip(selUid) : null;
   if (selCons) {
     const n = P.inv[selCons] || 0, xi = XITEMS[selCons];
-    let use = { pot_red: '체력 회복(최대 HP의 32%)', pot_blue: '마나 회복(최대 MP의 40%)', scroll_weapon: '무기 강화에 사용', scroll_armor: '방어구(투구·갑옷·망토·장갑·장화·방패) 강화에 사용', scroll_return: '마을 광장으로 귀환', gem_ruby: `상점에서 ${GEM_PRICE} 골드에 판매` }[selCons] || '';
+    let use = { pot_red: '체력 회복(최대 HP의 32%)', pot_blue: '마나 회복(최대 MP의 40%)', scroll_weapon: '무기 강화에 사용', scroll_armor: '방어구(투구·갑옷·망토·장갑·장화·방패) 강화에 사용', scroll_return: '마을 광장으로 귀환', gem_ruby: `상점에서 ${GEM_PRICE} 아데나에 판매` }[selCons] || '';
     let btn = selCons.startsWith('pot_') || selCons === 'scroll_return' ? '<button type="button" id="btnUse">사용</button>' : '';
     if (xi && xi.skill) { const lv = (P.wbs || {})[xi.skill] || 0, sk = SKILLS[xi.skill]; use = `${sk.desc} · MP ${sk.mp} · ${sk.cd}초 · ${lv ? `현재 Lv ${lv} → 읽으면 Lv ${Math.min(5, lv + 1)}(피해 +15%)` : '읽으면 새 스킬 칸(5~8번)에 추가'}`; btn = `<button type="button" id="btnUse" ${lv >= 5 ? 'disabled' : ''}>${lv ? '스킬 강화' : '배우기'}</button>`; }
     if (xi && xi.morph) { use = `${MONSTERS[xi.morph].name}의 모습으로 변신. 사용하면 변신 도감(신화 등급)에 등록되고 바로 변신합니다. 중복이면 별 +1`; btn = `<button type="button" id="btnUse">도감 등록 · 변신</button>`; }
-    if (xi && xi.loot) { use = `${MONSTERS[xi.mob] ? MONSTERS[xi.mob].name : ''}의 고유 전리품 · 상점 판매가 ${xi.price} 골드`; btn = ''; }
-    if (selCons === 'scroll_teleport') { use = '찾아 둔 웨이포인트 중 원하는 곳으로 바로 이동'; btn = '<button type="button" id="btnUse">사용</button>'; }
+    if (xi && xi.loot) { use = `${MONSTERS[xi.mob] ? MONSTERS[xi.mob].name : ''}의 고유 전리품 · 상점 판매가 ${xi.price} 아데나`; btn = ''; }
+    if (selCons === 'scroll_teleport') { use = '찾아 둔 별빛 표석 중 원하는 곳으로 바로 이동'; btn = '<button type="button" id="btnUse">사용</button>'; }
     det.innerHTML = `<canvas width="32" height="32"></canvas><div class="dinfo"><b class="${xi ? 'g-' + xi.grade : ''}">${itemName(selCons)} × ${n}</b><div class="dline">${use}</div></div>
       <div class="dact">${btn}${selCons.startsWith('scroll_') && selCons !== 'scroll_return' ? '<span class="note">강화할 장비를 선택한 뒤 [강화]를 누르세요</span>' : ''}</div>`;
     iconTo(det.querySelector('canvas'), selCons);
@@ -2814,7 +2844,7 @@ function unequip(slot) {
 function sell(uid) {
   const i = P.bag.findIndex(e => e.uid === uid); if (i < 0) return;
   const price = Math.round(sellPrice(P.bag[i]));
-  log(`${equipDef(P.bag[i].key).name}을(를) ${price} 골드에 팔았습니다.`);
+  log(`${equipDef(P.bag[i].key).name}을(를) ${price} 아데나에 팔았습니다.`);
   P.bag.splice(i, 1); P.gold += price; selUid = null; sfx('arrow_hit', { gain: 0.3 });
   renderInv(); save();
 }
@@ -2895,8 +2925,8 @@ function infoTables() {
   d += `</table><div class="note">장비는 내 클래스용으로만 떨어집니다. 던전 몬스터는 레벨 +${DUNGEON_BONUS.lv}, 체력 ×${DUNGEON_BONUS.hp}, 경험치 ×${DUNGEON_BONUS.xp}입니다.</div>`;
   d += `<div class="sect">개별 수치 · 특수 패시브</div><div class="note">같은 장비도 능력치마다 기본값의 ${ROLL_LO * 100}~${ROLL_HI * 100}% 사이에서 따로 정해지고, 가방에서 <b>상위 %</b>로 보여 줍니다(상위 1% = 100개 중 가장 좋은 1개 수준). 보스는 좋은 수치가 더 잘 나옵니다.<br>
     특수 패시브는 일반 몬스터 장비 기준 ${PX_BASE * 100}% × 등급 배율(일반 1 ~ 전설 6), 보스 ×${PX_SRC.boss}, 월드보스 ×${PX_SRC.wb} 확률로 붙습니다: ${Object.values(PASSIVES).map(p => p.name).join(' · ')}.</div>`;
-  d += `<div class="sect">월드보스</div><table class="tbl"><tr><th>맵</th><th>월드보스</th><th>Lv</th><th>체력</th></tr>${Object.entries(WORLD_BOSS).map(([k, W]) => `<tr><td>${k === 'field' ? '마을 외곽' : '지하 묘소'}</td><td>${MONSTERS[W.type].name}</td><td>${MLV[W.type]}</td><td>${MONSTERS[W.type].hp.toLocaleString()}</td></tr>`).join('')}</table>
-    <div class="note">매일 0·6·12·18시(기기 시간)에 맵마다 한 번 나타납니다. 보상: 유니크 무기 ${WB_DROP.unique * 100}%(고정 특수 패시브) · 월드보스 스킬북 1권 확정 · 변신 인형 ${WB_DROP.doll * 100}% · 영웅/전설 장비 ${WB_DROP.n}회(각 ${WB_DROP.equip * 100}%).</div>`;
+  d += `<div class="sect">월드보스</div><table class="tbl"><tr><th>맵</th><th>월드보스</th><th>Lv</th><th>체력</th></tr>${Object.entries(WORLD_BOSS).map(([k, W]) => `<tr><td>${k === 'field' ? '아르델 평원' : '기사단 묘소'}</td><td>${MONSTERS[W.type].name}</td><td>${MLV[W.type]}</td><td>${MONSTERS[W.type].hp.toLocaleString()}</td></tr>`).join('')}</table>
+    <div class="note">매일 0·6·12·18시(기기 시간)에 맵마다 한 번 나타납니다. 보상: 고대 무기 ${WB_DROP.unique * 100}%(고정 특수 패시브) · 월드보스 스킬북 1권 확정 · 변신 인형 ${WB_DROP.doll * 100}% · 영웅/전설 장비 ${WB_DROP.n}회(각 ${WB_DROP.equip * 100}%).</div>`;
   $('dropTable').innerHTML = d;
 }
 const toggleInv = () => { $('inv').classList.toggle('hidden'); renderInv(); uiPauseCheck(); };
@@ -2929,7 +2959,7 @@ function renderShop() {
   if (shopTab === 'buy') for (const it of SHOP) {
     const row = document.createElement('div'); row.className = 'srow';
     const cv = document.createElement('canvas'); cv.width = 32; cv.height = 32; iconTo(cv, it.id);
-    const nm = document.createElement('div'); nm.innerHTML = `${itemName(it.id)}<small>${it.price} 골드 · 보유 ${P.inv[it.id] || 0}</small><span class="sd">${it.desc || ''}</span>`;
+    const nm = document.createElement('div'); nm.innerHTML = `${itemName(it.id)}<small>${it.price} 아데나 · 보유 ${P.inv[it.id] || 0}</small><span class="sd">${it.desc || ''}</span>`;
     const b1 = document.createElement('button'); b1.type = 'button'; b1.textContent = '1개'; b1.disabled = P.gold < it.price; b1.onclick = () => buy(it, 1);
     const b10 = document.createElement('button'); b10.type = 'button'; b10.textContent = '10개'; b10.disabled = P.gold < it.price * 10; b10.onclick = () => buy(it, 10);
     row.append(cv, nm, b1, b10); box.append(row);
@@ -2950,12 +2980,12 @@ function renderShop() {
   $('sellUncommon').disabled = !uncs.length;
   $('sellUncommon').textContent = uncs.length ? `고급 ${uncs.length}개 판매 (+${Math.round(uncs.reduce((a, e) => a + sellPrice(e), 0))} G)` : '팔 고급 장비 없음';
   $('sellCommon').disabled = !commons.length;
-  $('sellCommon').textContent = commons.length ? `일반 등급 장비 ${commons.length}개 판매 (+${Math.round(commons.reduce((a, e) => a + sellPrice(e), 0))} 골드)` : '팔 일반 장비 없음';
-  $('shopGold').textContent = `보유 ${P.gold.toLocaleString()} 골드`;
+  $('sellCommon').textContent = commons.length ? `일반 등급 장비 ${commons.length}개 판매 (+${Math.round(commons.reduce((a, e) => a + sellPrice(e), 0))} 아데나)` : '팔 일반 장비 없음';
+  $('shopGold').textContent = `보유 ${P.gold.toLocaleString()} 아데나`;
   const lootSum = Object.entries(P.inv).filter(([id, n]) => id.startsWith('loot_') && n > 0).reduce((a, [id, n]) => a + (XITEMS[id] ? XITEMS[id].price * n : 0), 0);
   $('sellLoot').disabled = !lootSum; $('sellLoot').textContent = lootSum ? `전리품 모두 판매 (+${lootSum.toLocaleString()} G)` : '팔 전리품 없음';
   const gems = P.inv.gem_ruby || 0;
-  $('sellGem').disabled = !gems; $('sellGem').textContent = gems ? `루비 ${gems}개 판매 (+${gems * GEM_PRICE} 골드)` : '팔 루비 없음';
+  $('sellGem').disabled = !gems; $('sellGem').textContent = gems ? `루비 ${gems}개 판매 (+${gems * GEM_PRICE} 아데나)` : '팔 루비 없음';
 }
 function buy(it, n) {
   if (P.gold < it.price * n) return;
@@ -2964,13 +2994,13 @@ function buy(it, n) {
   $('shopSay').textContent = n >= 10 ? '넉넉히 챙기는구나. 현명하다.' : '좋은 선택이다.';
   renderShop(); renderInv(); save();
 }
-// 상점 열기: 화로의 신 가까이(3칸 이내)에서만. force = 걸어와서 도착한 경우
+// 상점 열기: 세리아 가까이(3칸 이내)에서만. force = 걸어와서 도착한 경우
 function nearNpc() { const n = MAP && (MAP.npcs || [])[0]; return n && P && dist(P, n) < 3.0 ? n : null; }
 function openShop(force) {
   if (!running || !P || P.dead) return false;
   if (!nearNpc()) {
     const n = MAP && (MAP.npcs || [])[0];
-    if (n && !force) { P.target = null; P.goal = safeSpot(n.x + 1.2, n.y + 1.2); P.talk = true; P.autoHold = 6; log('화로의 신에게 걸어갑니다…', 'sys'); }
+    if (n && !force) { P.target = null; P.goal = safeSpot(n.x + 1.2, n.y + 1.2); P.talk = true; P.autoHold = 6; log('세리아에게 걸어갑니다…', 'sys'); }
     return false;
   }
   P.talk = false; P.goal = null;
@@ -2997,23 +3027,23 @@ $('shopClose').addEventListener('click', closeShop);
 $('sellUncommon').addEventListener('click', () => {
   let sum = 0;
   P.bag = P.bag.filter(e => { if (equipDef(e.key).grade === 'uncommon' && !e.px) { sum += sellPrice(e); return false; } return true; });
-  P.gold += Math.round(sum); log(`고급 장비를 팔아 ${Math.round(sum)} 골드를 받았습니다.`, 'sys'); sfx('arrow_hit', { gain: 0.4 });
+  P.gold += Math.round(sum); log(`고급 장비를 팔아 ${Math.round(sum)} 아데나를 받았습니다.`, 'sys'); sfx('arrow_hit', { gain: 0.4 });
   renderShop(); renderInv(); save();
 });
 const GEM_PRICE = 150;
 $('sellLoot').addEventListener('click', () => {
   let sum = 0; for (const [id, n] of Object.entries(P.inv)) if (id.startsWith('loot_') && n > 0 && XITEMS[id]) { sum += XITEMS[id].price * n; P.inv[id] = 0; }
-  P.gold += sum; log(`전리품을 팔아 ${sum.toLocaleString()} 골드를 받았습니다.`, 'sys'); sfx('enchant_ok', { gain: 0.3 }); renderShop(); renderInv(); save();
+  P.gold += sum; log(`전리품을 팔아 ${sum.toLocaleString()} 아데나를 받았습니다.`, 'sys'); sfx('enchant_ok', { gain: 0.3 }); renderShop(); renderInv(); save();
 });
 $('sellGem').addEventListener('click', () => {
   const n = P.inv.gem_ruby || 0; if (!n) return;
-  P.inv.gem_ruby = 0; P.gold += n * GEM_PRICE; log(`루비 ${n}개를 ${n * GEM_PRICE} 골드에 팔았습니다.`, 'sys'); sfx('enchant_ok', { gain: 0.3 });
+  P.inv.gem_ruby = 0; P.gold += n * GEM_PRICE; log(`루비 ${n}개를 ${n * GEM_PRICE} 아데나에 팔았습니다.`, 'sys'); sfx('enchant_ok', { gain: 0.3 });
   renderShop(); renderInv(); save();
 });
 $('sellCommon').addEventListener('click', () => {
   let sum = 0;
   P.bag = P.bag.filter(e => { if (equipDef(e.key).grade === 'common' && !e.px) { sum += sellPrice(e); return false; } return true; });
-  P.gold += Math.round(sum); log(`일반 장비를 팔아 ${Math.round(sum)} 골드를 받았습니다.`, 'sys'); sfx('arrow_hit', { gain: 0.4 });
+  P.gold += Math.round(sum); log(`일반 장비를 팔아 ${Math.round(sum)} 아데나를 받았습니다.`, 'sys'); sfx('arrow_hit', { gain: 0.4 });
   renderShop(); renderInv(); save();
 });
 
@@ -3031,7 +3061,7 @@ function checkQuest() {
   const done = q.kind === 'kill' ? (STATE.qn || 0) >= q.n : q.kind === 'lv' ? P.lv >= q.n : q.kind === 'enc' ? P.weapon.enc >= q.n : (STATE.qn || 0) >= 1;
   if (!done) return;
   const got = [];
-  for (const [k, v] of Object.entries(q.reward)) { if (k === 'gold') P.gold += v; else P.inv[k] = (P.inv[k] || 0) + v; got.push(k === 'gold' ? `${v} 골드` : `${META.items[k].name} ${v}`); }
+  for (const [k, v] of Object.entries(q.reward)) { if (k === 'gold') P.gold += v; else P.inv[k] = (P.inv[k] || 0) + v; got.push(k === 'gold' ? `${v} 아데나` : `${META.items[k].name} ${v}`); }
   banner('목표 달성', q.text); log(`목표 달성: ${q.text} — 보상 ${got.join(', ')}`, 'sys'); sfx('level_up', { gain: 0.7 });
   STATE.quest = (STATE.quest || 0) + 1; STATE.qn = 0;
   renderInv(); save();
@@ -3056,7 +3086,9 @@ function drawQuestArrow() {
 }
 
 // ───────────────────────── 저장 ─────────────────────────
-const SAVE_KEY = 'ff_lineage_save_v1';
+const SAVE_KEY = 'erden_save_v2';          // 에르덴 저장 칸
+const CLOCK_START = 6 * 60 + 30;   // 게임 속 06:30(분 단위). 낮밤 시스템이 이 값을 이어 쓴다
+const OLD_SAVE_KEY = 'ff_lineage_save_v1';  // 잊혀진 대장간 시절 저장 칸(지우지 않고 백업으로 남김)
 const OPT_KEY = 'ff_lineage_opt_v1';
 const OPT = Object.assign({ invMode: 'pause', potHp: 40, potMp: 25, loot: 'all', prio: 'near', qFold: false, mmZoom: 1, cmpAuto: 'on', dev: 'off', vol: { master: 90, bgm: 38, sfx: 100, mon: 70, amb: 50 }, mute: {} }, (() => { try { return JSON.parse(localStorage.getItem(OPT_KEY) || '{}'); } catch (e) { return {}; } })());
 function saveOpt() { try { localStorage.setItem(OPT_KEY, JSON.stringify(OPT)); } catch (e) { /* 저장 불가 */ } }
@@ -3089,10 +3121,46 @@ function save() {
   const d = { v: 1, cls: P.cls, lv: P.lv, xp: P.xp, st: P.st, sp: P.sp, hp: P.hp, mp: P.mp, gold: P.gold, inv: P.inv, eq: P.eq, weapon: P.weapon, armor: P.armor, bag: P.bag,
     autoSell: !!P.autoSell, map: MAP.id, x: P.dead ? null : P.x, y: P.dead ? null : P.y, wbs: P.wbs || {}, morph: P.morph || null,
     coll: P.coll, pet: P.pet || null, gacha: P.gacha,
-    state: { bossDead: STATE.bossDead, kills: STATE.kills, quest: STATE.quest || 0, qn: STATE.qn || 0, wbKill: STATE.wbKill || {}, wp: STATE.wp || {} }, t: Date.now() };
+    state: { bossDead: STATE.bossDead, kills: STATE.kills, quest: STATE.quest || 0, qn: STATE.qn || 0, wbKill: STATE.wbKill || {}, wp: STATE.wp || {},
+      // v2에서 늘어난 에르덴 진행 기록
+      equests: STATE.equests || {}, rel: STATE.rel || {}, flags: STATE.flags || {}, choices: STATE.choices || {}, regions: STATE.regions || { ardel: true }, clock: STATE.clock != null ? STATE.clock : CLOCK_START },
+    t: Date.now() };
+  d.v = 2;
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(d)); } catch (e) { /* 저장소 사용 불가 */ }
 }
-function loadSave() { try { const d = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); return d && d.v === 1 && CLASSES[d.cls] ? d : null; } catch (e) { return null; } }
+// 예전 퀘스트 순번(0~6) → 이미 이룬 목표에 해당하는 에르덴 퀘스트(완료 처리, 보상은 다시 주지 않음)
+const V1_QUEST_DONE = [[], ['q01', 'q02', 'q05'], ['q04'], ['q08'], ['q03', 'q06'], ['q07', 'q09'], ['q10']];
+// 잊혀진 대장간 저장(v1) → 에르덴 저장(v2). 원본 d는 건드리지 않고 새 객체를 돌려준다. 실패하면 null.
+function migrateV1(d) {
+  try {
+    if (!d || d.v !== 1 || !CLASSES[d.cls]) return null;
+    const n = JSON.parse(JSON.stringify(d));   // 깊은 복사
+    const st = n.state || {};
+    const qi = Math.max(0, Math.min(V1_QUEST_DONE.length - 1, Math.floor(+st.quest || 0)));
+    const equests = {};
+    for (let k = 0; k <= qi; k++) for (const id of V1_QUEST_DONE[k]) equests[id] = { s: 'done', n: 0 };
+    const flags = {};
+    if (st.bossDead || qi >= 6) { flags.ch1_done = true; for (let k = 1; k <= 10; k++) equests['q' + String(k).padStart(2, '0')] = { s: 'done', n: 0 }; }
+    n.state = Object.assign(st, { equests, rel: {}, flags, choices: {}, regions: { ardel: true }, clock: CLOCK_START, migratedFrom: 1 });
+    n.v = 2;
+    return n;
+  } catch (e) { return null; }
+}
+let saveNote = '';   // 이어하기 버튼 옆 안내(예: 예전 저장 변환)
+function loadSave() {
+  try {
+    const d = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+    if (d && d.v === 2 && CLASSES[d.cls]) return d;
+  } catch (e) { /* 깨진 v2 저장은 무시하고 v1을 찾아본다 */ }
+  try {
+    const old = JSON.parse(localStorage.getItem(OLD_SAVE_KEY) || 'null');
+    if (!old) return null;
+    const m = migrateV1(old);
+    if (m) { saveNote = '잊혀진 대장간 저장을 에르덴으로 옮겼습니다'; return m; }
+    saveNote = '예전 저장을 옮기지 못했습니다(예전 저장은 그대로 보관)';
+  } catch (e) { saveNote = '예전 저장을 읽지 못했습니다(예전 저장은 그대로 보관)'; }
+  return null;
+}
 function applyStats() { P.px = pxTotals(); const q = EQS(); P.maxhp = Math.round((P.c.hp * (1 + (P.lv - 1) * 0.12) + bonus('con') * 10 + q.hp) * (1 + collBonus('hp'))); P.maxmp = Math.round(P.c.mp * (1 + (P.lv - 1) * 0.1) + bonus('int') * 6 + q.mp); P.hp = Math.min(P.hp, P.maxhp); P.mp = Math.min(P.mp, P.maxmp); }
 setInterval(save, 5000);
 window.addEventListener('beforeunload', save);
@@ -3129,7 +3197,7 @@ function handleTap(cx, cy) {
   if (!running || paused || P.dead) return;
   audio();
   const sx = (cx - W / 2) / ZOOM + cam.x, sy = (cy - H / 2) / ZOOM + cam.y;
-  // 화로의 신(상점) 탭 → 다가가서 상점 열기
+  // 세리아(상점) 탭 → 다가가서 상점 열기
   for (const n of MAP.npcs || []) {
     const s = toScr(n.x, n.y);
     if (Math.abs(sx - s.x) < 30 && sy < s.y + 8 && sy > s.y - 110) { P.talk = true; P.target = null; P.goal = safeSpot(n.x + 1.2, n.y + 1.2); P.autoHold = 6; if (nearNpc()) openShop(true); return; }
@@ -3145,7 +3213,7 @@ function handleTap(cx, cy) {
   const t = toTile(sx, sy);
   const dclick = drops.find(d => !d.taken && Math.hypot(d.x - t.x, d.y - t.y) < 0.8);
   if (dclick) { dclick.manual = true; dclick.skip = false; P.target = null; P.goal = { x: dclick.x, y: dclick.y }; P.autoHold = 3; if (dclick.equip) showCompare(dclick.equip, { auto: 5 }); return; }
-  // 웨이포인트 탭
+  // 별빛 표석 탭
   for (const w of (WAYPOINTS[MAP.id] || [])) { const s = toScr(w.x, w.y); if (Math.abs(sx - s.x) < 18 && sy < s.y + 6 && sy > s.y - 70) { if (dist(P, w) < 2.2) openWp(w); else { P.target = null; P.goal = safeSpot(w.x + 1, w.y + 1); P.wpGo = w; P.autoHold = 6; } return; } }
   P.target = null; P.talk = false; P.goal = { x: t.x, y: t.y }; P.autoHold = 3;
 }
@@ -3244,10 +3312,11 @@ function titleScreen() {
   if (sv) {
     const c = $('continue'); c.classList.remove('hidden');
     c.textContent = `이어하기 · ${CLASSES[sv.cls].label} Lv ${sv.lv}`;
+    if (saveNote) c.title = saveNote;
     c.addEventListener('click', () => { audio(); startGame(sv.cls, sv); });
     $('start').classList.add('alt');
     $('newWarn').classList.remove('hidden');
-  }
+  } else if (saveNote) { $('newWarn').textContent = saveNote; $('newWarn').classList.remove('hidden'); }   // 변환 실패 안내
 }
 function startGame(cls, sv) {
   $('title').classList.add('hidden');
@@ -3267,7 +3336,14 @@ function startGame(cls, sv) {
     UID = 1 + Math.max(0, ...Object.values(P.eq).filter(Boolean).map(e => e.uid), ...P.bag.map(e => e.uid));
     Object.assign(STATE, sv.state || {});
     STATE.wbKill = STATE.wbKill || {}; STATE.wp = Object.assign({ wp_town: true }, STATE.wp || {});
-  } else { STATE.bossDead = false; STATE.kills = 0; STATE.quest = 0; STATE.qn = 0; STATE.wbKill = {}; STATE.wp = { wp_town: true }; }
+  } else {
+    STATE.bossDead = false; STATE.kills = 0; STATE.quest = 0; STATE.qn = 0; STATE.wbKill = {}; STATE.wp = { wp_town: true };
+    STATE.equests = {}; STATE.rel = {}; STATE.flags = {}; STATE.choices = {}; STATE.regions = { ardel: true }; STATE.clock = CLOCK_START;
+  }
+  // v2 칸이 비어 있으면 기본값(예전 저장·잘못된 값 대비)
+  for (const [k, v] of [['equests', {}], ['rel', {}], ['flags', {}], ['choices', {}], ['regions', { ardel: true }]]) if (!STATE[k] || typeof STATE[k] !== 'object') STATE[k] = v;
+  if (typeof STATE.clock !== 'number' || !isFinite(STATE.clock)) STATE.clock = CLOCK_START;
+  if (STATE.migratedFrom === 1) { delete STATE.migratedFrom; setTimeout(() => log('잊혀진 대장간의 진행을 에르덴으로 옮겼습니다. 이미 이룬 목표는 완료로 표시됩니다.', 'sys'), 300); }
   PET = null; applyStats(); devChanged();
   $('pname').textContent = CLASSES[cls].label;
   buildBar();
@@ -3278,7 +3354,7 @@ function startGame(cls, sv) {
   if (sv && sv.map === 'dungeon') enterMap('dungeon', sv.x != null ? { x: sv.x, y: sv.y } : null);
   else enterMap('field', sv && sv.x != null ? { x: sv.x, y: sv.y } : null);
   renderInv(); infoTables(); renderOpt(); setQFold(OPT.qFold || (W < 720 && !sv ? false : OPT.qFold)); iconTo($('goldIcon'), 'gold');
-  log(sv ? '저장된 진행을 불러왔습니다.' : '마을 외곽에 도착했습니다. 목표 창을 따라가 보세요.', 'sys');
+  log(sv ? '저장된 진행을 불러왔습니다.' : '아르델 평원에 도착했습니다. 목표 창을 따라가 보세요.', 'sys');
   log('1~4 스킬 · Q/E 물약 · H 자동사냥 · I 가방과 강화', 'sys');
   running = true; STATE.started = performance.now();
   devChanged();
@@ -3289,25 +3365,25 @@ function startGame(cls, sv) {
 // ── 몬스터 고유 전리품: 처치 시 30%(보스·월드보스 확정), 상점에서 판매
 const LOOT_P = 0.3;
 const LOOT_DEF = {
-  goblin: ['고블린의 녹슨 귀걸이', 'ring_ruby', 18, 'grayscale(.5) sepia(.6)'], wolf: ['다이어울프 송곳니', 'bone', 24, 'sepia(.3) brightness(1.1)'],
-  spider: ['거대 거미 독샘', 'pot_green', 30, 'hue-rotate(40deg) saturate(1.6)'], ooze: ['늪 점액 핵', 'gem_ruby', 26, 'hue-rotate(110deg) saturate(1.4)'],
+  goblin: ['고블린의 녹슨 귀걸이', 'ring_ruby', 18, 'grayscale(.5) sepia(.6)'], wolf: ['검은 늑대 송곳니', 'bone', 24, 'sepia(.3) brightness(1.1)'],
+  spider: ['숲 거미 독샘', 'pot_green', 30, 'hue-rotate(40deg) saturate(1.6)'], ooze: ['녹색 슬라임 핵', 'gem_ruby', 26, 'hue-rotate(110deg) saturate(1.4)'],
   skeleton: ['저주받은 두개골', 'bone', 40, 'grayscale(.4) hue-rotate(200deg)'], skeleton_archer: ['부러진 뼈 화살', 'arrows', 34, 'grayscale(.7)'],
-  orc: ['오크 전사의 엄니', 'bone', 55, 'sepia(.8) saturate(1.5)'], boss: ['몰락한 왕의 왕관 조각', 'gem_ruby', 800, 'hue-rotate(35deg) saturate(1.8) brightness(1.2)'],
-  wb_warlord: ['그롬마르의 피 묻은 뿔', 'bone', 2500, 'sepia(1) saturate(3) hue-rotate(-30deg)'], wb_lich: ['벨카르의 영혼 결정', 'gem_ruby', 2500, 'hue-rotate(200deg) saturate(1.6) brightness(1.2)'],
+  orc: ['고블린 전사의 엄니', 'bone', 55, 'sepia(.8) saturate(1.5)'], boss: ['봉인된 수호자의 왕관 조각', 'gem_ruby', 800, 'hue-rotate(35deg) saturate(1.8) brightness(1.2)'],
+  wb_warlord: ['그롬마르의 피 묻은 뿔', 'bone', 2500, 'sepia(1) saturate(3) hue-rotate(-30deg)'], wb_lich: ['모르벤의 영혼 결정', 'gem_ruby', 2500, 'hue-rotate(200deg) saturate(1.6) brightness(1.2)'],
 };
 for (const [mob, [name, icon, price, hue]] of Object.entries(LOOT_DEF)) XITEMS['loot_' + mob] = { name, icon, price, hue, loot: true, mob, grade: mob.startsWith('wb_') || mob === 'boss' ? 'legend' : 'uncommon' };
 XITEMS.scroll_teleport = { name: '이동 포탈 스크롤', icon: 'scroll_teleport', grade: 'rare' };
 
-// ── 웨이포인트: 다가가면 활성화, 활성화된 곳끼리(마을 포함) 안전하게 이동
+// ── 별빛 표석: 다가가면 활성화, 활성화된 곳끼리(마을 포함) 안전하게 이동
 const WAYPOINTS = {
   field: [
-    { id: 'wp_town', name: '마을 광장', x: 11.5, y: 15.5, town: true }, { id: 'wp_forest', name: '동쪽 숲', x: 27.5, y: 11.5 },
-    { id: 'wp_grave', name: '북동 묘지', x: 39.5, y: 17.5 }, { id: 'wp_camp', name: '오크 야영지', x: 37.5, y: 25.5 },
-    { id: 'wp_swamp', name: '남서 늪지', x: 27.5, y: 42.5 }, { id: 'wp_altar', name: '피의 제단', x: 30.5, y: 47.5 },
-    { id: 'wp_gate', name: '지하 묘소 입구', x: 46.5, y: 44.5 },
+    { id: 'wp_town', name: '아르델 광장', x: 11.5, y: 15.5, town: true }, { id: 'wp_forest', name: '동쪽 숲', x: 27.5, y: 11.5 },
+    { id: 'wp_grave', name: '옛 왕실 묘역', x: 39.5, y: 17.5 }, { id: 'wp_camp', name: '고블린 야영지', x: 37.5, y: 25.5 },
+    { id: 'wp_swamp', name: '남서 늪지', x: 27.5, y: 42.5 }, { id: 'wp_altar', name: '몰락의 제단', x: 30.5, y: 47.5 },
+    { id: 'wp_gate', name: '기사단 묘소 입구', x: 46.5, y: 44.5 },
   ],
   dungeon: [
-    { id: 'wp_d_entry', name: '묘소 입구', x: 6.5, y: 9.5 }, { id: 'wp_d_hall', name: '기둥 회랑', x: 15.5, y: 18.5 }, { id: 'wp_d_crypt', name: '남서 납골당 앞', x: 15.5, y: 27.5 },
+    { id: 'wp_d_entry', name: '묘소 입구', x: 6.5, y: 9.5 }, { id: 'wp_d_hall', name: '기사단 회랑', x: 15.5, y: 18.5 }, { id: 'wp_d_crypt', name: '남서 납골당 앞', x: 15.5, y: 27.5 },
   ],
 };
 const wpById = id => { for (const [map, list] of Object.entries(WAYPOINTS)) { const w = list.find(x => x.id === id); if (w) return Object.assign({ map }, w); } return null; };
@@ -3317,7 +3393,7 @@ function updateWaypoints(dt) {
   if ((wpT -= dt) > 0 || !P) return; wpT = 0.25;
   STATE.wp = STATE.wp || { wp_town: true };
   for (const w of (WAYPOINTS[MAP.id] || [])) if (!STATE.wp[w.id] && dist(P, w) < 2.0) {
-    STATE.wp[w.id] = true; banner('웨이포인트 활성화', w.name); sfx('magic_cast', { gain: 0.6 }); vfx.push({ k: 'lvup', x: w.x, y: w.y, t: 0, life: 1.2 }); log(`웨이포인트 '${w.name}'을(를) 찾았습니다.`, 'sys'); save();
+    STATE.wp[w.id] = true; banner('별빛 표석 활성화', w.name); sfx('magic_cast', { gain: 0.6 }); vfx.push({ k: 'lvup', x: w.x, y: w.y, t: 0, life: 1.2 }); log(`별빛 표석 '${w.name}'을(를) 찾았습니다.`, 'sys'); save();
   }
   const nw = nearWp();
   $('wpBtn').classList.toggle('hidden', !nw || !$('wpMenu').classList.contains('hidden') || !running);
@@ -3327,13 +3403,13 @@ let wpScroll = false;
 function openWp(from, scroll) {
   if (!running || !P || P.dead) return;
   wpScroll = !!scroll;
-  $('wpTitle').textContent = scroll ? '이동 포탈 스크롤' : `웨이포인트 · ${from ? from.name : ''}`;
-  $('wpNote').textContent = scroll ? '이동하면 스크롤 1장이 사라집니다.' : '활성화한 웨이포인트끼리 무료로 이동합니다. 비석에 다가가면 활성화됩니다.';
+  $('wpTitle').textContent = scroll ? '이동 포탈 스크롤' : `별빛 표석 · ${from ? from.name : ''}`;
+  $('wpNote').textContent = scroll ? '이동하면 스크롤 1장이 사라집니다.' : '활성화한 별빛 표석끼리 무료로 이동합니다. 비석에 다가가면 활성화됩니다.';
   const box = $('wpList'); box.innerHTML = '';
   for (const [map, list] of Object.entries(WAYPOINTS)) for (const w of list) {
     const on = STATE.wp && STATE.wp[w.id], here = from && from.id === w.id, lvOk = map !== 'dungeon' || P.lv >= DUNGEON_MIN;
     const row = document.createElement('div'); row.className = 'wprow' + (on ? '' : ' off');
-    row.innerHTML = `<div>${w.name}${w.town ? ' ⌂' : ''}<small>${map === 'field' ? '마을 외곽' : '지하 묘소'}${on ? '' : ' · 아직 찾지 못함'}${lvOk ? '' : ` · Lv ${DUNGEON_MIN}부터`}</small></div>`;
+    row.innerHTML = `<div>${w.name}${w.town ? ' ⌂' : ''}<small>${map === 'field' ? '아르델 평원' : '기사단 묘소'}${on ? '' : ' · 아직 찾지 못함'}${lvOk ? '' : ` · Lv ${DUNGEON_MIN}부터`}</small></div>`;
     const b = document.createElement('button'); b.type = 'button'; b.textContent = here ? '현재 위치' : '이동'; b.disabled = !on || here || !lvOk;
     b.onclick = () => teleportTo(w.id); row.append(b); box.append(row);
   }
@@ -3381,10 +3457,10 @@ function devChanged() {
 document.querySelectorAll('#devRow button').forEach(b => b.addEventListener('click', () => {
   if (!P || !DEV()) return;
   const k = b.dataset.dev;
-  if (k === 'gold') { P.gold += 1000000; log('개발자: 골드 +1,000,000', 'sys'); }
+  if (k === 'gold') { P.gold += 1000000; log('개발자: 아데나 +1,000,000', 'sys'); }
   if (k === 'lv') gainXp(xpNeed(P.lv) - P.xp);
   if (k === 'wb') { STATE.wbKill[MAP.id] = 0; wbT = 0; updateWorldBoss(0); }
-  if (k === 'wp') { for (const l of Object.values(WAYPOINTS)) for (const w of l) STATE.wp[w.id] = true; log('개발자: 웨이포인트 모두 열림', 'sys'); }
+  if (k === 'wp') { for (const l of Object.values(WAYPOINTS)) for (const w of l) STATE.wp[w.id] = true; log('개발자: 별빛 표석 모두 열림', 'sys'); }
   if (k === 'god') { P.god = !P.god; log(`개발자: 무적 ${P.god ? '켜짐' : '꺼짐'}`, 'sys'); }
   if (k === 'items') { for (const id of ['pot_red', 'pot_blue', 'scroll_weapon', 'scroll_armor', 'scroll_return', 'scroll_teleport']) P.inv[id] = 99; log('개발자: 물약·주문서 99개', 'sys'); }
   renderInv(); save();
@@ -3485,10 +3561,10 @@ const GG = [
 ];
 const DEV_GG = [20, 20, 20, 20, 15, 5];
 const GACHA_POOL = {
-  pet: [['ooze', '아기 늪 점액', 0], ['goblin', '꼬마 고블린', 0], ['wolf', '아기 다이어울프', 1], ['spider', '새끼 거미', 1], ['skeleton', '꼬마 해골 병사', 2], ['skeleton_archer', '꼬마 해골 궁수', 2],
-    ['orc', '꼬마 오크 전사', 3], ['boss', '꼬마 몰락한 왕', 4], ['wb_warlord', '꼬마 그롬마르', 5], ['wb_lich', '꼬마 벨카르', 5]],
-  morph: [['goblin', '고블린', 0], ['ooze', '늪 점액', 0], ['wolf', '다이어울프', 1], ['spider', '거대 거미', 1], ['skeleton', '해골 병사', 2], ['skeleton_archer', '해골 궁수', 2],
-    ['orc', '오크 전사', 3], ['boss', '몰락한 왕', 4], ['wb_warlord', '피의 군주 그롬마르', 5], ['wb_lich', '심연의 리치 군주 벨카르', 5]],
+  pet: [['ooze', '아기 녹색 슬라임', 0], ['goblin', '꼬마 고블린', 0], ['wolf', '아기 검은 늑대', 1], ['spider', '새끼 거미', 1], ['skeleton', '꼬마 해골 병사', 2], ['skeleton_archer', '꼬마 해골 궁수', 2],
+    ['orc', '꼬마 고블린 전사', 3], ['boss', '꼬마 봉인된 수호자', 4], ['wb_warlord', '꼬마 그롬마르', 5], ['wb_lich', '꼬마 모르벤', 5]],
+  morph: [['goblin', '고블린', 0], ['ooze', '녹색 슬라임', 0], ['wolf', '검은 늑대', 1], ['spider', '숲 거미', 1], ['skeleton', '해골 병사', 2], ['skeleton_archer', '해골 궁수', 2],
+    ['orc', '고블린 전사', 3], ['boss', '봉인된 수호자', 4], ['wb_warlord', '몰락의 군주 그롬마르', 5], ['wb_lich', '잊힌 기억의 리치 모르벤', 5]],
 };
 const GACHA_BONUS = {
   pet: { atk: [2, 3, 5, 8, 12, 20], hp: [2, 3, 5, 8, 12, 20], gold: [5, 8, 12, 18, 25, 40] },
@@ -3543,7 +3619,7 @@ function gachaRoll(cat, minG) {
 }
 let gCat = 'pet', gSelId = null;
 function pullGacha(n) {
-  const cost = GACHA_COST[n]; if (!P || P.gold < cost) { log('골드가 부족합니다.', 'bad'); return null; }
+  const cost = GACHA_COST[n]; if (!P || P.gold < cost) { log('아데나가 부족합니다.', 'bad'); return null; }
   P.gold -= cost; const st = P.gacha[gCat]; const res = [];
   for (let i = 0; i < n; i++) {
     st.pity++;
@@ -3584,7 +3660,7 @@ function showPulls(res) {
 function renderGacha() {
   if (!P) return;
   document.querySelectorAll('#gTabs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.g === gCat)));
-  $('gGold').textContent = `${P.gold.toLocaleString()} 골드`;
+  $('gGold').textContent = `${P.gold.toLocaleString()} 아데나`;
   const rates = gachaRates();
   $('gRates').innerHTML = GG.map((g, i) => `<span><b style="color:${g.color}">${g.name}</b> ${rates[i]}%</span>`).join('') + (DEV() ? '<span style="color:#ff6a5a">· 개발자 확률</span>' : '');
   $('gPull1').disabled = P.gold < GACHA_COST[1]; $('gPull11').disabled = P.gold < GACHA_COST[11];
@@ -3606,9 +3682,9 @@ function renderGacha() {
 function renderGachaSel() {
   const box = $('gSel'), cur = gCat === 'pet' ? P.pet : P.morph;
   const id = gSelId && (P.coll[gCat] || {})[gSelId] ? gSelId : cur;
-  if (!id) { box.innerHTML = `<span class="note">${gCat === 'pet' ? '펫은 주인공을 따라다니며 공격력·HP·골드 획득량을 올려 줍니다.' : '변신하면 그 모습이 되고 공격력·HP·이동 속도가 오릅니다.'} 보유한 것을 눌러 ${gCat === 'pet' ? '데려가세요' : '변신하세요'}.</span>`; return; }
+  if (!id) { box.innerHTML = `<span class="note">${gCat === 'pet' ? '펫은 주인공을 따라다니며 공격력·HP·아데나 획득량을 올려 줍니다.' : '변신하면 그 모습이 되고 공격력·HP·이동 속도가 오릅니다.'} 보유한 것을 눌러 ${gCat === 'pet' ? '데려가세요' : '변신하세요'}.</span>`; return; }
   const e = gEntry(gCat, id), s = (P.coll[gCat] || {})[id] || 1, tb = GACHA_BONUS[gCat];
-  const txt = Object.entries(tb).map(([k, a]) => `${{ atk: '공격력', hp: '최대 HP', gold: '골드 획득', spd: '이동 속도' }[k]} +${(a[e.g] * starMul(s)).toFixed(1)}%`).join(' · ');
+  const txt = Object.entries(tb).map(([k, a]) => `${{ atk: '공격력', hp: '최대 HP', gold: '아데나 획득', spd: '이동 속도' }[k]} +${(a[e.g] * starMul(s)).toFixed(1)}%`).join(' · ');
   box.innerHTML = `<b style="color:${GG[e.g].color}">[${GG[e.g].name}] ${e.name} ${'★'.repeat(s)}</b><span>${txt}</span>`;
   const b = document.createElement('button'); b.type = 'button';
   const on = cur === id; b.textContent = gCat === 'pet' ? (on ? '펫 돌려보내기' : '데려가기') : (on ? '변신 해제' : '변신');
@@ -3687,6 +3763,7 @@ function simulate(seconds, step = 1 / 20) {
 }
 // 시험용 손잡이
 window.__game = {
+  SAVE_KEY, OLD_SAVE_KEY, migrateV1, loadSave, REGIONS, ELEMENTS, regionOf, regionOpen, CLOCK_START,
   WORLD_BOSS, UNIQUE, PASSIVES, XITEMS, topPct, itemStats, useItem, wbAlive, wbSlot, safeSpot, walkable, findPath, handleTap, joy: JOY, joyVec, closeShop, nearNpc, skillIds, dropEquip,
   get hazards() { return hazards; }, get reach() { return reach; }, get blocked() { return blocked; }, get now() { return now; },
   killMob, wbDrops, gradeFrame, renderShop, pullGacha, exchangeMile, gachaRoll, setPet, setMorph, collBonus, teleportTo, openWp, WAYPOINTS, showCompare, renderGacha, toggleGacha, devChanged, applyVolumes,

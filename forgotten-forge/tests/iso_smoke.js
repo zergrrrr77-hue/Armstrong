@@ -84,8 +84,8 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
     check(pot, '체력 물약', fails);
     const enc = await page.evaluate(() => { const P = __game.P; P.inv.scroll_weapon = 3; __game.enchant('w'); __game.enchant('w'); return P.wEnc === 2; });
     check(enc, '무기 강화(+6 이하 안전)', fails);
-    const gold = await page.evaluate(() => document.getElementById('gold').textContent.includes('골드'));
-    check(gold, '화폐 단위 골드', fails);
+    const gold = await page.evaluate(() => document.getElementById('gold').textContent.includes('아데나'));
+    check(gold, '화폐 단위 아데나', fails);
 
     // 장비 드롭 → 줍기 → 착용
     const eq = await page.evaluate(() => {
@@ -99,7 +99,7 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
     const eq2 = await page.evaluate(() => { const G = __game, P = G.P; if (!P.bag.length) return 0; G.equip(P.bag[P.bag.length - 1].uid); return G.equipDef(P.weapon.key).atk; });
     check(eq2 > eq, '장비 줍기·착용으로 공격력 상승', fails);
     await page.keyboard.press('KeyI'); await page.locator('#invTabs button', { hasText: '확률표' }).click(); await page.waitForTimeout(200);
-    const tables = await page.evaluate(() => { const d = document.getElementById('dropTable'), e = document.getElementById('encTable'); return d.offsetHeight > 50 && e.offsetHeight > 50 && d.textContent.includes('다이어울프') && e.textContent.includes('%'); });
+    const tables = await page.evaluate(() => { const d = document.getElementById('dropTable'), e = document.getElementById('encTable'); return d.offsetHeight > 50 && e.offsetHeight > 50 && d.textContent.includes('검은 늑대') && e.textContent.includes('%'); });
     if (cls === 'knight') await (await page.$('#inv')).screenshot({ path: `${OUT}/g8_prob.png` });
     await page.keyboard.press('KeyI');
     check(tables, '드롭률·강화 확률 표 표시', fails);
@@ -162,7 +162,7 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
       const r5 = await page.evaluate(() => { const G = __game, P = G.P; const g0 = P.gold; G.drops.push({ id: 'gold', n: 33, x: P.x, y: P.y, t: 0 }); G.drops.push({ id: 'bow', equip: G.makeEquip('w_wind'), n: 1, x: P.x, y: P.y, t: 0, grade: 'heroic' }); return g0; });
       await page.waitForTimeout(400);
       const r6 = await page.evaluate(() => ({ gold: __game.P.gold, loot: __game.LOOT.map(l => l.text).join('|'), banner: document.querySelector('#banner b').textContent }));
-      check(r6.gold === r5 + 33 && r6.loot.includes('33 골드') && r6.loot.includes('바람의 활'), '골드·장비 획득 기록', fails);
+      check(r6.gold === r5 + 33 && r6.loot.includes('33 아데나') && r6.loot.includes('바람의 활'), '아데나·장비 획득 기록', fails);
       check(r6.banner.includes('바람의 활'), '영웅 장비 획득 알림', fails);
     }
     // 상점: 화로의 신(신전 앞) 옆에서 열고 물약 구매
@@ -213,7 +213,7 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
       // 예전 저장 데이터(능력치 없음) 호환
       await page.reload();   // 떠날 때 자동 저장되므로, 시작 화면(저장 꺼짐)에서 고친 뒤 다시 불러옴
       await page.waitForFunction(() => document.querySelectorAll('.cls').length === 3, null, { timeout: 20000 });
-      await page.evaluate(() => { const d = JSON.parse(localStorage.getItem('ff_lineage_save_v1')); delete d.st; delete d.sp; d.lv = 5; localStorage.setItem('ff_lineage_save_v1', JSON.stringify(d)); });
+      await page.evaluate(() => { const d = JSON.parse(localStorage.getItem('erden_save_v2')); delete d.st; delete d.sp; d.lv = 5; localStorage.setItem('erden_save_v2', JSON.stringify(d)); });
       await page.reload();
       await page.waitForFunction(() => document.querySelectorAll('.cls').length === 3, null, { timeout: 20000 });
       await page.click('#continue'); await page.waitForTimeout(400);
