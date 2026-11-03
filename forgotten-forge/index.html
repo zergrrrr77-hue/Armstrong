@@ -495,6 +495,82 @@ details.info th { color: var(--gold); font-weight: 500; }
   #wmap .wm-stage { max-height: calc(100vh - 110px); }
   #wmClose { right: 4px; top: 4px; z-index: 2; }
 }
+/* ═════════ 에르덴 UI: 리니지 클래식 배치 + 돌·청동·별빛 ═════════ */
+:root { --stone-a: #2c2620; --stone-b: #17140f; --bronze: #8a6a3a; --bronze-hi: #c9a25a; --gold-hi: #f0d48a; --star: #8cc8ff; }
+/* 공통 테마(PC·휴대폰): 돌 판 + 청동 테두리 */
+#mini, #target, #bar, #opt, #wpMenu, #cmp {
+  background: radial-gradient(circle at 20% 30%, rgba(255,255,255,.03) 0 2px, transparent 3px) 0 0 / 14px 14px, linear-gradient(var(--stone-a), var(--stone-b));
+  border: 2px solid var(--bronze); border-radius: 4px; box-shadow: inset 0 0 0 1px #0c0a07, inset 0 1px 0 2px rgba(201,162,90,.22), 0 0 0 1px #0c0a07, 0 6px 18px rgba(0,0,0,.55); }
+#mini .zone, #target b { font-family: "Noto Serif KR", "Noto Serif CJK KR", var(--display), serif; font-weight: 900; color: var(--gold-hi); }
+#target b { color: #ffd9a0; }
+#target .bar { height: 12px; border: 1px solid #0a0806; background: #120e0b; box-shadow: inset 0 1px 3px rgba(0,0,0,.8); }
+#target .bar i { background: linear-gradient(#ff8a6a, #ff5a44 40%, #8a140c); }
+.slot { border: 1px solid #0a0806; border-radius: 4px; background: radial-gradient(#2a221a, #0e0b08); box-shadow: inset 0 0 0 1px var(--bronze), inset 0 0 8px rgba(0,0,0,.7); }
+.slot .k { color: var(--gold-hi); font-weight: 900; }
+.slot.ready { box-shadow: inset 0 0 0 1px var(--gold-hi), 0 0 6px rgba(240,212,138,.35); }
+.mbtn button { background: linear-gradient(#352b20, #1c160f); border: 1px solid #0a0806; box-shadow: inset 0 0 0 1px var(--bronze); border-radius: 4px; color: #e8dcc0; }
+.mbtn button svg { stroke: var(--gold-hi); }
+.mbtn button[aria-pressed="true"] { box-shadow: inset 0 0 0 1px var(--star), 0 0 8px rgba(140,200,255,.5); color: #fff; }
+#quest { background: linear-gradient(rgba(20,16,12,.84), rgba(20,16,12,.66)); border: 1px solid rgba(138,106,58,.7); border-left: 3px solid var(--bronze-hi); border-radius: 3px; }
+#xp i { background: linear-gradient(90deg, #8a6a20, #e8c050, #fff1b0); box-shadow: 0 0 6px rgba(232,192,80,.7); }
+#shp i { background: linear-gradient(#ff8a6a, #ff5a44 40%, #8a140c); } #smp i { background: linear-gradient(#9ad0ff, #5aa8ff 40%, #0c2a6a); }
+#dock { display: none; }
+#atkBtn { background: radial-gradient(circle at 40% 35%, #6a2a1a, #2a0c06 70%); border: 3px solid var(--bronze-hi); box-shadow: 0 0 0 2px #0c0a07, 0 0 14px rgba(255,120,60,.35); }
+
+/* PC(마우스·넓은 화면): 화면 아래 통합 바 — 왼쪽 기록 · 가운데 캐릭터/단축칸 · 오른쪽 아데나/메뉴 */
+@media (hover: hover) and (pointer: fine) and (min-width: 960px) and (min-height: 600px) {
+  #dock { display: block; left: 0; right: 0; bottom: 0; height: 172px; z-index: 9; pointer-events: none !important;
+    background: radial-gradient(circle at 20% 30%, rgba(255,255,255,.03) 0 2px, transparent 3px) 0 0 / 14px 14px,
+      radial-gradient(circle at 70% 60%, rgba(0,0,0,.25) 0 2px, transparent 3px) 0 0 / 19px 19px, linear-gradient(#2c2620, #15120e);
+    border-top: 2px solid var(--bronze); box-shadow: inset 0 2px 0 rgba(240,212,138,.22), 0 -8px 24px rgba(0,0,0,.6); }
+  #dock.hidden { display: none; }
+  #dock * { pointer-events: none !important; }
+  #dock .em { position: absolute; left: 50%; top: -20px; transform: translateX(-50%); width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+    background: radial-gradient(circle at 40% 35%, #3a5a8a, #0c1a30 70%); border: 2px solid var(--bronze-hi); box-shadow: 0 0 12px rgba(140,200,255,.55), 0 0 0 3px #0c0a07; color: #e8f4ff; font-size: 20px; text-shadow: 0 0 8px #8cc8ff; }
+  #dock .logbox { position: absolute; left: 12px; bottom: 10px; width: 372px; height: 146px; background: rgba(6,5,4,.55); border: 1px solid #0a0806; box-shadow: inset 0 0 0 1px rgba(138,106,58,.45); border-radius: 3px; }
+  #dock .logbox::before { content: '기록'; position: absolute; left: 6px; top: -10px; padding: 0 8px; font: 700 11px var(--body); color: var(--gold-hi); background: #2a2219; border: 1px solid var(--bronze); border-radius: 3px; }
+  #xp { bottom: 170px; height: 5px; z-index: 11; }
+  #log { left: 22px; bottom: 18px; width: 352px; max-height: 128px; overflow: hidden; z-index: 10; }
+  #status { left: 400px; top: auto; bottom: 104px; width: calc(100vw - 400px - 330px); z-index: 10; }
+  #status .orb { width: 56px; height: 56px; }
+  #status .orbtxt { flex: 1; }
+  #status .sbar { width: 100%; height: 12px; border: 1px solid #0a0806; background: #120e0b; box-shadow: inset 0 1px 3px rgba(0,0,0,.8); }
+  #buffs { position: fixed; left: 12px; top: 12px; max-width: 360px; }
+  #bar { left: 400px; transform: none; bottom: 12px; padding: 0; gap: 4px; background: none; border: 0; box-shadow: none; z-index: 10; }
+  #bar .slot { width: 44px; height: 44px; }
+  #bar .sep { width: 2px; height: 38px; margin: 3px 4px 0; background: linear-gradient(transparent, var(--bronze), transparent); }
+  #mini { right: 12px; top: 10px; width: 196px; padding: 8px; justify-items: center; }
+  #mini canvas#minimap { width: 176px; height: 140px; object-fit: cover; }
+  #mini .gold { position: fixed; right: 12px; bottom: 120px; width: 300px; justify-content: flex-end; padding: 5px 10px; font-family: "Noto Serif KR", serif; font-weight: 900; font-size: 15px;
+    background: rgba(6,5,4,.55); border: 1px solid #0a0806; box-shadow: inset 0 0 0 1px rgba(138,106,58,.45); border-radius: 3px; z-index: 10; }
+  #mini .gold canvas { order: 2; margin-left: 4px; }
+  .mbtn { position: fixed; right: 12px; left: auto; top: auto; bottom: 12px; width: 300px; grid-template-columns: repeat(3, 1fr); gap: 5px; z-index: 10; }
+  .mbtn button { width: auto; height: 46px; font-size: 10px; }
+  #quest { left: auto; right: 12px; top: 262px; width: 196px; }
+  #shopBtn, #wpBtn { bottom: 190px; }
+  #target { top: 10px; }
+}
+
+/* 휴대폰·태블릿(손가락): 오른쪽 아래 공격 버튼 둘레에 스킬을 부채꼴로, 물약은 아래 가운데 */
+@media (pointer: coarse) {
+  #atkBtn { right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px)); width: 78px; height: 78px; }
+  #bar { left: 0; right: 0; bottom: 0; height: 0; transform: none; padding: 0; gap: 0; background: none; border: 0; box-shadow: none; display: block; }
+  #bar .sep { display: none; }
+  #bar button.slot { position: absolute; width: 50px; height: 50px; border-radius: 50%; }
+  #bar button.slot canvas { border-radius: 50%; }
+  #bar button.slot:nth-of-type(1) { right: calc(max(16px, env(safe-area-inset-right, 0px)) + 114px); bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + 14px); }
+  #bar button.slot:nth-of-type(2) { right: calc(max(16px, env(safe-area-inset-right, 0px)) + 101px); bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + 64px); }
+  #bar button.slot:nth-of-type(3) { right: calc(max(16px, env(safe-area-inset-right, 0px)) + 64px); bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + 101px); }
+  #bar button.slot:nth-of-type(4) { right: calc(max(16px, env(safe-area-inset-right, 0px)) + 14px); bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + 114px); }
+  #bar button.slot:nth-of-type(5) { right: calc(max(16px, env(safe-area-inset-right, 0px)) + 172px); bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + 42px); }
+  #bar button.slot:nth-of-type(6) { right: calc(max(16px, env(safe-area-inset-right, 0px)) + 145px); bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + 106px); }
+  #bar button.slot:nth-of-type(7) { right: calc(max(16px, env(safe-area-inset-right, 0px)) + 94px); bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + 153px); }
+  #bar button.slot:nth-of-type(8) { right: calc(max(16px, env(safe-area-inset-right, 0px)) + 28px); bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + 173px); }
+  /* 물약 두 칸(맨 뒤 버튼 둘)은 아래 가운데 — 위의 부채꼴 규칙보다 뒤에 있어 우선한다 */
+  #bar button.slot:nth-last-of-type(2), #bar button.slot:nth-last-of-type(1) { right: auto; left: 50%; bottom: max(8px, env(safe-area-inset-bottom, 0px)); width: 46px; height: 46px; border-radius: 4px; }
+  #bar button.slot:nth-last-of-type(2) { margin-left: -50px; } #bar button.slot:nth-last-of-type(1) { margin-left: 4px; }
+  #bar button.slot:nth-last-of-type(-n+2) canvas { border-radius: 3px; }
+}
 </style>
 
 <canvas id="game"></canvas>
@@ -517,6 +593,7 @@ details.info th { color: var(--gold); font-weight: 500; }
       <div><kbd>H</kbd>자동사냥 · <kbd>I</kbd>가방·강화 · <kbd>M</kbd>소리</div>
       <div><kbd>F</kbd>상점·별빛 표석 · <kbd>5</kbd>~<kbd>8</kbd>월드보스 스킬</div>
       <div><kbd>G</kbd>공명(펫·변신) · <kbd>F2</kbd>개발자 모드</div>
+      <div><kbd>Tab</kbd>세계지도 (미니맵을 눌러도 열림)</div>
       <div><span style="color:#ff6a5a">▼</span> 선공 몬스터(먼저 공격) · <span style="color:#8ae07a">●</span> 후공 몬스터</div>
       <div><kbd>휴대폰</kbd>왼쪽 아래를 누르고 끌면 투명 조이스틱</div>
     </div>
@@ -541,7 +618,7 @@ details.info th { color: var(--gold); font-weight: 500; }
 <div class="hud hidden" id="mini"><div class="zone" id="zone">아르델 평원</div><div class="mmwrap"><canvas id="minimap" width="150" height="150"></canvas><div class="mmz"><button id="mmIn" type="button" aria-label="미니맵 확대">+</button><button id="mmOut" type="button" aria-label="미니맵 축소">−</button></div></div>
   <div class="gold"><canvas id="goldIcon" width="32" height="32"></canvas><span id="gold">0</span></div>
   <div class="wbt" id="wbTimer"></div>
-  <div class="mbtn"><button id="btnAuto" type="button" aria-pressed="false" title="자동사냥 (H)" aria-label="자동사냥"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/><path d="M9 15l3-7 3 7M10 13h4"/></svg><span>자동</span></button><button id="btnInv" type="button" title="가방 (I)" aria-label="가방"><svg viewBox="0 0 24 24"><path d="M5 9h14l-1.2 11H6.2z"/><path d="M9 9V7a3 3 0 0 1 6 0v2"/></svg><span>가방</span></button><button id="btnGacha" type="button" title="공명 (G)" aria-label="공명"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17l-5.6 2.9 1.1-6.3L2.9 9.2l6.3-.9z"/></svg><span>공명</span></button><button id="btnSnd" type="button" aria-pressed="true" title="소리 켜기/끄기 (M)" aria-label="소리"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span>소리</span></button><button id="btnOpt" type="button" title="설정" aria-label="설정"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg><span>설정</span></button></div></div>
+  <div class="mbtn"><button id="btnAuto" type="button" aria-pressed="false" title="자동사냥 (H)" aria-label="자동사냥"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/><path d="M9 15l3-7 3 7M10 13h4"/></svg><span>자동</span></button><button id="btnInv" type="button" title="가방 (I)" aria-label="가방"><svg viewBox="0 0 24 24"><path d="M5 9h14l-1.2 11H6.2z"/><path d="M9 9V7a3 3 0 0 1 6 0v2"/></svg><span>가방</span></button><button id="btnGacha" type="button" title="공명 (G)" aria-label="공명"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17l-5.6 2.9 1.1-6.3L2.9 9.2l6.3-.9z"/></svg><span>공명</span></button><button id="btnMap" type="button" title="세계지도 (Tab)" aria-label="세계지도"><svg viewBox="0 0 24 24"><path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z"/><path d="M9 4v14M15 6v14"/></svg><span>지도</span></button><button id="btnSnd" type="button" aria-pressed="true" title="소리 켜기/끄기 (M)" aria-label="소리"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><span>소리</span></button><button id="btnOpt" type="button" title="설정" aria-label="설정"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg><span>설정</span></button></div></div>
 <div class="hud hidden" id="opt">
   <h3>설정 <button type="button" id="optClose" aria-label="설정 닫기">✕</button></h3>
   <div class="tabs" id="optTabs"><button type="button" data-ot="auto" aria-pressed="true">자동</button><button type="button" data-ot="view" aria-pressed="false">화면</button><button type="button" data-ot="sound" aria-pressed="false">사운드</button><button type="button" data-ot="dev" aria-pressed="false">개발자</button></div>
@@ -585,6 +662,7 @@ details.info th { color: var(--gold); font-weight: 500; }
 <div id="gFlash"></div>
 <div id="joyZone" class="hidden" aria-hidden="true"><div id="joyBase"><div id="joyKnob"></div></div></div>
 <button class="hud hidden" id="atkBtn" type="button" aria-label="가까운 적 공격"><svg viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6M16 16l4 4M19 21l2-2"/></svg>공격</button>
+<div class="hud hidden" id="dock" aria-hidden="true"><div class="logbox"></div><div class="em">✦</div></div>
 <div class="hud hidden" id="bar"></div>
 <div class="hud hidden" id="xp"><i></i></div>
 <div class="hud hidden" id="log"></div>
@@ -3424,7 +3502,7 @@ function titleScreen() {
 }
 function startGame(cls, sv) {
   $('title').classList.add('hidden');
-  ['status', 'mini', 'bar', 'xp', 'log', 'quest'].forEach(id => $(id).classList.remove('hidden'));
+  ['status', 'mini', 'bar', 'xp', 'log', 'quest', 'dock'].forEach(id => $(id).classList.remove('hidden'));
   $('joyZone').classList.toggle('hidden', !IS_TOUCH); if (IS_TOUCH) joyRest();
   $('atkBtn').classList.toggle('hidden', !IS_TOUCH);
   P = newPlayer(cls);
@@ -3569,6 +3647,7 @@ function toggleWorldMap(force) {
   el.classList.toggle('hidden', !show); uiPauseCheck();
 }
 $('wmClose').addEventListener('click', () => toggleWorldMap(false));
+$('btnMap').addEventListener('click', () => { if (running) toggleWorldMap(); });
 $('wmap').addEventListener('click', e => { if (e.target.id === 'wmap') toggleWorldMap(false); });   // 바깥 어두운 곳을 누르면 닫힘
 $('minimap').addEventListener('click', () => { if (running) toggleWorldMap(true); });
 $('minimap').style.cursor = 'pointer'; $('minimap').title = '세계지도 열기 (Tab)';

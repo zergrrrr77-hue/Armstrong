@@ -102,9 +102,16 @@ async function boot(browser, opt, cls = 0) {
   check(okRun.ok && okRun.vis && okTxt.includes('성공') && !failRun && failTxt.includes('실패') && gone, `강화 망치 연출: 성공 "${okTxt}" / 실패 "${failTxt}"`, fails);
   await page.evaluate(() => document.getElementById('inv').classList.add('hidden'));
 
-  // 7) 맵 창 왼쪽 위 아이콘 메뉴
-  const ic = await page.evaluate(() => { const m = document.getElementById('mini').getBoundingClientRect(); return ['btnAuto', 'btnInv', 'btnGacha', 'btnSnd', 'btnOpt'].map(id => { const r = document.getElementById(id).getBoundingClientRect(); return r.right <= m.left + 1 && r.top >= m.top - 1 && r.top < m.top + 260 && !!document.querySelector('#' + id + ' svg'); }); });
-  check(ic.every(Boolean), '자동·가방·뽑기·소리·설정 아이콘이 맵 창 왼쪽 위에 세로로', fails);
+  // 7) 메뉴 아이콘: PC(마우스·넓은 화면)는 에르덴 UI의 아래 통합 바 오른쪽(아데나 아래) 3×2, 휴대폰은 맵 창 왼쪽 세로
+  const ic = await page.evaluate(() => {
+    const ids = ['btnAuto', 'btnInv', 'btnGacha', 'btnMap', 'btnSnd', 'btnOpt'], rs = ids.map(id => document.getElementById(id).getBoundingClientRect());
+    const pc = matchMedia('(hover: hover) and (pointer: fine) and (min-width: 960px) and (min-height: 600px)').matches;
+    if (pc) { const g = document.querySelector('#mini .gold').getBoundingClientRect(), H = innerHeight, W = innerWidth;
+      return { pc, ok: rs.every(r => r.width >= 40 && r.top > g.bottom - 1 && r.bottom <= H + 1 && r.right <= W + 1 && r.left > W * 0.6) }; }
+    const m = document.getElementById('mini').getBoundingClientRect();
+    return { pc, ok: rs.every(r => r.right <= m.left + 1 && r.top >= m.top - 1) && rs.every((r, k) => !k || r.top > rs[k - 1].top) };
+  });
+  check(ic.ok, ic.pc ? '메뉴 아이콘 6개가 아래 통합 바 오른쪽(아데나 아래)에' : '메뉴 아이콘이 맵 창 왼쪽에 세로로', fails);
 
   // 8) 사운드 상세 설정
   await page.click('#btnOpt'); await page.waitForTimeout(150);
