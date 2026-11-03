@@ -31,6 +31,11 @@ def _mats():
                    tex=lambda P, n: 0.35 * np.sin(P[:, 0] * 3.0 + P[:, 2] * 0.4)),
         'mail': Mat(['#1d2026', '#30343c', '#474c56', '#626874', '#7d8491'], metal=True,
                     tex=lambda P, n: 0.6 * ((np.floor(P[:, 2] * 0.9) + np.floor(P[:, 0] * 0.9)) % 2 - 0.5)),
+        # 단계 1 (수정): 깔끔한 견습생 — 흰 리넨 셔츠, 갈색 가죽 조끼, 짙은 녹색 바지, 단정한 강철 부품
+        'linen': Mat(['#4e4a40', '#7a7466', '#a8a08e', '#cec6b2', '#ece6d4']),
+        'jerkin': Mat(['#24140a', '#3c2412', '#56361c', '#704826', '#8c5c32'], gloss=0.25),
+        'pants': Mat(['#10160e', '#1a2418', '#263424', '#344632', '#445a40']),
+        'recruit': Mat(['#1c2840', '#2a3a5c', '#3c5280', '#5470a4', '#7090c4']),   # 견습 표식 천(옅은 청)
         # 단계 2: 아르델 기사단 청회색
         'ardel': Mat(['#0e1622', '#18243a', '#243652', '#324a6c', '#445f88']),
         # 단계 3: 왕실 진홍 + 광택 강철
@@ -119,8 +124,8 @@ def rune_sword(r, length=21, blade='starsteel', glow='starlight', guard='gold'):
 def _knight(tier):
     m = _mats()
     if tier == 1:
-        parts = dict(skin='skin', hair='hair', eyes='eyes', torso='gambeson', pelvis='gambeson', legs='leather', shin='leather',
-                     boots='leather', arms='gambeson', farm='leather', hands='leather')
+        parts = dict(skin='skin', hair='hair', eyes='eyes', torso='linen', pelvis='jerkin', legs='pants', shin='leather',
+                     boots='leather', arms='linen', farm='leather', hands='leather')
     elif tier == 2:
         parts = dict(skin='skin', hair='hair', eyes='eyes', torso='steel', pelvis='mail', legs='mail', shin='steel',
                      boots='steel_dk', arms='mail', farm='steel', hands='steel_dk')
@@ -135,15 +140,26 @@ def _knight(tier):
         s = r.s
         R = r.rot
         if tier == 1:
-            # 견습 기사: 누빔 갑옷 + 사슬 두건 + 가죽 허리띠 + 녹슨 롱소드 + 참나무 버클러
-            it += coif(r, 'gambeson')                                                          # 누빔 천 두건
+            # 견습 기사(수정): 맨머리의 단정한 신참 — 가죽 조끼 + 한쪽 강철 어깨 + 강철 팔목 + 청색 견습 띠
+            H, HR = r.head, r.head_rot
+            for ox, oz, ln in ((-2.4, 3.4, 2.2), (-0.4, 3.9, 2.6), (1.6, 3.5, 2.2)):        # 짧게 정리한 앞머리
+                a0 = H + HR @ V(ox * s, 2.0 * s, oz * s)
+                it.append(Item(S.capsule(a0, a0 + HR @ V(ox * 0.2 * s, 1.4 * s, -ln * s), 1.0 * s, 0.45 * s), 'hair'))
+            it.append(Item(S.ellipsoid(H + HR @ V(0, -1.2 * s, 0.4 * s), V(4.5 * s, 3.8 * s, 3.9 * s), HR), 'hair'))
+            it.append(Item(S.ellipsoid(r.chest + R @ V(0, 0.4 * s, 0.4 * s), V(7.7 * s, 5.2 * s, 6.1 * s), R), 'jerkin'))   # 가죽 조끼(셔츠보다 크게 → 소매만 흰색)
+            it.append(Item(S.box(r.chest + r.fwd * 4.6 * s, V(0.35 * s, 0.4 * s, 4.2 * s), R, 0.1), 'iron'))              # 조끼 여밈
+            it += Hm.skirt(r, 'jerkin', 5.2, 6.2, 7.0)
             it.append(Item(S.box(r.waist + r.up * 0.4 * s, V(5.4 * s, 4.4 * s, 0.9 * s), R, 0.4), 'leather'))
-            it.append(Item(S.box(r.waist + r.up * 0.4 * s + r.fwd * 4.3 * s, V(1.0 * s, 0.4 * s, 0.9 * s), R, 0.2), 'iron'))
-            it += Hm.skirt(r, 'gambeson', 5.2, 6.4, 8.0)
-            for el, ha in ((r.lel, r.lha), (r.rel, r.rha)):                                   # 가죽 팔목 보호대
-                it.append(Item(S.capsule(el + (ha - el) * 0.3, ha - (ha - el) * 0.15, 2.0 * s, 1.8 * s), 'leather'))
-            it += Hm.sword(r, ['rust'], length=19, width=1.3, guard='rust', grip='leather', blade='rust')
-            it += Hm.round_shield(r, 'oak', 'iron', 'iron', size=5.0)
+            it.append(Item(S.box(r.waist + r.up * 0.4 * s + r.fwd * 4.3 * s, V(1.0 * s, 0.4 * s, 0.9 * s), R, 0.2), 'steel'))
+            # 왼쪽 어깨에만 강철 견갑 + 오른쪽 어깨엔 청색 견습 띠
+            c = r.lsh + r.up * 0.8 * s - r.right * 0.8 * s
+            it.append(Item(S.ellipsoid(c, V(3.5 * s, 3.7 * s, 2.8 * s), R), 'steel'))
+            it.append(Item(S.ellipsoid(c - r.up * 1.4 * s, V(3.7 * s, 3.9 * s, 0.6 * s), R), 'steel_dk'))
+            it.append(Item(S.capsule(r.rsh + r.up * 0.6 * s, r.waist - r.right * 3.0 * s + r.fwd * 4.6 * s, 0.9 * s), 'recruit'))
+            for el, ha in ((r.lel, r.lha), (r.rel, r.rha)):                                   # 강철 팔목 보호대
+                it.append(Item(S.capsule(el + (ha - el) * 0.3, ha - (ha - el) * 0.15, 2.0 * s, 1.8 * s), 'steel'))
+            it += Hm.sword(r, ['rust'], length=19, width=1.3, guard='iron', grip='leather', blade='steel', pommel='iron')
+            it += Hm.round_shield(r, 'oak', 'steel', 'steel', size=5.0)
         elif tier == 2:
             # 아르델 기사단: 사슬 + 흉갑 + 청회색 서코트·반망토 + 강철 연 방패(기사단 문장)
             it += coif(r, 'mail')
