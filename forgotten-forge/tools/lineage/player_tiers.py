@@ -204,4 +204,198 @@ def _knight(tier):
                           belly=(4.8 + 0.1 * tier, 5.6 + 0.1 * tier)))
 
 
-TIERS = {'knight': [_knight(t) for t in (1, 2, 3, 4)]}
+# ───────────────────────── 외형 단계 정하기 (게임 코드가 따를 규칙) ─────────────────────────
+# 등급 점수: 일반 1 · 고급 2 · 희귀 3 · 영웅 4 · 전설 5 · 고대(unique) 6
+# 외형 점수 = (갑옷 × 3 + 투구 + 망토 + 장갑 + 장화 [+ 방패: 기사만]) ÷ (8, 방패 없는 직업은 7)
+# 빈 칸은 0점. 2.5 미만 → 1단계, 3.5 미만 → 2단계, 4.5 미만 → 3단계, 그 이상 → 4단계
+GRADE_SCORE = {'common': 1, 'uncommon': 2, 'rare': 3, 'heroic': 4, 'legend': 5, 'unique': 6}
+LOOK_SLOTS = ('helm', 'cloak', 'gloves', 'boots')
+TIER_CUTS = (2.5, 3.5, 4.5)
+
+
+def look_tier(equip, has_shield):
+    """equip: {칸 이름: 등급 id}. 게임(JS)에서 같은 계산을 쓰도록 여기에 기준을 남겨 둔다."""
+    total = GRADE_SCORE.get(equip.get('armor'), 0) * 3 + sum(GRADE_SCORE.get(equip.get(k), 0) for k in LOOK_SLOTS)
+    n = 8 if has_shield else 7
+    if has_shield:
+        total += GRADE_SCORE.get(equip.get('shield'), 0)
+    score = total / n
+    return 1 + sum(score >= c for c in TIER_CUTS)
+
+
+# ───────────────────────── 요정 4단계 ─────────────────────────
+
+ELF_NAMES = {1: '숲의 견습 궁수', 2: '엘라시아 순찰자', 3: '정령 궁수', 4: '별빛 정령'}
+
+
+def _elf(tier):
+    m = _mats()
+    m.update({
+        'skin': Mat(['#5e443a', '#93705e', '#c09c86', '#ddc1ab', '#f2dfcd']),
+        'blond': Mat(['#5a4214', '#8a6a24', '#b8923a', '#dcba5a', '#f2dc8a']),
+        'silverh': Mat(['#6a7072', '#9aa2a4', '#c4ccce', '#e2e8e8', '#f6fafa']),
+        'moss': Mat(['#141e0c', '#223216', '#324a20', '#44622a', '#5a7c38']),
+        'tunic1': Mat(['#1a2a12', '#2a421c', '#3c5a28', '#507434', '#688e44']),
+        'leafarmor': Mat(['#0f1e0c', '#1c3414', '#2c4e1c', '#3f6a26', '#588a34'], gloss=0.3),
+        'leaf2': Mat(['#1c2e0c', '#2f4a14', '#48681e', '#64882a', '#86aa3a']),
+        'spirit': Mat(['#0c2a22', '#164a3a', '#226a52', '#3a9070', '#68b894'], gloss=0.4),
+        'whiteleaf': Mat(['#4a5a5a', '#748886', '#a0b4b0', '#cadcd6', '#f0faf6'], gloss=0.5),
+        'bowwood': Mat(['#3a2410', '#5a3a18', '#7e5424', '#a27032', '#c08c44'], gloss=0.4),
+        'fletch': Mat(['#2a4a14', '#3e6a1c', '#58902a', '#7ab43c', '#a6d860']),
+        'gem': Mat(['#0a3a20', '#146038', '#1e8c50', '#40c078', '#a8f0c8'], gloss=1.0, emit=True),
+        'glowstring': Mat(['#4a78c8', '#7aa8f0', '#b8d4ff', '#e4f0ff', '#ffffff'], emit=True),
+    })
+    hair = 'silverh' if tier == 4 else 'blond'
+    armor = {1: 'tunic1', 2: 'leafarmor', 3: 'spirit', 4: 'whiteleaf'}[tier]
+    accent = {1: 'leather', 2: 'leaf2', 3: 'gold', 4: 'gold'}[tier]
+    parts = dict(skin='skin', hair=hair, eyes='eyes', torso=armor, pelvis=armor, legs='moss' if tier == 1 else 'skin',
+                 shin='leather' if tier == 1 else armor, boots='leather' if tier == 1 else armor,
+                 arms='linen' if tier == 1 else 'skin', farm='leather' if tier == 1 else armor, hands='leather')
+
+    def gear(r, p, it):
+        s = r.s
+        R = r.rot
+        H, HR = r.head, r.head_rot
+        it += Hm.long_hair(r, hair, length=12 + tier * 2, width=4.2, flow=p.cape * 1.2)
+        # 흉갑: 1단계는 천 튜닉 + 가죽 끈, 2단계부터 잎 흉갑
+        it.append(Item(S.ellipsoid(r.chest + R @ V(0, 1.2 * s, 1.2 * s), V(6.0 * s, 4.0 * s, 3.6 * s), R), armor))
+        if tier == 1:
+            it.append(Item(S.capsule(r.lsh + r.up * 0.4 * s, r.waist + r.right * 3.0 * s + r.fwd * 4.2 * s, 0.7 * s), 'leather'))
+        else:
+            for sx in (-1, 1):
+                it.append(Hm.leaf(r.chest + R @ V(sx * 2.6 * s, 4.4 * s, 1.0 * s), R @ V(sx * 0.4, 0, 1), R @ V(0, 1, 0), 3.2 * s, 2.0 * s, accent if tier >= 3 else 'leaf2'))
+            for sh, sx in ((r.lsh, -1), (r.rsh, 1)):                                          # 잎 어깨
+                for k in range(2 + tier // 2):
+                    it.append(Hm.leaf(sh + r.up * (1.2 - k * 0.6) * s + r.right * sx * (0.6 + k * 0.9) * s,
+                                      r.right * sx * 0.8 - r.up * 0.6, r.up + r.right * sx * 0.5, 2.6 * s, 1.4 * s, armor if k % 2 else accent))
+        # 허리띠 + 잎 치마
+        it.append(Item(S.box(r.waist + r.up * 0.2 * s, V(5.2 * s, 4.0 * s, 0.8 * s), R, 0.4), 'leather'))
+        if tier == 1:
+            it += Hm.skirt(r, 'tunic1', 5.0, 6.0, 7.5)                                          # 견습생: 잎 대신 천 치마
+        else:
+            for k in range(8):
+                a = math.radians(k * 45 + 22)
+                d = R @ V(math.cos(a), math.sin(a), 0)
+                c = r.hip + d * 5.2 * s - r.up * 2.4 * s
+                it.append(Hm.leaf(c, -r.up + d * 0.35, d, (4.0 + tier * 0.4) * s, 2.0 * s, armor if k % 2 else (accent if tier >= 3 else 'leaf2')))
+        # 머리 장식: 2단계 잎 하나, 3단계 금 이마띠 + 보석, 4단계 별빛 보석 관
+        if tier >= 2:
+            it.append(Hm.leaf(H + HR @ V(-3.8 * s, 0.0, 3.0 * s), HR @ V(0, -0.6, 1), HR @ V(-1, 0, 0), 2.6 * s, 1.0 * s, 'leaf2'))
+        if tier >= 3:
+            it.append(Item(S.torus(H + HR @ V(0, 0.2 * s, 1.6 * s), HR, 4.7 * s, 0.45 * s), 'gold'))
+            it.append(Item(S.sphere(H + HR @ V(0, 4.6 * s, 1.8 * s), 0.9 * s), 'gem' if tier == 3 else 'starlight'))
+        if tier == 4:
+            for sx in (-1, 1):
+                it.append(Item(S.capsule(H + HR @ V(sx * 2.0 * s, 3.6 * s, 2.4 * s), H + HR @ V(sx * 3.4 * s, 1.2 * s, 6.0 * s), 0.5 * s, 0.1 * s), 'starlight'))
+        # 망토: 1단계 짧은 천, 2 숲색 두건 망토, 3 길게, 4 별가루 밤하늘
+        cape_mat = {1: 'moss', 2: 'leafarmor', 3: 'spirit', 4: 'night'}[tier]
+        it += Hm.cape(r, p, cape_mat, length={1: 14, 2: 20, 3: 26, 4: 30}[tier], width=4.6 + tier * 0.3, split=tier >= 3)
+        if tier == 2:
+            it += Hm.hood(r, 'leafarmor', peak=True)                                              # 두건을 쓴 순찰자
+        if tier == 4:                                                                          # 떠도는 빛의 잎
+            for k in range(3):
+                a = math.radians(k * 120 + 40)
+                c = r.chest + (r.right * math.cos(a) + r.fwd * math.sin(a)) * 9.0 * s + r.up * (2 - k * 3) * s
+                it.append(Hm.leaf(c, r.up, r.fwd, 1.8 * s, 0.8 * s, 'starlight'))
+        it += Hm.quiver(r, 'leather', 'fletch' if tier < 4 else 'starlight')
+        it += Hm.bow(r, 'bowwood' if tier < 3 else ('gold' if tier == 3 else 'whiteleaf'), 'string' if tier < 4 else 'glowstring', draw=p.draw)
+        if p.draw > 0.3:
+            c = r.lha
+            hand = c - r.fwd * (2 + p.draw * 9) * s
+            it.append(Item(S.capsule(hand, c + r.fwd * 4 * s, 0.55 * s), 'starlight' if tier == 4 else 'fletch'))
+
+    return dict(name=f'elf_t{tier}', label=f'요정 · {ELF_NAMES[tier]}', mats=m, parts=parts, gear=gear, weapon='bow',
+                build=dict(scale=0.96, sh_w=5.8, hip_w=3.2),
+                opts=dict(ears=True, limb=0.86, chest=(5.6, 3.7, 5.0), belly=(3.9, 4.6), pelvis=(4.9, 3.5, 3.9)))
+
+
+# ───────────────────────── 마법사 4단계 ─────────────────────────
+
+MAGE_NAMES = {1: '견습 마법사', 2: '연구소 마법사', 3: '궁정 마법사', 4: '별의 현자'}
+
+
+def _mage(tier):
+    m = _mats()
+    m.update({
+        'skin': Mat(['#5e443a', '#93705e', '#c09c86', '#ddc1ab', '#f2dfcd']),
+        'whiteh': Mat(['#5e6070', '#8a8c9c', '#b2b4c2', '#d2d4de', '#eceef4']),
+        'brownh': Mat(['#2a160a', '#442410', '#60361a', '#7c4a24', '#985e30']),
+        'wool': Mat(['#2a2620', '#423c32', '#5e5646', '#7a705c', '#948a74']),             # 1단계 회갈색 양모 로브
+        'blue': Mat(['#0a1030', '#121c50', '#1c2c78', '#2a40a0', '#3c58c4']),
+        'white': Mat(['#4e5262', '#7a7e8e', '#a6aab8', '#cdd0da', '#eceef4']),
+        'royal': Mat(['#160828', '#240e42', '#36165e', '#4a227c', '#62309c']),           # 3단계 궁정 보라
+        'orb_b': Mat(['#2a5fcf', '#4f8bf0', '#7cb3ff', '#b5d8ff', '#eef8ff'], emit=True),
+        'orb_g': Mat(['#5a2a06', '#a04a0a', '#e08a18', '#f8c040', '#fff0a0'], emit=True),
+        'crystal1': Mat(['#2a4a5a', '#4a7486', '#74a0b2', '#a4cad8', '#dcf2fa'], emit=True),
+        'midnight': Mat(['#0a0e22', '#141c3c', '#20305e', '#304680', '#4460a4'],
+                        tex=lambda P, n: 0.6 * (S.vnoise(P * 2.4, 13) > 0.66)),          # 별가루가 박힌 밤하늘 로브
+        'rope': Mat(['#3a2c18', '#5a4426', '#7a5e36', '#9a7a48', '#b8965c']),
+    })
+    hair = 'brownh' if tier == 1 else 'whiteh'
+    robe = {1: 'wool', 2: 'blue', 3: 'royal', 4: 'midnight'}[tier]
+    trim = {1: 'rope', 2: 'white', 3: 'gold', 4: 'gold'}[tier]
+    parts = dict(skin='skin', hair=hair, eyes='eyes', torso=robe, pelvis=robe, legs=robe, shin=robe,
+                 boots='leather', arms=robe, farm=robe, hands='skin')
+
+    def gear(r, p, it):
+        s = r.s
+        R = r.rot
+        it += Hm.long_hair(r, hair, length=10 + tier * 3, width=4.4, flow=p.cape * 1.0)
+        it += Hm.robe(r, p, robe, trim)
+        # 넓은 소매(2단계부터 끝단 장식)
+        for el, ha in ((r.lel, r.lha), (r.rel, r.rha)):
+            end = ha + (ha - el) * -0.1
+            it.append(Item(S.capsule(el, end, 2.2 * s, (2.8 + tier * 0.25) * s), robe))
+            if tier >= 2:
+                it.append(Item(S.torus(end, S.frame_from(end - el), (2.6 + tier * 0.25) * s, 0.6 * s), trim))
+        it.append(Item(S.cylinder(r.waist + r.up * 0.8 * s, 5.2 * s, 0.7 * s, R, 0.3), trim))       # 허리끈
+        if tier == 1:
+            # 견습생: 어깨에 멘 책가방 + 투박한 나무 지팡이 끝 작은 수정
+            it.append(Item(S.capsule(r.lsh + r.up * 0.6 * s, r.waist + r.right * 4.0 * s, 0.6 * s), 'leather'))
+            it.append(Item(S.box(r.waist + r.right * 5.0 * s - r.up * 1.6 * s, V(1.2 * s, 2.4 * s, 2.0 * s), R, 0.4 * s), 'leather'))
+            it += Hm.staff(r, 'wood', 'crystal1', 'wood', 28)
+        elif tier == 2:
+            # 연구소 마법사: 지금 마법사 차림(흰 앞판·높은 깃) + 푸른 구슬 지팡이
+            a = r.waist + r.fwd * 4.6 * s
+            b = V(a[0], a[1] + (r.lan[1] + r.ran[1]) * 0.25, 1.2 * s)
+            it.append(Item(S.capsule(a, b + r.fwd * 2.0 * s, 1.9 * s, 3.0 * s), 'white'))
+            it.append(Item(S.box(r.chest + r.fwd * 4.0 * s, V(2.0 * s, 0.6 * s, 4.6 * s), R, 0.4), 'white'))
+            it += Hm.pauldrons(r, robe, 3.0, trim='white')
+            it += Hm.cape(r, p, 'white', length=22, width=6.0)                                    # 연구소 흰 반망토
+            it.append(Item(S.torus(r.neck - r.up * 1.2 * s - r.fwd * 1.0 * s, R, 4.0 * s, 1.5 * s), 'white'))   # 내린 두건
+            bk = r.waist + r.right * 5.4 * s + r.fwd * 1.0 * s - r.up * 2.6 * s                    # 허리에 찬 연구 노트
+            it.append(Item(S.box(bk, V(1.1 * s, 2.4 * s, 3.0 * s), R, 0.3 * s), 'leather'))
+            it.append(Item(S.box(bk, V(1.25 * s, 2.55 * s, 0.4 * s), R, 0.1 * s), 'steel'))
+            it += Hm.staff(r, 'g_dark', 'orb_b', 'steel', 32)
+        elif tier == 3:
+            # 궁정 마법사: 금테 보라 로브 + 높은 깃 + 금 어깨 + 넓은 모자 + 금빛 구슬 지팡이 + 망토
+            it += Hm.wizard_hat(r, robe, 'gold')
+            it += Hm.pauldrons(r, 'gold', 3.2, trim=robe)
+            it += Hm.cape(r, p, robe, length=28, width=6.6, split=True)
+            it.append(Item(S.box(r.chest + r.fwd * 4.0 * s, V(2.2 * s, 0.6 * s, 4.8 * s), R, 0.4), 'gold'))
+            it += Hm.staff(r, 'g_dark', 'orb_g', 'gold', 34)
+        else:
+            # 별의 현자: 밤하늘 로브(별가루) + 금테 + 별빛 왕관 + 지팡이 주위를 도는 별 결정 + 긴 망토
+            H, HR = r.head, r.head_rot
+            hr = r.b['head_r'] * s
+            for k in range(5):                                                              # 별빛 왕관(가시 5개)
+                a = math.radians(k * 36 + 18 + 90)
+                b0 = H + HR @ V(math.cos(a) * hr * 0.95, math.sin(a) * hr * 0.6, hr * 0.85)
+                it.append(Item(S.capsule(b0, b0 + HR @ V(0, 0, (2.8 if k == 2 else 1.8) * s), 0.5 * s, 0.1 * s), 'starlight'))
+            it += Hm.pauldrons(r, 'starsteel', 3.4, trim='gold')
+            it += Hm.cape(r, p, 'night', length=32, width=7.2, split=True)
+            it += star_gem(r, r.chest + r.fwd * 4.6 * s + r.up * 0.6 * s, 'starlight', 1.3)
+            it += Hm.staff(r, 'starsteel', 'starlight', 'gold', 36)
+            top = r.rha + r.wdir * 36 * 0.62 * s + r.wdir * 2.4 * s
+            for k in range(4):
+                a = math.radians(k * 90 + 30)
+                c = top + (r.right * math.cos(a) + r.fwd * math.sin(a)) * 4.4 * s + r.wdir * (k % 2) * 1.6 * s
+                it.append(Item(S.capsule(c - r.wdir * 1.2 * s, c + r.wdir * 1.2 * s, 0.8 * s, 0.1 * s), 'starlight'))
+
+    return dict(name=f'mage_t{tier}', label=f'마법사 · {MAGE_NAMES[tier]}', mats=m, parts=parts, gear=gear, weapon='staff',
+                build=None, opts=dict(no_legs=True, chest=(6.0, 3.9, 5.2)))
+
+
+TIERS = {'knight': [_knight(n) for n in (1, 2, 3, 4)],
+         'elf': [_elf(n) for n in (1, 2, 3, 4)],
+         'mage': [_mage(n) for n in (1, 2, 3, 4)]}
