@@ -465,6 +465,36 @@ details.info th { color: var(--gold); font-weight: 500; }
   #log { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .cls { transition: none; } }
+/* ── 세계지도(양피지) ── */
+#wmap { inset: 0; display: grid; place-items: center; pointer-events: auto; background: rgba(8, 6, 4, .72); z-index: 40; }
+#wmap.hidden { display: none; }
+#wmap .wm-frame { position: relative; display: grid; grid-template-columns: 1fr 230px; gap: 10px; padding: 12px; width: min(1180px, calc(100vw - 16px));
+  background: linear-gradient(#3a2a1a, #22180e); border: 2px solid #8a6a3a; border-radius: 6px; box-shadow: 0 0 0 1px #1a1008, 0 0 0 4px #5a4428, 0 18px 50px rgba(0,0,0,.6); }
+#wmap .wm-stage { position: relative; aspect-ratio: 1600 / 1040; width: 100%; max-height: calc(100vh - 60px); border: 1px solid #1a1008; overflow: hidden; }
+#wmap .wm-stage img { position: absolute; display: block; pointer-events: none; image-rendering: auto; }
+#wmBase, #wmLabels { inset: 0; width: 100%; height: 100%; }
+#wmap .wm-fog { transition: opacity .5s; }
+#wmap .wm-hot { position: absolute; transform: translate(-50%, -50%); width: 15%; height: 13%; border-radius: 50%; background: none; border: 0; cursor: pointer; }
+#wmap .wm-hot:focus-visible, #wmap .wm-hot:hover { outline: 2px dashed rgba(120, 40, 26, .6); outline-offset: -4px; }
+#wmPin { position: absolute; width: 22px; height: 22px; transform: translate(-50%, -100%); pointer-events: none; }
+#wmPin::before { content: ''; position: absolute; left: 50%; bottom: 0; width: 16px; height: 16px; transform: translateX(-50%) rotate(45deg); transform-origin: center;
+  background: radial-gradient(circle at 35% 35%, #ffd36a, #c0301e 70%); border: 2px solid #3a1408; border-radius: 50% 50% 0 50%; }
+#wmPin::after { content: ''; position: absolute; left: 50%; bottom: -8px; width: 26px; height: 10px; transform: translateX(-50%); border-radius: 50%; border: 2px solid rgba(192, 48, 30, .7); animation: wmPulse 1.6s infinite; }
+@keyframes wmPulse { from { opacity: 1; transform: translateX(-50%) scale(.6); } to { opacity: 0; transform: translateX(-50%) scale(1.8); } }
+#wmap .wm-side { display: flex; flex-direction: column; gap: 10px; color: #3a2410; background: linear-gradient(#e8d6ac, #d9c08c); border: 1px solid #8a6a3a; border-radius: 3px; padding: 14px 12px; font-family: var(--display), serif; }
+#wmap .wm-side h4 { margin: 0; font-size: 20px; color: #4a1c0c; }
+#wmap .wm-side .lv { color: #8a2a18; font-size: 13px; }
+#wmap .wm-side .st { font-size: 13px; padding: 6px 8px; border-radius: 3px; background: rgba(255, 250, 235, .55); border: 1px solid rgba(90, 60, 30, .35); }
+#wmap .wm-side .st.lock { color: #5a4a3a; }
+#wmap .wm-side .hint { font-size: 12px; color: #6a5030; margin-top: auto; }
+#wmClose { position: absolute; right: -10px; top: -12px; width: 34px; height: 34px; border-radius: 50%; background: #2a1c10; border: 2px solid #c8a060; color: #f0dca8; font-size: 16px; cursor: pointer; }
+@media (max-width: 760px), (max-height: 520px) {
+  #wmap .wm-frame { grid-template-columns: 1fr; padding: 8px; }
+  #wmap .wm-side { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; padding: 8px 10px; }
+  #wmap .wm-side h4 { font-size: 16px; } #wmap .wm-side .hint { display: none; }
+  #wmap .wm-stage { max-height: calc(100vh - 110px); }
+  #wmClose { right: 4px; top: 4px; z-index: 2; }
+}
 </style>
 
 <canvas id="game"></canvas>
@@ -537,6 +567,13 @@ details.info th { color: var(--gold); font-weight: 500; }
 </div>
 <div class="hud hidden" id="devBadge">DEV</div>
 <button class="hud hidden" id="wpBtn" type="button">◈ 별빛 표석 (F)</button>
+<div class="hud hidden" id="wmap" role="dialog" aria-label="세계지도">
+  <div class="wm-frame">
+    <div class="wm-stage" id="wmStage"><img id="wmBase" alt=""><img id="wmLabels" alt=""><span id="wmPin" title="현재 위치"></span></div>
+    <div class="wm-side" id="wmInfo"></div>
+    <button type="button" id="wmClose" aria-label="세계지도 닫기">✕</button>
+  </div>
+</div>
 <div class="hud hidden" id="wpMenu" role="dialog" aria-label="별빛 표석"><h3><span id="wpTitle">별빛 표석</span><button type="button" id="wpClose" aria-label="닫기">✕</button></h3><div class="note" id="wpNote"></div><div id="wpList"></div></div>
 <div class="hud hidden" id="cmp" role="dialog" aria-label="아이템 비교"><div class="ch"><span>아이템 비교</span><button type="button" id="cmpClose" aria-label="비교창 닫기">✕</button></div><div class="cmpg" id="cmpGrid"></div><div class="ctot" id="cmpTot"></div></div>
 <div class="hud hidden" id="gacha" role="dialog" aria-label="공명">
@@ -3104,7 +3141,7 @@ function renderOpt() {
 document.querySelectorAll('#opt .seg').forEach(seg => seg.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { OPT[seg.dataset.opt] = b.dataset.v; saveOpt(); renderOpt(); uiPauseCheck(); if (seg.dataset.opt === 'dev') devChanged(); })));
 $('potHp').addEventListener('input', e => { OPT.potHp = +e.target.value; saveOpt(); renderOpt(); });
 $('potMp').addEventListener('input', e => { OPT.potMp = +e.target.value; saveOpt(); renderOpt(); });
-const panelOpen = () => ['inv', 'shop', 'opt', 'gacha', 'wpMenu'].some(id => !$(id).classList.contains('hidden'));
+const panelOpen = () => ['inv', 'shop', 'opt', 'gacha', 'wpMenu', 'wmap'].some(id => !$(id).classList.contains('hidden'));
 let uiPaused = false;
 function uiPauseCheck() { uiPaused = running && panelOpen() && OPT.invMode === 'pause'; }
 let optTab = 'auto';
@@ -3187,8 +3224,9 @@ window.addEventListener('keydown', e => {
   if (e.code === 'KeyH') setAuto(!P.auto);
   if (e.code === 'KeyF') { if (!$('wpMenu').classList.contains('hidden')) closeWp(); else if (nearWp()) openWp(nearWp()); else if ($('shop').classList.contains('hidden')) openShop(); else closeShop(); }
   if (e.code === 'KeyG') toggleGacha();
+  if (e.code === 'Tab') { toggleWorldMap(); e.preventDefault(); }
   if (e.code === 'F2') { OPT.dev = OPT.dev === 'on' ? 'off' : 'on'; saveOpt(); renderOpt(); devChanged(); e.preventDefault(); }
-  if (e.code === 'Escape') { ['shop', 'inv', 'opt', 'gacha', 'wpMenu', 'cmp'].forEach(id => $(id).classList.add('hidden')); P.talk = false; uiPauseCheck(); }
+  if (e.code === 'Escape') { ['shop', 'inv', 'opt', 'gacha', 'wpMenu', 'cmp', 'wmap'].forEach(id => $(id).classList.add('hidden')); P.talk = false; uiPauseCheck(); }
   if (e.code === 'Space') { const m = nearestMob(8); if (m) { P.target = m; P.goal = null; } e.preventDefault(); }
   if (e.code.startsWith('Arrow')) e.preventDefault();
 });
@@ -3415,6 +3453,59 @@ function openWp(from, scroll) {
   }
   $('wpMenu').classList.remove('hidden'); $('wpBtn').classList.add('hidden'); uiPauseCheck();
 }
+// ───────────────────────── 세계지도 ─────────────────────────
+// 그림: tools/lineage/worldmap.py 가 만든 lineage-assets/ui/worldmap_*.png. 아래 값도 그 스크립트의 worldmap.json과 같다.
+const WORLDMAP = {"w": 1600, "h": 1040, "town": [0.47, 0.8], "crypt": [0.5694, 0.8096], "regions": {"ardel": {"name": "아르델 평원", "sub": "온화한 들판과 옛 왕국의 폐허", "lv": "Lv 1–15", "c": [0.5032, 0.7091], "fog": null}, "elasia": {"name": "엘라시아 숲", "sub": "안개 낀 고대 숲 · 요정의 땅", "lv": "Lv 15–30", "c": [0.7169, 0.5616], "fog": [991, 325, 1310, 829]}, "kardum": {"name": "카르둠 산맥", "sub": "만년설과 드워프의 대장간", "lv": "Lv 25–40", "c": [0.4536, 0.333], "fog": [423, 215, 1043, 488]}, "blackwaste": {"name": "검은 황무지", "sub": "잿빛 바람이 부는 마족의 땅", "lv": "Lv 35–50", "c": [0.2559, 0.539], "fog": [246, 199, 581, 839]}, "arcana": {"name": "아르카나 폐허", "sub": "별의 몰락이 남긴 마법 왕국", "lv": "Lv 45–60", "c": [0.4676, 0.5058], "fog": [457, 391, 1031, 680]}, "sanctum": {"name": "천공의 성역", "sub": "하늘에 떠 있는 별의 심장", "lv": "Lv 60+", "c": [0.84, 0.22], "fog": [1074, 58, 1600, 463]}}};
+const WM_LOCK_HINT = { elasia: "제1장의 마지막 퀘스트 '봉인의 파편'을 마치면 열립니다.", kardum: '제2장(엘라시아 숲)을 마치면 열립니다.',
+  arcana: '제3장(카르둠 산맥)을 마치면 열립니다.', blackwaste: '제4장(아르카나 폐허)을 마치면 열립니다.', sanctum: '제6장을 마치면 하늘로 가는 길이 열립니다.' };
+let wmBuilt = false, wmSel = null;
+function buildWorldMap() {
+  if (wmBuilt) return;
+  wmBuilt = true;
+  const st = $('wmStage');
+  $('wmBase').src = A + 'ui/worldmap_base.png';                 // 열 때 처음 불러온다(평소 메모리 절약)
+  for (const [id, r] of Object.entries(WORLDMAP.regions)) {
+    if (r.fog) {                                                  // 잠긴 지역을 덮는 안개
+      const f = document.createElement('img');
+      f.className = 'wm-fog'; f.id = 'wmFog_' + id; f.alt = ''; f.src = A + `ui/worldmap_fog_${id}.png`;
+      const [x0, y0, x1, y1] = r.fog;
+      Object.assign(f.style, { left: `${x0 / WORLDMAP.w * 100}%`, top: `${y0 / WORLDMAP.h * 100}%`, width: `${(x1 - x0) / WORLDMAP.w * 100}%`, height: `${(y1 - y0) / WORLDMAP.h * 100}%` });
+      st.insertBefore(f, $('wmLabels'));
+    }
+    const b = document.createElement('button');                  // 지역을 누르면 오른쪽에 설명
+    b.type = 'button'; b.className = 'wm-hot'; b.setAttribute('aria-label', r.name);
+    b.style.left = `${r.c[0] * 100}%`; b.style.top = `${r.c[1] * 100}%`;
+    b.addEventListener('click', () => { wmSel = id; renderWorldMap(); });
+    st.appendChild(b);
+  }
+  $('wmLabels').src = A + 'ui/worldmap_labels.png';
+}
+// 지금 있는 곳: 묘소면 묘소 표시, 평원이면 마을 둘레에서 실제 위치를 조금 반영
+function wmHere() {
+  if (!MAP) return WORLDMAP.town;
+  if (MAP.id === 'dungeon') return WORLDMAP.crypt;
+  const t = WORLDMAP.town, n = MAP.N || 60;
+  return [t[0] + ((P ? P.x : n / 2) / n - 0.25) * 0.05, t[1] + ((P ? P.y : n / 2) / n - 0.25) * 0.03];
+}
+function renderWorldMap() {
+  for (const id of Object.keys(WORLDMAP.regions)) { const f = $('wmFog_' + id); if (f) f.style.opacity = regionOpen(id) ? '0' : '1'; }
+  const here = wmHere();
+  $('wmPin').style.left = `${here[0] * 100}%`; $('wmPin').style.top = `${here[1] * 100}%`;
+  const id = wmSel || regionOf(MAP ? MAP.id : 'field') || 'ardel';
+  const r = WORLDMAP.regions[id], open = regionOpen(id), cur = id === regionOf(MAP ? MAP.id : 'field');
+  $('wmInfo').innerHTML = `<h4>${r.name}</h4><div class="lv">권장 ${r.lv}</div><div>${r.sub}</div>`
+    + `<div class="st${open ? '' : ' lock'}">${cur ? '● 지금 이곳에 있습니다' : open ? '열린 지역' : '🔒 ' + (WM_LOCK_HINT[id] || '아직 갈 수 없습니다.')}</div>`
+    + `<div class="hint">지역을 누르면 설명이 바뀝니다 · Tab 또는 미니맵을 눌러 열고 닫기</div>`;
+}
+function toggleWorldMap(force) {
+  const el = $('wmap'), show = force != null ? force : el.classList.contains('hidden');
+  if (show) { buildWorldMap(); wmSel = null; renderWorldMap(); }
+  el.classList.toggle('hidden', !show); uiPauseCheck();
+}
+$('wmClose').addEventListener('click', () => toggleWorldMap(false));
+$('wmap').addEventListener('click', e => { if (e.target.id === 'wmap') toggleWorldMap(false); });   // 바깥 어두운 곳을 누르면 닫힘
+$('minimap').addEventListener('click', () => { if (running) toggleWorldMap(true); });
+$('minimap').style.cursor = 'pointer'; $('minimap').title = '세계지도 열기 (Tab)';
 function closeWp() { $('wpMenu').classList.add('hidden'); uiPauseCheck(); }
 function teleportTo(id) {
   const w = wpById(id); if (!w || !(STATE.wp || {})[id]) return false;
@@ -3763,7 +3854,7 @@ function simulate(seconds, step = 1 / 20) {
 }
 // 시험용 손잡이
 window.__game = {
-  SAVE_KEY, OLD_SAVE_KEY, migrateV1, loadSave, REGIONS, ELEMENTS, regionOf, regionOpen, CLOCK_START,
+  toggleWorldMap, WORLDMAP, SAVE_KEY, OLD_SAVE_KEY, migrateV1, loadSave, REGIONS, ELEMENTS, regionOf, regionOpen, CLOCK_START,
   WORLD_BOSS, UNIQUE, PASSIVES, XITEMS, topPct, itemStats, useItem, wbAlive, wbSlot, safeSpot, walkable, findPath, handleTap, joy: JOY, joyVec, closeShop, nearNpc, skillIds, dropEquip,
   get hazards() { return hazards; }, get reach() { return reach; }, get blocked() { return blocked; }, get now() { return now; },
   killMob, wbDrops, gradeFrame, renderShop, pullGacha, exchangeMile, gachaRoll, setPet, setMorph, collBonus, teleportTo, openWp, WAYPOINTS, showCompare, renderGacha, toggleGacha, devChanged, applyVolumes,
