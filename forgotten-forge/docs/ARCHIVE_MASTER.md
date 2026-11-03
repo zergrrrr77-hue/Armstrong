@@ -15,16 +15,16 @@
 
 | 무엇 | 어디 |
 |---|---|
-| 전체 코드(최종) | GitHub `zergrrrr77-hue/armstrong` 의 **태그 `forgotten-forge-v0.7-archive`** (브랜치 `claude/lineage-style-assets`) |
-| 바로 실행되는 게임 | 태그의 `forgotten-forge/index.html` + `forgotten-forge/lineage-assets/` (두 개를 같은 폴더에 두고 index.html 더블클릭) |
+| 전체 코드(최종) | GitHub `zergrrrr77-hue/armstrong` 의 **보관 브랜치 `archive/forgotten-forge-v0.7`** (이 브랜치는 더 이상 고치지 않음) |
+| 바로 실행되는 게임 | 보관 브랜치의 `forgotten-forge/index.html` + `forgotten-forge/lineage-assets/` (두 개를 같은 폴더에 두고 index.html 더블클릭) |
 | 실행용 ZIP | `forgotten-forge-v0.7-playable.zip` (게임 + 그림·소리, 약 8MB) |
 | 원본 ZIP | `forgotten-forge-v0.7-source.zip` (게임 원본·그림 생성 도구·테스트·문서) |
 | 온라인 실행 | https://claude.ai/artifact/5ksPoK2MjYxzcb7dTUL9nV (본인 계정 로그인 필요) |
 
 되살리기:
 ```bash
-git clone https://github.com/zergrrrr77-hue/armstrong.git
-cd armstrong && git checkout forgotten-forge-v0.7-archive
+git clone https://github.com/zergrrrr77-hue/Armstrong.git armstrong
+cd armstrong && git checkout archive/forgotten-forge-v0.7
 cd forgotten-forge && python3 -m http.server 8000     # → http://localhost:8000
 ```
 
