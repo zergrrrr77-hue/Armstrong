@@ -29,7 +29,7 @@ const realError = (t) => !/ERR_TUNNEL_CONNECTION_FAILED|ERR_INTERNET_DISCONNECTE
   await page.locator('.cls').nth(0).click(); await page.click('#start'); await page.waitForTimeout(700);
   const ui = await page.evaluate(() => ({ gold: document.getElementById('gold').textContent, zone: document.getElementById('zone').textContent,
     mobNames: [...new Set(__game.mobs.map(m => m.d.name))], body: document.body.innerText }));
-  check(/아데나/.test(ui.gold) && !/골드/.test(ui.gold), `화폐: ${ui.gold}`, fails);
+  check(/에테르/.test(ui.gold) && !/골드/.test(ui.gold), `화폐: ${ui.gold}`, fails);
   check(ui.zone.includes('아르델'), `지역 이름: ${ui.zone}`, fails);
   const want = ['검은 늑대', '숲 거미', '녹색 슬라임', '고블린 전사', '고블린', '해골 병사'];
   check(want.every(n => ui.mobNames.includes(n)), `평원 몬스터 이름: ${ui.mobNames.join(', ')}`, fails);
@@ -92,7 +92,7 @@ const realError = (t) => !/ERR_TUNNEL_CONNECTION_FAILED|ERR_INTERNET_DISCONNECTE
   await page.click('#continue'); await page.waitForTimeout(800);
   const after = await page.evaluate(() => ({ lv: __game.P.lv, gold: __game.P.gold, ch1: !!__game.STATE.flags.ch1_done, q10: (__game.STATE.equests.q10 || {}).s,
     log: document.getElementById('log').innerText, oldKept: !!localStorage.getItem('ff_lineage_save_v1') }));
-  check(after.lv === 9 && after.gold === 1234, '레벨·아데나 그대로 옮겨짐', fails);
+  check(after.lv === 9 && after.gold === 1234, '레벨·에테르 그대로 옮겨짐', fails);
   check(after.ch1 && after.q10 === 'done', '보스를 잡은 예전 저장 → 제1장 끝 + 퀘스트 10 완료', fails);
   check(after.log.includes('에르덴으로 옮겼습니다'), '변환 안내 문구', fails);
   check(after.oldKept, '예전 저장 칸은 지우지 않고 보관', fails);

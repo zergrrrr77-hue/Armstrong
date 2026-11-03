@@ -517,7 +517,7 @@ details.info th { color: var(--gold); font-weight: 500; }
 #dock { display: none; }
 #atkBtn { background: radial-gradient(circle at 40% 35%, #6a2a1a, #2a0c06 70%); border: 3px solid var(--bronze-hi); box-shadow: 0 0 0 2px #0c0a07, 0 0 14px rgba(255,120,60,.35); }
 
-/* PC(마우스·넓은 화면): 화면 아래 통합 바 — 왼쪽 기록 · 가운데 캐릭터/단축칸 · 오른쪽 아데나/메뉴 */
+/* PC(마우스·넓은 화면): 화면 아래 통합 바 — 왼쪽 기록 · 가운데 캐릭터/단축칸 · 오른쪽 에테르/메뉴 */
 @media (hover: hover) and (pointer: fine) and (min-width: 960px) and (min-height: 600px) {
   #dock { display: block; left: 0; right: 0; bottom: 0; height: 172px; z-index: 9; pointer-events: none !important;
     background: radial-gradient(circle at 20% 30%, rgba(255,255,255,.03) 0 2px, transparent 3px) 0 0 / 14px 14px,
@@ -639,7 +639,7 @@ details.info th { color: var(--gold); font-weight: 500; }
   <div class="osec hidden" data-sec="dev">
   <div class="orow"><span>개발자 모드 (F2)</span><div class="seg" data-opt="dev"><button type="button" data-v="off">끄기</button><button type="button" data-v="on">켜기</button></div>
     <div class="note">드롭 100% · 높은 등급 · 강화 100% · 공명 확률 대폭 상향 · 패시브 30%. 시험용입니다.</div>
-    <div class="devrow" id="devRow"><button type="button" data-dev="gold">아데나 +1,000,000</button><button type="button" data-dev="lv">레벨 +1</button><button type="button" data-dev="wb">월드보스 즉시 출현</button><button type="button" data-dev="wp">별빛 표석 모두 열기</button><button type="button" data-dev="god">무적 켜기/끄기</button><button type="button" data-dev="items">주문서·물약 99개</button></div></div>
+    <div class="devrow" id="devRow"><button type="button" data-dev="gold">에테르 +1,000,000</button><button type="button" data-dev="lv">레벨 +1</button><button type="button" data-dev="wb">월드보스 즉시 출현</button><button type="button" data-dev="wp">별빛 표석 모두 열기</button><button type="button" data-dev="god">무적 켜기/끄기</button><button type="button" data-dev="items">주문서·물약 99개</button></div></div>
 </div>
 </div>
 <div class="hud hidden" id="devBadge">DEV</div>
@@ -656,7 +656,7 @@ details.info th { color: var(--gold); font-weight: 500; }
 <div class="hud hidden" id="gacha" role="dialog" aria-label="공명">
   <div class="ghead"><b>별의 파편 공명</b><div class="tabs" id="gTabs"><button type="button" data-g="pet" aria-pressed="true">펫</button><button type="button" data-g="morph" aria-pressed="false">변신 인형</button></div><span class="wgold" id="gGold"></span><button type="button" id="gClose" class="wclose" aria-label="공명 닫기">✕</button></div>
   <div class="grates" id="gRates"></div>
-  <div class="gctl"><button type="button" class="pull" id="gPull1">1회 공명<small>10,000 아데나</small></button><button type="button" class="pull" id="gPull11">11회 공명<small>100,000 아데나 · 희귀 이상 1회 확정</small></button><div class="ginfo" id="gInfo"></div></div>
+  <div class="gctl"><button type="button" class="pull" id="gPull1">1회 공명<small>10,000 에테르</small></button><button type="button" class="pull" id="gPull11">11회 공명<small>100,000 에테르 · 희귀 이상 1회 확정</small></button><div class="ginfo" id="gInfo"></div></div>
   <div class="gbody"><div class="gres" id="gRes"></div><div><div class="gsel" id="gSel"></div><div class="sect" style="margin:8px 0 6px">도감 · 보유</div><div class="gcoll" id="gColl"></div></div></div>
 </div>
 <div id="gFlash"></div>
@@ -1103,7 +1103,7 @@ const DROP_SLOTS = [['weapon', 28], ['armor', 16], ['helm', 10], ['gloves', 9], 
 const START_EQUIP = { blade: ['b_long', 'p_chain'], bow: ['w_hunt', 'l_leather'], staff: ['s_novice', 'r_novice'] };
 // 몬스터별 드롭: equip = 장비 드롭 확률, odds = 등급 확률(%), n = 떨어뜨리는 장비 수
 const DROP_TABLE = {
-  // 고블린: 잔돈을 자주 / 늑대: 체력약 / 거미: 마나약 / 점액: 물약·보석 / 해골 궁수·병사: 주문서 / 고블린 전사: 아데나·장비 / 보스: 확정
+  // 고블린: 잔돈을 자주 / 늑대: 체력약 / 거미: 마나약 / 점액: 물약·보석 / 해골 궁수·병사: 주문서 / 고블린 전사: 에테르·장비 / 보스: 확정
   goblin:   { equip: 0.06, odds: [75, 22, 3, 0, 0], gold: [6, 14], goldP: 0.95, red: 0.18, blue: 0.09, sw: 0.03, sa: 0.04, gem: 0.01 },
   skeleton_archer: { equip: 0.10, odds: [45, 40, 13, 2, 0], gold: [14, 26], red: 0.16, blue: 0.16, sw: 0.10, sa: 0.08, gem: 0.02 },
   wolf:     { equip: 0.06, odds: [70, 25, 5, 0, 0], gold: [6, 14], red: 0.22, blue: 0.07, sw: 0.03, sa: 0.04, gem: 0.01 },
@@ -1709,7 +1709,7 @@ function playerDie() {
     P.gold = Math.floor(P.gold * 0.9); P.dead = false; P.hp = P.maxhp; P.mp = P.maxmp; P.buffs = {}; setAnim(P, 'idle', true);
     enterMap('field');
   };
-  setTimeout(() => { if (P.dead && P.revive) showOver('쓰러졌습니다', '마을에서 다시 일어납니다. 가진 아데나의 10%를 잃습니다.', P.revive); }, 1800);
+  setTimeout(() => { if (P.dead && P.revive) showOver('쓰러졌습니다', '마을에서 다시 일어납니다. 가진 에테르의 10%를 잃습니다.', P.revive); }, 1800);
 }
 
 function nearestMob(maxD, from = P) {
@@ -2083,7 +2083,7 @@ function pickup(d) {
   d.taken = true;
   if (d.equip) {
     const dd = equipDef(d.equip.key);
-    if (P.autoSell && dd.grade === 'common') { const pr = Math.round(sellPrice(d.equip)); P.gold += pr; log(`${dd.name} 자동 판매 +${pr} 아데나`); sfx('arrow_hit', { gain: 0.25 }); return; }
+    if (P.autoSell && dd.grade === 'common') { const pr = Math.round(sellPrice(d.equip)); P.gold += pr; log(`${dd.name} 자동 판매 +${pr} 에테르`); sfx('arrow_hit', { gain: 0.25 }); return; }
     if (P.bag.length >= BAG_MAX) { d.taken = false; if (now - (P.fullWarn || -99) > 8) { P.fullWarn = now; log('가방이 가득 찼습니다. 장비를 팔거나 버리세요.', 'bad'); banner('가방이 가득 찼습니다', '상점에서 일반 장비를 한 번에 팔 수 있습니다'); } return; }
     P.bag.push(d.equip);
     const def = equipDef(d.equip.key);
@@ -2098,7 +2098,7 @@ function pickup(d) {
     P.gold += d.n; sfx('arrow_hit', { gain: 0.25 });
     vfx.push({ k: 'gold', x: d.x, y: d.y, t: 0, life: 0.5 });
     texts.push({ who: d, x: P.x, y: P.y, z: 52, t: 0, s: `+${d.n} G`, c: '#ffd65a' });
-    lootLog(`${d.n} 아데나`, 'gold');
+    lootLog(`${d.n} 에테르`, 'gold');
     return;
   }
   P.inv[d.id] = (P.inv[d.id] || 0) + d.n;
@@ -2782,7 +2782,7 @@ function updateHud() {
   renderWbTimer();
   renderQuest();
   $('xp').querySelector('i').style.width = (100 * P.xp / xpNeed(P.lv)) + '%';
-  $('gold').textContent = `${P.gold.toLocaleString()} 아데나`;
+  $('gold').textContent = `${P.gold.toLocaleString()} 에테르`;
   const bh = (P.morph ? '<span>변신</span>' : '') + Object.entries(P.buffs).filter(([k]) => BUFFS[k]).map(([k, t]) => `<span class="${k === 'slow' || k === 'stun' ? 'debuff' : ''}">${BUFFS[k].name} ${Math.ceil(t)}s</span>`).join('');
   if ($('buffs').innerHTML !== bh) $('buffs').innerHTML = bh;
   for (const s of slotEls) {
@@ -2894,7 +2894,7 @@ setInterval(drawDoll, 100);
 
 function renderInv() {
   if (!P) return;
-  $('wGold').textContent = `${P.gold.toLocaleString()} 아데나`;
+  $('wGold').textContent = `${P.gold.toLocaleString()} 에테르`;
   $('autoSell').checked = !!P.autoSell;
   // 장비 칸
   const box = $('dslots'); box.innerHTML = '';
@@ -2965,11 +2965,11 @@ function renderDetail() {
   const sel = selUid != null ? findEquip(selUid) : null;
   if (selCons) {
     const n = P.inv[selCons] || 0, xi = XITEMS[selCons];
-    let use = { pot_red: '체력 회복(최대 HP의 32%)', pot_blue: '마나 회복(최대 MP의 40%)', scroll_weapon: '무기 강화에 사용', scroll_armor: '방어구(투구·갑옷·망토·장갑·장화·방패) 강화에 사용', scroll_return: '마을 광장으로 귀환', gem_ruby: `상점에서 ${GEM_PRICE} 아데나에 판매` }[selCons] || '';
+    let use = { pot_red: '체력 회복(최대 HP의 32%)', pot_blue: '마나 회복(최대 MP의 40%)', scroll_weapon: '무기 강화에 사용', scroll_armor: '방어구(투구·갑옷·망토·장갑·장화·방패) 강화에 사용', scroll_return: '마을 광장으로 귀환', gem_ruby: `상점에서 ${GEM_PRICE} 에테르에 판매` }[selCons] || '';
     let btn = selCons.startsWith('pot_') || selCons === 'scroll_return' ? '<button type="button" id="btnUse">사용</button>' : '';
     if (xi && xi.skill) { const lv = (P.wbs || {})[xi.skill] || 0, sk = SKILLS[xi.skill]; use = `${sk.desc} · MP ${sk.mp} · ${sk.cd}초 · ${lv ? `현재 Lv ${lv} → 읽으면 Lv ${Math.min(5, lv + 1)}(피해 +15%)` : '읽으면 새 스킬 칸(5~8번)에 추가'}`; btn = `<button type="button" id="btnUse" ${lv >= 5 ? 'disabled' : ''}>${lv ? '스킬 강화' : '배우기'}</button>`; }
     if (xi && xi.morph) { use = `${MONSTERS[xi.morph].name}의 모습으로 변신. 사용하면 변신 도감(신화 등급)에 등록되고 바로 변신합니다. 중복이면 별 +1`; btn = `<button type="button" id="btnUse">도감 등록 · 변신</button>`; }
-    if (xi && xi.loot) { use = `${MONSTERS[xi.mob] ? MONSTERS[xi.mob].name : ''}의 고유 전리품 · 상점 판매가 ${xi.price} 아데나`; btn = ''; }
+    if (xi && xi.loot) { use = `${MONSTERS[xi.mob] ? MONSTERS[xi.mob].name : ''}의 고유 전리품 · 상점 판매가 ${xi.price} 에테르`; btn = ''; }
     if (selCons === 'scroll_teleport') { use = '찾아 둔 별빛 표석 중 원하는 곳으로 바로 이동'; btn = '<button type="button" id="btnUse">사용</button>'; }
     det.innerHTML = `<canvas width="32" height="32"></canvas><div class="dinfo"><b class="${xi ? 'g-' + xi.grade : ''}">${itemName(selCons)} × ${n}</b><div class="dline">${use}</div></div>
       <div class="dact">${btn}${selCons.startsWith('scroll_') && selCons !== 'scroll_return' ? '<span class="note">강화할 장비를 선택한 뒤 [강화]를 누르세요</span>' : ''}</div>`;
@@ -3038,7 +3038,7 @@ function unequip(slot) {
 function sell(uid) {
   const i = P.bag.findIndex(e => e.uid === uid); if (i < 0) return;
   const price = Math.round(sellPrice(P.bag[i]));
-  log(`${equipDef(P.bag[i].key).name}을(를) ${price} 아데나에 팔았습니다.`);
+  log(`${equipDef(P.bag[i].key).name}을(를) ${price} 에테르에 팔았습니다.`);
   P.bag.splice(i, 1); P.gold += price; selUid = null; sfx('arrow_hit', { gain: 0.3 });
   renderInv(); save();
 }
@@ -3153,7 +3153,7 @@ function renderShop() {
   if (shopTab === 'buy') for (const it of SHOP) {
     const row = document.createElement('div'); row.className = 'srow';
     const cv = document.createElement('canvas'); cv.width = 32; cv.height = 32; iconTo(cv, it.id);
-    const nm = document.createElement('div'); nm.innerHTML = `${itemName(it.id)}<small>${it.price} 아데나 · 보유 ${P.inv[it.id] || 0}</small><span class="sd">${it.desc || ''}</span>`;
+    const nm = document.createElement('div'); nm.innerHTML = `${itemName(it.id)}<small>${it.price} 에테르 · 보유 ${P.inv[it.id] || 0}</small><span class="sd">${it.desc || ''}</span>`;
     const b1 = document.createElement('button'); b1.type = 'button'; b1.textContent = '1개'; b1.disabled = P.gold < it.price; b1.onclick = () => buy(it, 1);
     const b10 = document.createElement('button'); b10.type = 'button'; b10.textContent = '10개'; b10.disabled = P.gold < it.price * 10; b10.onclick = () => buy(it, 10);
     row.append(cv, nm, b1, b10); box.append(row);
@@ -3174,12 +3174,12 @@ function renderShop() {
   $('sellUncommon').disabled = !uncs.length;
   $('sellUncommon').textContent = uncs.length ? `고급 ${uncs.length}개 판매 (+${Math.round(uncs.reduce((a, e) => a + sellPrice(e), 0))} G)` : '팔 고급 장비 없음';
   $('sellCommon').disabled = !commons.length;
-  $('sellCommon').textContent = commons.length ? `일반 등급 장비 ${commons.length}개 판매 (+${Math.round(commons.reduce((a, e) => a + sellPrice(e), 0))} 아데나)` : '팔 일반 장비 없음';
-  $('shopGold').textContent = `보유 ${P.gold.toLocaleString()} 아데나`;
+  $('sellCommon').textContent = commons.length ? `일반 등급 장비 ${commons.length}개 판매 (+${Math.round(commons.reduce((a, e) => a + sellPrice(e), 0))} 에테르)` : '팔 일반 장비 없음';
+  $('shopGold').textContent = `보유 ${P.gold.toLocaleString()} 에테르`;
   const lootSum = Object.entries(P.inv).filter(([id, n]) => id.startsWith('loot_') && n > 0).reduce((a, [id, n]) => a + (XITEMS[id] ? XITEMS[id].price * n : 0), 0);
   $('sellLoot').disabled = !lootSum; $('sellLoot').textContent = lootSum ? `전리품 모두 판매 (+${lootSum.toLocaleString()} G)` : '팔 전리품 없음';
   const gems = P.inv.gem_ruby || 0;
-  $('sellGem').disabled = !gems; $('sellGem').textContent = gems ? `루비 ${gems}개 판매 (+${gems * GEM_PRICE} 아데나)` : '팔 루비 없음';
+  $('sellGem').disabled = !gems; $('sellGem').textContent = gems ? `루비 ${gems}개 판매 (+${gems * GEM_PRICE} 에테르)` : '팔 루비 없음';
 }
 function buy(it, n) {
   if (P.gold < it.price * n) return;
@@ -3221,23 +3221,23 @@ $('shopClose').addEventListener('click', closeShop);
 $('sellUncommon').addEventListener('click', () => {
   let sum = 0;
   P.bag = P.bag.filter(e => { if (equipDef(e.key).grade === 'uncommon' && !e.px) { sum += sellPrice(e); return false; } return true; });
-  P.gold += Math.round(sum); log(`고급 장비를 팔아 ${Math.round(sum)} 아데나를 받았습니다.`, 'sys'); sfx('arrow_hit', { gain: 0.4 });
+  P.gold += Math.round(sum); log(`고급 장비를 팔아 ${Math.round(sum)} 에테르를 받았습니다.`, 'sys'); sfx('arrow_hit', { gain: 0.4 });
   renderShop(); renderInv(); save();
 });
 const GEM_PRICE = 150;
 $('sellLoot').addEventListener('click', () => {
   let sum = 0; for (const [id, n] of Object.entries(P.inv)) if (id.startsWith('loot_') && n > 0 && XITEMS[id]) { sum += XITEMS[id].price * n; P.inv[id] = 0; }
-  P.gold += sum; log(`전리품을 팔아 ${sum.toLocaleString()} 아데나를 받았습니다.`, 'sys'); sfx('enchant_ok', { gain: 0.3 }); renderShop(); renderInv(); save();
+  P.gold += sum; log(`전리품을 팔아 ${sum.toLocaleString()} 에테르를 받았습니다.`, 'sys'); sfx('enchant_ok', { gain: 0.3 }); renderShop(); renderInv(); save();
 });
 $('sellGem').addEventListener('click', () => {
   const n = P.inv.gem_ruby || 0; if (!n) return;
-  P.inv.gem_ruby = 0; P.gold += n * GEM_PRICE; log(`루비 ${n}개를 ${n * GEM_PRICE} 아데나에 팔았습니다.`, 'sys'); sfx('enchant_ok', { gain: 0.3 });
+  P.inv.gem_ruby = 0; P.gold += n * GEM_PRICE; log(`루비 ${n}개를 ${n * GEM_PRICE} 에테르에 팔았습니다.`, 'sys'); sfx('enchant_ok', { gain: 0.3 });
   renderShop(); renderInv(); save();
 });
 $('sellCommon').addEventListener('click', () => {
   let sum = 0;
   P.bag = P.bag.filter(e => { if (equipDef(e.key).grade === 'common' && !e.px) { sum += sellPrice(e); return false; } return true; });
-  P.gold += Math.round(sum); log(`일반 장비를 팔아 ${Math.round(sum)} 아데나를 받았습니다.`, 'sys'); sfx('arrow_hit', { gain: 0.4 });
+  P.gold += Math.round(sum); log(`일반 장비를 팔아 ${Math.round(sum)} 에테르를 받았습니다.`, 'sys'); sfx('arrow_hit', { gain: 0.4 });
   renderShop(); renderInv(); save();
 });
 
@@ -3255,7 +3255,7 @@ function checkQuest() {
   const done = q.kind === 'kill' ? (STATE.qn || 0) >= q.n : q.kind === 'lv' ? P.lv >= q.n : q.kind === 'enc' ? P.weapon.enc >= q.n : (STATE.qn || 0) >= 1;
   if (!done) return;
   const got = [];
-  for (const [k, v] of Object.entries(q.reward)) { if (k === 'gold') P.gold += v; else P.inv[k] = (P.inv[k] || 0) + v; got.push(k === 'gold' ? `${v} 아데나` : `${META.items[k].name} ${v}`); }
+  for (const [k, v] of Object.entries(q.reward)) { if (k === 'gold') P.gold += v; else P.inv[k] = (P.inv[k] || 0) + v; got.push(k === 'gold' ? `${v} 에테르` : `${META.items[k].name} ${v}`); }
   banner('목표 달성', q.text); log(`목표 달성: ${q.text} — 보상 ${got.join(', ')}`, 'sys'); sfx('level_up', { gain: 0.7 });
   STATE.quest = (STATE.quest || 0) + 1; STATE.qn = 0;
   renderInv(); save();
@@ -3706,7 +3706,7 @@ function devChanged() {
 document.querySelectorAll('#devRow button').forEach(b => b.addEventListener('click', () => {
   if (!P || !DEV()) return;
   const k = b.dataset.dev;
-  if (k === 'gold') { P.gold += 1000000; log('개발자: 아데나 +1,000,000', 'sys'); }
+  if (k === 'gold') { P.gold += 1000000; log('개발자: 에테르 +1,000,000', 'sys'); }
   if (k === 'lv') gainXp(xpNeed(P.lv) - P.xp);
   if (k === 'wb') { STATE.wbKill[MAP.id] = 0; wbT = 0; updateWorldBoss(0); }
   if (k === 'wp') { for (const l of Object.values(WAYPOINTS)) for (const w of l) STATE.wp[w.id] = true; log('개발자: 별빛 표석 모두 열림', 'sys'); }
@@ -3868,7 +3868,7 @@ function gachaRoll(cat, minG) {
 }
 let gCat = 'pet', gSelId = null;
 function pullGacha(n) {
-  const cost = GACHA_COST[n]; if (!P || P.gold < cost) { log('아데나가 부족합니다.', 'bad'); return null; }
+  const cost = GACHA_COST[n]; if (!P || P.gold < cost) { log('에테르가 부족합니다.', 'bad'); return null; }
   P.gold -= cost; const st = P.gacha[gCat]; const res = [];
   for (let i = 0; i < n; i++) {
     st.pity++;
@@ -3909,7 +3909,7 @@ function showPulls(res) {
 function renderGacha() {
   if (!P) return;
   document.querySelectorAll('#gTabs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.g === gCat)));
-  $('gGold').textContent = `${P.gold.toLocaleString()} 아데나`;
+  $('gGold').textContent = `${P.gold.toLocaleString()} 에테르`;
   const rates = gachaRates();
   $('gRates').innerHTML = GG.map((g, i) => `<span><b style="color:${g.color}">${g.name}</b> ${rates[i]}%</span>`).join('') + (DEV() ? '<span style="color:#ff6a5a">· 개발자 확률</span>' : '');
   $('gPull1').disabled = P.gold < GACHA_COST[1]; $('gPull11').disabled = P.gold < GACHA_COST[11];
@@ -3931,9 +3931,9 @@ function renderGacha() {
 function renderGachaSel() {
   const box = $('gSel'), cur = gCat === 'pet' ? P.pet : P.morph;
   const id = gSelId && (P.coll[gCat] || {})[gSelId] ? gSelId : cur;
-  if (!id) { box.innerHTML = `<span class="note">${gCat === 'pet' ? '펫은 주인공을 따라다니며 공격력·HP·아데나 획득량을 올려 줍니다.' : '변신하면 그 모습이 되고 공격력·HP·이동 속도가 오릅니다.'} 보유한 것을 눌러 ${gCat === 'pet' ? '데려가세요' : '변신하세요'}.</span>`; return; }
+  if (!id) { box.innerHTML = `<span class="note">${gCat === 'pet' ? '펫은 주인공을 따라다니며 공격력·HP·에테르 획득량을 올려 줍니다.' : '변신하면 그 모습이 되고 공격력·HP·이동 속도가 오릅니다.'} 보유한 것을 눌러 ${gCat === 'pet' ? '데려가세요' : '변신하세요'}.</span>`; return; }
   const e = gEntry(gCat, id), s = (P.coll[gCat] || {})[id] || 1, tb = GACHA_BONUS[gCat];
-  const txt = Object.entries(tb).map(([k, a]) => `${{ atk: '공격력', hp: '최대 HP', gold: '아데나 획득', spd: '이동 속도' }[k]} +${(a[e.g] * starMul(s)).toFixed(1)}%`).join(' · ');
+  const txt = Object.entries(tb).map(([k, a]) => `${{ atk: '공격력', hp: '최대 HP', gold: '에테르 획득', spd: '이동 속도' }[k]} +${(a[e.g] * starMul(s)).toFixed(1)}%`).join(' · ');
   box.innerHTML = `<b style="color:${GG[e.g].color}">[${GG[e.g].name}] ${e.name} ${'★'.repeat(s)}</b><span>${txt}</span>`;
   const b = document.createElement('button'); b.type = 'button';
   const on = cur === id; b.textContent = gCat === 'pet' ? (on ? '펫 돌려보내기' : '데려가기') : (on ? '변신 해제' : '변신');

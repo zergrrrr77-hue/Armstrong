@@ -84,8 +84,8 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
     check(pot, '체력 물약', fails);
     const enc = await page.evaluate(() => { const P = __game.P; P.inv.scroll_weapon = 3; __game.enchant('w'); __game.enchant('w'); return P.wEnc === 2; });
     check(enc, '무기 강화(+6 이하 안전)', fails);
-    const gold = await page.evaluate(() => document.getElementById('gold').textContent.includes('아데나'));
-    check(gold, '화폐 단위 아데나', fails);
+    const gold = await page.evaluate(() => document.getElementById('gold').textContent.includes('에테르'));
+    check(gold, '화폐 단위 에테르', fails);
 
     // 장비 드롭 → 줍기 → 착용
     const eq = await page.evaluate(() => {
@@ -162,7 +162,7 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
       const r5 = await page.evaluate(() => { const G = __game, P = G.P; const g0 = P.gold; G.drops.push({ id: 'gold', n: 33, x: P.x, y: P.y, t: 0 }); G.drops.push({ id: 'bow', equip: G.makeEquip('w_wind'), n: 1, x: P.x, y: P.y, t: 0, grade: 'heroic' }); return g0; });
       await page.waitForTimeout(400);
       const r6 = await page.evaluate(() => ({ gold: __game.P.gold, loot: __game.LOOT.map(l => l.text).join('|'), banner: document.querySelector('#banner b').textContent }));
-      check(r6.gold === r5 + 33 && r6.loot.includes('33 아데나') && r6.loot.includes('바람의 활'), '아데나·장비 획득 기록', fails);
+      check(r6.gold === r5 + 33 && r6.loot.includes('33 에테르') && r6.loot.includes('바람의 활'), '에테르·장비 획득 기록', fails);
       check(r6.banner.includes('바람의 활'), '영웅 장비 획득 알림', fails);
     }
     // 상점: 화로의 신(신전 앞) 옆에서 열고 물약 구매
