@@ -59,8 +59,8 @@ async function scriptCost(page) {
     await press('#btnSnd'); check(await page.evaluate(() => document.getElementById('btnSnd').getAttribute('aria-pressed') === 'false'), '소리 버튼'); await press('#btnSnd');
     await press('#mmIn'); await press('#mmOut'); check(true, '미니맵 확대·축소 버튼');
     await press('#qToggle'); await press('#qToggle'); check(true, '목표 창 접기 버튼');
-    const mp0 = await page.evaluate(() => { const P = __game.P; P.mp = P.maxmp; P.cds = {}; P.casting = null; return __game.fxs.length; });
-    await press('#bar .slot:nth-child(1)'); check(await page.evaluate(() => !!__game.P.casting || __game.fxs.length > 0), '스킬 1 버튼');
+    const mp0 = await page.evaluate(() => { const P = __game.P; P.lv = Math.max(P.lv, 2); __game.buildBar(); P.mp = P.maxmp; P.cds = {}; P.casting = null; return __game.fxs.length; });
+    await press('#bar button.slot:nth-of-type(1)'); check(await page.evaluate(() => !!__game.P.casting || __game.fxs.length > 0), '스킬 1 버튼');
     const pot = await page.evaluate(() => { __game.OPT.potHp = 0; __game.P.hp = 100; return __game.P.inv.pot_red; });
     await press('#bar button.slot:nth-last-of-type(2)'); check(await page.evaluate(n => __game.P.inv.pot_red === n - 1, pot), '체력 물약 버튼');
     await page.evaluate(() => { __game.OPT.potHp = 40; });

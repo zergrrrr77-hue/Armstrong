@@ -2707,5 +2707,10 @@
     ]
    }
   }
+ },
+ "portraits": {
+  "knight": "ui/portrait_knight.png",
+  "elf": "ui/portrait_elf.png",
+  "mage": "ui/portrait_mage.png"
  }
 }

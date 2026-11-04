@@ -9,8 +9,10 @@
 :root {
   --bg: #08070a; --panel: rgba(18, 15, 13, .92); --line: #3a322a; --line-hi: #8a7048;
   --fg: #e8dcc6; --muted: #a49681; --gold: #d4a64a; --hp: #b8262a; --mp: #2f62c8; --xp: #c89a34;
-  --display: "Nanum Myeongjo", "Batang", serif;
-  --body: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  /* 리니지 클라이언트처럼 숫자·영문은 Tahoma(아이폰은 같은 디자이너의 Verdana), 한글은 Noto Sans KR */
+  --num: Tahoma, Verdana, "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+  --display: Tahoma, Verdana, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --body: Tahoma, Verdana, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -551,7 +553,7 @@ details.info th { color: var(--gold); font-weight: 500; }
 #mini, #target, #bar, #opt, #wpMenu, #cmp {
   background: var(--stone);
   border: 2px solid var(--bronze); border-radius: 4px; box-shadow: inset 0 0 0 1px #0c0b0a, inset 0 1px 0 2px rgba(220,215,200,.14), 0 0 0 1px #0c0a07, 0 6px 18px rgba(0,0,0,.55); }
-#mini .zone, #target b { font-family: "Noto Serif KR", "Noto Serif CJK KR", var(--display), serif; font-weight: 900; color: var(--gold-hi); }
+#mini .zone, #target b { font-family: var(--display); font-weight: 900; color: var(--gold-hi); }
 #target b { color: #ffd9a0; }
 #target .bar { height: 12px; border: 1px solid #0a0806; background: #120e0b; box-shadow: inset 0 1px 3px rgba(0,0,0,.8); }
 #target .bar i { background: linear-gradient(#ff8a6a, #ff5a44 40%, #8a140c); }
@@ -593,7 +595,7 @@ details.info th { color: var(--gold); font-weight: 500; }
   #bar .sep { width: 2px; height: 38px; margin: 3px 4px 0; background: linear-gradient(transparent, var(--bronze), transparent); }
   #mini { right: 12px; top: 10px; width: 196px; padding: 8px; justify-items: center; }
   #mini canvas#minimap { width: 176px; height: 140px; object-fit: cover; }
-  #mini .gold { position: fixed; right: 12px; bottom: 120px; width: 300px; justify-content: flex-end; padding: 5px 10px; font-family: "Noto Serif KR", serif; font-weight: 900; font-size: 15px;
+  #mini .gold { position: fixed; right: 12px; bottom: 120px; width: 300px; justify-content: flex-end; padding: 5px 10px; font-family: var(--display); font-weight: 900; font-size: 15px;
     background: rgba(6,5,4,.55); border: 1px solid #0a0806; box-shadow: inset 0 0 0 1px rgba(138,106,58,.45); border-radius: 3px; z-index: 10; }
   #mini .gold canvas { order: 2; margin-left: 4px; }
   .mbtn { position: fixed; right: 12px; left: auto; top: auto; bottom: 12px; width: 300px; grid-template-columns: repeat(3, 1fr); gap: 5px; z-index: 10; }
@@ -651,6 +653,37 @@ details.info th { color: var(--gold); font-weight: 500; }
 .dsum { background: rgba(14,13,12,.6) !important; border-color: #5c5954 !important; }
 .detail2 { background: var(--grain), linear-gradient(#3a3936, #232220) !important; border-top: 1px solid #0e0d0c !important; }
 #shop .act, #shopSell { background: transparent; }
+/* 상태창(리니지식 가로 막대): 레벨·이름 줄 + HP/MP 막대 안에 숫자 */
+.lvb { display: none !important; }
+#status .orbtxt { display: grid; gap: 3px; max-width: none; min-width: 0; }
+#status .orbtxt b { display: flex; align-items: center; gap: 6px; font: 800 14px var(--body); white-space: nowrap; min-width: 0; }
+#status .orbtxt b #pname { overflow: hidden; text-overflow: ellipsis; }
+.plvt { flex: none; font: 800 11px var(--num); color: #ffe08a; padding: 1px 5px; border-radius: 3px; background: linear-gradient(#5e5b55, #2c2b29); border: 1px solid #b4aea2; text-shadow: 0 1px 0 #000; }
+#status .spbadge { position: static; flex: none; }
+.orb .spbadge { top: -2px; right: -2px; }
+.lbar { display: grid; grid-template-columns: 28px 1fr; height: 18px; width: 168px; filter: drop-shadow(0 1px 1px rgba(0,0,0,.7)); }
+.lbar em { font: italic 900 10px var(--num); display: grid; place-items: center; color: #fff; border-radius: 9px 0 0 9px; border: 1px solid #0c0b0a; border-right: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), inset 0 -2px 3px rgba(0,0,0,.4); text-shadow: 0 1px 0 #000; }
+.lbar.hp em { background: linear-gradient(#b84a40, #6a1410); } .lbar.mp em { background: linear-gradient(#4a6ab8, #142a6a); }
+.lbar .tr { position: relative; overflow: hidden; background: linear-gradient(#0a0908, #1c1a18); border: 1px solid #0c0b0a; border-radius: 0 4px 4px 0;
+  box-shadow: inset 0 0 0 1px #77736b, inset 0 3px 5px rgba(0,0,0,.85); }
+#shp .tr i, #smp .tr i { position: absolute; left: 1px; top: 1px; bottom: 1px; height: auto; display: block; border-radius: 0 2px 2px 0; transition: width .15s; }
+#shp .tr i { background: linear-gradient(#ff8a7a 0%, #e0403a 35%, #a01812 70%, #6a0a06 100%); }
+#smp .tr i { background: linear-gradient(#9ac8ff 0%, #3a7ae8 35%, #1a3aa8 70%, #0c1e66 100%); }
+.lbar .tr::after { content: ''; position: absolute; left: 1px; right: 1px; top: 1px; height: 40%; background: linear-gradient(rgba(255,255,255,.28), rgba(255,255,255,0)); pointer-events: none; }
+.lbar .tr span { position: absolute; inset: 0; display: grid; place-items: center; z-index: 1; font: 700 11px var(--num); color: #fff; letter-spacing: .03em; font-variant-numeric: tabular-nums;
+  text-shadow: 1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000, 0 0 3px #000; }
+@media (max-width: 720px) { .lbar { width: 150px; height: 17px; } #status .orbtxt b { font-size: 13px; } }
+@media (hover: hover) and (pointer: fine) and (min-width: 960px) and (min-height: 600px) {
+  #dock .em { display: none !important; }                    /* 가운데 별 문장이 HP 막대를 가려서 뺌 */
+  #status { bottom: 100px; } #status .orb { width: 58px; height: 58px; }
+  .lbar { width: 100%; height: 20px; } .lbar .tr span { font-size: 12px; }
+}
+.slot.extra.learn .lock { font: 700 10px var(--num); color: #9a968e; }
+#zoomToast { left: 50%; top: 38%; transform: translate(-50%, -50%); padding: 6px 14px; border-radius: 16px; background: rgba(20,19,18,.78); border: 1px solid #8e897f;
+  color: #fff3d8; font: 800 14px var(--num); opacity: 0; transition: opacity .2s; pointer-events: none !important; z-index: 40; }
+#zoomToast.show { opacity: 1; }
+.zoomseg button { min-width: 44px; font-size: 15px; font-weight: 800; }
 /* 가방: 일괄 판매 · 착용 탭 */
 .bulkbtn { min-height: 30px; padding: 0 12px; border-radius: 3px; cursor: pointer; font-weight: 800; font-size: 12px; color: #ffe7a8; background: linear-gradient(#6a5a2a, #3e3416); border: 1px solid #d8bc6a; }
 .bulkbtn[aria-pressed="true"] { background: linear-gradient(#a8822a, #6a4e14); color: #fff6d8; box-shadow: 0 0 8px rgba(240,200,110,.5); }
@@ -734,8 +767,11 @@ details.info th { color: var(--gold); font-weight: 500; }
 </div>
 
 <div class="hud hidden" id="status">
-  <div class="orb"><canvas id="orb" width="168" height="168"></canvas><span class="lvb" id="plv">1</span><span class="spbadge hidden" id="spBadge" title="능력치 포인트">+</span></div>
-  <div class="orbtxt"><b><span id="pname">기사</span><small id="pcls"></small></b><div class="sbar" id="shp"><i></i></div><div class="sbar" id="smp"><i></i></div><div class="num"><span class="hpt" id="hpt"></span><span class="mpt" id="mpt"></span></div><div id="buffs"></div></div>
+  <div class="orb"><canvas id="orb" width="168" height="168"></canvas><span class="lvb" id="plv">1</span></div>
+  <div class="orbtxt"><b><span class="plvt">Lv <span id="plv2">1</span></span><span id="pname">기사</span><small id="pcls"></small><span class="spbadge hidden" id="spBadge" title="능력치 포인트 — 눌러서 올리기">+</span></b>
+    <div class="lbar hp" id="shp"><em>HP</em><div class="tr"><i></i><span class="hpt" id="hpt"></span></div></div>
+    <div class="lbar mp" id="smp"><em>MP</em><div class="tr"><i></i><span class="mpt" id="mpt"></span></div></div>
+    <div id="buffs"></div></div>
 </div>
 <div class="hud hidden" id="quest"><button class="qh" id="qToggle" type="button" aria-expanded="true"><span>목표</span><span id="qArrow">▾</span></button><span class="qt" id="qt"></span><span class="qp" id="qp"></span></div>
 <button class="hud hidden" id="shopBtn" type="button">✦ 세리아와 거래 (F)</button>
@@ -763,6 +799,8 @@ details.info th { color: var(--gold); font-weight: 500; }
   <div class="note">자동 물약은 자동 전투를 켜지 않아도 작동합니다. 마나가 스킬 비용보다 적으면 스킬을 쓰지 않습니다.</div>
   </div>
   <div class="osec hidden" data-sec="view">
+  <div class="orow"><span>화면 확대 <b id="vZoom">100%</b></span><div class="seg zoomseg"><button type="button" id="zoomOut" aria-label="축소">－</button><button type="button" id="zoomReset">기본</button><button type="button" id="zoomIn" aria-label="확대">＋</button></div></div>
+  <div class="note">휴대폰은 두 손가락으로 벌리거나 오므리고, PC는 마우스 휠이나 + / - 키로 바꿀 수 있습니다.</div>
   <div class="orow"><span>가방·상점을 열 때</span><div class="seg" data-opt="invMode"><button type="button" data-v="pause">일시정지</button><button type="button" data-v="continue">계속 진행 (받는 피해 50% 감소)</button></div></div>
   <div class="orow"><span>아이템을 볼 때 비교창</span><div class="seg" data-opt="cmpAuto"><button type="button" data-v="on">자동으로 띄우기</button><button type="button" data-v="off">버튼으로만</button></div></div>
   </div>
@@ -1063,7 +1101,7 @@ const AI = {
   goblin:   { leash: 12, combo: 1, hurtRes: 0.6, sep: 0.75 },
   wolf:     { leash: 16, combo: 2, comboGap: 0.35, hurtRes: 0.4, sep: 0.8, dash: 1.35 },
   dog:      { leash: 14, combo: 2, comboGap: 0.4, hurtRes: 0.45, sep: 0.8, dash: 1.25 },
-  goblin_archer: { leash: 13, combo: 1, hurtRes: 0.55, sep: 0.85, keep: [3.0, 4.8] },
+  goblin_archer: { leash: 13, combo: 1, hurtRes: 0.55, sep: 0.85, keep: [2.2, 4.4] },
   spider:   { leash: 12, combo: 1, hurtRes: 0.4, sep: 0.85 },
   ooze:     { leash: 9, combo: 1, hurtRes: 0.25, sep: 0.9 },
   skeleton: { leash: 13, combo: 1, hurtRes: 0.25, sep: 0.8, heavy: 1.35 },
@@ -1162,7 +1200,7 @@ const BASE_STATS = { knight: { str: 14, dex: 9, con: 13, int: 6 }, elf: { str: 8
 const MAIN_STAT = { knight: 'str', elf: 'dex', mage: 'int' };
 const STAT_INFO = { str: ['힘', '근접 공격력 +1.0(기사), 그 외 +0.4'], dex: ['민첩', '공격 속도 +1.2%, 치명타 +0.4%, 화살 공격력 +1.0(요정)'], con: ['체력', '최대 HP +10, HP 회복 +4%'], int: ['지능', '스킬 피해 +2%, 최대 MP +6, 마법 공격력 +1.0(마법사)'] };
 const SP_PER_LV = 2;
-const SKILL_LV = [1, 2, 4, 6];               // 스킬 1~4 해금 레벨
+const SKILL_LV = [2, 5, 9, 14];              // 스킬 1~4 를 배우는 레벨(처음엔 스킬 없음)
 const GRADE_LV = { common: 1, uncommon: 3, rare: 6, heroic: 9, legend: 12, unique: 10 };   // 장비 착용 레벨
 const DUNGEON_MIN = 5;                       // 던전 입장 최소 레벨
 // 장비 칸(리니지식 11칸). kind: weapon(무기 주문서) / armor(갑옷 주문서) / acc(장신구, 강화 불가)
@@ -1476,12 +1514,13 @@ let MAP = null, P = null, mobs = [], drops = [], projs = [], fxs = [], texts = [
 const keys = {};
 let CHUNKS = new Map();
 const COMBAT = { kb: 0, stop: 0, slash: 0, mobShots: 0 };   // 시험·디버그용 카운터
+let ZOOM_USER = 1;   // 사용자가 정한 확대 배율(0.6~1.8), 설정에 저장
 let vfx = [], hitStop = 0, shake = 0, cam = { x: 0, y: 0 }, W = 0, H = 0, DPR = 1, ZOOM = 2, running = false, paused = false, last = 0, now = 0;
 const cvs = $('game'), ctx = cvs.getContext('2d');
 
 function resize() {
   W = window.innerWidth; H = window.innerHeight;
-  ZOOM = W < 720 ? 1.5 : (W < 1400 ? 2 : 2.5);
+  ZOOM = (W < 720 ? 1.5 : (W < 1400 ? 2 : 2.5)) * ZOOM_USER;
   // 도트 그래픽: 캔버스를 '게임 픽셀' 해상도로 그리고 CSS(pixelated)로 확대 → 고해상도 휴대폰에서도 채울 픽셀이 적음
   DPR = 1 / ZOOM;
   cvs.width = Math.ceil(W * DPR); cvs.height = Math.ceil(H * DPR);
@@ -1933,7 +1972,7 @@ function gainXp(n) {
     if (eq) lines.push(`${GRADE_LABEL[eq[0]]} 장비 착용 가능`);
     banner(`레벨 ${P.lv}`, lines.join(' · '));
     log(`레벨 ${P.lv}! ${lines.join(', ')}`, 'sys');
-    if (unlocked.length) buildBar();
+    if (unlocked.length) { buildBar(); for (const n of unlocked) { texts.push({ who: P, x: P.x, y: P.y, z: 86, t: 0, s: `새 스킬 ${n}`, c: '#9fe0ff', big: true }); } }
     checkQuest(); save();
   }
 }
@@ -2383,9 +2422,11 @@ function updateMob(m, dt) {
       else if (m.d.wb && (m.skillCd.rain || 0) <= 0 && d < 9) { wbRain(m); }
       else if (m.d.boss && m.skillCd.skill_hellfire <= 0 && d < 3.2 * (m.d.wb ? 1.4 : 1)) { bossCast(m, 'skill_hellfire'); }
       else if (m.d.boss && m.skillCd.skill_darkslash <= 0 && d >= 1.6 && d < 6.5 * (m.d.wb ? 1.3 : 1)) { bossCast(m, 'skill_darkslash'); }
-      else if (ai.keep && d < ai.keep[0]) {
-        // 원거리: 너무 가까우면 뒤로 물러남
-        const l = d || 1; m.goal = { x: m.x - (P.x - m.x) / l * 2, y: m.y - (P.y - m.y) / l * 2 }; m.retreat = true;
+      else if (ai.keep && d < ai.keep[0] && (m.kiteCd || 0) <= now && Math.hypot(m.x - m.home.x, m.y - m.home.y) < 8) {
+        // 원거리: 너무 가까우면 0.7초만 뒤로 물러섬 → 그 뒤 4~6초는 도망가지 않고 그 자리에서 쏨(끝없이 도망가던 문제 수정)
+        if (!m.retreat) m.retreatEnd = now + 0.7;
+        if (now >= m.retreatEnd) { m.retreat = false; m.kiteCd = now + 4 + Math.random() * 2; m.goal = null; }
+        else { const l = d || 1; m.goal = { x: m.x - (P.x - m.x) / l * 1.5, y: m.y - (P.y - m.y) / l * 1.5 }; m.retreat = true; }
       }
       else if (d <= reach) {
         m.retreat = false;
@@ -2651,7 +2692,7 @@ function render() {
       const s = toScr(o.e.x, o.e.y);
       ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(s.x, s.y - 30, 0, s.x, s.y - 30, 40);
       g.addColorStop(0, `rgba(90,170,255,${0.18 + 0.08 * Math.sin(now * 2.5)})`); g.addColorStop(1, 'rgba(90,170,255,0)'); ctx.fillStyle = g; ctx.fillRect(s.x - 40, s.y - 70, 80, 80); ctx.restore();
-      ctx.font = '700 7px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#000'; ctx.fillText(o.e.name, s.x + 0.5, s.y - 62.5); ctx.fillStyle = '#9ad8ff'; ctx.fillText(o.e.name, s.x, s.y - 63);
+      ctx.font = '700 7px Tahoma, Verdana, "Noto Sans KR", sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#000'; ctx.fillText(o.e.name, s.x + 0.5, s.y - 62.5); ctx.fillStyle = '#9ad8ff'; ctx.fillText(o.e.name, s.x, s.y - 63);
     } else if (o.kind === 'smith') {   // 드로간: 대기 동작, 플레이어 쪽을 바라봄
       const n = o.e, sm = META.npcs[n.sprite], s = toScr(n.x, n.y), im = img(sm.sheet);
       shadow(s.x, s.y, 13);
@@ -2660,18 +2701,18 @@ function render() {
         ctx.drawImage(im, (sm.anims.idle[0] + fr) * sm.fw, d8 * sm.fh, sm.fw, sm.fh, Math.round(s.x - sm.ax), Math.round(s.y - sm.ay), sm.fw, sm.fh);
       }
       const ty = s.y - 52;
-      ctx.font = '700 8px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center';
+      ctx.font = '700 8px Tahoma, Verdana, "Noto Sans KR", sans-serif'; ctx.textAlign = 'center';
       ctx.fillStyle = '#000'; ctx.fillText(n.name, s.x + 0.5, ty + 0.5); ctx.fillStyle = '#ffd9a0'; ctx.fillText(n.name, s.x, ty);
-      ctx.font = '700 7px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#000'; ctx.fillText('제작·대장간', s.x + 0.5, ty - 8.5); ctx.fillStyle = '#ff9a4a'; ctx.fillText('제작·대장간', s.x, ty - 9);
+      ctx.font = '700 7px Tahoma, Verdana, "Noto Sans KR", sans-serif'; ctx.fillStyle = '#000'; ctx.fillText('제작·대장간', s.x + 0.5, ty - 8.5); ctx.fillStyle = '#ff9a4a'; ctx.fillText('제작·대장간', s.x, ty - 9);
     } else if (o.kind === 'npc') {
       const n = o.e, pm = META.props.deity, s = toScr(n.x, n.y);
       if (pm) {
         const fr = Math.floor(now * 5) % pm.frames;
         ctx.drawImage(img(pm.sheet), fr * pm.fw, 0, pm.fw, pm.fh, Math.round(s.x - pm.ax), Math.round(s.y - pm.ay), pm.fw, pm.fh);
         const ty = s.y - pm.ay + 4;
-        ctx.font = '700 8px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center';
+        ctx.font = '700 8px Tahoma, Verdana, "Noto Sans KR", sans-serif'; ctx.textAlign = 'center';
         ctx.fillStyle = '#000'; ctx.fillText(n.name, s.x + 0.5, ty + 0.5); ctx.fillStyle = '#ffe2a0'; ctx.fillText(n.name, s.x, ty);
-        ctx.font = '700 7px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#000'; ctx.fillText('상점', s.x + 0.5, ty - 8.5); ctx.fillStyle = '#ff9a4a'; ctx.fillText('상점', s.x, ty - 9);
+        ctx.font = '700 7px Tahoma, Verdana, "Noto Sans KR", sans-serif'; ctx.fillStyle = '#000'; ctx.fillText('상점', s.x + 0.5, ty - 8.5); ctx.fillStyle = '#ff9a4a'; ctx.fillText('상점', s.x, ty - 9);
       }
     } else if (o.kind === 'ent') {
       const e = o.e; const s = toScr(e.x, e.y);
@@ -2687,7 +2728,7 @@ function render() {
         const g = P.gathering, k = Math.min(1, g.t / g.dur), bx = Math.round(s.x - 16), by = Math.round(s.y - 66);
         ctx.fillStyle = '#000'; ctx.fillRect(bx - 1, by - 1, 34, 6); ctx.fillStyle = '#3a2f22'; ctx.fillRect(bx, by, 32, 4);
         ctx.fillStyle = '#c8f0a0'; ctx.fillRect(bx, by, Math.round(32 * k), 4);
-        ctx.font = '700 7px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#000'; ctx.fillText(GATHER[g.n.kind].verb, s.x + 0.5, by - 2.5); ctx.fillStyle = '#e8f8d0'; ctx.fillText(GATHER[g.n.kind].verb, s.x, by - 3);
+        ctx.font = '700 7px Tahoma, Verdana, "Noto Sans KR", sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#000'; ctx.fillText(GATHER[g.n.kind].verb, s.x + 0.5, by - 2.5); ctx.fillStyle = '#e8f8d0'; ctx.fillText(GATHER[g.n.kind].verb, s.x, by - 3);
       }
       if (e.kind === 'mob' && !e.dead && !e.d.boss && (e.hp < e.maxhp || e === P.target)) {
         const hy = s.y - (e.type === 'ooze' ? 30 : e.sheet === 'goblin' ? 46 : 58);
@@ -2696,7 +2737,7 @@ function render() {
         ctx.fillStyle = e.hp / e.maxhp < 0.3 ? '#ff7a3a' : '#d83a2a'; ctx.fillRect(s.x - 13, hy, 26 * e.hp / e.maxhp, 3);
         if (e === P.target) {
           const lg = e.lv - P.lv;
-          ctx.font = '700 7px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center';
+          ctx.font = '700 7px Tahoma, Verdana, "Noto Sans KR", sans-serif'; ctx.textAlign = 'center';
           ctx.fillStyle = '#000'; ctx.fillText(`Lv${e.lv} ${e.d.name}`, s.x + 0.5, hy - 2.5);
           ctx.fillStyle = lg >= 3 ? '#ff7a6a' : lg >= 1 ? '#ffd27a' : '#e8dcc6'; ctx.fillText(`Lv${e.lv} ${e.d.name}`, s.x, hy - 3);
         }
@@ -2765,7 +2806,7 @@ function drawTexts() {
     const x = s.x + (t.ox || 0) + shx + (tk === 'deal' ? (t.ox || 0) * u * 0.6 : 0), y = s.y - t.z - rise;
     ctx.save(); ctx.globalAlpha = clamp(1.5 - u * 1.5, 0, 1);
     ctx.translate(x, y); ctx.rotate(t.rot || 0); ctx.scale(pop, pop);
-    ctx.font = `900 ${size}px "Noto Sans KR", sans-serif`;
+    ctx.font = `900 ${size}px Tahoma, Verdana, "Noto Sans KR", sans-serif`;
     if (tk === 'crit') {
       // 뒤에 빛살
       ctx.save(); ctx.globalCompositeOperation = 'lighter';
@@ -2778,7 +2819,7 @@ function drawTexts() {
       const gr = ctx.createLinearGradient(0, -size, 0, 0); gr.addColorStop(0, '#fff7c0'); gr.addColorStop(0.45, '#ffd040'); gr.addColorStop(1, '#ff6a10');
       ctx.lineWidth = 3.2; ctx.strokeStyle = '#3a0c00'; ctx.strokeText(t.s, 0, 0);
       ctx.fillStyle = gr; ctx.fillText(t.s, 0, 0);
-      ctx.font = '900 7px "Noto Sans KR", sans-serif'; ctx.lineWidth = 2; ctx.strokeStyle = '#3a0c00'; ctx.strokeText('CRITICAL!', 0, -size + 1); ctx.fillStyle = '#ffec9a'; ctx.fillText('CRITICAL!', 0, -size + 1);
+      ctx.font = '900 7px Tahoma, Verdana, "Noto Sans KR", sans-serif'; ctx.lineWidth = 2; ctx.strokeStyle = '#3a0c00'; ctx.strokeText('CRITICAL!', 0, -size + 1); ctx.fillStyle = '#ffec9a'; ctx.fillText('CRITICAL!', 0, -size + 1);
     } else if (tk === 'hurt') {
       ctx.lineWidth = 2.6; ctx.strokeStyle = '#2a0000'; ctx.strokeText(t.s, 0, 0);
       const gr = ctx.createLinearGradient(0, -size, 0, 0); gr.addColorStop(0, '#ffb0a0'); gr.addColorStop(1, '#e8241a');
@@ -2960,6 +3001,10 @@ function buildBar() {
     const b = document.createElement('button'); b.className = 'slot'; b.type = 'button'; b.title = `${sk.name} (MP ${sk.mp}, ${sk.cd}초)${sk.desc ? ' — ' + sk.desc : ''}`;
     const cv = document.createElement('canvas'); cv.width = 52; cv.height = 52; b.append(cv); skillThumb(cv, sk.fx);
     const locked = P.lv < skillLvReq(i);
+    if (locked && !sk.wb) {   // 아직 못 배운 스킬: PC에는 'Lv N' 빈 칸만, 휴대폰에는 칸 자체가 없음(div 라서 부채꼴 순서에 안 들어감)
+      bar.insertAdjacentHTML('beforeend', `<div class="slot extra empty learn" title="${sk.name} — Lv ${skillLvReq(i)}에 배웁니다"><span class="k">${i + 1}</span><div class="lock">Lv ${skillLvReq(i)}</div></div>`);
+      return;
+    }
     b.insertAdjacentHTML('beforeend', `<span class="k">${i + 1}</span><span class="n">${sk.mp || ''}</span>${sk.wb ? `<span class="lvl">Lv${P.wbs[id]}</span>` : ''}<div class="cd"></div><div class="cdt"></div>${locked ? `<div class="lock">Lv ${skillLvReq(i)}</div>` : ''}`);
     if (locked) b.classList.add('locked');
     b.addEventListener('click', () => useSkill(i));
@@ -3022,33 +3067,29 @@ function drawOrb() {
   const S = 168, c = S / 2, R = 78;
   orbHp += (P.hp / P.maxhp - orbHp) * 0.25; orbMp += (P.mp / P.maxmp - orbMp) * 0.25;
   octx.clearRect(0, 0, S, S);
-  octx.fillStyle = '#0c0a09'; octx.beginPath(); octx.arc(c, c, R + 4, 0, Math.PI * 2); octx.fill();
-  // 초상화(대기 남쪽 프레임의 머리 부분)
-  const sh = META.characters[P.cls];
-  octx.save(); octx.beginPath(); octx.arc(c, c, R - 22, 0, Math.PI * 2); octx.clip();
-  const g = octx.createRadialGradient(c, c - 10, 4, c, c, R - 22); g.addColorStop(0, '#3a3024'); g.addColorStop(1, '#120e0a');
+  // 초상화 동그라미: 빨강·파랑 고리 없이, 직업 초상(portraits.py로 구운 머리·어깨 그림) + 회색 쇠 테두리
+  const IR = R - 6;
+  octx.fillStyle = '#0c0b0a'; octx.beginPath(); octx.arc(c, c, R + 2, 0, Math.PI * 2); octx.fill();
+  octx.save(); octx.beginPath(); octx.arc(c, c, IR, 0, Math.PI * 2); octx.clip();
+  const g = octx.createRadialGradient(c, c - 20, 6, c, c, IR); g.addColorStop(0, '#5a5752'); g.addColorStop(1, '#1c1b19');
   octx.fillStyle = g; octx.fillRect(0, 0, S, S);
-  octx.imageSmoothingEnabled = false;
-  octx.drawImage(img(sh.sheet), sh.ax - 15, sh.ay - 52, 30, 30, c - 54, c - 50, 108, 108);
-  if (P.hp / P.maxhp < 0.3) { octx.fillStyle = `rgba(160,20,20,${0.25 + 0.15 * Math.sin(now * 8)})`; octx.fillRect(0, 0, S, S); }
+  const pr = META.portraits && META.portraits[P.cls], pim = pr && img(pr);
+  if (pim && pim.complete && pim.naturalWidth) { octx.imageSmoothingEnabled = false; octx.drawImage(pim, c - IR, c - IR + 4, IR * 2, IR * 2); }
+  else { const sh = META.characters[P.cls]; octx.imageSmoothingEnabled = false; octx.drawImage(img(sh.sheet), sh.ax - 15, sh.ay - 52, 30, 30, c - 54, c - 50, 108, 108); }
+  if (P.hp / P.maxhp < 0.3) { octx.fillStyle = `rgba(160,20,20,${0.25 + 0.15 * Math.sin(now * 8)})`; octx.fillRect(0, 0, S, S); }   // 체력이 낮으면 붉게 깜빡임
+  if (P.dead) { octx.fillStyle = 'rgba(0,0,0,.55)'; octx.fillRect(0, 0, S, S); }
   octx.restore();
-  // 체력(바깥 고리) · 마나(안쪽 고리)
-  const ring = (r, w, v, col, bg) => {
-    octx.lineWidth = w; octx.lineCap = 'butt';
-    octx.strokeStyle = bg; octx.beginPath(); octx.arc(c, c, r, 0, Math.PI * 2); octx.stroke();
-    octx.strokeStyle = col; octx.beginPath(); octx.arc(c, c, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * clamp(v, 0, 1)); octx.stroke();
-  };
-  ring(R - 6, 12, orbHp, '#d8342e', '#3a0c0c');
-  ring(R - 17, 7, orbMp, '#3c74e0', '#0c1838');
-  octx.lineWidth = 2; octx.strokeStyle = '#8a6a2c'; octx.beginPath(); octx.arc(c, c, R + 1, 0, Math.PI * 2); octx.stroke();
-  octx.strokeStyle = '#d4a64a'; octx.lineWidth = 1.5; octx.beginPath(); octx.arc(c, c, R - 22, 0, Math.PI * 2); octx.stroke();
+  const rim = octx.createLinearGradient(0, c - R, 0, c + R); rim.addColorStop(0, '#d8d2c6'); rim.addColorStop(0.5, '#7a766e'); rim.addColorStop(1, '#3a3835');
+  octx.lineWidth = 7; octx.strokeStyle = rim; octx.beginPath(); octx.arc(c, c, IR + 2, 0, Math.PI * 2); octx.stroke();
+  octx.lineWidth = 1.5; octx.strokeStyle = '#0c0b0a'; octx.beginPath(); octx.arc(c, c, IR - 1.5, 0, Math.PI * 2); octx.stroke();
+  octx.beginPath(); octx.arc(c, c, IR + 5.5, 0, Math.PI * 2); octx.stroke();
 }
 function updateHud() {
   drawOrb();
   $('shp').querySelector('i').style.width = (100 * P.hp / P.maxhp) + '%'; $('smp').querySelector('i').style.width = (100 * P.mp / P.maxmp) + '%';
-  $('hpt').textContent = `HP ${Math.ceil(P.hp)}/${P.maxhp}`;
-  $('mpt').textContent = `MP ${Math.floor(P.mp)}/${P.maxmp}`;
-  $('plv').textContent = P.lv;
+  $('hpt').textContent = `${Math.ceil(P.hp)} / ${P.maxhp}`;
+  $('mpt').textContent = `${Math.floor(P.mp)} / ${P.maxmp}`;
+  $('plv').textContent = P.lv; $('plv2').textContent = P.lv;
   $('spBadge').classList.toggle('hidden', !(P.sp > 0));
   $('zone').textContent = inTown(P) ? '아르델 마을 · 안전 지대' : MAP.name;
   const npc = (MAP.npcs || [])[0], nd = npc ? dist(P, npc) : 99, nearShop = nd < 3.0;
@@ -3553,6 +3594,10 @@ function wearOff() {
   renderInv(); return n;
 }
 $('wearBest').addEventListener('click', wearBest);
+$('zoomIn').addEventListener('click', () => setZoom(ZOOM_USER * 1.1));
+$('zoomOut').addEventListener('click', () => setZoom(ZOOM_USER / 1.1));
+$('zoomReset').addEventListener('click', () => { setZoom(1); $('vZoom').textContent = '100%'; });
+setTimeout(() => { const v = $('vZoom'); if (v) v.textContent = Math.round(ZOOM_USER * 100) + '%'; }, 0);
 $('wearOff').addEventListener('click', wearOff);
 $('btnInv').addEventListener('click', toggleInv);
 $('invClose').addEventListener('click', toggleInv);
@@ -3708,6 +3753,7 @@ const OLD_SAVE_KEY = 'ff_lineage_save_v1';  // 잊혀진 대장간 시절 저장
 const OPT_KEY = 'ff_lineage_opt_v1';
 const OPT = Object.assign({ invMode: 'pause', potHp: 40, potMp: 25, loot: 'all', prio: 'near', qFold: false, mmZoom: 1, cmpAuto: 'on', dev: 'off', vol: { master: 90, bgm: 38, sfx: 100, mon: 70, amb: 50 }, mute: {} }, (() => { try { return JSON.parse(localStorage.getItem(OPT_KEY) || '{}'); } catch (e) { return {}; } })());
 function saveOpt() { try { localStorage.setItem(OPT_KEY, JSON.stringify(OPT)); } catch (e) { /* 저장 불가 */ } }
+ZOOM_USER = clamp(+OPT.zoom || 1, 0.6, 1.8);
 function renderOpt() {
   document.querySelectorAll('#opt .seg').forEach(seg => seg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(OPT[seg.dataset.opt] === b.dataset.v))));
   $('potHp').value = OPT.potHp; $('potMp').value = OPT.potMp;
@@ -3794,6 +3840,8 @@ window.addEventListener('keydown', e => {
   if (e.code === 'Digit4') useSkill(3);
   if (e.code === 'Digit5') useSkill(4);
   if (e.code === 'Digit6') useSkill(5);
+  if ((e.code === 'Equal' || e.code === 'NumpadAdd') && running) setZoom(ZOOM_USER * 1.1);
+  if ((e.code === 'Minus' || e.code === 'NumpadSubtract') && running) setZoom(ZOOM_USER / 1.1);
   if (e.code === 'KeyR' && running && P && !P.dead) { if (useItem('scroll_return')) renderInv(); }
   if (e.code === 'KeyT' && running && P && !P.dead) { if (useItem('scroll_teleport')) renderInv(); }
   if (e.code === 'Digit7') useSkill(6);
@@ -3840,7 +3888,50 @@ function handleTap(cx, cy) {
   for (const w of (WAYPOINTS[MAP.id] || [])) { const s = toScr(w.x, w.y); if (Math.abs(sx - s.x) < 18 && sy < s.y + 6 && sy > s.y - 70) { if (dist(P, w) < 2.2) openWp(w); else { P.target = null; P.goal = safeSpot(w.x + 1, w.y + 1); P.wpGo = w; P.autoHold = 6; } return; } }
   P.target = null; P.talk = false; P.goal = { x: t.x, y: t.y }; P.autoHold = 3;
 }
-cvs.addEventListener('pointerdown', e => handleTap(e.clientX, e.clientY));
+cvs.addEventListener('pointerdown', e => { if (PINCH.pts.size > 1 || PINCH.active) return; handleTap(e.clientX, e.clientY); });
+// ───────── 화면 확대/축소 ─────────
+const ZOOM_MIN = 0.6, ZOOM_MAX = 1.8;
+let zoomSaveT = 0;
+function setZoom(z, quiet) {
+  const nz = clamp(Math.round(z * 100) / 100, ZOOM_MIN, ZOOM_MAX);
+  if (Math.abs(nz - ZOOM_USER) < 0.001) return ZOOM_USER;
+  ZOOM_USER = nz; OPT.zoom = nz; resize();
+  clearTimeout(zoomSaveT); zoomSaveT = setTimeout(saveOpt, 300);
+  if (!quiet) zoomToast();
+  const v = $('vZoom'); if (v) v.textContent = Math.round(nz * 100) + '%';
+  return nz;
+}
+function zoomToast() {
+  let el = $('zoomToast');
+  if (!el) { el = document.createElement('div'); el.id = 'zoomToast'; el.className = 'hud'; document.body.append(el); }
+  el.textContent = `화면 ${Math.round(ZOOM_USER * 100)}%`; el.classList.add('show');
+  clearTimeout(el._h); el._h = setTimeout(() => el.classList.remove('show'), 700);
+}
+// 휴대폰: 두 손가락으로 벌리면 확대, 오므리면 축소(화면·조이스틱 위 어디서든)
+const PINCH = { pts: new Map(), active: false, d0: 0, z0: 1 };
+const onGameLayer = el => el === cvs || (el && el.closest && el.closest('#joyZone'));
+window.addEventListener('pointerdown', e => {
+  if (e.pointerType !== 'touch' || !running || !onGameLayer(e.target)) return;
+  PINCH.pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (PINCH.pts.size === 2) {
+    const [a, b] = [...PINCH.pts.values()];
+    PINCH.active = true; PINCH.d0 = Math.hypot(a.x - b.x, a.y - b.y) || 1; PINCH.z0 = ZOOM_USER;
+    if (JOY.on) { JOY.on = false; JOY.id = null; joyRest(); }   // 조이스틱 이동은 멈춤
+  }
+}, true);
+window.addEventListener('pointermove', e => {
+  if (!PINCH.pts.has(e.pointerId)) return;
+  PINCH.pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (PINCH.active && PINCH.pts.size >= 2) {
+    const [a, b] = [...PINCH.pts.values()];
+    setZoom(PINCH.z0 * Math.hypot(a.x - b.x, a.y - b.y) / PINCH.d0);
+  }
+}, true);
+const pinchEnd = e => { if (!PINCH.pts.delete(e.pointerId)) return; if (PINCH.pts.size === 0) setTimeout(() => { PINCH.active = false; }, 120); };
+window.addEventListener('pointerup', pinchEnd, true);
+window.addEventListener('pointercancel', pinchEnd, true);
+// PC: 마우스 휠
+cvs.addEventListener('wheel', e => { if (!running) return; e.preventDefault(); setZoom(ZOOM_USER * (e.deltaY < 0 ? 1.1 : 1 / 1.1)); }, { passive: false });
 // ── 투명 플로팅 조이스틱(터치 기기): 왼쪽 아래를 누른 자리가 중심, 끌면 8방향 아날로그 이동
 //    짧게 톡 치면(이동 없이 0.25초 이내) 일반 탭으로 처리 → 몬스터 선택·땅 이동도 그대로 됨
 const IS_TOUCH = (window.matchMedia && matchMedia('(pointer: coarse)').matches) || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -3860,7 +3951,7 @@ function joyRest() {
   const zone = $('joyZone'), base = $('joyBase'), knob = $('joyKnob');
   const local = e => { const r = zone.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
   zone.addEventListener('pointerdown', e => {
-    if (!running || JOY.on) return;
+    if (!running || JOY.on || PINCH.active || PINCH.pts.size > 1) return;
     e.preventDefault(); audio();
     try { zone.setPointerCapture(e.pointerId); } catch (er) { /* 일부 브라우저 */ }
     const p = local(e);
@@ -3878,7 +3969,7 @@ function joyRest() {
   });
   const end = e => {
     if (!JOY.on || e.pointerId !== JOY.id) return;
-    const tap = !JOY.moved && performance.now() - JOY.t0 < 250;
+    const tap = !JOY.moved && performance.now() - JOY.t0 < 250 && !PINCH.active;
     JOY.on = false; JOY.id = null;
     joyRest();
     if (tap) handleTap(e.clientX, e.clientY);
@@ -4792,6 +4883,7 @@ function simulate(seconds, step = 1 / 20) {
 }
 // 시험용 손잡이
 window.__game = {
+  setZoom, buildBar, applyStats, get ZOOM() { return ZOOM; }, get ZOOM_USER() { return ZOOM_USER; }, PINCH,
   nickCheck, startReady, get TB() { return TB; },
   MISSING, toggleWorldMap, WORLDMAP, SAVE_KEY, OLD_SAVE_KEY, migrateV1, loadSave, REGIONS, ELEMENTS, regionOf, regionOpen, CLOCK_START,
   WORLD_BOSS, UNIQUE, PASSIVES, XITEMS, topPct, itemStats, useItem, wbAlive, wbSlot, safeSpot, walkable, findPath, handleTap, joy: JOY, joyVec, closeShop, nearNpc, skillIds, dropEquip,
@@ -4809,6 +4901,7 @@ const ASSETS = [
   ...Object.values(META.effects).map(s => s.sheet), ...Object.values(META.props).map(s => s.sheet),
   META.tiles.sheet, META.item_atlas.sheet, META.enchant_icons.sheet, MAT_SHEET,
   ...(META.npcs && META.npcs.npc_drogan ? [META.npcs.npc_drogan.sheet] : []),
+  ...Object.values(META.portraits || {}),
 ];
 preload(ASSETS).then(() => { titleScreen(); showMissing(); requestAnimationFrame(loop); });
 </script>

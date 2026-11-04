@@ -82,7 +82,7 @@ async function boot(browser, opt, cls) {
   console.log('[휴대폰]');
   const m = await boot(browser, { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true }, 1);
   const mb = await m.page.evaluate(() => { const vis = [...document.querySelectorAll('#bar .slot')].filter(x => x.offsetWidth > 0); return { n: vis.length, inside: vis.every(x => { const r = x.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && r.bottom <= innerHeight; }) }; });
-  check(mb.n === 6 && mb.inside, `휴대폰 단축칸 ${mb.n}개(스킬 4·물약 2) 모두 화면 안`, fails);
+  check(mb.n === 2 && mb.inside, `휴대폰 Lv 1 단축칸 ${mb.n}개(스킬은 Lv 2부터 · 물약 2) 모두 화면 안`, fails);
   await m.page.screenshot({ path: `${OUT}/hud_phone.png` });
   await m.page.evaluate(() => { const G = __game, P = G.P; const ks = Object.values(G.GEAR); for (const g of ['common', 'uncommon']) P.bag.push(G.makeEquip(ks.find(d => d.grade === g).key)); });
   await m.page.tap('#btnInv'); await m.page.waitForTimeout(200); await m.page.tap('#bulkBtn'); await m.page.waitForTimeout(150);

@@ -69,6 +69,7 @@ function check(cond, msg, fails) { if (!cond) fails.push(msg); console.log((cond
       check(shots > 0, `해골 궁수 원거리 공격 ${shots}발`, fails);
     }
     // 스킬 4종 (MP·재사용 대기 무시하고 하나씩)
+    await page.evaluate(() => { const G = __game; G.P.lv = Math.max(G.P.lv, 14); G.applyStats && G.applyStats(); });   // 스킬은 Lv 2·5·9·14 에 배움
     for (let i = 0; i < 4; i++) {
       await page.evaluate((i) => { const P = __game.P; P.mp = P.maxmp; P.hp = P.maxhp; P.cds = {}; const m = __game.nearestMob(20); if (m) { P.x = m.x - 1.2; P.y = m.y; } __game.useSkill(i); }, i);
       await page.waitForTimeout(250);
