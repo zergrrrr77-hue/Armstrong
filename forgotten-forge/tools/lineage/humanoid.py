@@ -490,14 +490,8 @@ def _class_knight():
             it.append(Item(S.capsule(a0, a0 + HR @ V(ox * 0.25 * s, 1.6 * s, -ln * s), 1.0 * s, 0.4 * s), 'hair'))
         it.append(Item(S.ellipsoid(H + HR @ V(0, -1.4 * s, -1.2 * s), V(4.2 * s, 3.4 * s, 3.6 * s), HR), 'hair'))
         it += pauldrons(r, 'steel', 3.9, trim='gold')
-        it += cape(r, p, 'redcloth', length=30, width=6.5, split=True)
-        # 목에 두른 붉은 스카프 + 뒤로 날리는 자락
+        # 망토 없음(사용자 요청 2026-11-04): 목에 두른 붉은 스카프만 남김
         it.append(Item(S.torus(r.neck - r.up * 1.2 * s, r.rot, 3.4 * s, 1.5 * s), 'redcloth'))
-        back = -r.fwd
-        t0 = r.neck - r.up * 1.0 * s + back * 3.0 * s + r.right * 1.5 * s
-        flow = math.radians(20 + p.cape * 1.6)
-        t1 = t0 + (back * math.sin(flow) - r.up * math.cos(flow)) * 7 * s + r.right * 1.5 * s
-        it.append(Item(S.capsule(t0, t1, 1.3 * s, 0.7 * s), 'redcloth'))
         it += skirt(r, 'mail', 5.4, 6.6, 9.0)
         # 금 테두리 흉갑 장식
         it.append(Item(S.box(r.chest + r.fwd * 4.3 * s + r.up * 0.6 * s, V(4.6 * s, 0.35 * s, 0.45 * s), r.rot, 0.1), 'gold'))

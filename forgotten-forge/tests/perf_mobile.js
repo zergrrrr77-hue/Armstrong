@@ -62,7 +62,7 @@ async function scriptCost(page) {
     const mp0 = await page.evaluate(() => { const P = __game.P; P.mp = P.maxmp; P.cds = {}; P.casting = null; return __game.fxs.length; });
     await press('#bar .slot:nth-child(1)'); check(await page.evaluate(() => !!__game.P.casting || __game.fxs.length > 0), '스킬 1 버튼');
     const pot = await page.evaluate(() => { __game.OPT.potHp = 0; __game.P.hp = 100; return __game.P.inv.pot_red; });
-    await press('#bar .slot:nth-child(6)'); check(await page.evaluate(n => __game.P.inv.pot_red === n - 1, pot), '체력 물약 버튼');
+    await press('#bar button.slot:nth-last-of-type(2)'); check(await page.evaluate(n => __game.P.inv.pot_red === n - 1, pot), '체력 물약 버튼');
     await page.evaluate(() => { __game.OPT.potHp = 40; });
     // 터치 크기: 스킬 칸 44px 이상
     const sz = await page.evaluate(() => { const r = document.querySelector('#bar .slot').getBoundingClientRect(); return Math.min(r.width, r.height); });

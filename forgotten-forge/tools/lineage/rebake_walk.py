@@ -18,14 +18,17 @@ HUMANOID = ['knight', 'elf', 'mage', 'orc', 'skeleton', 'goblin', 'skeleton_arch
 
 
 def main():
-    names = sys.argv[1:] or HUMANOID
+    args = sys.argv[1:]
+    every = '--all' in args          # --all: 걷기만이 아니라 시트의 모든 동작을 다시 굽기
+    names = [a for a in args if a != '--all'] or HUMANOID
     mp = os.path.join(B.OUT, 'meta.json')
     meta = json.load(open(mp, encoding='utf-8'))
     tasks = []
     for nm in names:
         grp = 'characters' if nm in meta['characters'] else 'monsters'
-        st, n = meta[grp][nm]['anims']['walk']
-        tasks += [(nm, d, 'walk', f, n, None) for d in range(8) for f in range(n)]
+        for an, (st, n) in meta[grp][nm]['anims'].items():
+            if every or an == 'walk':
+                tasks += [(nm, d, an, f, n, None) for d in range(8) for f in range(n)]
     with Pool(os.cpu_count() or 2) as pool:
         res = {k: Image.open(io.BytesIO(v)).convert('RGBA') for k, v in pool.imap_unordered(B.render_frame, tasks, chunksize=4)}
     for nm in names:
@@ -33,17 +36,19 @@ def main():
         s = meta[grp][nm]
         path = os.path.join(B.OUT, s['sheet'])
         sheet = Image.open(path).convert('RGBA')
-        st, n = s['anims']['walk']
-        for d in range(8):
+        for an, (st, n) in s['anims'].items():
+          if not (every or an == 'walk'):
+              continue
+          for d in range(8):
             for f in range(n):
                 x, y = (st + f) * s['fw'], d * s['fh']
                 sheet.paste((0, 0, 0, 0), (x, y, x + s['fw'], y + s['fh']))
-                fr = res[(nm, d, 'walk', f, 0)]
+                fr = res[(nm, d, an, f, 0)]
                 if fr.size != (s['fw'], s['fh']):
                     sys.exit(f'{nm}: 프레임 크기 다름 {fr.size} != {(s["fw"], s["fh"])}')
                 sheet.alpha_composite(fr, (x, y))
         sheet.save(path, optimize=True)
-        print('walk', nm, flush=True)
+        print('baked', nm, flush=True)
 
 
 if __name__ == '__main__':
