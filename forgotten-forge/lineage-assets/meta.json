@@ -245,6 +245,326 @@
     "skill_meteor",
     "skill_pillar"
    ]
+  },
+  "knight_t2": {
+   "label": "기사 · 아르델 기사단",
+   "sheet": "characters/knight_t2.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 61,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ],
+    "attack": [
+     14,
+     8
+    ],
+    "hurt": [
+     22,
+     3
+    ],
+    "death": [
+     25,
+     6
+    ],
+    "skill_spin": [
+     31,
+     8
+    ],
+    "skill_slam": [
+     39,
+     8
+    ],
+    "skill_guard": [
+     47,
+     6
+    ],
+    "skill_bless": [
+     53,
+     8
+    ]
+   },
+   "skills": [
+    "skill_spin",
+    "skill_slam",
+    "skill_guard",
+    "skill_bless"
+   ],
+   "tier_of": "knight"
+  },
+  "knight_t3": {
+   "label": "기사 · 왕실 기사",
+   "sheet": "characters/knight_t3.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 61,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ],
+    "attack": [
+     14,
+     8
+    ],
+    "hurt": [
+     22,
+     3
+    ],
+    "death": [
+     25,
+     6
+    ],
+    "skill_spin": [
+     31,
+     8
+    ],
+    "skill_slam": [
+     39,
+     8
+    ],
+    "skill_guard": [
+     47,
+     6
+    ],
+    "skill_bless": [
+     53,
+     8
+    ]
+   },
+   "skills": [
+    "skill_spin",
+    "skill_slam",
+    "skill_guard",
+    "skill_bless"
+   ],
+   "tier_of": "knight"
+  },
+  "knight_t4": {
+   "label": "기사 · 별의 기사",
+   "sheet": "characters/knight_t4.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 61,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ],
+    "attack": [
+     14,
+     8
+    ],
+    "hurt": [
+     22,
+     3
+    ],
+    "death": [
+     25,
+     6
+    ],
+    "skill_spin": [
+     31,
+     8
+    ],
+    "skill_slam": [
+     39,
+     8
+    ],
+    "skill_guard": [
+     47,
+     6
+    ],
+    "skill_bless": [
+     53,
+     8
+    ]
+   },
+   "skills": [
+    "skill_spin",
+    "skill_slam",
+    "skill_guard",
+    "skill_bless"
+   ],
+   "tier_of": "knight"
+  },
+  "elf_t2": {
+   "label": "요정 · 엘라시아 순찰자",
+   "sheet": "characters/elf_t2.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 63,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ],
+    "attack": [
+     14,
+     8
+    ],
+    "hurt": [
+     22,
+     3
+    ],
+    "death": [
+     25,
+     6
+    ],
+    "skill_wind": [
+     31,
+     8
+    ],
+    "skill_volley": [
+     39,
+     8
+    ],
+    "skill_whirl": [
+     47,
+     8
+    ],
+    "skill_fairy": [
+     55,
+     8
+    ]
+   },
+   "skills": [
+    "skill_wind",
+    "skill_volley",
+    "skill_whirl",
+    "skill_fairy"
+   ],
+   "tier_of": "elf"
+  },
+  "elf_t3": {
+   "label": "요정 · 정령 궁수",
+   "sheet": "characters/elf_t3.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 63,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ],
+    "attack": [
+     14,
+     8
+    ],
+    "hurt": [
+     22,
+     3
+    ],
+    "death": [
+     25,
+     6
+    ],
+    "skill_wind": [
+     31,
+     8
+    ],
+    "skill_volley": [
+     39,
+     8
+    ],
+    "skill_whirl": [
+     47,
+     8
+    ],
+    "skill_fairy": [
+     55,
+     8
+    ]
+   },
+   "skills": [
+    "skill_wind",
+    "skill_volley",
+    "skill_whirl",
+    "skill_fairy"
+   ],
+   "tier_of": "elf"
   }
  },
  "monsters": {

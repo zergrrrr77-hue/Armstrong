@@ -19,7 +19,11 @@ OUT_SIZE = 96
 
 
 def portrait(name):
-    ent = B.entities()[name]
+    ents = B.entities()
+    if name not in ents:                       # 외형 단계(knight_t2 등)
+        import bake_tiers as BT
+        ents = BT.ENTS
+    ent = ents[name]
     it, mats, M, t = B.build_scene(ent, 'idle', 0, 6)
     W, H, ax, ay = ent['frame']
     im = S.render(it, mats, W * K, H * K, ax * K, ay * K, yaw=-25, scale=ent['scale'] * K, shadows=False)
@@ -53,13 +57,15 @@ def main():
     mp = os.path.join(B.OUT, 'meta.json')
     meta = json.load(open(mp, encoding='utf-8'))
     meta['portraits'] = {}
-    for name in ('knight', 'elf', 'mage'):
+    for name in [c + s for c in ('knight', 'elf', 'mage') for s in ('', '_t2', '_t3', '_t4')]:
         im = portrait(name)
         rel = f'ui/portrait_{name}.png'
         im.save(os.path.join(B.OUT, rel), optimize=True)
         meta['portraits'][name] = rel
         print(name, im.size, flush=True)
-    json.dump(meta, open(mp, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    cur = json.load(open(mp, encoding='utf-8'))      # 다른 스크립트가 그사이 바꾼 내용 보존
+    cur['portraits'] = meta['portraits']
+    json.dump(cur, open(mp, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 
 
 if __name__ == '__main__':

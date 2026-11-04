@@ -684,6 +684,9 @@ details.info th { color: var(--gold); font-weight: 500; }
   color: #fff3d8; font: 800 14px var(--num); opacity: 0; transition: opacity .2s; pointer-events: none !important; z-index: 40; }
 #zoomToast.show { opacity: 1; }
 .zoomseg button { min-width: 44px; font-size: 15px; font-weight: 800; }
+.looksum { font: 12px var(--body); color: #e8e0cc; background: rgba(14,13,12,.6); border: 1px solid #8e897f; border-radius: 3px; padding: 6px 8px; line-height: 1.5; }
+.looksum b { color: #ffe08a; } .looksum .note { margin-top: 2px; font-size: 11px; color: #b4aea2; }
+#inv .doll { grid-template-rows: 380px auto auto; }
 /* 가방: 일괄 판매 · 착용 탭 */
 .bulkbtn { min-height: 30px; padding: 0 12px; border-radius: 3px; cursor: pointer; font-weight: 800; font-size: 12px; color: #ffe7a8; background: linear-gradient(#6a5a2a, #3e3416); border: 1px solid #d8bc6a; }
 .bulkbtn[aria-pressed="true"] { background: linear-gradient(#a8822a, #6a4e14); color: #fff6d8; box-shadow: 0 0 8px rgba(240,200,110,.5); }
@@ -862,6 +865,7 @@ details.info th { color: var(--gold); font-weight: 500; }
       <canvas id="dollCv" width="160" height="200"></canvas>
       <div class="dslots" id="dslots"></div>
       <div class="dsum" id="dsum"></div>
+      <div class="looksum" id="lookSum"></div>
     </div>
     <div class="store">
       <div class="sbar2">
@@ -880,6 +884,7 @@ details.info th { color: var(--gold); font-weight: 500; }
   <div class="detail2" id="detail"><div class="dempty">아이템이나 장비 칸을 누르면 정보와 착용·강화 버튼이 여기에 나옵니다. 가방의 장비를 두 번 누르면 바로 착용합니다.</div></div>
   <div class="tabpane hidden wpad" data-pane="wear">
     <div class="weartop"><button type="button" id="wearBest">가장 좋은 장비 자동 착용</button><button type="button" id="wearOff">모두 해제</button></div>
+    <div class="looksum" id="lookSum2"></div>
     <div class="sect">착용 중</div>
     <div class="wlist" id="wearList"></div>
     <div class="sect">가방에서 착용할 수 있는 장비</div>
@@ -2530,9 +2535,10 @@ function drawSprite(e, sx, sy) {
     f = Math.floor(e.f * s.anims[anim][1] / Math.max(1, animLen(e, e.anim)));
   } else if (e.d && e.d.draw) k = e.d.draw;
   else if (e.scale) k = e.scale;
+  let im = img(s.sheet);
+  if ((!im.complete || !im.naturalWidth) && s.tier_of) { s = META[e.group][s.tier_of]; im = img(s.sheet); }
   const [start, n] = s.anims[anim] || s.anims.idle;
   f = Math.min(f, n - 1);
-  const im = img(s.sheet);
   if (!im.complete || !im.naturalWidth) return;
   const x = Math.round(sx - s.ax * k), y = Math.round(sy - s.ay * k), w = Math.round(s.fw * k), h = Math.round(s.fh * k);
   ctx.drawImage(im, (start + f) * s.fw, e.dir * s.fh, s.fw, s.fh, x, y, w, h);
@@ -3073,7 +3079,7 @@ function drawOrb() {
   octx.save(); octx.beginPath(); octx.arc(c, c, IR, 0, Math.PI * 2); octx.clip();
   const g = octx.createRadialGradient(c, c - 20, 6, c, c, IR); g.addColorStop(0, '#5a5752'); g.addColorStop(1, '#1c1b19');
   octx.fillStyle = g; octx.fillRect(0, 0, S, S);
-  const pr = META.portraits && META.portraits[P.cls], pim = pr && img(pr);
+  const prs = META.portraits || {}, pr0 = prs[P.sheet] && img(prs[P.sheet]), pr = pr0 && pr0.naturalWidth ? prs[P.sheet] : prs[P.cls], pim = pr && img(pr);   // 외형 단계 초상 → 없으면 기본 초상
   if (pim && pim.complete && pim.naturalWidth) { octx.imageSmoothingEnabled = false; octx.drawImage(pim, c - IR, c - IR + 4, IR * 2, IR * 2); }
   else { const sh = META.characters[P.cls]; octx.imageSmoothingEnabled = false; octx.drawImage(img(sh.sheet), sh.ax - 15, sh.ay - 52, 30, 30, c - 54, c - 50, 108, 108); }
   if (P.hp / P.maxhp < 0.3) { octx.fillStyle = `rgba(160,20,20,${0.25 + 0.15 * Math.sin(now * 8)})`; octx.fillRect(0, 0, S, S); }   // 체력이 낮으면 붉게 깜빡임
@@ -3198,7 +3204,7 @@ function slotAllowed(slot) { const s2 = SLOTS.find(x => x.id === slot); return !
 let dollT = 0;
 function drawDoll() {
   if ($('inv').classList.contains('hidden')) return;
-  const cv = $('dollCv'), c = cv.getContext('2d'), sh = META.characters[P.cls];
+  const cv = $('dollCv'), c = cv.getContext('2d'), sh0 = META.characters[P.sheet] || META.characters[P.cls], sh = img(sh0.sheet).naturalWidth ? sh0 : META.characters[P.cls];
   const [st, n] = sh.anims.idle;
   c.clearRect(0, 0, cv.width, cv.height); c.imageSmoothingEnabled = false;
   c.fillStyle = 'rgba(0,0,0,.4)'; c.beginPath(); c.ellipse(80, 176, 40, 11, 0, 0, Math.PI * 2); c.fill();
@@ -3278,6 +3284,7 @@ function renderInv() {
   const used = items.length + cons.length;
   for (let i = used; i < Math.max(24, Math.ceil(used / 8) * 8); i++) { const d2 = document.createElement('div'); d2.className = 'cell blank'; g.append(d2); }
   renderDetail(); renderBulk(); renderWear();
+  const lt = lookText(); $('lookSum').innerHTML = lt; $('lookSum2').innerHTML = lt + '<div class="note">갑옷은 3배로 계산 · 투구·망토·장갑·장화' + (P.cls === 'knight' ? '·방패' : '') + '는 1배. 2.5 · 3.5 · 4.5 점에서 모습이 바뀝니다.</div>';
 }
 function renderDetail() {
   const det = $('detail');
@@ -3823,7 +3830,44 @@ function loadSave() {
   } catch (e) { saveNote = '예전 저장을 읽지 못했습니다(예전 저장은 그대로 보관)'; }
   return null;
 }
-function applyStats() { P.px = pxTotals(); const q = EQS(); P.maxhp = Math.round((P.c.hp * (1 + (P.lv - 1) * 0.12) + bonus('con') * 10 + q.hp) * (1 + collBonus('hp'))); P.maxmp = Math.round(P.c.mp * (1 + (P.lv - 1) * 0.1) + bonus('int') * 6 + q.mp); P.hp = Math.min(P.hp, P.maxhp); P.mp = Math.min(P.mp, P.maxmp); }
+// ───────── 장비 외형 4단계(장비 점수제) ─────────
+const LOOK_SCORE = { common: 1, uncommon: 2, rare: 3, heroic: 4, legend: 5, unique: 6 };
+const LOOK_SLOTS = ['helm', 'cloak', 'gloves', 'boots'];
+const LOOK_CUTS = [2.5, 3.5, 4.5];
+const LOOK_NAMES = { knight: ['견습 기사', '아르델 기사단', '왕실 기사', '별의 기사'], elf: ['숲의 견습 궁수', '엘라시아 순찰자', '정령 궁수', '별빛 정령'],
+  mage: ['견습 마법사', '연구소 마법사', '궁정 마법사', '별의 현자'] };
+const gradeOfSlot = s => { const e = P.eq[s]; if (!e || e.none) return null; const d = equipDef(e.key); return d ? d.grade : null; };
+function lookScore() {
+  if (!P || !P.eq) return 0;
+  const shield = P.cls === 'knight';
+  let total = (LOOK_SCORE[gradeOfSlot('armor')] || 0) * 3 + LOOK_SLOTS.reduce((a, s) => a + (LOOK_SCORE[gradeOfSlot(s)] || 0), 0);
+  if (shield) total += LOOK_SCORE[gradeOfSlot('shield')] || 0;
+  return total / (shield ? 8 : 7);
+}
+const lookTierOf = sc => 1 + LOOK_CUTS.filter(c => sc >= c).length;
+function lookInfo() {
+  const sc = lookScore(), tier = lookTierOf(sc), next = LOOK_CUTS[tier - 1];
+  return { sc, tier, name: (LOOK_NAMES[P.cls] || [])[tier - 1] || '', need: next != null ? next - sc : 0, next: next != null ? (LOOK_NAMES[P.cls] || [])[tier] : null };
+}
+// 단계 시트 이름(없거나 아직 안 구웠으면 기본 시트)
+const lookSheet = tier => { const k = `${P.cls}_t${tier}`; return tier > 1 && META.characters[k] ? k : P.cls; };
+function updateLook(quiet) {
+  if (!P) return;
+  const info = lookInfo(), old = P.lookTier || 1;
+  P.lookTier = info.tier; P.sheet = lookSheet(info.tier);
+  img(META.characters[P.sheet].sheet);
+  if (!quiet && running && info.tier !== old) {
+    const up = info.tier > old;
+    banner(`외형 ${up ? '변화' : '되돌림'}: ${info.name}`, `장비 점수 ${info.sc.toFixed(2)} · ${info.tier}단계`);
+    log(`외형이 ${info.tier}단계 「${info.name}」(으)로 바뀌었습니다. (장비 점수 ${info.sc.toFixed(2)})`, 'sys');
+    if (up) { vfx.push({ k: 'lvup', x: P.x, y: P.y, t: 0, life: 1.4 }); vfx.push({ k: 'beam', x: P.x, y: P.y, t: 0, life: 1.2, col: GRADE_RGB[['common', 'rare', 'heroic', 'legend'][info.tier - 1]] }); sfx('enchant_ok', { gain: 0.6 }); }
+  }
+}
+function lookText() {
+  const i = lookInfo();
+  return `외형 <b>${i.tier}단계 「${i.name}」</b> · 장비 점수 <b>${i.sc.toFixed(2)}</b>` + (i.next ? ` · 「${i.next}」까지 <b>${i.need.toFixed(2)}</b>` : ' · 최고 단계');
+}
+function applyStats() { updateLook(); P.px = pxTotals(); const q = EQS(); P.maxhp = Math.round((P.c.hp * (1 + (P.lv - 1) * 0.12) + bonus('con') * 10 + q.hp) * (1 + collBonus('hp'))); P.maxmp = Math.round(P.c.mp * (1 + (P.lv - 1) * 0.1) + bonus('int') * 6 + q.mp); P.hp = Math.min(P.hp, P.maxhp); P.mp = Math.min(P.mp, P.maxmp); }
 setInterval(save, 5000);
 window.addEventListener('beforeunload', save);
 document.addEventListener('visibilitychange', () => {
@@ -4259,7 +4303,7 @@ function startGame(cls, sv, nick) {
   for (const [k, v] of [['equests', {}], ['rel', {}], ['flags', {}], ['choices', {}], ['regions', { ardel: true }]]) if (!STATE[k] || typeof STATE[k] !== 'object') STATE[k] = v;
   if (typeof STATE.clock !== 'number' || !isFinite(STATE.clock)) STATE.clock = CLOCK_START;
   if (STATE.migratedFrom === 1) { delete STATE.migratedFrom; setTimeout(() => log('잊혀진 대장간의 진행을 에르덴으로 옮겼습니다. 이미 이룬 목표는 완료로 표시됩니다.', 'sys'), 300); }
-  PET = null; applyStats(); devChanged();
+  PET = null; P.lookTier = 1; updateLook(true); applyStats(); devChanged();
   // 캐릭터 이름: 새로 시작하면 입력한 이름, 이어하기면 저장된 이름(예전 저장은 직업 이름)
   P.name = (sv && sv.name && nickCheck(sv.name).ok) ? sv.name : (nick && nickCheck(nick).ok ? nickCheck(nick).s : CLASSES[cls].label);
   $('pname').textContent = P.name; $('pcls').textContent = CLASSES[cls].label; $('invName').textContent = P.name;
@@ -4883,6 +4927,7 @@ function simulate(seconds, step = 1 / 20) {
 }
 // 시험용 손잡이
 window.__game = {
+  lookScore, lookInfo, updateLook, LOOK_CUTS, EQUIP,
   setZoom, buildBar, applyStats, get ZOOM() { return ZOOM; }, get ZOOM_USER() { return ZOOM_USER; }, PINCH,
   nickCheck, startReady, get TB() { return TB; },
   MISSING, toggleWorldMap, WORLDMAP, SAVE_KEY, OLD_SAVE_KEY, migrateV1, loadSave, REGIONS, ELEMENTS, regionOf, regionOpen, CLOCK_START,
