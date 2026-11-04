@@ -565,6 +565,262 @@
     "skill_fairy"
    ],
    "tier_of": "elf"
+  },
+  "elf_t4": {
+   "label": "요정 · 별빛 정령",
+   "sheet": "characters/elf_t4.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 63,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ],
+    "attack": [
+     14,
+     8
+    ],
+    "hurt": [
+     22,
+     3
+    ],
+    "death": [
+     25,
+     6
+    ],
+    "skill_wind": [
+     31,
+     8
+    ],
+    "skill_volley": [
+     39,
+     8
+    ],
+    "skill_whirl": [
+     47,
+     8
+    ],
+    "skill_fairy": [
+     55,
+     8
+    ]
+   },
+   "skills": [
+    "skill_wind",
+    "skill_volley",
+    "skill_whirl",
+    "skill_fairy"
+   ],
+   "tier_of": "elf"
+  },
+  "mage_t2": {
+   "label": "마법사 · 연구소 마법사",
+   "sheet": "characters/mage_t2.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 63,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ],
+    "attack": [
+     14,
+     8
+    ],
+    "hurt": [
+     22,
+     3
+    ],
+    "death": [
+     25,
+     6
+    ],
+    "skill_bolt": [
+     31,
+     8
+    ],
+    "skill_ice": [
+     39,
+     8
+    ],
+    "skill_meteor": [
+     47,
+     8
+    ],
+    "skill_pillar": [
+     55,
+     8
+    ]
+   },
+   "skills": [
+    "skill_bolt",
+    "skill_ice",
+    "skill_meteor",
+    "skill_pillar"
+   ],
+   "tier_of": "mage"
+  },
+  "mage_t3": {
+   "label": "마법사 · 궁정 마법사",
+   "sheet": "characters/mage_t3.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 63,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ],
+    "attack": [
+     14,
+     8
+    ],
+    "hurt": [
+     22,
+     3
+    ],
+    "death": [
+     25,
+     6
+    ],
+    "skill_bolt": [
+     31,
+     8
+    ],
+    "skill_ice": [
+     39,
+     8
+    ],
+    "skill_meteor": [
+     47,
+     8
+    ],
+    "skill_pillar": [
+     55,
+     8
+    ]
+   },
+   "skills": [
+    "skill_bolt",
+    "skill_ice",
+    "skill_meteor",
+    "skill_pillar"
+   ],
+   "tier_of": "mage"
+  },
+  "mage_t4": {
+   "label": "마법사 · 별의 현자",
+   "sheet": "characters/mage_t4.png",
+   "fw": 112,
+   "fh": 104,
+   "ax": 56,
+   "ay": 70,
+   "cols": 63,
+   "rows": [
+    "S",
+    "SE",
+    "E",
+    "NE",
+    "N",
+    "NW",
+    "W",
+    "SW"
+   ],
+   "anims": {
+    "idle": [
+     0,
+     6
+    ],
+    "walk": [
+     6,
+     8
+    ],
+    "attack": [
+     14,
+     8
+    ],
+    "hurt": [
+     22,
+     3
+    ],
+    "death": [
+     25,
+     6
+    ],
+    "skill_bolt": [
+     31,
+     8
+    ],
+    "skill_ice": [
+     39,
+     8
+    ],
+    "skill_meteor": [
+     47,
+     8
+    ],
+    "skill_pillar": [
+     55,
+     8
+    ]
+   },
+   "skills": [
+    "skill_bolt",
+    "skill_ice",
+    "skill_meteor",
+    "skill_pillar"
+   ],
+   "tier_of": "mage"
   }
  },
  "monsters": {
@@ -3030,7 +3286,16 @@
  },
  "portraits": {
   "knight": "ui/portrait_knight.png",
+  "knight_t2": "ui/portrait_knight_t2.png",
+  "knight_t3": "ui/portrait_knight_t3.png",
+  "knight_t4": "ui/portrait_knight_t4.png",
   "elf": "ui/portrait_elf.png",
-  "mage": "ui/portrait_mage.png"
+  "elf_t2": "ui/portrait_elf_t2.png",
+  "elf_t3": "ui/portrait_elf_t3.png",
+  "elf_t4": "ui/portrait_elf_t4.png",
+  "mage": "ui/portrait_mage.png",
+  "mage_t2": "ui/portrait_mage_t2.png",
+  "mage_t3": "ui/portrait_mage_t3.png",
+  "mage_t4": "ui/portrait_mage_t4.png"
  }
 }
