@@ -775,6 +775,35 @@ ATK_BLADE = [
 LEG_KEYS = ('lhip', 'rhip', 'lhip_side', 'rhip_side', 'lknee', 'rknee')
 
 
+def _sstep(u):
+    u = min(1.0, max(0.0, u))
+    return u * u * (3 - 2 * u)
+
+
+def gait_leg(phi, fwd=24.0, back=8.0, knee_swing=52.0, duty=0.42):
+    """다리 한쪽의 (고관절 각, 무릎 각). phi: 0=발뒤꿈치 닿음(앞으로 가장 멀리) → 1 한 바퀴.
+    참고: 달리기 보행 자료(고관절 약 55° 굽힘 ~ 10° 폄, 무릎은 공중에서만 크게 접힘)를
+    작은 도트 캐릭터에 맞게 줄임 — 앞으로는 크게, 뒤로는 조금만 → 다리가 가랑이처럼 쩍 벌어지지 않음.
+    - 딛는 구간(0~duty): 고관절이 앞→뒤로 지나가며 몸을 밀고, 무릎은 착지 충격에 살짝 굽혔다 폄
+    - 공중 구간(duty~1): 뒷발이 땅을 차고 올라오며 무릎이 접히고(발이 엉덩이 쪽), 앞으로 뻗어 다시 착지"""
+    phi %= 1.0
+    if phi < duty:
+        u = phi / duty
+        hip = fwd + (-back - fwd) * _sstep(u)
+        knee = 10 + 12 * u + 14 * math.sin(math.pi * u)          # 착지 흡수 → 차고 나가기 직전
+    else:
+        u = (phi - duty) / (1 - duty)
+        hip = -back + (fwd + back) * _sstep(u * 1.08)            # 조금 일찍 앞으로 뻗어 착지 준비
+        knee = 22 * (1 - u) + 10 * u + knee_swing * math.sin(math.pi * min(1.0, u * 1.15)) ** 1.3
+    return hip, knee
+
+
+def gait_bob(t):
+    """몸 위아래: 한 걸음(반 바퀴)에 한 번, 착지 직후 가장 낮고 다리가 엇갈릴 때 가장 높음 — 사인 대신 세모꼴 파형."""
+    w = (t * 2 + 0.85) % 1.0
+    return 1 - abs(2 * w - 1)
+
+
 def pose_for(kind, anim, f, n):
     """kind: 'sword' | 'axe' | 'great' | 'bow' | 'staff'"""
     t = f / n
@@ -798,38 +827,37 @@ def pose_for(kind, anim, f, n):
         return Pose(**p)
 
     if anim == 'walk' and kind == 'blade':
-        # 참고 시트의 이동: 상체를 깊이 숙이고, 검은 뒤로 낮게 끌며, 망토는 크게 휘날림
+        # 기사 달리기: 상체를 앞으로 숙이고 검은 뒤로 낮게 끎. 다리는 보행 자료 곡선(앞 크게·뒤 작게), 발은 몸 밑으로
         sw = math.sin(ph)
         cw = math.cos(ph)
-        lift_l = max(0.0, cw) ** 1.3
-        lift_r = max(0.0, -cw) ** 1.3
-        contact = 1 - abs(cw)
-        p = dict(lhip=6 + 34 * sw, rhip=6 - 34 * sw,
-                 lknee=26 + 50 * lift_l + 10 * contact, rknee=26 + 50 * lift_r + 10 * contact,
-                 lhip_side=6, rhip_side=6, lean=20, twist=-8 * sw + 6, roll=2.5 * cw, head=-12 + 2 * contact,
-                 rsh=-38 - 8 * sw, rab=22, rel=12, wpn=-30, wpn_side=18,
-                 lsh=30 - 26 * sw, lab=16, lel=40, cape=15 + 5 * abs(cw), bob=0.4 * abs(math.sin(ph)))
+        lh, lk = gait_leg(t + 0.75, fwd=26, back=10, knee_swing=56)
+        rh, rk = gait_leg(t + 0.25, fwd=26, back=10, knee_swing=56)
+        p = dict(lhip=lh, rhip=rh, lknee=lk, rknee=rk,
+                 lhip_side=1.5, rhip_side=1.5, lean=14, twist=-7 * sw + 5, roll=1.6 * cw, head=-8,
+                 rsh=-34 - 10 * sw, rab=18, rel=14, wpn=-28, wpn_side=16,
+                 lsh=26 - 30 * sw, lab=12, lel=42, cape=13 + 5 * abs(cw), bob=0.15 + 0.55 * gait_bob(t))
         return Pose(**p)
 
     if anim == 'walk':
-        # 무기를 겨눈 채 낮은 자세로 걷기: 보폭은 넓고, 디딜 때 무릎으로 충격 흡수
+        # 가볍게 달리기: 보행 자료 곡선(앞 크게·뒤 작게) + 발은 몸 밑 가운데로, 팔은 다리와 반대로
         sw = math.sin(ph)
         cw = math.cos(ph)
-        lift_l = max(0.0, cw) ** 1.3
-        lift_r = max(0.0, -cw) ** 1.3
-        contact = 1 - abs(cw)
+        lh, lk = gait_leg(t + 0.75)
+        rh, rk = gait_leg(t + 0.25)
         p = dict(base)
-        p.update(lhip=4 + 28 * sw, rhip=-4 - 28 * sw,
-                 lknee=16 + 42 * lift_l + 8 * contact, rknee=16 + 42 * lift_r + 8 * contact,
-                 lhip_side=5, rhip_side=5,
-                 lean=base['lean'] + 1, twist=base['twist'] * 0.5 - 7 * sw, roll=2.2 * cw, head=1.5 * contact,
-                 head_yaw=base.get('head_yaw', 0) * 0.5, cape=9 + 5 * abs(cw))
+        p.update(lhip=lh, rhip=rh, lknee=lk, rknee=rk,
+                 lhip_side=1.5, rhip_side=1.5,
+                 lean=base['lean'] + 4, twist=base['twist'] * 0.4 - 6 * sw, roll=1.6 * cw, head=1.0,
+                 head_yaw=base.get('head_yaw', 0) * 0.4, cape=9 + 5 * abs(cw))
         if kind == 'staff':
-            p['lsh'] = base['lsh'] - 22 * sw
+            p['lsh'] = base['lsh'] - 26 * sw
+            p['lel'] = base.get('lel', 30) + 10
         elif kind != 'bow':
-            p['lsh'] = base['lsh'] - 8 * sw
-        p['rsh'] = base['rsh'] + 10 * sw
-        p['bob'] = 0.3 * abs(math.sin(ph))
+            p['lsh'] = base['lsh'] - 10 * sw
+        else:
+            p['lsh'] = base['lsh'] - 6 * sw
+        p['rsh'] = base['rsh'] + 14 * sw
+        p['bob'] = 0.15 + 0.55 * gait_bob(t)
         return Pose(**p)
 
     if anim == 'attack':
